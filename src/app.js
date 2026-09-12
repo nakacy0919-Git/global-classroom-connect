@@ -40,9 +40,9 @@ import {
 } from './services/registrationService.js';
 
 import {
-  signIn
+  signIn,
+  getCurrentProfile,
 } from './services/authService.js';
-
 
 import {
   Sidebar
@@ -101,7 +101,11 @@ const routes = {
   login: LoginPage,
 };
 
-
+const publicRoutes =
+  new Set([
+    'login',
+    'registration',
+  ]);
 
 
 function getCurrentRoute() {
@@ -201,7 +205,7 @@ async function renderCurrentPage(
 
 function bindUiEvents() {
 
-  // =========================================================
+    // =========================================================
   // Round Overview
   // =========================================================
 
@@ -216,19 +220,6 @@ function bindUiEvents() {
 
 
   // =========================================================
-  // Event Management
-  // =========================================================
-
-  bindEventManagement({
-    renderApp,
-  });
-  // =========================================================
-  // Room Builder
-  // =========================================================
-
-  bindRoomBuilder();
-
-   // =========================================================
   // Event Management
   // =========================================================
 
@@ -3098,14 +3089,10 @@ function bindUiEvents() {
 
 
 
-
 export async function renderApp() {
-
 
   const route =
     getCurrentRoute();
-
-
 
 
   const app =
@@ -3114,37 +3101,71 @@ export async function renderApp() {
     );
 
 
+  if (!app) {
+    return;
+  }
+
+
+  // =========================================================
+  // Route Access Control
+  // =========================================================
+
+  const isPublicRoute =
+    publicRoutes.has(
+      route
+    );
 
 
   if (
-    !app
+    !isPublicRoute
   ) {
 
-    return;
+    const profile =
+      await getCurrentProfile();
+
+
+    if (
+      !profile ||
+      profile.role !== 'host'
+    ) {
+
+      window.location.hash =
+        '#/login';
+
+
+      return;
+
+    }
 
   }
 
 
-
+  // =========================================================
+  // Public Layout
+  // =========================================================
 
   if (
-    route ===
-    'login'
+    route === 'login' ||
+    route === 'registration'
   ) {
-
 
     app.innerHTML = `
 
       <main
         id="page-content"
-        class="page-content"
+        class="page-content public-page-content"
       ></main>
 
     `;
 
+  }
 
-  } else {
 
+  // =========================================================
+  // Host Layout
+  // =========================================================
+
+  else {
 
     app.innerHTML = `
 
@@ -3180,21 +3201,14 @@ export async function renderApp() {
   }
 
 
-
-
   await renderCurrentPage(
     route
   );
 
 
-
-
   bindUiEvents();
 
 }
-
-
-
 
 // =========================================================
 // Supabase connection check
