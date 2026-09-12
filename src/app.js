@@ -8,6 +8,19 @@ import {
 } from './services/schoolService.js';
 
 import {
+  getParticipants,
+  getParticipantsByEvent,
+  replaceEventParticipants,
+} from './services/participantService.js';
+
+import {
+  addEvent,
+  getEventById,
+  updateEvent,
+  deleteEvent,
+} from './services/eventService.js';
+
+import {
   saveRoomPlan,
   getRoundOverview,
 } from './services/roomService.js';
@@ -224,6 +237,12 @@ function bindUiEvents() {
     );
 
 
+  const tryAnotherMixButton =
+    document.querySelector(
+      '#try-another-mix-button'
+    );
+
+
   const roomEventSelect =
     document.querySelector(
       '#room-event'
@@ -253,57 +272,411 @@ function bindUiEvents() {
       '#generated-room-grid'
     );
 
-const qualityDashboard =
-  document.querySelector(
-    '#room-quality-dashboard'
-  );
+
+  const qualityDashboard =
+    document.querySelector(
+      '#room-quality-dashboard'
+    );
 
 
-const qualityDiversityScore =
-  document.querySelector(
-    '#quality-diversity-score'
-  );
+  const qualityDiversityScore =
+    document.querySelector(
+      '#quality-diversity-score'
+    );
 
 
-const qualityRepeatedPairs =
-  document.querySelector(
-    '#quality-repeated-pairs'
-  );
+  const qualityRepeatedPairs =
+    document.querySelector(
+      '#quality-repeated-pairs'
+    );
 
 
-const qualitySchoolConflicts =
-  document.querySelector(
-    '#quality-school-conflicts'
-  );
+  const qualitySchoolConflicts =
+    document.querySelector(
+      '#quality-school-conflicts'
+    );
 
 
-const qualityCountryMix =
-  document.querySelector(
-    '#quality-country-mix'
-  );
+  const qualityCountryMix =
+    document.querySelector(
+      '#quality-country-mix'
+    );
 
 
-const qualityFacilitatorCoverage =
-  document.querySelector(
-    '#quality-facilitator-coverage'
-  );
+  const qualityFacilitatorCoverage =
+    document.querySelector(
+      '#quality-facilitator-coverage'
+    );
+
+
+  const qualityFeedback =
+    document.querySelector(
+      '#room-quality-feedback'
+    );
+
+
+  // ---------------------------------------------------------
+  // Quality Dashboard
+  // ---------------------------------------------------------
+
+  function renderQualityDashboard(
+    plan
+  ) {
+
+    if (
+      !plan?.quality ||
+      !qualityDashboard
+    ) {
+
+      return;
+
+    }
+
+
+    qualityDashboard
+      .classList
+      .remove(
+        'hidden'
+      );
+
+
+    if (
+      qualityDiversityScore
+    ) {
+
+      qualityDiversityScore.textContent =
+        `${plan.quality.diversityScore}%`;
+
+    }
+
+
+    if (
+      qualityRepeatedPairs
+    ) {
+
+      qualityRepeatedPairs.textContent =
+        plan.quality.repeatedPairs;
+
+    }
+
+
+    if (
+      qualitySchoolConflicts
+    ) {
+
+      qualitySchoolConflicts.textContent =
+        plan.quality.sameSchoolPairs;
+
+    }
+
+
+    if (
+      qualityCountryMix
+    ) {
+
+      qualityCountryMix.textContent =
+        plan.quality.countryMix;
+
+    }
+
+
+    if (
+      qualityFacilitatorCoverage
+    ) {
+
+      qualityFacilitatorCoverage.textContent =
+        `${plan.quality.facilitatorCoverage}%`;
+
+    }
+
+
+    if (
+      qualityFeedback
+    ) {
+
+      const feedbackItems =
+        Array.isArray(
+          plan.quality.feedback
+        )
+          ? plan.quality.feedback
+          : [];
+
+
+      qualityFeedback.innerHTML =
+        feedbackItems
+          .map(
+            (item) => {
+
+              let icon =
+                'ℹ';
+
+
+              if (
+                item.type ===
+                'success'
+              ) {
+
+                icon =
+                  '✓';
+
+              }
+
+
+              if (
+                item.type ===
+                'warning'
+              ) {
+
+                icon =
+                  '⚠';
+
+              }
+
+
+              return `
+
+                <div
+                  class="
+                    quality-feedback-item
+                    quality-feedback-${item.type}
+                  "
+                >
+
+                  <span
+                    class="quality-feedback-icon"
+                  >
+                    ${icon}
+                  </span>
+
+
+                  <span
+                    class="quality-feedback-message"
+                  >
+                    ${item.message}
+                  </span>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join('');
+
+    }
+
+  }
+
+
+  // ---------------------------------------------------------
+  // Try Another Mix availability
+  // ---------------------------------------------------------
+
+  function canTryAnotherMix(
+    plan
+  ) {
+
+    return Boolean(
+
+      plan &&
+
+      plan.signature &&
+
+      plan.roomCount > 1 &&
+
+      plan.participantCount >
+        plan.roomCount
+
+    );
+
+  }
+
+
+  function updateTryAnotherMixButton(
+    plan
+  ) {
+
+    if (
+      !tryAnotherMixButton
+    ) {
+
+      return;
+
+    }
+
+
+    tryAnotherMixButton.disabled =
+      !canTryAnotherMix(
+        plan
+      );
+
+
+    tryAnotherMixButton.textContent =
+      '🔀 Try Another Mix';
+
+  }
+
+
+  // ---------------------------------------------------------
+  // Compare current plan vs alternative
+  // ---------------------------------------------------------
+
+  function isPlanAtLeastAsGood(
+    candidate,
+    current
+  ) {
+
+    if (
+      !candidate?.quality ||
+      !current?.quality
+    ) {
+
+      return false;
+
+    }
+
+
+    const candidateQuality =
+      candidate.quality;
+
+
+    const currentQuality =
+      current.quality;
+
+
+    // 1. Diversity Score
+
+    if (
+      candidateQuality
+        .diversityScore !==
+      currentQuality
+        .diversityScore
+    ) {
+
+      return (
+        candidateQuality
+          .diversityScore >
+        currentQuality
+          .diversityScore
+      );
+
+    }
+
+
+    // 2. Repeated Partners
+
+    if (
+      candidateQuality
+        .repeatedPairs !==
+      currentQuality
+        .repeatedPairs
+    ) {
+
+      return (
+        candidateQuality
+          .repeatedPairs <
+        currentQuality
+          .repeatedPairs
+      );
+
+    }
+
+
+    // 3. Same School
+
+    if (
+      candidateQuality
+        .sameSchoolPairs !==
+      currentQuality
+        .sameSchoolPairs
+    ) {
+
+      return (
+        candidateQuality
+          .sameSchoolPairs <
+        currentQuality
+          .sameSchoolPairs
+      );
+
+    }
+
+
+    // 4. Same Country
+
+    if (
+      candidateQuality
+        .sameCountryPairs !==
+      currentQuality
+        .sameCountryPairs
+    ) {
+
+      return (
+        candidateQuality
+          .sameCountryPairs <
+        currentQuality
+          .sameCountryPairs
+      );
+
+    }
+
+
+    // 5. Facilitator Coverage
+
+    if (
+      candidateQuality
+        .facilitatorCoverage !==
+      currentQuality
+        .facilitatorCoverage
+    ) {
+
+      return (
+        candidateQuality
+          .facilitatorCoverage >
+        currentQuality
+          .facilitatorCoverage
+      );
+
+    }
+
+
+    // 完全同点なら採用可能
+    return true;
+
+  }
+
+
+  // ---------------------------------------------------------
+  // Reset Room Plan
+  // ---------------------------------------------------------
 
   function invalidateRoomPlan() {
 
     currentRoomPlan =
       null;
 
-if (
-  qualityDashboard
-) {
 
-  qualityDashboard
-    .classList
-    .add(
-      'hidden'
-    );
+    if (
+      qualityDashboard
+    ) {
 
-}
+      qualityDashboard
+        .classList
+        .add(
+          'hidden'
+        );
+
+    }
+
+
+    if (
+      qualityFeedback
+    ) {
+
+      qualityFeedback.innerHTML =
+        '';
+
+    }
+
 
     if (
       saveRoomPlanButton
@@ -312,8 +685,23 @@ if (
       saveRoomPlanButton.disabled =
         true;
 
+
       saveRoomPlanButton.textContent =
         'Save Round';
+
+    }
+
+
+    if (
+      tryAnotherMixButton
+    ) {
+
+      tryAnotherMixButton.disabled =
+        true;
+
+
+      tryAnotherMixButton.textContent =
+        '🔀 Try Another Mix';
 
     }
 
@@ -340,7 +728,6 @@ if (
   }
 
 
-
   roomEventSelect
     ?.addEventListener(
       'change',
@@ -360,6 +747,7 @@ if (
       'change',
       invalidateRoomPlan
     );
+
 
   // =========================================================
   // Round Overview
@@ -396,7 +784,9 @@ if (
           !eventId ||
           !content
         ) {
+
           return;
+
         }
 
 
@@ -457,6 +847,7 @@ if (
       }
     );
 
+
   // ---------------------------------------------------------
   // Generate Rooms
   // ---------------------------------------------------------
@@ -496,8 +887,23 @@ if (
           saveRoomPlanButton.disabled =
             true;
 
+
           saveRoomPlanButton.textContent =
             'Save Round';
+
+        }
+
+
+        if (
+          tryAnotherMixButton
+        ) {
+
+          tryAnotherMixButton.disabled =
+            true;
+
+
+          tryAnotherMixButton.textContent =
+            '🔀 Try Another Mix';
 
         }
 
@@ -548,69 +954,12 @@ if (
           currentRoomPlan =
             plan;
 
-        if (
-  plan.quality &&
-  qualityDashboard
-) {
 
-  qualityDashboard
-    .classList
-    .remove(
-      'hidden'
-    );
+          renderQualityDashboard(
+            plan
+          );
 
 
-  if (
-    qualityDiversityScore
-  ) {
-
-    qualityDiversityScore.textContent =
-      `${plan.quality.diversityScore}%`;
-
-  }
-
-
-  if (
-    qualityRepeatedPairs
-  ) {
-
-    qualityRepeatedPairs.textContent =
-      plan.quality.repeatedPairs;
-
-  }
-
-
-  if (
-    qualitySchoolConflicts
-  ) {
-
-    qualitySchoolConflicts.textContent =
-      plan.quality.sameSchoolPairs;
-
-  }
-
-
-  if (
-    qualityCountryMix
-  ) {
-
-    qualityCountryMix.textContent =
-      plan.quality.countryMix;
-
-  }
-
-
-  if (
-    qualityFacilitatorCoverage
-  ) {
-
-    qualityFacilitatorCoverage.textContent =
-      `${plan.quality.facilitatorCoverage}%`;
-
-  }
-
-}
-            
           if (
             generatedRoomGrid
           ) {
@@ -631,10 +980,16 @@ if (
             saveRoomPlanButton.disabled =
               false;
 
+
             saveRoomPlanButton.textContent =
               'Save Round';
 
           }
+
+
+          updateTryAnotherMixButton(
+            plan
+          );
 
 
           if (
@@ -710,20 +1065,42 @@ if (
 
 
         } catch (error) {
-        if (
-  qualityDashboard
-) {
-
-  qualityDashboard
-    .classList
-    .add(
-      'hidden'
-    );
-
-}
 
           currentRoomPlan =
             null;
+
+
+          if (
+            qualityDashboard
+          ) {
+
+            qualityDashboard
+              .classList
+              .add(
+                'hidden'
+              );
+
+          }
+
+
+          if (
+            qualityFeedback
+          ) {
+
+            qualityFeedback.innerHTML =
+              '';
+
+          }
+
+
+          if (
+            tryAnotherMixButton
+          ) {
+
+            tryAnotherMixButton.disabled =
+              true;
+
+          }
 
 
           console.error(
@@ -757,6 +1134,331 @@ if (
       }
     );
 
+
+  // ---------------------------------------------------------
+  // Try Another Mix
+  // ---------------------------------------------------------
+
+  tryAnotherMixButton
+    ?.addEventListener(
+      'click',
+      async () => {
+
+        if (
+          !currentRoomPlan
+        ) {
+
+          return;
+
+        }
+
+
+        const eventId =
+          roomEventSelect?.value ||
+          null;
+
+
+        const roundNumber =
+          Number(
+            roomRoundSelect?.value ||
+            1
+          );
+
+
+        const participantsPerRoom =
+          Number(
+            roomSizeSelect?.value ||
+            4
+          );
+
+
+        const previousPlan =
+          currentRoomPlan;
+
+
+        const previousScore =
+          previousPlan
+            .quality
+            ?.diversityScore ||
+          0;
+
+
+        generateRoomsButton.disabled =
+          true;
+
+
+        tryAnotherMixButton.disabled =
+          true;
+
+
+        tryAnotherMixButton.textContent =
+          'Searching...';
+
+
+        if (
+          saveRoomPlanButton
+        ) {
+
+          saveRoomPlanButton.disabled =
+            true;
+
+        }
+
+
+        if (
+          roomBuilderStatus
+        ) {
+
+          roomBuilderStatus.textContent =
+            'Searching up to 30 alternative room combinations...';
+
+        }
+
+
+        try {
+
+          const alternative =
+            await buildRoomPlan({
+
+              participantsPerRoom,
+
+              eventId,
+
+              roundNumber,
+
+              attempts:
+                30,
+
+              excludeSignature:
+                previousPlan.signature,
+
+            });
+
+
+          // ---------------------------------
+          // 別の組み合わせが存在しない
+          // ---------------------------------
+
+          if (
+            !alternative
+              .isDifferentMix
+          ) {
+
+            if (
+              roomBuilderStatus
+            ) {
+
+              roomBuilderStatus.textContent =
+                'No different room combination is possible with the current participants and room size.';
+
+            }
+
+
+            if (
+              saveRoomPlanButton
+            ) {
+
+              saveRoomPlanButton.disabled =
+                false;
+
+            }
+
+
+            return;
+
+          }
+
+
+          // ---------------------------------
+          // 現在より悪い案しかない
+          // ---------------------------------
+
+          if (
+            !isPlanAtLeastAsGood(
+              alternative,
+              previousPlan
+            )
+          ) {
+
+            if (
+              roomBuilderStatus
+            ) {
+
+              roomBuilderStatus.innerHTML = `
+
+                No equal-or-better alternative
+                was found after
+                <strong>
+                  ${alternative.attemptsTried}
+                </strong>
+                attempts.
+
+                <br>
+
+                Current plan kept:
+                <strong>
+                  ${previousScore}%
+                </strong>
+
+              `;
+
+            }
+
+
+            if (
+              saveRoomPlanButton
+            ) {
+
+              saveRoomPlanButton.disabled =
+                false;
+
+            }
+
+
+            return;
+
+          }
+
+
+          // ---------------------------------
+          // 新しい案を採用
+          // ---------------------------------
+
+          const newScore =
+            alternative
+              .quality
+              ?.diversityScore ||
+            0;
+
+
+          currentRoomPlan =
+            alternative;
+
+
+          if (
+            generatedRoomGrid
+          ) {
+
+            generatedRoomGrid.innerHTML =
+              renderRoomPlan(
+                alternative
+              );
+
+          }
+
+
+          renderQualityDashboard(
+            alternative
+          );
+
+
+          if (
+            roomBuilderStatus
+          ) {
+
+            if (
+              newScore >
+              previousScore
+            ) {
+
+              roomBuilderStatus.innerHTML = `
+
+                ✓ Better mix found!
+
+                <strong>
+                  ${previousScore}%
+                  →
+                  ${newScore}%
+                </strong>
+
+                <br>
+
+                ${alternative.attemptsTried}
+                candidate combinations checked.
+
+              `;
+
+
+            } else {
+
+              roomBuilderStatus.innerHTML = `
+
+                ✓ Another combination found
+                with equal or better detailed quality.
+
+                <strong>
+                  ${newScore}%
+                </strong>
+
+                <br>
+
+                ${alternative.attemptsTried}
+                candidate combinations checked.
+
+              `;
+
+            }
+
+          }
+
+
+          if (
+            saveRoomPlanButton
+          ) {
+
+            saveRoomPlanButton.disabled =
+              false;
+
+
+            saveRoomPlanButton.textContent =
+              'Save Round';
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            'Try another mix error:',
+            error
+          );
+
+
+          if (
+            roomBuilderStatus
+          ) {
+
+            roomBuilderStatus.textContent =
+              error?.message ||
+              'Could not generate another mix.';
+
+          }
+
+
+          if (
+            saveRoomPlanButton
+          ) {
+
+            saveRoomPlanButton.disabled =
+              false;
+
+          }
+
+
+        } finally {
+
+          generateRoomsButton.disabled =
+            false;
+
+
+          updateTryAnotherMixButton(
+            currentRoomPlan
+          );
+
+        }
+
+      }
+    );
 
 
   // ---------------------------------------------------------
@@ -913,9 +1615,1576 @@ if (
       }
     );
 
+  // =========================================================
+  // Event Management
+  // =========================================================
+
+  const addEventButton =
+    document.querySelector(
+      '#add-event-button'
+    );
 
 
+  const addEventPanel =
+    document.querySelector(
+      '#add-event-panel'
+    );
 
+
+  const cancelEventButton =
+    document.querySelector(
+      '#cancel-event-button'
+    );
+
+
+  const addEventForm =
+    document.querySelector(
+      '#add-event-form'
+    );
+
+
+  const editEventModal =
+    document.querySelector(
+      '#edit-event-modal'
+    );
+
+
+  const closeEventEditButton =
+    document.querySelector(
+      '#close-event-edit'
+    );
+
+
+  const editEventForm =
+    document.querySelector(
+      '#edit-event-form'
+    );
+
+
+  // ---------------------------------------------------------
+  // Date Helper
+  // ---------------------------------------------------------
+
+  function toDateTimeLocalValue(
+    isoValue
+  ) {
+
+    if (!isoValue) {
+      return '';
+    }
+
+
+    const date =
+      new Date(
+        isoValue
+      );
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return '';
+
+    }
+
+
+    const offset =
+      date.getTimezoneOffset() *
+      60000;
+
+
+    return new Date(
+      date.getTime() -
+      offset
+    )
+      .toISOString()
+      .slice(
+        0,
+        16
+      );
+
+  }
+
+
+  function localDateTimeToIso(
+    value
+  ) {
+
+    if (!value) {
+      return null;
+    }
+
+
+    const date =
+      new Date(
+        value
+      );
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return null;
+
+    }
+
+
+    return date.toISOString();
+  }
+
+
+  // ---------------------------------------------------------
+  // Open Create Event
+  // ---------------------------------------------------------
+
+  addEventButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        addEventPanel
+          ?.classList
+          .remove(
+            'hidden'
+          );
+
+
+        addEventButton
+          .classList
+          .add(
+            'hidden'
+          );
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Cancel Create Event
+  // ---------------------------------------------------------
+
+  cancelEventButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        addEventPanel
+          ?.classList
+          .add(
+            'hidden'
+          );
+
+
+        addEventButton
+          ?.classList
+          .remove(
+            'hidden'
+          );
+
+
+        addEventForm
+          ?.reset();
+
+
+        const message =
+          document.querySelector(
+            '#event-form-message'
+          );
+
+
+        if (
+          message
+        ) {
+
+          message.textContent =
+            '';
+
+        }
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Create Event
+  // ---------------------------------------------------------
+
+  addEventForm
+    ?.addEventListener(
+      'submit',
+      async (event) => {
+
+        event.preventDefault();
+
+
+        const title =
+          document
+            .querySelector(
+              '#event-title'
+            )
+            ?.value
+            .trim();
+
+
+        const startsAtInput =
+          document
+            .querySelector(
+              '#event-starts-at'
+            )
+            ?.value;
+
+
+        const timezone =
+          document
+            .querySelector(
+              '#event-timezone'
+            )
+            ?.value ||
+          'Asia/Tokyo';
+
+
+        const status =
+          document
+            .querySelector(
+              '#event-status'
+            )
+            ?.value ||
+          'draft';
+
+
+        const message =
+          document.querySelector(
+            '#event-form-message'
+          );
+
+
+        const saveButton =
+          document.querySelector(
+            '#save-event-button'
+          );
+
+
+        if (
+          !title
+        ) {
+
+          if (
+            message
+          ) {
+
+            message.textContent =
+              'Please enter an event title.';
+
+          }
+
+
+          return;
+
+        }
+
+
+        if (
+          saveButton
+        ) {
+
+          saveButton.disabled =
+            true;
+
+
+          saveButton.textContent =
+            'Creating...';
+
+        }
+
+
+        if (
+          message
+        ) {
+
+          message.textContent =
+            'Creating event...';
+
+        }
+
+
+        try {
+
+          await addEvent({
+
+            title,
+
+            startsAt:
+              localDateTimeToIso(
+                startsAtInput
+              ),
+
+            timezone,
+
+            status,
+
+          });
+
+
+          if (
+            message
+          ) {
+
+            message.textContent =
+              '✓ Event created successfully.';
+
+          }
+
+
+          await renderApp();
+
+
+        } catch (error) {
+
+          console.error(
+            'Create event error:',
+            error
+          );
+
+
+          if (
+            message
+          ) {
+
+            message.textContent =
+              error?.message ||
+              'Could not create event.';
+
+          }
+
+
+          if (
+            saveButton
+          ) {
+
+            saveButton.disabled =
+              false;
+
+
+            saveButton.textContent =
+              'Create Event';
+
+          }
+
+        }
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Open Edit Event
+  // ---------------------------------------------------------
+
+  document
+    .querySelectorAll(
+      '.edit-event-button'
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          'click',
+          async () => {
+
+            const eventId =
+              button.dataset
+                .eventId;
+
+
+            if (
+              !eventId
+            ) {
+
+              return;
+
+            }
+
+
+            try {
+
+              const eventData =
+                await getEventById(
+                  eventId
+                );
+
+
+              const idInput =
+                document.querySelector(
+                  '#edit-event-id'
+                );
+
+
+              const titleInput =
+                document.querySelector(
+                  '#edit-event-title'
+                );
+
+
+              const startsAtInput =
+                document.querySelector(
+                  '#edit-event-starts-at'
+                );
+
+
+              const timezoneInput =
+                document.querySelector(
+                  '#edit-event-timezone'
+                );
+
+
+              const statusInput =
+                document.querySelector(
+                  '#edit-event-status'
+                );
+
+
+              if (
+                idInput
+              ) {
+
+                idInput.value =
+                  eventData.id;
+
+              }
+
+
+              if (
+                titleInput
+              ) {
+
+                titleInput.value =
+                  eventData.title ||
+                  '';
+
+              }
+
+
+              if (
+                startsAtInput
+              ) {
+
+                startsAtInput.value =
+                  toDateTimeLocalValue(
+                    eventData.starts_at
+                  );
+
+              }
+
+
+              if (
+                timezoneInput
+              ) {
+
+                timezoneInput.value =
+                  eventData.timezone ||
+                  'Asia/Tokyo';
+
+              }
+
+
+              if (
+                statusInput
+              ) {
+
+                statusInput.value =
+                  eventData.status ||
+                  'draft';
+
+              }
+
+
+              const editMessage =
+                document.querySelector(
+                  '#edit-event-message'
+                );
+
+
+              if (
+                editMessage
+              ) {
+
+                editMessage.textContent =
+                  '';
+
+              }
+
+
+              editEventModal
+                ?.classList
+                .remove(
+                  'hidden'
+                );
+
+
+            } catch (error) {
+
+              console.error(
+                'Load event error:',
+                error
+              );
+
+
+              alert(
+                error?.message ||
+                'Could not load the event.'
+              );
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Close Edit Event
+  // ---------------------------------------------------------
+
+  closeEventEditButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        editEventModal
+          ?.classList
+          .add(
+            'hidden'
+          );
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Update Event
+  // ---------------------------------------------------------
+
+  editEventForm
+    ?.addEventListener(
+      'submit',
+      async (event) => {
+
+        event.preventDefault();
+
+
+        const eventId =
+          document
+            .querySelector(
+              '#edit-event-id'
+            )
+            ?.value;
+
+
+        const title =
+          document
+            .querySelector(
+              '#edit-event-title'
+            )
+            ?.value
+            .trim();
+
+
+        const startsAtInput =
+          document
+            .querySelector(
+              '#edit-event-starts-at'
+            )
+            ?.value;
+
+
+        const timezone =
+          document
+            .querySelector(
+              '#edit-event-timezone'
+            )
+            ?.value ||
+          'Asia/Tokyo';
+
+
+        const status =
+          document
+            .querySelector(
+              '#edit-event-status'
+            )
+            ?.value ||
+          'draft';
+
+
+        const message =
+          document.querySelector(
+            '#edit-event-message'
+          );
+
+
+        const updateButton =
+          document.querySelector(
+            '#update-event-button'
+          );
+
+
+        if (
+          !eventId ||
+          !title
+        ) {
+
+          if (
+            message
+          ) {
+
+            message.textContent =
+              'Event title is required.';
+
+          }
+
+
+          return;
+
+        }
+
+
+        if (
+          updateButton
+        ) {
+
+          updateButton.disabled =
+            true;
+
+
+          updateButton.textContent =
+            'Saving...';
+
+        }
+
+
+        if (
+          message
+        ) {
+
+          message.textContent =
+            'Saving changes...';
+
+        }
+
+
+        try {
+
+          await updateEvent(
+            eventId,
+            {
+
+              title,
+
+              startsAt:
+                localDateTimeToIso(
+                  startsAtInput
+                ),
+
+              timezone,
+
+              status,
+
+            }
+          );
+
+
+          editEventModal
+            ?.classList
+            .add(
+              'hidden'
+            );
+
+
+          await renderApp();
+
+
+        } catch (error) {
+
+          console.error(
+            'Update event error:',
+            error
+          );
+
+
+          if (
+            message
+          ) {
+
+            message.textContent =
+              error?.message ||
+              'Could not update the event.';
+
+          }
+
+
+          if (
+            updateButton
+          ) {
+
+            updateButton.disabled =
+              false;
+
+
+            updateButton.textContent =
+              'Save Changes';
+
+          }
+
+        }
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Delete Event
+  // ---------------------------------------------------------
+
+  document
+    .querySelectorAll(
+      '.delete-event-button'
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          'click',
+          async () => {
+
+            const eventId =
+              button.dataset
+                .eventId;
+
+
+            const eventTitle =
+              button.dataset
+                .eventTitle ||
+              'this event';
+
+
+            const confirmed =
+              window.confirm(
+                `Delete "${eventTitle}"?\n\nThis will also delete saved rounds and room assignments for this event.`
+              );
+
+
+            if (
+              !confirmed
+            ) {
+
+              return;
+
+            }
+
+
+            button.disabled =
+              true;
+
+
+            button.textContent =
+              'Deleting...';
+
+
+            try {
+
+              await deleteEvent(
+                eventId
+              );
+
+
+              await renderApp();
+
+
+            } catch (error) {
+
+              console.error(
+                'Delete event error:',
+                error
+              );
+
+
+              alert(
+                error?.message ||
+                'Could not delete the event.'
+              );
+
+
+              button.disabled =
+                false;
+
+
+              button.textContent =
+                'Delete';
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+  // =========================================================
+  // Event Participant Management
+  // =========================================================
+
+  const eventParticipantsModal =
+    document.querySelector(
+      '#event-participants-modal'
+    );
+
+
+  const closeEventParticipantsButton =
+    document.querySelector(
+      '#close-event-participants'
+    );
+
+
+  const eventParticipantsEventId =
+    document.querySelector(
+      '#event-participants-event-id'
+    );
+
+
+  const eventParticipantsTitle =
+    document.querySelector(
+      '#event-participants-title'
+    );
+
+
+  const eventParticipantList =
+    document.querySelector(
+      '#event-participant-list'
+    );
+
+
+  const eventParticipantSearch =
+    document.querySelector(
+      '#event-participant-search'
+    );
+
+
+  const selectAllEventParticipantsButton =
+    document.querySelector(
+      '#select-all-event-participants'
+    );
+
+
+  const clearEventParticipantsButton =
+    document.querySelector(
+      '#clear-event-participants'
+    );
+
+
+  const saveEventParticipantsButton =
+    document.querySelector(
+      '#save-event-participants'
+    );
+
+
+  const eventParticipantSelectedCount =
+    document.querySelector(
+      '#event-participant-selected-count'
+    );
+
+
+  const eventParticipantMessage =
+    document.querySelector(
+      '#event-participant-message'
+    );
+
+
+  // ---------------------------------------------------------
+  // Helper
+  // ---------------------------------------------------------
+
+  function eventParticipantOneRelation(
+    value
+  ) {
+
+    if (
+      Array.isArray(value)
+    ) {
+
+      return value[0] || null;
+
+    }
+
+
+    return value || null;
+  }
+
+
+  function escapeEventParticipantHtml(
+    value = ''
+  ) {
+
+    return String(value)
+      .replaceAll(
+        '&',
+        '&amp;'
+      )
+      .replaceAll(
+        '<',
+        '&lt;'
+      )
+      .replaceAll(
+        '>',
+        '&gt;'
+      )
+      .replaceAll(
+        '"',
+        '&quot;'
+      )
+      .replaceAll(
+        "'",
+        '&#039;'
+      );
+  }
+
+
+  // ---------------------------------------------------------
+  // Selected Counter
+  // ---------------------------------------------------------
+
+  function updateEventParticipantCount() {
+
+    const checked =
+      document.querySelectorAll(
+        '.event-participant-checkbox:checked'
+      );
+
+
+    if (
+      eventParticipantSelectedCount
+    ) {
+
+      eventParticipantSelectedCount.textContent =
+        checked.length;
+
+    }
+
+  }
+
+
+  // ---------------------------------------------------------
+  // Search
+  // ---------------------------------------------------------
+
+  function filterEventParticipantList() {
+
+    const query =
+      eventParticipantSearch
+        ?.value
+        .trim()
+        .toLowerCase() ||
+      '';
+
+
+    document
+      .querySelectorAll(
+        '.event-participant-option'
+      )
+      .forEach(
+        (row) => {
+
+          const searchText =
+            row.dataset
+              .participantSearch ||
+            '';
+
+
+          row.style.display =
+            searchText.includes(
+              query
+            )
+              ? ''
+              : 'none';
+
+        }
+      );
+
+  }
+
+
+  eventParticipantSearch
+    ?.addEventListener(
+      'input',
+      filterEventParticipantList
+    );
+
+
+  // ---------------------------------------------------------
+  // Open Manage Participants
+  // ---------------------------------------------------------
+
+  document
+    .querySelectorAll(
+      '.manage-event-participants-button'
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          'click',
+          async () => {
+
+            const eventId =
+              button.dataset
+                .eventId;
+
+
+            const eventTitle =
+              button.dataset
+                .eventTitle ||
+              'Event';
+
+
+            if (
+              !eventId ||
+              !eventParticipantList
+            ) {
+
+              return;
+
+            }
+
+
+            if (
+              eventParticipantsEventId
+            ) {
+
+              eventParticipantsEventId.value =
+                eventId;
+
+            }
+
+
+            if (
+              eventParticipantsTitle
+            ) {
+
+              eventParticipantsTitle.textContent =
+                eventTitle;
+
+            }
+
+
+            if (
+              eventParticipantMessage
+            ) {
+
+              eventParticipantMessage.textContent =
+                '';
+
+            }
+
+
+            if (
+              eventParticipantSearch
+            ) {
+
+              eventParticipantSearch.value =
+                '';
+
+            }
+
+
+            eventParticipantList.innerHTML = `
+
+              <div
+                class="empty-state"
+              >
+
+                <p class="muted">
+                  Loading participants...
+                </p>
+
+              </div>
+
+            `;
+
+
+            if (
+  eventParticipantsModal &&
+  !eventParticipantsModal.open
+) {
+
+  eventParticipantsModal.showModal();
+
+}
+
+
+            try {
+
+              const [
+                allParticipants,
+                selectedParticipants,
+              ] =
+                await Promise.all([
+
+                  getParticipants(),
+
+                  getParticipantsByEvent(
+                    eventId
+                  ),
+
+                ]);
+
+
+              const selectedIds =
+                new Set(
+                  selectedParticipants
+                    .map(
+                      (participant) =>
+                        participant.id
+                    )
+                );
+
+
+              if (
+                allParticipants.length ===
+                0
+              ) {
+
+                eventParticipantList.innerHTML = `
+
+                  <div
+                    class="empty-state"
+                  >
+
+                    <h3>
+                      No participants available
+                    </h3>
+
+                    <p class="muted">
+                      Approve participants first.
+                    </p>
+
+                  </div>
+
+                `;
+
+
+                updateEventParticipantCount();
+
+                return;
+
+              }
+
+
+              eventParticipantList.innerHTML =
+                allParticipants
+                  .map(
+                    (participant) => {
+
+                      const school =
+                        eventParticipantOneRelation(
+                          participant.schools
+                        );
+
+
+                      const schoolName =
+                        school?.name ||
+                        'Unknown school';
+
+
+                      const countryName =
+                        school?.country_name ||
+                        '';
+
+
+                      const checked =
+                        selectedIds.has(
+                          participant.id
+                        );
+
+
+                      const searchText =
+                        [
+                          participant.display_name,
+                          schoolName,
+                          countryName,
+                          participant.grade,
+                        ]
+                          .filter(
+                            Boolean
+                          )
+                          .join(
+                            ' '
+                          )
+                          .toLowerCase();
+
+
+                      return `
+
+                        <label
+                          class="event-participant-option"
+                          data-participant-search="${escapeEventParticipantHtml(
+                            searchText
+                          )}"
+                        >
+
+                          <input
+                            class="event-participant-checkbox"
+                            type="checkbox"
+                            value="${participant.id}"
+                            ${
+                              checked
+                                ? 'checked'
+                                : ''
+                            }
+                          />
+
+
+                          <div
+                            class="event-participant-option-info"
+                          >
+
+                            <strong>
+                              ${escapeEventParticipantHtml(
+                                participant.display_name
+                              )}
+                            </strong>
+
+
+                            <span>
+
+                              ${escapeEventParticipantHtml(
+                                schoolName
+                              )}
+
+                              ${
+                                participant.grade
+
+                                  ? ` · ${escapeEventParticipantHtml(
+                                      participant.grade
+                                    )}`
+
+                                  : ''
+                              }
+
+                            </span>
+
+                          </div>
+
+                        </label>
+
+                      `;
+
+                    }
+                  )
+                  .join('');
+
+
+              document
+                .querySelectorAll(
+                  '.event-participant-checkbox'
+                )
+                .forEach(
+                  (checkbox) => {
+
+                    checkbox.addEventListener(
+                      'change',
+                      updateEventParticipantCount
+                    );
+
+                  }
+                );
+
+
+              updateEventParticipantCount();
+
+
+            } catch (error) {
+
+              console.error(
+                'Load event participants error:',
+                error
+              );
+
+
+              eventParticipantList.innerHTML = `
+
+                <div
+                  class="empty-state"
+                >
+
+                  <h3>
+                    Could not load participants
+                  </h3>
+
+                  <p class="muted">
+                    Please check the browser console.
+                  </p>
+
+                </div>
+
+              `;
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Close
+  // ---------------------------------------------------------
+
+  closeEventParticipantsButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        eventParticipantsModal
+  ?.close();
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Select All
+  // ---------------------------------------------------------
+
+  selectAllEventParticipantsButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll(
+            '.event-participant-option'
+          )
+          .forEach(
+            (row) => {
+
+              if (
+                row.style.display ===
+                'none'
+              ) {
+
+                return;
+
+              }
+
+
+              const checkbox =
+                row.querySelector(
+                  '.event-participant-checkbox'
+                );
+
+
+              if (
+                checkbox
+              ) {
+
+                checkbox.checked =
+                  true;
+
+              }
+
+            }
+          );
+
+
+        updateEventParticipantCount();
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Clear
+  // ---------------------------------------------------------
+
+  clearEventParticipantsButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll(
+            '.event-participant-checkbox'
+          )
+          .forEach(
+            (checkbox) => {
+
+              checkbox.checked =
+                false;
+
+            }
+          );
+
+
+        updateEventParticipantCount();
+
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // Save
+  // ---------------------------------------------------------
+
+  saveEventParticipantsButton
+    ?.addEventListener(
+      'click',
+      async () => {
+
+        const eventId =
+          eventParticipantsEventId
+            ?.value;
+
+
+        if (
+          !eventId
+        ) {
+
+          return;
+
+        }
+
+
+        const participantIds =
+          Array
+            .from(
+              document
+                .querySelectorAll(
+                  '.event-participant-checkbox:checked'
+                )
+            )
+            .map(
+              (checkbox) =>
+                checkbox.value
+            );
+
+
+        saveEventParticipantsButton.disabled =
+          true;
+
+
+        saveEventParticipantsButton.textContent =
+          'Saving...';
+
+
+        if (
+          eventParticipantMessage
+        ) {
+
+          eventParticipantMessage.textContent =
+            'Saving participants...';
+
+        }
+
+
+        try {
+
+          const count =
+            await replaceEventParticipants(
+              eventId,
+              participantIds
+            );
+
+
+          if (
+            eventParticipantMessage
+          ) {
+
+            eventParticipantMessage.textContent =
+              `✓ ${count} participant${
+                count === 1
+                  ? ''
+                  : 's'
+              } saved.`;
+
+          }
+
+
+          updateEventParticipantCount();
+
+
+          setTimeout(
+            async () => {
+
+              eventParticipantsModal
+  ?.close();
+
+  // ---------------------------------------------------------
+  // Click backdrop to close
+  // ---------------------------------------------------------
+
+  eventParticipantsModal
+    ?.addEventListener(
+      'click',
+      (event) => {
+
+        if (
+          event.target ===
+          eventParticipantsModal
+        ) {
+
+          eventParticipantsModal.close();
+
+        }
+
+      }
+    );
+              await renderApp();
+
+            },
+            600
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Save event participants error:',
+            error
+          );
+
+
+          if (
+            eventParticipantMessage
+          ) {
+
+            eventParticipantMessage.textContent =
+              error?.message ||
+              'Could not save participants.';
+
+          }
+
+
+        } finally {
+
+          saveEventParticipantsButton.disabled =
+            false;
+
+
+          saveEventParticipantsButton.textContent =
+            'Save Participants';
+
+        }
+
+      }
+    );
 
   // =========================================================
   // Language

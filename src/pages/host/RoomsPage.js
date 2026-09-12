@@ -5,10 +5,16 @@ import {
 import {
   getTeachers,
 } from '../../services/teacherService.js';
+
 import {
   getEvents,
 } from '../../services/eventService.js';
 
+
+
+// =========================================================
+// Helpers
+// =========================================================
 
 function escapeHtml(
   value = ''
@@ -38,6 +44,7 @@ function escapeHtml(
 }
 
 
+
 function oneRelation(
   value
 ) {
@@ -53,11 +60,13 @@ function oneRelation(
 
   }
 
+
   return (
     value ||
     null
   );
 }
+
 
 
 function countryFlag(
@@ -87,20 +96,30 @@ function countryFlag(
 }
 
 
+
+// =========================================================
+// Room Builder Page
+// =========================================================
+
 export async function RoomsPage() {
 
   try {
 
     const [
-  participants,
-  teachers,
-  events,
-] =
-  await Promise.all([
-    getParticipants(),
-    getTeachers(),
-    getEvents(),
-  ]);
+      participants,
+      teachers,
+      events,
+    ] =
+      await Promise.all([
+
+        getParticipants(),
+
+        getTeachers(),
+
+        getEvents(),
+
+      ]);
+
 
     const facilitators =
       teachers.filter(
@@ -116,7 +135,9 @@ export async function RoomsPage() {
             (participant) =>
               participant.school_id
           )
-          .filter(Boolean)
+          .filter(
+            Boolean
+          )
       );
 
 
@@ -129,14 +150,23 @@ export async function RoomsPage() {
                 participant.schools
               )?.country_code
           )
-          .filter(Boolean)
+          .filter(
+            Boolean
+          )
       );
 
 
     return `
+
       <section class="panel">
 
-        <div class="section-head">
+        <!-- =================================================
+             Header
+             ================================================= -->
+
+        <div
+          class="section-head"
+        >
 
           <div>
 
@@ -144,7 +174,9 @@ export async function RoomsPage() {
               Smart Automatic Assignment
             </p>
 
-            <h2 class="section-title">
+            <h2
+              class="section-title"
+            >
               Room Builder
             </h2>
 
@@ -158,6 +190,11 @@ export async function RoomsPage() {
 
         </div>
 
+
+
+        <!-- =================================================
+             Stats
+             ================================================= -->
 
         <div
           class="room-builder-stats"
@@ -225,288 +262,388 @@ export async function RoomsPage() {
         </div>
 
 
+
+        <!-- =================================================
+             Room Settings
+             ================================================= -->
+
         <section
-  class="room-builder-control"
+          class="room-builder-control"
+        >
+
+          <div
+            class="room-settings-title"
+          >
+
+            <p class="eyebrow">
+              Room Settings
+            </p>
+
+            <h3>
+              Generate Room Plan
+            </h3>
+
+          </div>
+
+
+
+          <!-- Event -->
+
+          <label
+            class="room-size-control"
+          >
+
+            <span>
+              Event
+            </span>
+
+            <select
+              id="room-event"
+              class="input"
+            >
+
+              ${
+                events.length === 0
+
+                  ? `
+
+                    <option value="">
+                      No events available
+                    </option>
+
+                  `
+
+                  : events
+                      .map(
+                        (event) => `
+
+                          <option
+                            value="${event.id}"
+                          >
+                            ${escapeHtml(
+                              event.title
+                            )}
+                          </option>
+
+                        `
+                      )
+                      .join('')
+              }
+
+            </select>
+
+          </label>
+
+
+
+          <!-- Round -->
+
+          <label
+            class="room-size-control"
+          >
+
+            <span>
+              Round
+            </span>
+
+            <select
+              id="room-round-number"
+              class="input"
+            >
+
+              <option value="1">
+                Round 1
+              </option>
+
+              <option value="2">
+                Round 2
+              </option>
+
+              <option value="3">
+                Round 3
+              </option>
+
+            </select>
+
+          </label>
+
+
+
+          <!-- Students per Room -->
+
+          <label
+            class="room-size-control"
+          >
+
+            <span>
+              Students per room
+            </span>
+
+            <select
+  id="participants-per-room"
+  class="input"
 >
 
-  <div class="room-settings-title">
+  <option value="2">
+    2 students
+  </option>
 
-    <p class="eyebrow">
-      Room Settings
-    </p>
+  <option value="3">
+    3 students
+  </option>
 
-    <h3>
-      Generate Room Plan
-    </h3>
-
-  </div>
-
-
-  <!-- Event -->
-  <label
-    class="room-size-control"
+  <option
+    value="4"
+    selected
   >
+    4 students
+  </option>
 
-    <span>
-      Event
-    </span>
+  <option value="5">
+    5 students
+  </option>
 
-    <select
-      id="room-event"
-      class="input"
-    >
+  <option value="6">
+    6 students
+  </option>
 
-      ${
-        events.length === 0
-          ? `
-            <option value="">
-              No events available
-            </option>
-          `
-          : events
-              .map(
-                (event) => `
-                  <option
-                    value="${event.id}"
-                  >
-                    ${escapeHtml(
-                      event.title
-                    )}
-                  </option>
-                `
-              )
-              .join('')
-      }
+</select>
 
-    </select>
-
-  </label>
+          </label>
 
 
-  <!-- Round -->
-  <label
-    class="room-size-control"
-  >
 
-    <span>
-      Round
-    </span>
+          <!-- Generate -->
 
-    <select
-      id="room-round-number"
-      class="input"
-    >
-
-      <option value="1">
-        Round 1
-      </option>
-
-      <option value="2">
-        Round 2
-      </option>
-
-      <option value="3">
-        Round 3
-      </option>
-
-    </select>
-
-  </label>
+          <button
+            id="generate-rooms-button"
+            class="primary-button"
+            type="button"
+          >
+            ✨ Generate Rooms
+          </button>
 
 
-  <!-- Students per Room -->
-  <label
-    class="room-size-control"
-  >
 
-    <span>
-      Students per room
-    </span>
+          <!-- Save -->
 
-    <select
-      id="participants-per-room"
-      class="input"
-    >
+          <button
+            id="save-room-plan-button"
+            class="secondary-button"
+            type="button"
+            disabled
+          >
+            Save Round
+          </button>
 
-      <option value="3">
-        3 students
-      </option>
-
-      <option
-        value="4"
-        selected
-      >
-        4 students
-      </option>
-
-      <option value="5">
-        5 students
-      </option>
-
-      <option value="6">
-        6 students
-      </option>
-
-    </select>
-
-  </label>
+        </section>
 
 
-  <!-- Generate -->
-  <button
-    id="generate-rooms-button"
-    class="primary-button"
-    type="button"
-  >
-    ✨ Generate Rooms
-  </button>
 
-
-  <!-- Save -->
-  <button
-    id="save-room-plan-button"
-    class="secondary-button"
-    type="button"
-    disabled
-  >
-    Save Round
-  </button>
-
-</section>
-
+        <!-- =================================================
+             Status
+             ================================================= -->
 
         <div
           id="room-builder-status"
-          <div
-  id="room-quality-dashboard"
-  class="room-quality-dashboard hidden"
->
-
-  <div
-    class="room-quality-title"
-  >
-
-    <div>
-
-      <p class="eyebrow">
-        SMART SHUFFLE QUALITY
-      </p>
-
-      <h3>
-        Room Plan Analysis
-      </h3>
-
-    </div>
-
-  </div>
-
-
-  <div
-    class="room-quality-grid"
-  >
-
-    <div
-      class="quality-card"
-    >
-
-      <strong
-        id="quality-diversity-score"
-      >
-        -
-      </strong>
-
-      <span>
-        Diversity Score
-      </span>
-
-    </div>
-
-
-    <div
-      class="quality-card"
-    >
-
-      <strong
-        id="quality-repeated-pairs"
-      >
-        -
-      </strong>
-
-      <span>
-        Repeated Pairs
-      </span>
-
-    </div>
-
-
-    <div
-      class="quality-card"
-    >
-
-      <strong
-        id="quality-school-conflicts"
-      >
-        -
-      </strong>
-
-      <span>
-        School Conflicts
-      </span>
-
-    </div>
-
-
-    <div
-      class="quality-card"
-    >
-
-      <strong
-        id="quality-country-mix"
-      >
-        -
-      </strong>
-
-      <span>
-        Country Mix
-      </span>
-
-    </div>
-
-
-    <div
-      class="quality-card"
-    >
-
-      <strong
-        id="quality-facilitator-coverage"
-      >
-        -
-      </strong>
-
-      <span>
-        Facilitator Coverage
-      </span>
-
-    </div>
-
-  </div>
-
-</div>
           class="room-builder-status"
         >
-
           Select the room size,
           then generate a room plan.
+        </div>
+
+
+
+        <!-- =================================================
+             Smart Shuffle Quality
+             ================================================= -->
+
+        <div
+          id="room-quality-dashboard"
+          class="room-quality-dashboard hidden"
+        >
+
+          <!-- Header + Try Another Mix -->
+
+          <div
+            class="room-quality-title"
+          >
+
+            <div>
+
+              <p class="eyebrow">
+                SMART SHUFFLE QUALITY
+              </p>
+
+              <h3>
+                Room Plan Analysis
+              </h3>
+
+            </div>
+
+
+            <button
+  id="try-another-mix-button"
+  class="try-another-mix-button"
+  type="button"
+  disabled
+>
+  <span class="try-mix-icon">
+    🔀
+  </span>
+
+  <span>
+    Try Another Mix
+  </span>
+</button>
+          </div>
+
+
+
+          <!-- Quality Cards -->
+
+          <div
+            class="room-quality-grid"
+          >
+
+            <!-- Diversity -->
+
+            <div
+              class="quality-card"
+            >
+
+              <strong
+                id="quality-diversity-score"
+              >
+                -
+              </strong>
+
+              <span>
+                Diversity Score
+              </span>
+
+            </div>
+
+
+
+            <!-- Repeated Pairs -->
+
+            <div
+              class="quality-card"
+            >
+
+              <strong
+                id="quality-repeated-pairs"
+              >
+                -
+              </strong>
+
+              <span>
+                Repeated Pairs
+              </span>
+
+            </div>
+
+
+
+            <!-- School Conflicts -->
+
+            <div
+              class="quality-card"
+            >
+
+              <strong
+                id="quality-school-conflicts"
+              >
+                -
+              </strong>
+
+              <span>
+                School Conflicts
+              </span>
+
+            </div>
+
+
+
+            <!-- Country Mix -->
+
+            <div
+              class="quality-card"
+            >
+
+              <strong
+                id="quality-country-mix"
+              >
+                -
+              </strong>
+
+              <span>
+                Country Mix
+              </span>
+
+            </div>
+
+
+
+            <!-- Facilitator Coverage -->
+
+            <div
+              class="quality-card"
+            >
+
+              <strong
+                id="quality-facilitator-coverage"
+              >
+                -
+              </strong>
+
+              <span>
+                Facilitator Coverage
+              </span>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- =================================================
+               Quality Feedback
+               ================================================= -->
+
+          <div
+            class="room-quality-feedback-section"
+          >
+
+            <p class="eyebrow">
+              ROOM PLAN FEEDBACK
+            </p>
+
+
+            <div
+              id="room-quality-feedback"
+              class="room-quality-feedback"
+            ></div>
+
+          </div>
 
         </div>
 
+
+
+        <!-- =================================================
+             Generated Rooms
+             ================================================= -->
 
         <div
           id="generated-room-grid"
           class="room-grid"
         ></div>
 
+
       </section>
+
     `;
 
 
@@ -519,6 +656,7 @@ export async function RoomsPage() {
 
 
     return `
+
       <section class="panel">
 
         <h2>
@@ -530,6 +668,7 @@ export async function RoomsPage() {
         </p>
 
       </section>
+
     `;
 
   }
@@ -537,17 +676,28 @@ export async function RoomsPage() {
 }
 
 
+
+// =========================================================
+// Room Plan Renderer
+// =========================================================
+
 export function renderRoomPlan(
   plan
 ) {
 
   if (
     !plan ||
+    !Array.isArray(
+      plan.rooms
+    ) ||
     plan.rooms.length === 0
   ) {
 
     return `
-      <div class="empty-state">
+
+      <div
+        class="empty-state"
+      >
 
         <h3>
           No participants available
@@ -558,6 +708,7 @@ export function renderRoomPlan(
         </p>
 
       </div>
+
     `;
 
   }
@@ -579,11 +730,19 @@ export function renderRoomPlan(
 
 
         return `
+
           <article
-            class="room-card smart-room-card"
+            class="
+              room-card
+              smart-room-card
+            "
           >
 
-            <div class="room-head">
+            <!-- Room Header -->
+
+            <div
+              class="room-head"
+            >
 
               <div>
 
@@ -600,7 +759,9 @@ export function renderRoomPlan(
               </div>
 
 
-              <span class="tag">
+              <span
+                class="tag"
+              >
 
                 ${room.participants.length}
                 students
@@ -609,6 +770,9 @@ export function renderRoomPlan(
 
             </div>
 
+
+
+            <!-- Facilitator -->
 
             <div
               class="
@@ -630,6 +794,7 @@ export function renderRoomPlan(
                 facilitator
 
                   ? `
+
                     <strong>
                       🎤
                       ${escapeHtml(
@@ -637,28 +802,38 @@ export function renderRoomPlan(
                       )}
                     </strong>
 
+
                     <small>
+
                       ${countryFlag(
                         facilitatorSchool
                           ?.country_code
                       )}
+
                       ${escapeHtml(
                         facilitatorSchool
                           ?.name ||
                         ''
                       )}
+
                     </small>
+
                   `
 
                   : `
+
                     <strong>
                       ⚠ Not assigned
                     </strong>
+
                   `
               }
 
             </div>
 
+
+
+            <!-- Participants -->
 
             <div
               class="smart-member-list"
@@ -674,7 +849,14 @@ export function renderRoomPlan(
                       );
 
 
+                    const displayName =
+                      participant
+                        .display_name ||
+                      'Unknown';
+
+
                     return `
+
                       <div
                         class="smart-member"
                       >
@@ -682,12 +864,13 @@ export function renderRoomPlan(
                         <div
                           class="smart-member-avatar"
                         >
+
                           ${escapeHtml(
-                            participant
-                              .display_name
+                            displayName
                               .charAt(0)
                               .toUpperCase()
                           )}
+
                         </div>
 
 
@@ -695,10 +878,10 @@ export function renderRoomPlan(
 
                           <strong>
                             ${escapeHtml(
-                              participant
-                                .display_name
+                              displayName
                             )}
                           </strong>
+
 
                           <span>
 
@@ -717,7 +900,9 @@ export function renderRoomPlan(
                         </div>
 
                       </div>
+
                     `;
+
                   }
                 )
                 .join('')}
@@ -725,9 +910,11 @@ export function renderRoomPlan(
             </div>
 
           </article>
+
         `;
 
       }
     )
     .join('');
+
 }

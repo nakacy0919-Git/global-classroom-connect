@@ -2382,3 +2382,2007 @@ textarea {
   }
 
 }
+/* =========================================================
+   Smart Shuffle Quality Feedback
+   ========================================================= */
+
+.room-quality-feedback {
+  display: grid;
+
+  gap: 8px;
+
+  margin-top: 16px;
+
+  padding-top: 16px;
+
+  border-top:
+    1px solid
+    rgba(20, 82, 120, .10);
+}
+
+
+.quality-feedback-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-height: 42px;
+
+  padding:
+    9px 12px;
+
+  border-radius:
+    12px;
+
+  font-size:
+    .78rem;
+
+  font-weight:
+    600;
+}
+
+
+.quality-feedback-icon {
+  display: grid;
+
+  place-items: center;
+
+  flex:
+    0 0 24px;
+
+  width: 24px;
+
+  height: 24px;
+
+  border-radius:
+    50%;
+
+  font-size:
+    .75rem;
+
+  font-weight:
+    900;
+}
+
+
+.quality-feedback-success {
+  background:
+    rgba(74, 180, 126, .10);
+
+  color:
+    #237650;
+}
+
+
+.quality-feedback-success
+.quality-feedback-icon {
+  background:
+    rgba(74, 180, 126, .18);
+
+  color:
+    #21835a;
+}
+
+
+.quality-feedback-warning {
+  background:
+    rgba(230, 104, 112, .10);
+
+  color:
+    #a73f48;
+}
+
+
+.quality-feedback-warning
+.quality-feedback-icon {
+  background:
+    rgba(230, 104, 112, .18);
+
+  color:
+    #b73f49;
+}
+
+
+.quality-feedback-info {
+  background:
+    rgba(49, 145, 199, .10);
+
+  color:
+    #246c96;
+}
+
+
+.quality-feedback-info
+.quality-feedback-icon {
+  background:
+    rgba(49, 145, 199, .17);
+
+  color:
+    #247aa9;
+}
+/* =========================================================
+   Room Quality Feedback Layout Fix
+   ========================================================= */
+
+.room-quality-feedback-section {
+  width: 100%;
+
+  margin-top: 18px;
+
+  padding-top: 16px;
+
+  border-top:
+    1px solid
+    rgba(20, 82, 120, .10);
+}
+
+
+.room-quality-feedback-section
+.eyebrow {
+  margin-bottom: 10px;
+}
+
+
+.room-quality-feedback {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+
+  margin-top: 0;
+
+  padding-top: 0;
+
+  border-top: 0;
+}
+
+
+@media (
+  max-width: 900px
+) {
+
+  .room-quality-feedback {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+/* =========================================================
+   Event Management
+   ========================================================= */
+
+.event-management-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(140px, 1fr)
+    );
+
+  gap: 12px;
+
+  margin:
+    24px 0;
+}
+
+
+.event-management-stat {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 90px;
+
+  padding: 14px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255,255,255,.72);
+
+  border:
+    1px solid
+    rgba(20,80,120,.08);
+}
+
+
+.event-management-stat strong {
+  font-size: 1.45rem;
+
+  color:
+    #126f9f;
+}
+
+
+.event-management-stat span {
+  margin-top: 4px;
+
+  font-size: .72rem;
+
+  color:
+    var(--muted);
+}
+
+
+
+/* =========================================================
+   Event Editor
+   ========================================================= */
+
+.event-editor-panel {
+  margin:
+    20px 0 26px;
+
+  padding: 22px;
+
+  border-radius: 20px;
+
+  background:
+    rgba(255,255,255,.72);
+
+  border:
+    1px solid
+    rgba(20,80,120,.10);
+}
+
+
+.event-editor-head {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 18px;
+}
+
+
+.event-editor-head h3 {
+  margin: 2px 0 0;
+}
+
+
+.event-form {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 16px;
+}
+
+
+.event-form .form-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.event-form .form-field span {
+  font-size: .76rem;
+
+  font-weight: 700;
+
+  color:
+    var(--muted);
+}
+
+
+.event-form-actions,
+.event-form-message {
+  grid-column:
+    1 / -1;
+}
+
+
+.event-form-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 4px;
+}
+
+
+
+/* =========================================================
+   Event List
+   ========================================================= */
+
+.event-management-list {
+  display: grid;
+
+  gap: 14px;
+}
+
+
+.event-management-card {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,.78);
+
+  border:
+    1px solid
+    rgba(20,80,120,.08);
+
+  box-shadow:
+    0 8px 22px
+    rgba(15,72,105,.05);
+}
+
+
+.event-management-card-main {
+  min-width: 0;
+}
+
+
+.event-management-title-row h3 {
+  margin:
+    8px 0 10px;
+
+  font-size:
+    1.08rem;
+}
+
+
+.event-management-meta {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 14px;
+
+  font-size:
+    .76rem;
+
+  color:
+    var(--muted);
+}
+
+
+.event-management-actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+}
+
+
+
+/* =========================================================
+   Status Badge
+   ========================================================= */
+
+.event-status-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding:
+    5px 9px;
+
+  border-radius: 999px;
+
+  font-size: .66rem;
+
+  font-weight: 800;
+
+  letter-spacing: .03em;
+}
+
+
+.event-status-draft {
+  background:
+    rgba(120,130,140,.12);
+
+  color:
+    #5c6872;
+}
+
+
+.event-status-published {
+  background:
+    rgba(45,145,200,.12);
+
+  color:
+    #176f9f;
+}
+
+
+.event-status-live {
+  background:
+    rgba(66,180,120,.14);
+
+  color:
+    #27815a;
+}
+
+
+.event-status-completed {
+  background:
+    rgba(110,95,190,.12);
+
+  color:
+    #6352a7;
+}
+
+
+
+/* =========================================================
+   Danger Button
+   ========================================================= */
+
+.danger-button {
+  border:
+    1px solid
+    rgba(215,70,80,.30);
+
+  background:
+    rgba(255,235,237,.85);
+
+  color:
+    #b83d47;
+
+  padding:
+    10px 16px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font: inherit;
+}
+
+
+.danger-button:hover {
+  background:
+    rgba(255,220,224,.95);
+}
+
+
+
+/* =========================================================
+   Event Edit Modal
+   ========================================================= */
+
+.event-edit-modal {
+  max-width: 720px;
+}
+
+
+@media (
+  max-width: 1000px
+) {
+
+  .event-management-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
+  }
+
+
+  .event-management-card {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  .event-management-actions {
+    justify-content: flex-start;
+  }
+
+}
+
+
+@media (
+  max-width: 700px
+) {
+
+  .event-form {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .event-management-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+/* =========================================================
+   Try Another Mix Button
+   ========================================================= */
+
+.room-quality-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+
+.try-another-mix-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  min-height: 46px;
+
+  padding:
+    0 20px;
+
+  border:
+    1px solid
+    rgba(18, 120, 180, .28);
+
+  border-radius:
+    14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1584c4,
+      #25a8d5
+    );
+
+  color:
+    white;
+
+  font: inherit;
+  font-size:
+    .85rem;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    0 8px 20px
+    rgba(23, 127, 183, .20);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease;
+}
+
+
+.try-another-mix-button:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 12px 26px
+    rgba(23, 127, 183, .28);
+}
+
+
+.try-another-mix-button:active:not(:disabled) {
+  transform:
+    translateY(0);
+}
+
+
+.try-another-mix-button:disabled {
+  background:
+    rgba(220, 230, 236, .75);
+
+  border-color:
+    rgba(80, 110, 130, .08);
+
+  color:
+    #91a4b0;
+
+  box-shadow:
+    none;
+
+  cursor:
+    not-allowed;
+}
+
+
+.try-mix-icon {
+  font-size:
+    1rem;
+}
+
+
+@media (max-width: 700px) {
+
+  .room-quality-title {
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+
+  .try-another-mix-button {
+    width:
+      100%;
+  }
+
+}
+/* =========================================================
+   Event Participants Manager
+   ========================================================= */
+
+.event-participants-modal {
+  width:
+    min(
+      820px,
+      calc(100vw - 40px)
+    );
+
+  max-height:
+    86vh;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+}
+
+
+/* Toolbar */
+
+.event-participants-toolbar {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+
+  margin:
+    18px 0 12px;
+}
+
+
+.event-participants-toolbar
+.input {
+  flex:
+    1;
+}
+
+
+.event-participant-toolbar-actions {
+  display:
+    flex;
+
+  gap:
+    8px;
+}
+
+
+/* Counter */
+
+.event-participant-counter {
+  display:
+    flex;
+
+  align-items:
+    baseline;
+
+  gap:
+    6px;
+
+  margin-bottom:
+    12px;
+
+  padding:
+    10px 12px;
+
+  border-radius:
+    12px;
+
+  background:
+    rgba(32, 143, 199, .08);
+
+  color:
+    #216f99;
+}
+
+
+.event-participant-counter strong {
+  font-size:
+    1.15rem;
+}
+
+
+/* Participant List */
+
+.event-participant-list {
+  display:
+    grid;
+
+  gap:
+    8px;
+
+  overflow-y:
+    auto;
+
+  min-height:
+    180px;
+
+  max-height:
+    430px;
+
+  padding:
+    4px;
+}
+
+
+/* One Participant */
+
+.event-participant-option {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    12px;
+
+  padding:
+    12px 14px;
+
+  border-radius:
+    14px;
+
+  background:
+    rgba(255, 255, 255, .75);
+
+  border:
+    1px solid
+    rgba(25, 85, 120, .08);
+
+  cursor:
+    pointer;
+
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    transform .15s ease;
+}
+
+
+.event-participant-option:hover {
+  background:
+    rgba(232, 248, 255, .9);
+
+  border-color:
+    rgba(30, 140, 195, .18);
+
+  transform:
+    translateY(-1px);
+}
+
+
+.event-participant-option
+input {
+  width:
+    18px;
+
+  height:
+    18px;
+
+  flex:
+    0 0 auto;
+}
+
+
+.event-participant-option-info {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  min-width:
+    0;
+}
+
+
+.event-participant-option-info
+strong {
+  font-size:
+    .86rem;
+}
+
+
+.event-participant-option-info
+span {
+  color:
+    var(--muted);
+
+  font-size:
+    .7rem;
+}
+
+
+/* Selected */
+
+.event-participant-option:has(
+  input:checked
+) {
+  background:
+    rgba(216, 244, 255, .86);
+
+  border-color:
+    rgba(26, 145, 200, .32);
+}
+
+
+/* Footer */
+
+.event-participant-footer {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    16px;
+
+  margin-top:
+    16px;
+
+  padding-top:
+    16px;
+
+  border-top:
+    1px solid
+    rgba(20, 80, 120, .10);
+}
+
+
+.event-participant-footer
+.form-message {
+  margin:
+    0;
+}
+
+
+/* Responsive */
+
+@media (
+  max-width: 700px
+) {
+
+  .event-participants-toolbar {
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+
+  .event-participant-toolbar-actions {
+    width:
+      100%;
+  }
+
+
+  .event-participant-toolbar-actions
+  button {
+    flex:
+      1;
+  }
+
+
+  .event-participant-footer {
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+}
+/* =========================================================
+   Event Participants Modal - Floating Overlay
+   ========================================================= */
+
+#event-participants-modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 3000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 28px;
+
+  background:
+    rgba(7, 35, 55, .48);
+
+  backdrop-filter:
+    blur(8px);
+
+  -webkit-backdrop-filter:
+    blur(8px);
+
+  overflow-y: auto;
+}
+
+
+/* hidden を必ず優先 */
+
+#event-participants-modal.hidden {
+  display: none;
+}
+
+
+/* =========================================================
+   Modal Card
+   ========================================================= */
+
+#event-participants-modal
+.event-participants-modal {
+
+  position: relative;
+
+  width:
+    min(
+      820px,
+      calc(100vw - 48px)
+    );
+
+  max-height:
+    min(
+      820px,
+      calc(100vh - 56px)
+    );
+
+  display: flex;
+
+  flex-direction: column;
+
+  padding: 26px;
+
+  border-radius: 26px;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, .98),
+      rgba(235, 248, 255, .97)
+    );
+
+  border:
+    1px solid
+    rgba(255, 255, 255, .75);
+
+  box-shadow:
+    0 28px 80px
+    rgba(3, 35, 55, .28);
+}
+
+
+/* =========================================================
+   Modal Header
+   ========================================================= */
+
+#event-participants-modal
+.modal-head {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 6px;
+}
+
+
+#event-participants-modal
+.modal-head h3 {
+
+  margin:
+    3px 0 6px;
+
+  font-size: 1.35rem;
+
+  color: #17354a;
+}
+
+
+#event-participants-modal
+.modal-head .muted {
+
+  margin: 0;
+}
+
+
+/* =========================================================
+   Close Button
+   ========================================================= */
+
+.event-participants-close-button {
+
+  display: grid;
+
+  place-items: center;
+
+  flex:
+    0 0 auto;
+
+  width: 42px;
+
+  height: 42px;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(25, 85, 120, .10);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, .90);
+
+  color: #315b73;
+
+  font-size: 1.55rem;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    transform .16s ease,
+    background .16s ease,
+    color .16s ease;
+}
+
+
+.event-participants-close-button:hover {
+
+  transform:
+    rotate(5deg);
+
+  background:
+    rgba(255, 232, 234, .95);
+
+  color:
+    #b63f49;
+}
+
+
+/* =========================================================
+   Search Toolbar
+   ========================================================= */
+
+#event-participants-modal
+.event-participants-toolbar {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin:
+    18px 0 12px;
+}
+
+
+#event-participants-modal
+.event-participants-toolbar
+.input {
+
+  flex: 1;
+
+  min-height: 46px;
+}
+
+
+#event-participants-modal
+.event-participant-toolbar-actions {
+
+  display: flex;
+
+  gap: 8px;
+}
+
+
+/* =========================================================
+   Selected Counter
+   ========================================================= */
+
+#event-participants-modal
+.event-participant-counter {
+
+  display: flex;
+
+  align-items: baseline;
+
+  gap: 6px;
+
+  margin-bottom: 12px;
+
+  padding:
+    11px 14px;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(37, 155, 211, .10),
+      rgba(70, 191, 218, .12)
+    );
+
+  color: #2379a3;
+}
+
+
+#event-participants-modal
+.event-participant-counter strong {
+
+  font-size: 1.15rem;
+}
+
+
+/* =========================================================
+   Participant Scroll Area
+   ========================================================= */
+
+#event-participants-modal
+.event-participant-list {
+
+  display: grid;
+
+  gap: 9px;
+
+  min-height: 180px;
+
+  max-height: 420px;
+
+  overflow-y: auto;
+
+  padding:
+    4px 5px 4px 2px;
+
+  scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   Participant Row
+   ========================================================= */
+
+#event-participants-modal
+.event-participant-option {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding:
+    13px 15px;
+
+  border-radius: 15px;
+
+  background:
+    rgba(255, 255, 255, .78);
+
+  border:
+    1px solid
+    rgba(23, 92, 129, .08);
+
+  cursor: pointer;
+
+  transition:
+    transform .15s ease,
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+
+#event-participants-modal
+.event-participant-option:hover {
+
+  transform:
+    translateY(-1px);
+
+  background:
+    rgba(238, 250, 255, .98);
+
+  border-color:
+    rgba(28, 145, 198, .22);
+
+  box-shadow:
+    0 7px 18px
+    rgba(18, 91, 128, .06);
+}
+
+
+#event-participants-modal
+.event-participant-option
+input {
+
+  width: 19px;
+
+  height: 19px;
+
+  accent-color:
+    #1591cf;
+
+  cursor: pointer;
+}
+
+
+/* 選択済み */
+
+#event-participants-modal
+.event-participant-option:has(
+  input:checked
+) {
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(216, 244, 255, .96),
+      rgba(226, 249, 255, .92)
+    );
+
+  border-color:
+    rgba(22, 151, 207, .38);
+}
+
+
+/* =========================================================
+   Participant Info
+   ========================================================= */
+
+#event-participants-modal
+.event-participant-option-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+}
+
+
+#event-participants-modal
+.event-participant-option-info strong {
+
+  color: #163b52;
+
+  font-size: .88rem;
+}
+
+
+#event-participants-modal
+.event-participant-option-info span {
+
+  color: var(--muted);
+
+  font-size: .72rem;
+}
+
+
+/* =========================================================
+   Footer
+   ========================================================= */
+
+#event-participants-modal
+.event-participant-footer {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-top: 17px;
+
+  padding-top: 17px;
+
+  border-top:
+    1px solid
+    rgba(20, 82, 120, .10);
+}
+
+
+#event-participants-modal
+#save-event-participants {
+
+  min-width: 170px;
+}
+
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+
+@media (
+  max-width: 700px
+) {
+
+  #event-participants-modal {
+
+    padding: 12px;
+
+    align-items: flex-start;
+  }
+
+
+  #event-participants-modal
+  .event-participants-modal {
+
+    width: 100%;
+
+    max-height:
+      calc(100vh - 24px);
+
+    padding: 20px;
+
+    border-radius: 20px;
+  }
+
+
+  #event-participants-modal
+  .event-participants-toolbar {
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  #event-participants-modal
+  .event-participant-toolbar-actions {
+
+    width: 100%;
+  }
+
+
+  #event-participants-modal
+  .event-participant-toolbar-actions
+  button {
+
+    flex: 1;
+  }
+
+
+  #event-participants-modal
+  .event-participant-footer {
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  #event-participants-modal
+  #save-event-participants {
+
+    width: 100%;
+  }
+
+}
+/* =========================================================
+   Event Participants Dialog
+   ========================================================= */
+
+.event-participants-dialog {
+  width:
+    min(
+      820px,
+      calc(100vw - 40px)
+    );
+
+  max-width: none;
+  max-height: none;
+
+  margin: auto;
+  padding: 0;
+
+  border: 0;
+
+  background:
+    transparent;
+
+  overflow:
+    visible;
+}
+
+
+/* Background */
+
+.event-participants-dialog::backdrop {
+  background:
+    rgba(6, 31, 48, .56);
+
+  backdrop-filter:
+    blur(7px);
+
+  -webkit-backdrop-filter:
+    blur(7px);
+}
+
+
+/* =========================================================
+   Main Modal
+   ========================================================= */
+
+.event-participants-dialog
+.event-participants-modal {
+
+  width: 100%;
+
+  max-height:
+    calc(100vh - 64px);
+
+  display: flex;
+
+  flex-direction:
+    column;
+
+  padding:
+    24px;
+
+  border-radius:
+    24px;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255,255,255,.99),
+      rgba(236,249,255,.98)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.75);
+
+  box-shadow:
+    0 30px 90px
+    rgba(2,32,50,.35);
+
+  overflow:
+    hidden;
+}
+
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.event-participants-dialog
+.modal-head {
+
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
+
+  margin-bottom:
+    10px;
+}
+
+
+.event-participants-dialog
+.modal-head h3 {
+
+  margin:
+    3px 0 5px;
+
+  font-size:
+    1.4rem;
+}
+
+
+.event-participants-dialog
+.modal-head .muted {
+
+  margin:
+    0;
+}
+
+
+/* =========================================================
+   Close Button
+   ========================================================= */
+
+.event-participants-close-button {
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  flex:
+    0 0 42px;
+
+  width:
+    42px;
+
+  height:
+    42px;
+
+  padding:
+    0;
+
+  border:
+    1px solid
+    rgba(22,80,110,.10);
+
+  border-radius:
+    50%;
+
+  background:
+    rgba(255,255,255,.94);
+
+  color:
+    #315d74;
+
+  font-size:
+    1.55rem;
+
+  line-height:
+    1;
+
+  cursor:
+    pointer;
+
+  transition:
+    .15s ease;
+}
+
+
+.event-participants-close-button:hover {
+
+  background:
+    #ffe9eb;
+
+  color:
+    #b43d48;
+
+  transform:
+    scale(1.05);
+}
+
+
+/* =========================================================
+   Toolbar
+   ========================================================= */
+
+.event-participants-dialog
+.event-participants-toolbar {
+
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+
+  margin:
+    12px 0;
+}
+
+
+.event-participants-dialog
+.event-participants-toolbar
+.input {
+
+  flex:
+    1;
+
+  min-height:
+    46px;
+}
+
+
+.event-participants-dialog
+.event-participant-toolbar-actions {
+
+  display:
+    flex;
+
+  gap:
+    8px;
+}
+
+
+/* =========================================================
+   Counter
+   ========================================================= */
+
+.event-participants-dialog
+.event-participant-counter {
+
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    baseline;
+
+  gap:
+    6px;
+
+  margin-bottom:
+    12px;
+
+  padding:
+    10px 14px;
+
+  border-radius:
+    13px;
+
+  background:
+    rgba(31,151,207,.10);
+
+  color:
+    #1778a6;
+}
+
+
+/* =========================================================
+   Scrollable Participant List
+   ========================================================= */
+
+.event-participants-dialog
+.event-participant-list {
+
+  flex:
+    1 1 auto;
+
+  min-height:
+    180px;
+
+  max-height:
+    none;
+
+  display:
+    grid;
+
+  align-content:
+    start;
+
+  gap:
+    8px;
+
+  padding:
+    3px 6px 3px 2px;
+
+  overflow-y:
+    auto;
+
+  scrollbar-width:
+    thin;
+}
+
+
+/* =========================================================
+   Participant
+   ========================================================= */
+
+.event-participants-dialog
+.event-participant-option {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    12px;
+
+  padding:
+    11px 14px;
+
+  border-radius:
+    14px;
+
+  background:
+    rgba(255,255,255,.82);
+
+  border:
+    1px solid
+    rgba(25,85,120,.09);
+
+  cursor:
+    pointer;
+
+  transition:
+    .15s ease;
+}
+
+
+.event-participants-dialog
+.event-participant-option:hover {
+
+  background:
+    rgba(235,249,255,.98);
+
+  border-color:
+    rgba(25,145,200,.22);
+}
+
+
+.event-participants-dialog
+.event-participant-option:has(
+  input:checked
+) {
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(213,243,255,.98),
+      rgba(225,248,255,.96)
+    );
+
+  border-color:
+    rgba(20,151,210,.40);
+}
+
+
+.event-participants-dialog
+.event-participant-option input {
+
+  width:
+    19px;
+
+  height:
+    19px;
+
+  accent-color:
+    #118fcf;
+
+  cursor:
+    pointer;
+}
+
+
+.event-participants-dialog
+.event-participant-option-info {
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    2px;
+
+  min-width:
+    0;
+}
+
+
+.event-participants-dialog
+.event-participant-option-info strong {
+
+  font-size:
+    .88rem;
+}
+
+
+.event-participants-dialog
+.event-participant-option-info span {
+
+  font-size:
+    .7rem;
+
+  color:
+    var(--muted);
+}
+
+
+/* =========================================================
+   Footer stays visible
+   ========================================================= */
+
+.event-participants-dialog
+.event-participant-footer {
+
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    16px;
+
+  margin-top:
+    14px;
+
+  padding-top:
+    16px;
+
+  border-top:
+    1px solid
+    rgba(20,80,120,.10);
+
+  background:
+    rgba(244,251,255,.96);
+}
+
+
+.event-participants-dialog
+#save-event-participants {
+
+  min-width:
+    180px;
+}
+
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+
+@media (
+  max-width: 700px
+) {
+
+  .event-participants-dialog {
+
+    width:
+      calc(100vw - 20px);
+  }
+
+
+  .event-participants-dialog
+  .event-participants-modal {
+
+    max-height:
+      calc(100vh - 20px);
+
+    padding:
+      18px;
+
+    border-radius:
+      18px;
+  }
+
+
+  .event-participants-dialog
+  .event-participants-toolbar {
+
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+
+  .event-participants-dialog
+  .event-participant-toolbar-actions {
+
+    width:
+      100%;
+  }
+
+
+  .event-participants-dialog
+  .event-participant-toolbar-actions
+  button {
+
+    flex:
+      1;
+  }
+
+
+  .event-participants-dialog
+  .event-participant-footer {
+
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+
+  .event-participants-dialog
+  #save-event-participants {
+
+    width:
+      100%;
+  }
+
+}
