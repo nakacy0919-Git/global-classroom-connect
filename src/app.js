@@ -143,17 +143,6 @@ async function renderCurrentPage(
       '#page-content'
     );
 
-const newSchoolNameInput =
-  document.querySelector(
-    '#registration-new-school'
-  );
-
-
-const newSchoolCountryInput =
-  document.querySelector(
-    '#registration-country'
-  );
-
   if (!container) {
     return;
   }
@@ -2379,7 +2368,16 @@ function bindUiEvents() {
         '#new-school-registration'
       );
 
+    const newSchoolNameInput =
+  document.querySelector(
+    '#registration-new-school'
+  );
 
+
+const newSchoolCountryInput =
+  document.querySelector(
+    '#registration-country'
+  );
 
 
     const updateSchoolFields =
