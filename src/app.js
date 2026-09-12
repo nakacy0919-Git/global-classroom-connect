@@ -2957,7 +2957,26 @@ function bindUiEvents() {
 
       }
     );
+  // ---------------------------------------------------------
+  // Click backdrop to close
+  // ---------------------------------------------------------
 
+  eventParticipantsModal
+    ?.addEventListener(
+      'click',
+      (event) => {
+
+        if (
+          event.target ===
+          eventParticipantsModal
+        ) {
+
+          eventParticipantsModal.close();
+
+        }
+
+      }
+    );
 
   // ---------------------------------------------------------
   // Select All
@@ -3121,36 +3140,17 @@ function bindUiEvents() {
 
 
           setTimeout(
-            async () => {
+  async () => {
 
-              eventParticipantsModal
-  ?.close();
+    eventParticipantsModal
+      ?.close();
 
-  // ---------------------------------------------------------
-  // Click backdrop to close
-  // ---------------------------------------------------------
 
-  eventParticipantsModal
-    ?.addEventListener(
-      'click',
-      (event) => {
+    await renderApp();
 
-        if (
-          event.target ===
-          eventParticipantsModal
-        ) {
-
-          eventParticipantsModal.close();
-
-        }
-
-      }
-    );
-              await renderApp();
-
-            },
-            600
-          );
+  },
+  600
+);
 
 
         } catch (error) {
