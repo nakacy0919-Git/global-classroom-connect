@@ -2,6 +2,7 @@ const titles = {
   dashboard: 'Host Dashboard',
   events: 'Event Management',
   schools: 'School Library',
+  teachers: 'Teacher Database',
   rooms: 'Room Builder',
   registration: 'Teacher Registration',
   'session-board': 'Participant Session Board',

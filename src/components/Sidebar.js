@@ -1,9 +1,16 @@
 const menuItems = [
   { key: 'dashboard', label: 'Host Dashboard' },
+
   { key: 'events', label: 'Events' },
+
   { key: 'schools', label: 'School Library' },
+
+  { key: 'teachers', label: 'Teacher Database' },
+
   { key: 'rooms', label: 'Room Builder' },
+
   { key: 'registration', label: 'Teacher Registration' },
+
   { key: 'session-board', label: 'Participant Board' },
 ];
 

@@ -563,3 +563,704 @@ textarea {
     align-items: flex-start;
   }
 }
+.school-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.school-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 22px 44px
+    rgba(4, 43, 73, 0.2);
+}
+
+.school-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.school-timezone {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.school-name {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.school-introduction {
+  margin-top: 14px;
+}
+
+.empty-state,
+.error-box {
+  padding: 40px;
+  text-align: center;
+  border-radius: 22px;
+  background:
+    rgba(255,255,255,0.45);
+  border:
+    1px dashed
+    rgba(19,50,74,0.15);
+}
+.hidden {
+  display: none !important;
+}
+
+.add-school-panel {
+  margin-bottom: 24px;
+  padding: 24px;
+  border-radius: 24px;
+
+  background:
+    rgba(255, 255, 255, 0.56);
+
+  border:
+    1px solid
+    rgba(19, 50, 74, 0.1);
+}
+
+.add-school-panel h3 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.school-website {
+  margin-top: 18px;
+}
+
+.school-website a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.school-website a:hover {
+  text-decoration: underline;
+}
+.school-card-actions {
+  margin-top: 18px;
+}
+
+.school-card-actions button {
+  width: 100%;
+}
+
+
+.school-profile-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  background:
+    rgba(3, 31, 52, 0.45);
+
+  backdrop-filter:
+    blur(8px);
+}
+
+
+.school-profile-modal {
+  width: min(
+    900px,
+    95vw
+  );
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 30px;
+
+  border-radius: 30px;
+
+  background:
+    rgba(245, 252, 255, 0.97);
+
+  box-shadow:
+    0 30px 80px
+    rgba(3, 31, 52, 0.35);
+}
+
+
+.school-profile-actions {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 24px;
+
+  flex-wrap: wrap;
+}
+
+
+.danger-button {
+  padding:
+    12px
+    18px;
+
+  border:
+    1px solid
+    rgba(180, 45, 45, 0.25);
+
+  border-radius:
+    14px;
+
+  background:
+    rgba(255, 235, 235, 0.9);
+
+  color:
+    #a52a2a;
+
+  cursor:
+    pointer;
+}
+.teacher-stats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 14px;
+
+  margin:
+    22px 0;
+}
+
+
+.teacher-stat {
+  padding: 18px;
+
+  border-radius: 20px;
+
+  background:
+    rgba(255,255,255,0.62);
+
+  border:
+    1px solid
+    rgba(19,50,74,0.08);
+}
+
+
+.teacher-stat strong {
+  display: block;
+
+  font-size: 1.8rem;
+
+  color:
+    var(--accent-dark);
+}
+
+
+.teacher-stat span {
+  display: block;
+
+  margin-top: 4px;
+
+  color:
+    var(--muted);
+
+  font-size:
+    0.9rem;
+}
+
+
+.teacher-toolbar {
+  margin-bottom: 22px;
+}
+
+
+.teacher-search {
+  max-width: 440px;
+}
+
+
+.teacher-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+.teacher-card {
+  overflow: hidden;
+
+  border-radius: 26px;
+
+  background:
+    rgba(255,255,255,0.82);
+
+  border:
+    1px solid
+    rgba(19,50,74,0.08);
+
+  box-shadow:
+    0 14px 32px
+    rgba(4,43,73,0.11);
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+
+.teacher-card:hover {
+  transform:
+    translateY(-4px);
+
+  box-shadow:
+    0 22px 42px
+    rgba(4,43,73,0.16);
+}
+
+
+.teacher-photo-area {
+  height: 210px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #dff5ff,
+      #82c9ef
+    );
+}
+
+
+.teacher-photo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+
+.teacher-photo-fallback {
+  display: grid;
+
+  place-items: center;
+
+  font-size: 3rem;
+
+  font-weight: 800;
+
+  color:
+    white;
+}
+
+
+.teacher-card-body {
+  padding: 20px;
+}
+
+
+.teacher-card-body h3 {
+  margin:
+    14px 0 5px;
+
+  font-size:
+    1.3rem;
+}
+
+
+.teacher-card-tags {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+
+.teacher-role-badge {
+  padding:
+    7px 10px;
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(
+      255,
+      203,
+      71,
+      .2
+    );
+
+  font-size:
+    .78rem;
+
+  font-weight:
+    700;
+}
+
+
+.facilitator-badge {
+  display:
+    inline-block;
+
+  margin-top:
+    12px;
+
+  padding:
+    8px 11px;
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(
+      63,
+      174,
+      127,
+      .14
+    );
+
+  color:
+    #187249;
+
+  font-size:
+    .82rem;
+
+  font-weight:
+    700;
+}
+
+
+.teacher-school-name {
+  margin:
+    0 0 6px;
+
+  font-weight:
+    700;
+
+  color:
+    var(--accent-dark);
+}
+
+
+.teacher-languages {
+  margin-top:
+    12px;
+
+  font-size:
+    .9rem;
+}
+
+
+.teacher-bio {
+  margin-top:
+    14px;
+
+  line-height:
+    1.65;
+}
+
+
+.add-teacher-panel {
+  margin-bottom:
+    26px;
+
+  padding:
+    26px;
+
+  border-radius:
+    26px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .56
+    );
+
+  border:
+    1px solid
+    rgba(
+      19,
+      50,
+      74,
+      .08
+    );
+}
+
+
+.teacher-form-layout {
+  display: grid;
+
+  grid-template-columns:
+    220px 1fr;
+
+  gap: 28px;
+}
+
+
+.teacher-photo-editor {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    12px;
+}
+
+
+.teacher-photo-preview {
+  width:
+    190px;
+
+  height:
+    190px;
+
+  overflow:
+    hidden;
+
+  border-radius:
+    50%;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  background:
+    linear-gradient(
+      145deg,
+      #dff5ff,
+      #8bd0f3
+    );
+
+  color:
+    white;
+
+  font-weight:
+    700;
+}
+
+
+.teacher-photo-preview img {
+  width:
+    100%;
+
+  height:
+    100%;
+
+  object-fit:
+    cover;
+}
+
+
+.teacher-upload-button {
+  width:
+    190px;
+
+  text-align:
+    center;
+
+  cursor:
+    pointer;
+}
+
+
+.upload-note {
+  margin:
+    0;
+
+  color:
+    var(--muted);
+
+  font-size:
+    .76rem;
+}
+
+
+.teacher-check {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+
+  min-height:
+    50px;
+
+  padding:
+    0 4px;
+
+  cursor:
+    pointer;
+}
+
+
+.teacher-check input {
+  width:
+    18px;
+
+  height:
+    18px;
+}
+
+
+@media (
+  max-width: 1200px
+) {
+
+  .teacher-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+@media (
+  max-width: 800px
+) {
+
+  .teacher-stats {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+
+  .teacher-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .teacher-form-layout {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+.registration-public {
+  max-width: 1050px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+
+.registration-heading {
+  margin-bottom: 28px;
+}
+
+
+.registration-option {
+  margin: 24px 0;
+}
+
+
+.student-registration-box {
+  margin: 28px 0;
+
+  padding: 22px;
+
+  border-radius: 22px;
+
+  background:
+    rgba(255,255,255,.48);
+
+  border:
+    1px solid
+    rgba(19,50,74,.08);
+}
+
+
+.registration-student-list {
+  display: grid;
+  gap: 10px;
+}
+
+
+.registration-student-row {
+  display: grid;
+
+  grid-template-columns:
+    42px
+    minmax(220px,1fr)
+    180px
+    90px;
+
+  gap: 10px;
+
+  align-items: center;
+}
+
+
+.student-number {
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 50%;
+
+  background:
+    var(--accent-soft);
+
+  color:
+    var(--accent-dark);
+
+  font-weight: 800;
+}
+
+
+.student-remove-button {
+  border: 0;
+
+  background: transparent;
+
+  color: #9c4242;
+
+  cursor: pointer;
+}
+
+
+.registration-submit {
+  width: 100%;
+
+  min-height: 52px;
+
+  margin-top: 24px;
+
+  font-size: 1rem;
+}
+
+
+.registration-message {
+  margin-top: 15px;
+
+  text-align: center;
+
+  font-weight: 700;
+
+  color: var(--accent-dark);
+}
