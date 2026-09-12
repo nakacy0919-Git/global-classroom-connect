@@ -166,19 +166,19 @@ export function bindRoomBuilder() {
 
   const roomEventSelect =
     document.querySelector(
-      '#room-event-select'
+      '#room-event'
     );
 
 
   const roomRoundSelect =
     document.querySelector(
-      '#room-round-select'
+      '#room-round-number'
     );
 
 
   const roomSizeSelect =
     document.querySelector(
-      '#room-size-select'
+      '#participants-per-room'
     );
 
 
@@ -214,7 +214,7 @@ export function bindRoomBuilder() {
 
   const qualitySchool =
     document.querySelector(
-      '#quality-same-school'
+      '#quality-school-conflicts'
     );
 
 
@@ -226,7 +226,7 @@ export function bindRoomBuilder() {
 
   const qualityFacilitator =
     document.querySelector(
-      '#quality-facilitator'
+      '#quality-facilitator-coverage'
     );
 
 
