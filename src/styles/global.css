@@ -3596,3 +3596,518 @@ textarea {
   }
 
 }
+/* =========================================================
+   PUBLIC REGISTRATION - POLISHED LAYOUT
+   ========================================================= */
+
+.public-page-content {
+  padding: 26px 0 60px;
+}
+
+
+/* ---------------------------------------------------------
+   Main wrapper
+   --------------------------------------------------------- */
+
+.registration-public {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+
+  display: grid;
+  gap: 24px;
+}
+
+
+/* ---------------------------------------------------------
+   Welcome card
+   --------------------------------------------------------- */
+
+.registration-welcome {
+  padding: 34px 36px;
+}
+
+
+.registration-heading {
+  margin-bottom: 0;
+}
+
+
+.registration-heading .section-title {
+  margin: 0 0 14px;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+
+.registration-heading .muted {
+  margin: 0;
+  max-width: 820px;
+  line-height: 1.8;
+}
+
+
+/* ---------------------------------------------------------
+   3 Steps
+   --------------------------------------------------------- */
+
+.registration-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 12px;
+
+  margin: 26px 0 20px;
+}
+
+
+.registration-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 16px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255, 255, 255, 0.6);
+
+  border:
+    1px solid
+    rgba(19, 50, 74, 0.08);
+}
+
+
+.registration-step strong {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: var(--accent-soft);
+
+  color: var(--accent-dark);
+
+  font-size: 0.9rem;
+}
+
+
+.registration-step span {
+  font-size: 0.92rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   Information box
+   --------------------------------------------------------- */
+
+.registration-info-box {
+  padding: 15px 18px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(215, 239, 255, 0.55);
+
+  border:
+    1px solid
+    rgba(18, 120, 197, 0.1);
+}
+
+
+.registration-info-box strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+
+.registration-info-box p {
+  margin: 0;
+
+  line-height: 1.7;
+
+  color: var(--muted);
+}
+
+
+/* ---------------------------------------------------------
+   Main form card
+   --------------------------------------------------------- */
+
+.registration-form-panel {
+  padding: 34px 36px;
+}
+
+
+/* ---------------------------------------------------------
+   Sections
+   --------------------------------------------------------- */
+
+.registration-section {
+  padding: 32px 0;
+
+  border-bottom:
+    1px solid
+    rgba(19, 50, 74, 0.1);
+}
+
+
+.registration-section:first-child {
+  padding-top: 0;
+}
+
+
+.registration-section-heading {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 16px;
+
+  margin-bottom: 24px;
+}
+
+
+.registration-section-number {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 14px;
+
+  background: var(--accent-soft);
+
+  color: var(--accent-dark);
+
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+
+.registration-section-heading .eyebrow {
+  margin-bottom: 5px;
+}
+
+
+.registration-section-heading h2 {
+  margin: 0 0 8px;
+
+  font-size: 1.45rem;
+
+  line-height: 1.25;
+}
+
+
+.registration-section-heading .muted {
+  margin: 0;
+
+  line-height: 1.65;
+}
+
+
+/* ---------------------------------------------------------
+   Form fields
+   --------------------------------------------------------- */
+
+.registration-public .form-grid {
+  gap: 20px 16px;
+}
+
+
+.registration-public .field {
+  gap: 8px;
+}
+
+
+.registration-public .field > span {
+  line-height: 1.4;
+}
+
+
+.registration-public .input {
+  min-height: 52px;
+}
+
+
+.registration-public textarea.input {
+  min-height: 120px;
+}
+
+
+/* ---------------------------------------------------------
+   Facilitator
+   --------------------------------------------------------- */
+
+.registration-option {
+  margin: 22px 0 0;
+
+  padding: 16px 18px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255, 255, 255, 0.55);
+
+  border:
+    1px solid
+    rgba(19, 50, 74, 0.08);
+}
+
+
+.teacher-check {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  cursor: pointer;
+}
+
+
+.teacher-check input {
+  margin-top: 4px;
+}
+
+
+.teacher-check > span {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.teacher-check small {
+  color: var(--muted);
+
+  line-height: 1.5;
+}
+
+
+/* ---------------------------------------------------------
+   Student privacy
+   --------------------------------------------------------- */
+
+.registration-privacy-note {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 8px;
+
+  margin-bottom: 16px;
+
+  padding: 12px 14px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.48);
+
+  font-size: 0.9rem;
+
+  line-height: 1.55;
+}
+
+
+.registration-privacy-note strong {
+  white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   Student list
+   --------------------------------------------------------- */
+
+.registration-student-list {
+  display: grid;
+
+  gap: 12px;
+}
+
+
+.registration-student-row {
+  display: grid;
+
+  grid-template-columns:
+    40px
+    minmax(0, 1fr)
+    180px
+    auto;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+.student-number {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: var(--accent-soft);
+
+  color: var(--accent-dark);
+
+  font-weight: 800;
+}
+
+
+.student-remove-button {
+  border: 0;
+
+  background: transparent;
+
+  color: #b44a4a;
+
+  cursor: pointer;
+
+  padding: 8px 6px;
+}
+
+
+#registration-add-student {
+  margin-top: 16px;
+}
+
+
+/* ---------------------------------------------------------
+   Submit
+   --------------------------------------------------------- */
+
+.registration-submit-area {
+  padding-top: 32px;
+
+  text-align: center;
+}
+
+
+.registration-submit-area > .muted {
+  max-width: 680px;
+
+  margin: 0 auto 18px;
+
+  line-height: 1.7;
+}
+
+
+.registration-submit {
+  width: min(360px, 100%) !important;
+
+  min-height: 54px;
+
+  margin: 0 auto !important;
+
+  display: block;
+
+  border-radius: 16px;
+
+  font-weight: 700;
+}
+
+
+.registration-message {
+  margin: 14px 0 0;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .public-page-content {
+    padding: 12px 0 36px;
+  }
+
+
+  .registration-welcome,
+  .registration-form-panel {
+    padding: 24px 20px;
+  }
+
+
+  .registration-steps {
+    grid-template-columns: 1fr;
+  }
+
+
+  .registration-section {
+    padding: 26px 0;
+  }
+
+
+  .registration-section-heading {
+    gap: 12px;
+  }
+
+
+  .registration-section-number {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+  }
+
+
+  .registration-public .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .registration-student-row {
+    grid-template-columns:
+      36px
+      minmax(0, 1fr);
+
+    align-items: center;
+  }
+
+
+  .registration-student-name {
+    grid-column: 2;
+  }
+
+
+  .registration-student-grade {
+    grid-column: 2;
+  }
+
+
+  .student-remove-button {
+    grid-column: 2;
+
+    justify-self: start;
+  }
+
+
+  .registration-privacy-note {
+    flex-direction: column;
+  }
+
+
+  .registration-privacy-note strong {
+    white-space: normal;
+  }
+
+}

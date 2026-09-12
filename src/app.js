@@ -143,6 +143,16 @@ async function renderCurrentPage(
       '#page-content'
     );
 
+const newSchoolNameInput =
+  document.querySelector(
+    '#registration-new-school'
+  );
+
+
+const newSchoolCountryInput =
+  document.querySelector(
+    '#registration-country'
+  );
 
   if (!container) {
     return;
@@ -2373,22 +2383,42 @@ function bindUiEvents() {
 
 
     const updateSchoolFields =
-      () => {
+  () => {
+
+    const hasExistingSchool =
+      Boolean(
+        schoolSelect?.value
+      );
 
 
-        newSchoolSection
-          ?.classList
-          .toggle(
+    newSchoolSection
+      ?.classList
+      .toggle(
+        'hidden',
+        hasExistingSchool
+      );
 
-            'hidden',
 
-            Boolean(
-              schoolSelect?.value
-            )
+    if (
+      newSchoolNameInput
+    ) {
 
-          );
+      newSchoolNameInput.required =
+        !hasExistingSchool;
 
-      };
+    }
+
+
+    if (
+      newSchoolCountryInput
+    ) {
+
+      newSchoolCountryInput.required =
+        !hasExistingSchool;
+
+    }
+
+  };
 
 
 
@@ -2519,33 +2549,61 @@ function bindUiEvents() {
           class="input registration-student-grade"
         >
 
-          <option value="">
-            Grade
-          </option>
+         <option value="">
+  Grade
+</option>
 
-          <option value="Grade 7">
-            Grade 7
-          </option>
+<option value="Grade 1">
+  Grade 1
+</option>
 
-          <option value="Grade 8">
-            Grade 8
-          </option>
+<option value="Grade 2">
+  Grade 2
+</option>
 
-          <option value="Grade 9">
-            Grade 9
-          </option>
+<option value="Grade 3">
+  Grade 3
+</option>
 
-          <option value="Grade 10">
-            Grade 10
-          </option>
+<option value="Grade 4">
+  Grade 4
+</option>
 
-          <option value="Grade 11">
-            Grade 11
-          </option>
+<option value="Grade 5">
+  Grade 5
+</option>
 
-          <option value="Grade 12">
-            Grade 12
-          </option>
+<option value="Grade 6">
+  Grade 6
+</option>
+
+<option value="Grade 7">
+  Grade 7
+</option>
+
+<option value="Grade 8">
+  Grade 8
+</option>
+
+<option value="Grade 9">
+  Grade 9
+</option>
+
+<option value="Grade 10">
+  Grade 10
+</option>
+
+<option value="Grade 11">
+  Grade 11
+</option>
+
+<option value="Grade 12">
+  Grade 12
+</option>
+
+<option value="Other">
+  Other
+</option>
 
         </select>
 
@@ -2965,60 +3023,91 @@ function bindUiEvents() {
 
 
 
-            registrationForm.reset();
+            registrationForm.innerHTML = `
+
+  <div
+    class="registration-success"
+  >
+
+    <div
+      class="registration-success-icon"
+    >
+      ✓
+    </div>
 
 
+    <p class="eyebrow">
+      GLOBAL CLASSROOM CONNECT
+    </p>
 
 
-            if (
-              studentList
-            ) {
-
-              studentList.innerHTML =
-                '';
-
-            }
+    <h2>
+      Registration Complete!
+    </h2>
 
 
+    <p class="registration-success-lead">
+      Thank you for joining
+      Global Classroom.
+    </p>
 
 
-            studentNumber =
-              0;
+    <p class="muted">
+      Your registration has been
+      successfully received.
+      The host will review your school,
+      teacher, and student information.
+    </p>
 
 
+    <div class="registration-success-next">
+
+      <strong>
+        What happens next?
+      </strong>
+
+      <p>
+        Once your registration is reviewed,
+        your school and participants will be
+        added to the Global Classroom network.
+      </p>
+
+    </div>
 
 
-            addStudentRow();
-
-            addStudentRow();
-
-            addStudentRow();
+    <p class="muted">
+      You may now close this page.
+    </p>
 
 
+    <button
+      id="registration-another-button"
+      class="secondary-button"
+      type="button"
+    >
+      Submit Another Registration
+    </button>
+
+  </div>
+
+`;
 
 
-            updateSchoolFields();
+const anotherButton =
+  document.querySelector(
+    '#registration-another-button'
+  );
 
 
+anotherButton
+  ?.addEventListener(
+    'click',
+    async () => {
 
+      await renderApp();
 
-            facilitatorField
-              ?.classList
-              .add(
-                'hidden'
-              );
-
-
-
-
-            if (
-              message
-            ) {
-
-              message.textContent =
-                '✓ Registration received. The host will review your information.';
-
-            }
+    }
+  );
 
 
           } catch (error) {
@@ -3064,18 +3153,17 @@ function bindUiEvents() {
 
 
             if (
-              submitButton
-            ) {
+  submitButton?.isConnected
+) {
+
+  submitButton.disabled =
+    false;
 
 
-              submitButton.disabled =
-                false;
+  submitButton.textContent =
+    '🌍 Submit Registration';
 
-
-              submitButton.textContent =
-                'Submit Registration';
-
-            }
+}
 
           }
 
