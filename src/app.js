@@ -1,34 +1,95 @@
 import { supabase } from './services/supabase.js';
+
 import {
   addSchool,
   getSchoolById,
   updateSchool,
   deleteSchool,
 } from './services/schoolService.js';
+
+import {
+  saveRoomPlan,
+  getRoundOverview,
+} from './services/roomService.js';
+
 import {
   TeachersPage
 } from './pages/host/TeachersPage.js';
+
 import {
   addTeacher,
   updateTeacher,
   uploadTeacherPhoto,
 } from './services/teacherService.js';
+
 import {
-  submitRegistration
+  ParticipantsPage
+} from './pages/host/ParticipantsPage.js';
+
+import {
+  buildRoomPlan,
+} from './services/roomBuilderService.js';
+
+import {
+  submitRegistration,
+  approveRegistrationRequest,
+  rejectRegistrationRequest,
 } from './services/registrationService.js';
-import { signIn } from './services/authService.js';
 
-import { Sidebar } from './components/Sidebar.js';
-import { Header } from './components/Header.js';
+import {
+  signIn
+} from './services/authService.js';
 
-import { DashboardPage } from './pages/host/DashboardPage.js';
-import { EventsPage } from './pages/host/EventsPage.js';
-import { SchoolsPage } from './pages/host/SchoolsPage.js';
-import { RoomsPage } from './pages/host/RoomsPage.js';
 
-import { RegistrationPage } from './pages/teacher/RegistrationPage.js';
-import { SessionBoardPage } from './pages/participant/SessionBoardPage.js';
-import { LoginPage } from './pages/auth/LoginPage.js';
+import {
+  Sidebar
+} from './components/Sidebar.js';
+
+import {
+  Header
+} from './components/Header.js';
+
+
+import {
+  DashboardPage
+} from './pages/host/DashboardPage.js';
+
+import {
+  EventsPage
+} from './pages/host/EventsPage.js';
+
+import {
+  SchoolsPage
+} from './pages/host/SchoolsPage.js';
+
+import {
+  RoomsPage,
+  renderRoomPlan,
+} from './pages/host/RoomsPage.js';
+
+import {
+  RoundOverviewPage,
+  renderRoundOverviewContent,
+} from './pages/host/RoundOverviewPage.js';
+
+import {
+  RegistrationPage
+} from './pages/teacher/RegistrationPage.js';
+
+import {
+  SessionBoardPage
+} from './pages/participant/SessionBoardPage.js';
+
+import {
+  LoginPage
+} from './pages/auth/LoginPage.js';
+
+
+
+
+let currentRoomPlan = null;
+
+
 
 
 const routes = {
@@ -36,56 +97,95 @@ const routes = {
   events: EventsPage,
   schools: SchoolsPage,
   teachers: TeachersPage,
+  participants: ParticipantsPage,
   rooms: RoomsPage,
+
+  'round-overview': RoundOverviewPage,
+
   registration: RegistrationPage,
   'session-board': SessionBoardPage,
   login: LoginPage,
 };
 
 
+
+
 function getCurrentRoute() {
-  const raw = window.location.hash
-    .replace('#/', '')
-    .trim();
+
+  const raw =
+    window
+      .location
+      .hash
+      .replace(
+        '#/',
+        ''
+      )
+      .trim();
+
 
   return routes[raw]
     ? raw
     : 'dashboard';
+
 }
 
 
-async function renderCurrentPage(route) {
-  const page = routes[route];
+
+
+async function renderCurrentPage(
+  route
+) {
+
+  const page =
+    routes[route];
+
 
   const container =
-    document.querySelector('#page-content');
+    document.querySelector(
+      '#page-content'
+    );
+
 
   if (!container) {
     return;
   }
 
+
   container.innerHTML = `
+
     <section class="panel">
+
       <p class="muted">
         Loading...
       </p>
+
     </section>
+
   `;
 
+
   try {
+
     const pageHtml =
       await page();
 
+
     container.innerHTML =
       pageHtml;
+
+
   } catch (error) {
+
     console.error(
       'Page render error:',
       error
     );
 
+
     container.innerHTML = `
+
       <section class="panel">
+
         <h2>
           Something went wrong
         </h2>
@@ -93,63 +193,923 @@ async function renderCurrentPage(route) {
         <p class="muted">
           Please check the browser console.
         </p>
+
       </section>
+
     `;
+
   }
+
 }
+
+
 
 
 function bindUiEvents() {
 
-  // ============================
+
+    // =========================================================
+  // Smart Room Builder
+  // =========================================================
+
+  const generateRoomsButton =
+    document.querySelector(
+      '#generate-rooms-button'
+    );
+
+
+  const saveRoomPlanButton =
+    document.querySelector(
+      '#save-room-plan-button'
+    );
+
+
+  const roomEventSelect =
+    document.querySelector(
+      '#room-event'
+    );
+
+
+  const roomRoundSelect =
+    document.querySelector(
+      '#room-round-number'
+    );
+
+
+  const roomSizeSelect =
+    document.querySelector(
+      '#participants-per-room'
+    );
+
+
+  const roomBuilderStatus =
+    document.querySelector(
+      '#room-builder-status'
+    );
+
+
+  const generatedRoomGrid =
+    document.querySelector(
+      '#generated-room-grid'
+    );
+
+const qualityDashboard =
+  document.querySelector(
+    '#room-quality-dashboard'
+  );
+
+
+const qualityDiversityScore =
+  document.querySelector(
+    '#quality-diversity-score'
+  );
+
+
+const qualityRepeatedPairs =
+  document.querySelector(
+    '#quality-repeated-pairs'
+  );
+
+
+const qualitySchoolConflicts =
+  document.querySelector(
+    '#quality-school-conflicts'
+  );
+
+
+const qualityCountryMix =
+  document.querySelector(
+    '#quality-country-mix'
+  );
+
+
+const qualityFacilitatorCoverage =
+  document.querySelector(
+    '#quality-facilitator-coverage'
+  );
+
+  function invalidateRoomPlan() {
+
+    currentRoomPlan =
+      null;
+
+if (
+  qualityDashboard
+) {
+
+  qualityDashboard
+    .classList
+    .add(
+      'hidden'
+    );
+
+}
+
+    if (
+      saveRoomPlanButton
+    ) {
+
+      saveRoomPlanButton.disabled =
+        true;
+
+      saveRoomPlanButton.textContent =
+        'Save Round';
+
+    }
+
+
+    if (
+      generatedRoomGrid
+    ) {
+
+      generatedRoomGrid.innerHTML =
+        '';
+
+    }
+
+
+    if (
+      roomBuilderStatus
+    ) {
+
+      roomBuilderStatus.textContent =
+        'Settings changed. Generate a new room plan.';
+
+    }
+
+  }
+
+
+
+  roomEventSelect
+    ?.addEventListener(
+      'change',
+      invalidateRoomPlan
+    );
+
+
+  roomRoundSelect
+    ?.addEventListener(
+      'change',
+      invalidateRoomPlan
+    );
+
+
+  roomSizeSelect
+    ?.addEventListener(
+      'change',
+      invalidateRoomPlan
+    );
+
+  // =========================================================
+  // Round Overview
+  // =========================================================
+
+  const roundOverviewEvent =
+    document.querySelector(
+      '#round-overview-event'
+    );
+
+
+  roundOverviewEvent
+    ?.addEventListener(
+      'change',
+      async () => {
+
+        const eventId =
+          roundOverviewEvent.value;
+
+
+        const status =
+          document.querySelector(
+            '#round-overview-status'
+          );
+
+
+        const content =
+          document.querySelector(
+            '#round-overview-content'
+          );
+
+
+        if (
+          !eventId ||
+          !content
+        ) {
+          return;
+        }
+
+
+        if (
+          status
+        ) {
+
+          status.textContent =
+            'Loading saved rounds...';
+
+        }
+
+
+        try {
+
+          const rounds =
+            await getRoundOverview(
+              eventId
+            );
+
+
+          content.innerHTML =
+            renderRoundOverviewContent(
+              rounds
+            );
+
+
+          if (
+            status
+          ) {
+
+            status.textContent =
+              `Comparing ${rounds.length} saved round(s).`;
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            'Round Overview change error:',
+            error
+          );
+
+
+          if (
+            status
+          ) {
+
+            status.textContent =
+              error?.message ||
+              'Could not load the selected event.';
+
+          }
+
+        }
+
+      }
+    );
+
+  // ---------------------------------------------------------
+  // Generate Rooms
+  // ---------------------------------------------------------
+
+  generateRoomsButton
+    ?.addEventListener(
+      'click',
+      async () => {
+
+        const eventId =
+          roomEventSelect?.value ||
+          null;
+
+
+        const roundNumber =
+          Number(
+            roomRoundSelect?.value ||
+            1
+          );
+
+
+        const participantsPerRoom =
+          Number(
+            roomSizeSelect?.value ||
+            4
+          );
+
+
+        currentRoomPlan =
+          null;
+
+
+        if (
+          saveRoomPlanButton
+        ) {
+
+          saveRoomPlanButton.disabled =
+            true;
+
+          saveRoomPlanButton.textContent =
+            'Save Round';
+
+        }
+
+
+        generateRoomsButton.disabled =
+          true;
+
+
+        generateRoomsButton.textContent =
+          'Generating...';
+
+
+        if (
+          roomBuilderStatus
+        ) {
+
+          if (
+            roundNumber > 1
+          ) {
+
+            roomBuilderStatus.textContent =
+              `Checking previous rounds and generating Round ${roundNumber}...`;
+
+          } else {
+
+            roomBuilderStatus.textContent =
+              'Mixing schools and countries...';
+
+          }
+
+        }
+
+
+        try {
+
+          const plan =
+            await buildRoomPlan({
+
+              participantsPerRoom,
+
+              eventId,
+
+              roundNumber,
+
+            });
+
+
+          currentRoomPlan =
+            plan;
+
+        if (
+  plan.quality &&
+  qualityDashboard
+) {
+
+  qualityDashboard
+    .classList
+    .remove(
+      'hidden'
+    );
+
+
+  if (
+    qualityDiversityScore
+  ) {
+
+    qualityDiversityScore.textContent =
+      `${plan.quality.diversityScore}%`;
+
+  }
+
+
+  if (
+    qualityRepeatedPairs
+  ) {
+
+    qualityRepeatedPairs.textContent =
+      plan.quality.repeatedPairs;
+
+  }
+
+
+  if (
+    qualitySchoolConflicts
+  ) {
+
+    qualitySchoolConflicts.textContent =
+      plan.quality.sameSchoolPairs;
+
+  }
+
+
+  if (
+    qualityCountryMix
+  ) {
+
+    qualityCountryMix.textContent =
+      plan.quality.countryMix;
+
+  }
+
+
+  if (
+    qualityFacilitatorCoverage
+  ) {
+
+    qualityFacilitatorCoverage.textContent =
+      `${plan.quality.facilitatorCoverage}%`;
+
+  }
+
+}
+            
+          if (
+            generatedRoomGrid
+          ) {
+
+            generatedRoomGrid.innerHTML =
+              renderRoomPlan(
+                plan
+              );
+
+          }
+
+
+          if (
+            saveRoomPlanButton &&
+            plan.rooms.length > 0
+          ) {
+
+            saveRoomPlanButton.disabled =
+              false;
+
+            saveRoomPlanButton.textContent =
+              'Save Round';
+
+          }
+
+
+          if (
+            roomBuilderStatus
+          ) {
+
+            let statusHtml = `
+
+              ✓ ${plan.participantCount}
+              participants assigned to
+              ${plan.roomCount} rooms.
+
+            `;
+
+
+            if (
+              roundNumber > 1
+            ) {
+
+              statusHtml += `
+
+                <br>
+
+                Previous roommate pairs checked:
+                <strong>
+                  ${plan.historyPairCount}
+                </strong>
+
+                <br>
+
+                Repeated pairs in this round:
+                <strong>
+                  ${plan.repeatedPairs}
+                </strong>
+
+              `;
+
+            }
+
+
+            if (
+              plan.missingFacilitators > 0
+            ) {
+
+              statusHtml += `
+
+                <br>
+
+                <strong>
+                  ⚠ ${plan.missingFacilitators}
+                  more facilitator(s) needed.
+                </strong>
+
+              `;
+
+            } else {
+
+              statusHtml += `
+
+                <br>
+
+                All rooms have facilitators.
+
+              `;
+
+            }
+
+
+            roomBuilderStatus.innerHTML =
+              statusHtml;
+
+          }
+
+
+        } catch (error) {
+        if (
+  qualityDashboard
+) {
+
+  qualityDashboard
+    .classList
+    .add(
+      'hidden'
+    );
+
+}
+
+          currentRoomPlan =
+            null;
+
+
+          console.error(
+            'Room generation error:',
+            error
+          );
+
+
+          if (
+            roomBuilderStatus
+          ) {
+
+            roomBuilderStatus.textContent =
+              error?.message ||
+              'Could not generate rooms.';
+
+          }
+
+
+        } finally {
+
+          generateRoomsButton.disabled =
+            false;
+
+
+          generateRoomsButton.textContent =
+            '✨ Generate Rooms';
+
+        }
+
+      }
+    );
+
+
+
+  // ---------------------------------------------------------
+  // Save Round
+  // ---------------------------------------------------------
+
+  saveRoomPlanButton
+    ?.addEventListener(
+      'click',
+      async () => {
+
+        if (
+          !currentRoomPlan
+        ) {
+
+          alert(
+            'Please generate rooms first.'
+          );
+
+          return;
+
+        }
+
+
+        const eventId =
+          roomEventSelect?.value;
+
+
+        const roundNumber =
+          Number(
+            roomRoundSelect?.value ||
+            1
+          );
+
+
+        const participantsPerRoom =
+          Number(
+            roomSizeSelect?.value ||
+            4
+          );
+
+
+        if (
+          !eventId
+        ) {
+
+          alert(
+            'Please select an event.'
+          );
+
+          return;
+
+        }
+
+
+        const confirmed =
+          window.confirm(
+            `Save Round ${roundNumber}?`
+          );
+
+
+        if (
+          !confirmed
+        ) {
+
+          return;
+
+        }
+
+
+        saveRoomPlanButton.disabled =
+          true;
+
+
+        saveRoomPlanButton.textContent =
+          'Saving...';
+
+
+        try {
+
+          const roundId =
+            await saveRoomPlan({
+
+              eventId,
+
+              roundNumber,
+
+              roundName:
+                `Round ${roundNumber}`,
+
+              participantsPerRoom,
+
+              rooms:
+                currentRoomPlan.rooms,
+
+            });
+
+
+          console.log(
+            '✅ Room plan saved:',
+            roundId
+          );
+
+
+          saveRoomPlanButton.textContent =
+            '✓ Saved';
+
+
+          if (
+            roomBuilderStatus
+          ) {
+
+            roomBuilderStatus.innerHTML += `
+
+              <br>
+
+              <strong>
+                ✓ Round ${roundNumber} saved to Supabase.
+              </strong>
+
+            `;
+
+          }
+
+
+          alert(
+            `Round ${roundNumber} saved successfully.`
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            '❌ Save room plan error:',
+            error
+          );
+
+
+          alert(
+            error?.message ||
+            'Could not save the room plan.'
+          );
+
+
+          saveRoomPlanButton.disabled =
+            false;
+
+
+          saveRoomPlanButton.textContent =
+            'Save Round';
+
+        }
+
+      }
+    );
+
+
+
+
+
+  // =========================================================
   // Language
-  // ============================
+  // =========================================================
+
 
   const langButtons =
     document.querySelectorAll(
       '[data-lang]'
     );
 
+
   const langLabel =
     document.querySelector(
       '#current-language'
     );
 
+
+
+
   langButtons.forEach(
+
     (button) => {
 
+
       button.addEventListener(
+
         'click',
+
         () => {
+
 
           const lang =
             button.dataset.lang;
 
-          if (langLabel) {
+
+
+
+          if (
+            langLabel
+          ) {
+
             langLabel.textContent =
               lang === 'ja'
                 ? '日本語'
                 : 'English';
+
           }
 
         }
+
       );
 
     }
+
   );
-  // ============================
+
+
+
+
+
+
+  // =========================================================
+  // Participant Pool
+  // =========================================================
+
+
+  const participantSearch =
+    document.querySelector(
+      '#participant-search'
+    );
+
+
+  const participantSchoolFilter =
+    document.querySelector(
+      '#participant-school-filter'
+    );
+
+
+
+
+  function filterParticipants() {
+
+
+    const query =
+      participantSearch
+        ?.value
+        .trim()
+        .toLowerCase() ||
+      '';
+
+
+
+
+    const schoolId =
+      participantSchoolFilter
+        ?.value ||
+      '';
+
+
+
+
+    document
+      .querySelectorAll(
+        '.participant-row'
+      )
+      .forEach(
+
+        (row) => {
+
+
+          const text =
+            row.dataset
+              .participantSearch ||
+            '';
+
+
+
+
+          const rowSchool =
+            row.dataset
+              .schoolId ||
+            '';
+
+
+
+
+          const matchesSearch =
+            text.includes(
+              query
+            );
+
+
+
+
+          const matchesSchool =
+            !schoolId ||
+            rowSchool ===
+              schoolId;
+
+
+
+
+          row.style.display =
+            matchesSearch &&
+            matchesSchool
+              ? ''
+              : 'none';
+
+        }
+
+      );
+
+  }
+
+
+
+
+  participantSearch
+    ?.addEventListener(
+      'input',
+      filterParticipants
+    );
+
+
+
+
+  participantSchoolFilter
+    ?.addEventListener(
+      'change',
+      filterParticipants
+    );
+
+
+
+
+
+
+  // =========================================================
   // Add School
-  // ============================
+  // =========================================================
+
 
   const addSchoolButton =
     document.querySelector(
       '#add-school-button'
     );
 
+
   const schoolFormWrapper =
     document.querySelector(
       '#add-school-form-wrapper'
     );
+
 
   const cancelSchoolButton =
     document.querySelector(
@@ -157,27 +1117,42 @@ function bindUiEvents() {
     );
 
 
+
+
   if (
     addSchoolButton &&
     schoolFormWrapper
   ) {
 
-    addSchoolButton.addEventListener(
-      'click',
-      () => {
 
-        schoolFormWrapper
-          .classList
-          .remove('hidden');
+    addSchoolButton
+      .addEventListener(
 
-        addSchoolButton
-          .classList
-          .add('hidden');
+        'click',
 
-      }
-    );
+        () => {
+
+
+          schoolFormWrapper
+            .classList
+            .remove(
+              'hidden'
+            );
+
+
+          addSchoolButton
+            .classList
+            .add(
+              'hidden'
+            );
+
+        }
+
+      );
 
   }
+
+
 
 
   if (
@@ -185,22 +1160,35 @@ function bindUiEvents() {
     schoolFormWrapper
   ) {
 
-    cancelSchoolButton.addEventListener(
-      'click',
-      () => {
 
-        schoolFormWrapper
-          .classList
-          .add('hidden');
+    cancelSchoolButton
+      .addEventListener(
 
-        addSchoolButton
-          ?.classList
-          .remove('hidden');
+        'click',
 
-      }
-    );
+        () => {
+
+
+          schoolFormWrapper
+            .classList
+            .add(
+              'hidden'
+            );
+
+
+          addSchoolButton
+            ?.classList
+            .remove(
+              'hidden'
+            );
+
+        }
+
+      );
 
   }
+
+
 
 
   const addSchoolForm =
@@ -209,189 +1197,295 @@ function bindUiEvents() {
     );
 
 
-  if (addSchoolForm) {
-
-    addSchoolForm.addEventListener(
-      'submit',
-      async (event) => {
-
-        event.preventDefault();
 
 
-        const message =
-          document.querySelector(
-            '#school-form-message'
-          );
-
-        const saveButton =
-          document.querySelector(
-            '#save-school-button'
-          );
+  if (
+    addSchoolForm
+  ) {
 
 
-        const languages =
-          document
-            .querySelector(
-              '#school-languages'
-            )
-            .value
-            .split(',')
-            .map((item) =>
-              item.trim()
-            )
-            .filter(Boolean);
+    addSchoolForm
+      .addEventListener(
+
+        'submit',
+
+        async (
+          event
+        ) => {
 
 
-        const school = {
+          event.preventDefault();
 
-          name:
+
+
+
+          const message =
+            document.querySelector(
+              '#school-form-message'
+            );
+
+
+
+
+          const saveButton =
+            document.querySelector(
+              '#save-school-button'
+            );
+
+
+
+
+          const languages =
             document
               .querySelector(
-                '#school-name'
+                '#school-languages'
               )
               .value
-              .trim(),
-
-          country_name:
-            document
-              .querySelector(
-                '#school-country-name'
+              .split(
+                ','
               )
-              .value
-              .trim(),
+              .map(
 
-          country_code:
-            document
-              .querySelector(
-                '#school-country-code'
+                (item) =>
+                  item.trim()
+
               )
-              .value
-              .trim()
-              .toUpperCase(),
-
-          city:
-            document
-              .querySelector(
-                '#school-city'
-              )
-              .value
-              .trim(),
-
-          timezone:
-            document
-              .querySelector(
-                '#school-timezone'
-              )
-              .value
-              .trim(),
-
-          languages,
-
-          introduction:
-            document
-              .querySelector(
-                '#school-introduction'
-              )
-              .value
-              .trim(),
-
-          website_url:
-            document
-              .querySelector(
-                '#school-website'
-              )
-              .value
-              .trim(),
-        };
+              .filter(
+                Boolean
+              );
 
 
-        if (message) {
-          message.textContent =
-            'Saving school...';
-        }
 
 
-        if (saveButton) {
-          saveButton.disabled =
-            true;
-
-          saveButton.textContent =
-            'Saving...';
-        }
+          const school = {
 
 
-        try {
+            name:
 
-          await addSchool(
-            school
-          );
+              document
+                .querySelector(
+                  '#school-name'
+                )
+                .value
+                .trim(),
 
 
-          if (message) {
+
+
+            country_name:
+
+              document
+                .querySelector(
+                  '#school-country-name'
+                )
+                .value
+                .trim(),
+
+
+
+
+            country_code:
+
+              document
+                .querySelector(
+                  '#school-country-code'
+                )
+                .value
+                .trim()
+                .toUpperCase(),
+
+
+
+
+            city:
+
+              document
+                .querySelector(
+                  '#school-city'
+                )
+                .value
+                .trim(),
+
+
+
+
+            timezone:
+
+              document
+                .querySelector(
+                  '#school-timezone'
+                )
+                .value
+                .trim(),
+
+
+
+
+            languages,
+
+
+
+
+            introduction:
+
+              document
+                .querySelector(
+                  '#school-introduction'
+                )
+                .value
+                .trim(),
+
+
+
+
+            website_url:
+
+              document
+                .querySelector(
+                  '#school-website'
+                )
+                .value
+                .trim(),
+
+          };
+
+
+
+
+          if (
+            message
+          ) {
+
             message.textContent =
-              '✓ School saved successfully';
+              'Saving school...';
+
           }
 
 
-          await renderApp();
-
-        } catch (error) {
-
-          console.error(
-            'Add school error:',
-            error
-          );
 
 
-          if (message) {
+          if (
+            saveButton
+          ) {
+
+            saveButton.disabled =
+              true;
+
+
+            saveButton.textContent =
+              'Saving...';
+
+          }
+
+
+
+
+          try {
+
+
+            await addSchool(
+              school
+            );
+
+
+
 
             if (
-              error?.code === '23505'
+              message
             ) {
 
               message.textContent =
-                'This school is already registered.';
+                '✓ School saved successfully';
 
-            } else {
+            }
 
-              message.textContent =
-                error?.message ||
-                'Could not save the school.';
+
+
+
+            await renderApp();
+
+
+          } catch (error) {
+
+
+            console.error(
+              'Add school error:',
+              error
+            );
+
+
+
+
+            if (
+              message
+            ) {
+
+
+              if (
+                error?.code ===
+                '23505'
+              ) {
+
+                message.textContent =
+                  'This school is already registered.';
+
+
+              } else {
+
+
+                message.textContent =
+                  error?.message ||
+                  'Could not save the school.';
+
+              }
+
+            }
+
+
+
+
+            if (
+              saveButton
+            ) {
+
+              saveButton.disabled =
+                false;
+
+
+              saveButton.textContent =
+                'Save School';
 
             }
 
           }
 
-
-          if (saveButton) {
-
-            saveButton.disabled =
-              false;
-
-            saveButton.textContent =
-              'Save School';
-
-          }
-
         }
 
-      }
-    );
+      );
 
   }
-    // ============================
+
+
+
+
+
+
+  // =========================================================
   // School Profile
-  // ============================
+  // =========================================================
+
 
   const profileButtons =
     document.querySelectorAll(
       '.school-profile-button'
     );
 
+
   const profileModal =
     document.querySelector(
       '#school-profile-modal'
     );
+
 
   const closeProfileButton =
     document.querySelector(
@@ -399,17 +1493,29 @@ function bindUiEvents() {
     );
 
 
+
+
   profileButtons.forEach(
+
     (button) => {
 
+
       button.addEventListener(
+
         'click',
+
         async () => {
 
+
           const schoolId =
-            button.dataset.schoolId;
+            button.dataset
+              .schoolId;
+
+
+
 
           try {
+
 
             const school =
               await getSchoolById(
@@ -417,9 +1523,14 @@ function bindUiEvents() {
               );
 
 
+
+
             document.querySelector(
               '#edit-school-id'
-            ).value = school.id;
+            ).value =
+              school.id;
+
+
 
 
             document.querySelector(
@@ -428,63 +1539,97 @@ function bindUiEvents() {
               school.name;
 
 
+
+
             document.querySelector(
               '#edit-school-name'
             ).value =
-              school.name || '';
+              school.name ||
+              '';
+
+
 
 
             document.querySelector(
               '#edit-school-country-name'
             ).value =
-              school.country_name || '';
+              school.country_name ||
+              '';
+
+
 
 
             document.querySelector(
               '#edit-school-country-code'
             ).value =
-              school.country_code || '';
+              school.country_code ||
+              '';
+
+
 
 
             document.querySelector(
               '#edit-school-city'
             ).value =
-              school.city || '';
+              school.city ||
+              '';
+
+
 
 
             document.querySelector(
               '#edit-school-timezone'
             ).value =
-              school.timezone || '';
+              school.timezone ||
+              '';
+
+
 
 
             document.querySelector(
               '#edit-school-languages'
             ).value =
+
               Array.isArray(
                 school.languages
               )
-                ? school.languages.join(', ')
+
+                ? school.languages.join(
+                    ', '
+                  )
+
                 : '';
+
+
 
 
             document.querySelector(
               '#edit-school-introduction'
             ).value =
-              school.introduction || '';
+              school.introduction ||
+              '';
+
+
 
 
             document.querySelector(
               '#edit-school-website'
             ).value =
-              school.website_url || '';
+              school.website_url ||
+              '';
+
+
 
 
             profileModal
               ?.classList
-              .remove('hidden');
+              .remove(
+                'hidden'
+              );
+
 
           } catch (error) {
+
 
             console.error(
               'School profile error:',
@@ -494,151 +1639,276 @@ function bindUiEvents() {
           }
 
         }
+
       );
 
     }
+
   );
+
+
 
 
   closeProfileButton
     ?.addEventListener(
+
       'click',
+
       () => {
+
 
         profileModal
           ?.classList
-          .add('hidden');
+          .add(
+            'hidden'
+          );
 
       }
+
     );
-      const editSchoolForm =
+
+
+
+
+  const editSchoolForm =
     document.querySelector(
       '#edit-school-form'
     );
 
 
-  if (editSchoolForm) {
-
-    editSchoolForm.addEventListener(
-      'submit',
-      async (event) => {
-
-        event.preventDefault();
 
 
-        const id =
-          document.querySelector(
-            '#edit-school-id'
-          ).value;
+  if (
+    editSchoolForm
+  ) {
 
 
-        const languages =
-          document.querySelector(
-            '#edit-school-languages'
-          )
-          .value
-          .split(',')
-          .map((item) =>
-            item.trim()
-          )
-          .filter(Boolean);
+    editSchoolForm
+      .addEventListener(
+
+        'submit',
+
+        async (
+          event
+        ) => {
 
 
-        const updates = {
+          event.preventDefault();
 
-          name:
+
+
+
+          const id =
             document.querySelector(
-              '#edit-school-name'
-            ).value.trim(),
+              '#edit-school-id'
+            ).value;
 
-          country_name:
+
+
+
+          const languages =
+            document
+              .querySelector(
+                '#edit-school-languages'
+              )
+              .value
+              .split(
+                ','
+              )
+              .map(
+
+                (item) =>
+                  item.trim()
+
+              )
+              .filter(
+                Boolean
+              );
+
+
+
+
+          const updates = {
+
+
+            name:
+
+              document
+                .querySelector(
+                  '#edit-school-name'
+                )
+                .value
+                .trim(),
+
+
+
+
+            country_name:
+
+              document
+                .querySelector(
+                  '#edit-school-country-name'
+                )
+                .value
+                .trim(),
+
+
+
+
+            country_code:
+
+              document
+                .querySelector(
+                  '#edit-school-country-code'
+                )
+                .value
+                .trim()
+                .toUpperCase(),
+
+
+
+
+            city:
+
+              document
+                .querySelector(
+                  '#edit-school-city'
+                )
+                .value
+                .trim(),
+
+
+
+
+            timezone:
+
+              document
+                .querySelector(
+                  '#edit-school-timezone'
+                )
+                .value
+                .trim(),
+
+
+
+
+            languages,
+
+
+
+
+            introduction:
+
+              document
+                .querySelector(
+                  '#edit-school-introduction'
+                )
+                .value
+                .trim(),
+
+
+
+
+            website_url:
+
+              document
+                .querySelector(
+                  '#edit-school-website'
+                )
+                .value
+                .trim(),
+
+          };
+
+
+
+
+          const message =
             document.querySelector(
-              '#edit-school-country-name'
-            ).value.trim(),
-
-          country_code:
-            document.querySelector(
-              '#edit-school-country-code'
-            ).value
-              .trim()
-              .toUpperCase(),
-
-          city:
-            document.querySelector(
-              '#edit-school-city'
-            ).value.trim(),
-
-          timezone:
-            document.querySelector(
-              '#edit-school-timezone'
-            ).value.trim(),
-
-          languages,
-
-          introduction:
-            document.querySelector(
-              '#edit-school-introduction'
-            ).value.trim(),
-
-          website_url:
-            document.querySelector(
-              '#edit-school-website'
-            ).value.trim(),
-
-        };
+              '#edit-school-message'
+            );
 
 
-        const message =
-          document.querySelector(
-            '#edit-school-message'
-          );
 
 
-        try {
-
-          await updateSchool(
-            id,
-            updates
-          );
+          try {
 
 
-          message.textContent =
-            '✓ School profile updated';
+            await updateSchool(
+              id,
+              updates
+            );
 
 
-          await renderApp();
-
-        } catch (error) {
-
-          console.error(
-            error
-          );
 
 
-          message.textContent =
-            error.message;
+            if (
+              message
+            ) {
+
+              message.textContent =
+                '✓ School profile updated';
+
+            }
+
+
+
+
+            await renderApp();
+
+
+          } catch (error) {
+
+
+            console.error(
+              error
+            );
+
+
+
+
+            if (
+              message
+            ) {
+
+              message.textContent =
+                error.message;
+
+            }
+
+          }
 
         }
 
-      }
-    );
+      );
 
   }
-    const deleteSchoolButton =
+
+
+
+
+  const deleteSchoolButton =
     document.querySelector(
       '#delete-school-button'
     );
 
 
+
+
   deleteSchoolButton
     ?.addEventListener(
+
       'click',
+
       async () => {
+
 
         const id =
           document.querySelector(
             '#edit-school-id'
           ).value;
+
+
 
 
         const schoolName =
@@ -647,27 +1917,44 @@ function bindUiEvents() {
           ).value;
 
 
+
+
         const confirmed =
           window.confirm(
+
             `Delete "${schoolName}" from the School Library?`
+
           );
 
 
-        if (!confirmed) {
+
+
+        if (
+          !confirmed
+        ) {
+
           return;
+
         }
 
 
+
+
         try {
+
 
           await deleteSchool(
             id
           );
 
 
+
+
           await renderApp();
 
+
         } catch (error) {
+
 
           console.error(
             'Delete school error:',
@@ -677,20 +1964,30 @@ function bindUiEvents() {
         }
 
       }
+
     );
-      // ============================
+
+
+
+
+
+
+  // =========================================================
   // Teacher Database
-  // ============================
+  // =========================================================
+
 
   const addTeacherButton =
     document.querySelector(
       '#add-teacher-button'
     );
 
+
   const addTeacherPanel =
     document.querySelector(
       '#add-teacher-panel'
     );
+
 
   const cancelTeacherButton =
     document.querySelector(
@@ -698,46 +1995,69 @@ function bindUiEvents() {
     );
 
 
+
+
   addTeacherButton
     ?.addEventListener(
+
       'click',
+
       () => {
+
 
         addTeacherPanel
           ?.classList
-          .remove('hidden');
+          .remove(
+            'hidden'
+          );
+
 
         addTeacherButton
           .classList
-          .add('hidden');
+          .add(
+            'hidden'
+          );
 
       }
+
     );
+
+
 
 
   cancelTeacherButton
     ?.addEventListener(
+
       'click',
+
       () => {
+
 
         addTeacherPanel
           ?.classList
-          .add('hidden');
+          .add(
+            'hidden'
+          );
+
 
         addTeacherButton
           ?.classList
-          .remove('hidden');
+          .remove(
+            'hidden'
+          );
 
       }
+
     );
 
 
-  // Facilitator Topics表示
+
 
   const facilitatorCheck =
     document.querySelector(
       '#teacher-can-facilitate'
     );
+
 
   const facilitatorTopicsField =
     document.querySelector(
@@ -745,28 +2065,38 @@ function bindUiEvents() {
     );
 
 
+
+
   facilitatorCheck
     ?.addEventListener(
+
       'change',
+
       () => {
+
 
         facilitatorTopicsField
           ?.classList
           .toggle(
+
             'hidden',
+
             !facilitatorCheck.checked
+
           );
 
       }
+
     );
 
 
-  // Photo Preview
+
 
   const teacherPhotoInput =
     document.querySelector(
       '#teacher-photo'
     );
+
 
   const teacherPhotoPreview =
     document.querySelector(
@@ -774,33 +2104,56 @@ function bindUiEvents() {
     );
 
 
+
+
   teacherPhotoInput
     ?.addEventListener(
+
       'change',
+
       () => {
+
 
         const file =
           teacherPhotoInput
             .files?.[0];
 
 
-        if (!file) {
+
+
+        if (
+          !file
+        ) {
+
           return;
+
         }
 
 
-        if (file.size > 5 * 1024 * 1024) {
+
+
+        if (
+          file.size >
+          5 *
+          1024 *
+          1024
+        ) {
+
 
           alert(
             'Photo must be 5MB or smaller.'
           );
 
+
           teacherPhotoInput.value =
             '';
+
 
           return;
 
         }
+
+
 
 
         const previewUrl =
@@ -809,18 +2162,30 @@ function bindUiEvents() {
           );
 
 
-        teacherPhotoPreview.innerHTML = `
-          <img
-            src="${previewUrl}"
-            alt="Teacher preview"
-          />
-        `;
+
+
+        if (
+          teacherPhotoPreview
+        ) {
+
+
+          teacherPhotoPreview.innerHTML = `
+
+            <img
+              src="${previewUrl}"
+              alt="Teacher preview"
+            />
+
+          `;
+
+        }
 
       }
+
     );
 
 
-  // Teacher Search
+
 
   const teacherSearch =
     document.querySelector(
@@ -828,10 +2193,15 @@ function bindUiEvents() {
     );
 
 
+
+
   teacherSearch
     ?.addEventListener(
+
       'input',
+
       () => {
+
 
         const query =
           teacherSearch
@@ -840,12 +2210,16 @@ function bindUiEvents() {
             .toLowerCase();
 
 
+
+
         document
           .querySelectorAll(
             '.teacher-card'
           )
           .forEach(
+
             (card) => {
+
 
               const text =
                 card.dataset
@@ -853,19 +2227,27 @@ function bindUiEvents() {
                 '';
 
 
+
+
               card.style.display =
-                text.includes(query)
+                text.includes(
+                  query
+                )
+
                   ? ''
+
                   : 'none';
 
             }
+
           );
 
       }
+
     );
 
 
-  // Save Teacher
+
 
   const addTeacherForm =
     document.querySelector(
@@ -873,12 +2255,21 @@ function bindUiEvents() {
     );
 
 
+
+
   addTeacherForm
     ?.addEventListener(
+
       'submit',
-      async (event) => {
+
+      async (
+        event
+      ) => {
+
 
         event.preventDefault();
+
+
 
 
         const message =
@@ -886,10 +2277,15 @@ function bindUiEvents() {
             '#teacher-form-message'
           );
 
+
+
+
         const saveButton =
           document.querySelector(
             '#save-teacher-button'
           );
+
+
 
 
         const languages =
@@ -898,12 +2294,20 @@ function bindUiEvents() {
               '#teacher-languages'
             )
             .value
-            .split(',')
+            .split(
+              ','
+            )
             .map(
+
               (value) =>
                 value.trim()
+
             )
-            .filter(Boolean);
+            .filter(
+              Boolean
+            );
+
+
 
 
         const canFacilitate =
@@ -914,25 +2318,39 @@ function bindUiEvents() {
             .checked;
 
 
+
+
         const facilitatorTopics =
           canFacilitate
+
             ? document
                 .querySelector(
                   '#teacher-facilitator-topics'
                 )
                 .value
-                .split(',')
+                .split(
+                  ','
+                )
                 .map(
+
                   (value) =>
                     value.trim()
+
                 )
-                .filter(Boolean)
+                .filter(
+                  Boolean
+                )
+
             : [];
+
+
 
 
         const teacherData = {
 
+
           display_name:
+
             document
               .querySelector(
                 '#teacher-name'
@@ -940,14 +2358,22 @@ function bindUiEvents() {
               .value
               .trim(),
 
+
+
+
           school_id:
+
             document
               .querySelector(
                 '#teacher-school'
               )
               .value,
 
+
+
+
           email:
+
             document
               .querySelector(
                 '#teacher-email'
@@ -956,7 +2382,11 @@ function bindUiEvents() {
               .trim() ||
             null,
 
+
+
+
           job_title:
+
             document
               .querySelector(
                 '#teacher-job-title'
@@ -965,22 +2395,39 @@ function bindUiEvents() {
               .trim() ||
             null,
 
+
+
+
           languages,
+
+
+
 
           can_facilitate:
             canFacilitate,
 
+
+
+
           facilitator_topics:
             facilitatorTopics,
 
+
+
+
           is_main_coordinator:
+
             document
               .querySelector(
                 '#teacher-main-coordinator'
               )
               .checked,
 
+
+
+
           bio:
+
             document
               .querySelector(
                 '#teacher-bio'
@@ -992,16 +2439,28 @@ function bindUiEvents() {
         };
 
 
-        if (message) {
+
+
+        if (
+          message
+        ) {
+
           message.textContent =
             'Saving teacher...';
+
         }
 
 
-        if (saveButton) {
+
+
+        if (
+          saveButton
+        ) {
+
 
           saveButton.disabled =
             true;
+
 
           saveButton.textContent =
             'Saving...';
@@ -1009,9 +2468,10 @@ function bindUiEvents() {
         }
 
 
+
+
         try {
 
-          // まずTeacher作成
 
           const teacher =
             await addTeacher(
@@ -1019,37 +2479,60 @@ function bindUiEvents() {
             );
 
 
-          // 写真があればUpload
+
 
           const photoFile =
             teacherPhotoInput
               ?.files?.[0];
 
 
-          if (photoFile) {
+
+
+          if (
+            photoFile
+          ) {
+
 
             const photoPath =
               await uploadTeacherPhoto(
+
                 teacher.id,
+
                 photoFile
+
               );
 
 
+
+
             await updateTeacher(
+
               teacher.id,
+
               {
+
                 photo_path:
                   photoPath,
+
               }
+
             );
 
           }
 
 
-          if (message) {
+
+
+          if (
+            message
+          ) {
+
             message.textContent =
               '✓ Teacher saved successfully';
+
           }
+
+
 
 
           await renderApp();
@@ -1057,25 +2540,38 @@ function bindUiEvents() {
 
         } catch (error) {
 
+
           console.error(
             'Add teacher error:',
             error
           );
 
 
-          if (message) {
+
+
+          if (
+            message
+          ) {
+
 
             message.textContent =
+
               error?.message ||
               'Could not save teacher.';
 
           }
 
 
-          if (saveButton) {
+
+
+          if (
+            saveButton
+          ) {
+
 
             saveButton.disabled =
               false;
+
 
             saveButton.textContent =
               'Save Teacher';
@@ -1085,236 +2581,459 @@ function bindUiEvents() {
         }
 
       }
+
     );
-  // ============================
+
+
+
+
+
+
+  // =========================================================
+  // Pending Registrations
+  // =========================================================
+
+
+  document
+    .querySelectorAll(
+      '.approve-registration-button'
+    )
+    .forEach(
+
+      (button) => {
+
+
+        button.addEventListener(
+
+          'click',
+
+          async () => {
+
+
+            const requestId =
+              button.dataset
+                .requestId;
+
+
+
+
+            const confirmed =
+              window.confirm(
+                'Approve this registration?'
+              );
+
+
+
+
+            if (
+              !confirmed
+            ) {
+
+              return;
+
+            }
+
+
+
+
+            button.disabled =
+              true;
+
+
+            button.textContent =
+              'Approving...';
+
+
+
+
+            try {
+
+
+              const result =
+                await approveRegistrationRequest(
+                  requestId
+                );
+
+
+
+
+              console.log(
+                'Registration approved:',
+                result
+              );
+
+
+
+
+              await renderApp();
+
+
+            } catch (error) {
+
+
+              console.error(
+                'Approve error:',
+                error
+              );
+
+
+
+
+              alert(
+
+                error?.message ||
+                'Could not approve registration.'
+
+              );
+
+
+
+
+              button.disabled =
+                false;
+
+
+              button.textContent =
+                'Approve';
+
+            }
+
+          }
+
+        );
+
+      }
+
+    );
+
+
+
+
+  document
+    .querySelectorAll(
+      '.reject-registration-button'
+    )
+    .forEach(
+
+      (button) => {
+
+
+        button.addEventListener(
+
+          'click',
+
+          async () => {
+
+
+            const requestId =
+              button.dataset
+                .requestId;
+
+
+
+
+            const confirmed =
+              window.confirm(
+                'Reject this registration?'
+              );
+
+
+
+
+            if (
+              !confirmed
+            ) {
+
+              return;
+
+            }
+
+
+
+
+            try {
+
+
+              await rejectRegistrationRequest(
+                requestId
+              );
+
+
+
+
+              await renderApp();
+
+
+            } catch (error) {
+
+
+              console.error(
+                'Reject error:',
+                error
+              );
+
+
+
+
+              alert(
+
+                error?.message ||
+                'Could not reject registration.'
+
+              );
+
+            }
+
+          }
+
+        );
+
+      }
+
+    );
+
+
+
+
+
+
+  // =========================================================
   // Login
-  // ============================
+  // =========================================================
+
 
   const loginForm =
     document.querySelector(
       '#login-form'
     );
 
-  if (loginForm) {
+
+
+
+  if (
+    loginForm
+  ) {
+
 
     console.log(
       '✅ Login form connected'
     );
 
-    loginForm.addEventListener(
-      'submit',
-      async (event) => {
 
-        event.preventDefault();
 
-        console.log(
-          '🔐 Login submitted'
-        );
 
-        const emailInput =
-          document.querySelector(
-            '#login-email'
+    loginForm
+      .addEventListener(
+
+        'submit',
+
+        async (
+          event
+        ) => {
+
+
+          event.preventDefault();
+
+
+
+
+          console.log(
+            '🔐 Login submitted'
           );
 
-        const passwordInput =
-          document.querySelector(
-            '#login-password'
-          );
-
-        const message =
-          document.querySelector(
-            '#login-message'
-          );
-
-        const submitButton =
-          loginForm.querySelector(
-            'button[type="submit"]'
-          );
-
-        const email =
-          emailInput?.value
-            .trim();
-
-        const password =
-          passwordInput?.value;
-
-        if (
-          !email ||
-          !password
-        ) {
-
-          if (message) {
-            message.textContent =
-              'Please enter your email and password.';
-          }
-
-          return;
-        }
 
 
-        if (message) {
-          message.textContent =
-            'Signing in...';
-        }
 
-        if (submitButton) {
-          submitButton.disabled =
-            true;
-
-          submitButton.textContent =
-            'Signing in...';
-        }
-
-
-        try {
-
-          const result =
-            await signIn(
-              email,
-              password
+          const emailInput =
+            document.querySelector(
+              '#login-email'
             );
 
-          console.log(
-            '✅ Login successful:',
-            result
-          );
 
-          if (message) {
-            message.textContent =
-              '✓ Signed in successfully';
+          const passwordInput =
+            document.querySelector(
+              '#login-password'
+            );
+
+
+          const message =
+            document.querySelector(
+              '#login-message'
+            );
+
+
+          const submitButton =
+            loginForm.querySelector(
+              'button[type="submit"]'
+            );
+
+
+
+
+          const email =
+            emailInput
+              ?.value
+              .trim();
+
+
+
+
+          const password =
+            passwordInput
+              ?.value;
+
+
+
+
+          if (
+            !email ||
+            !password
+          ) {
+
+
+            if (
+              message
+            ) {
+
+              message.textContent =
+                'Please enter your email and password.';
+
+            }
+
+
+            return;
+
           }
 
-          window.location.hash =
-            '#/dashboard';
 
-        } catch (error) {
 
-          console.error(
-            '❌ Login error:',
-            error
-          );
 
-          if (message) {
+          if (
+            message
+          ) {
 
             message.textContent =
-              error?.message ||
-              'Email or password is incorrect.';
+              'Signing in...';
 
           }
 
-        } finally {
 
-          if (submitButton) {
+
+
+          if (
+            submitButton
+          ) {
+
 
             submitButton.disabled =
-              false;
+              true;
+
 
             submitButton.textContent =
-              'Sign In';
+              'Signing in...';
+
+          }
+
+
+
+
+          try {
+
+
+            const result =
+              await signIn(
+
+                email,
+
+                password
+
+              );
+
+
+
+
+            console.log(
+              '✅ Login successful:',
+              result
+            );
+
+
+
+
+            if (
+              message
+            ) {
+
+              message.textContent =
+                '✓ Signed in successfully';
+
+            }
+
+
+
+
+            window.location.hash =
+              '#/dashboard';
+
+
+          } catch (error) {
+
+
+            console.error(
+              '❌ Login error:',
+              error
+            );
+
+
+
+
+            if (
+              message
+            ) {
+
+
+              message.textContent =
+
+                error?.message ||
+                'Email or password is incorrect.';
+
+            }
+
+
+          } finally {
+
+
+            if (
+              submitButton
+            ) {
+
+
+              submitButton.disabled =
+                false;
+
+
+              submitButton.textContent =
+                'Sign In';
+
+            }
 
           }
 
         }
 
-      }
-    );
-
-  }
-
-}
-
-
-export async function renderApp() {
-
-  const route =
-    getCurrentRoute();
-
-  const app =
-    document.querySelector(
-      '#app'
-    );
-
-  if (!app) {
-    return;
-  }
-
-
-  // Login画面では
-  // 管理メニューを表示しない
-  if (route === 'login') {
-
-    app.innerHTML = `
-      <main
-        id="page-content"
-        class="page-content"
-      ></main>
-    `;
-
-  } else {
-
-    app.innerHTML = `
-      <div class="app-shell">
-
-        ${Sidebar(route)}
-
-        <div class="main-shell">
-
-          ${Header(route)}
-
-          <main
-            id="page-content"
-            class="page-content"
-          ></main>
-
-        </div>
-
-      </div>
-    `;
+      );
 
   }
 
 
-  await renderCurrentPage(
-    route
-  );
-
-  bindUiEvents();
-}
 
 
-// ============================
-// Supabase connection check
-// ============================
 
-if (supabase) {
 
-  supabase.auth
-    .getSession()
-    .then(
-      ({ error }) => {
-
-        if (error) {
-
-          console.error(
-            '❌ Supabase connection error:',
-            error.message
-          );
-
-        } else {
-
-          console.log(
-            '✅ Global Classroom Connect connected to Supabase'
-          );
-
-        }
-
-      }
-    );
-
-}
-  // ============================
+  // =========================================================
   // Public Teacher Registration
-  // ============================
+  // =========================================================
+
 
   const registrationForm =
     document.querySelector(
@@ -1322,12 +3041,18 @@ if (supabase) {
     );
 
 
-  if (registrationForm) {
+
+
+  if (
+    registrationForm
+  ) {
+
 
     const schoolSelect =
       document.querySelector(
         '#registration-school'
       );
+
 
     const newSchoolSection =
       document.querySelector(
@@ -1335,29 +3060,44 @@ if (supabase) {
       );
 
 
+
+
     const updateSchoolFields =
       () => {
+
 
         newSchoolSection
           ?.classList
           .toggle(
+
             'hidden',
+
             Boolean(
               schoolSelect?.value
             )
+
           );
 
       };
 
 
+
+
     schoolSelect
       ?.addEventListener(
+
         'change',
+
         updateSchoolFields
+
       );
 
 
+
+
     updateSchoolFields();
+
+
 
 
     const facilitator =
@@ -1365,36 +3105,52 @@ if (supabase) {
         '#registration-facilitator'
       );
 
+
     const facilitatorField =
       document.querySelector(
         '#registration-facilitator-topics-field'
       );
 
 
+
+
     facilitator
       ?.addEventListener(
+
         'change',
+
         () => {
+
 
           facilitatorField
             ?.classList
             .toggle(
+
               'hidden',
+
               !facilitator.checked
+
             );
 
         }
+
       );
 
 
-    // ----------------------------
+
+
+
+
+    // ---------------------------------------------------------
     // Student Rows
-    // ----------------------------
+    // ---------------------------------------------------------
+
 
     const studentList =
       document.querySelector(
         '#registration-student-list'
       );
+
 
     const addStudentButton =
       document.querySelector(
@@ -1402,12 +3158,21 @@ if (supabase) {
       );
 
 
-    let studentNumber = 0;
+
+
+    let studentNumber =
+      0;
+
+
 
 
     function addStudentRow() {
 
-      studentNumber += 1;
+
+      studentNumber +=
+        1;
+
+
 
 
       const row =
@@ -1416,16 +3181,22 @@ if (supabase) {
         );
 
 
+
+
       row.className =
         'registration-student-row';
 
 
+
+
       row.innerHTML = `
+
         <span
           class="student-number"
         >
           ${studentNumber}
         </span>
+
 
         <input
           class="input registration-student-name"
@@ -1433,9 +3204,11 @@ if (supabase) {
           placeholder="Student display name"
         />
 
+
         <select
           class="input registration-student-grade"
         >
+
           <option value="">
             Grade
           </option>
@@ -1463,7 +3236,9 @@ if (supabase) {
           <option value="Grade 12">
             Grade 12
           </option>
+
         </select>
+
 
         <button
           class="student-remove-button"
@@ -1471,53 +3246,83 @@ if (supabase) {
         >
           Remove
         </button>
+
       `;
+
+
 
 
       row
         .querySelector(
           '.student-remove-button'
         )
-        .addEventListener(
+        ?.addEventListener(
+
           'click',
+
           () => {
+
 
             row.remove();
 
           }
+
         );
 
 
-      studentList.appendChild(
-        row
-      );
+
+
+      studentList
+        ?.appendChild(
+          row
+        );
 
     }
 
 
+
+
     addStudentButton
       ?.addEventListener(
+
         'click',
+
         addStudentRow
+
       );
 
 
-    // 最初から3行
+
+
     addStudentRow();
+
     addStudentRow();
+
     addStudentRow();
 
 
-    // ----------------------------
-    // Submit
-    // ----------------------------
+
+
+
+
+    // ---------------------------------------------------------
+    // Submit Registration
+    // ---------------------------------------------------------
+
 
     registrationForm
       .addEventListener(
+
         'submit',
-        async (event) => {
+
+        async (
+          event
+        ) => {
+
 
           event.preventDefault();
+
+
 
 
           const message =
@@ -1525,24 +3330,34 @@ if (supabase) {
               '#registration-message'
             );
 
+
+
+
           const submitButton =
             document.querySelector(
               '#registration-submit'
             );
 
 
+
+
           const students =
             Array
               .from(
+
                 document
                   .querySelectorAll(
                     '.registration-student-row'
                   )
+
               )
               .map(
+
                 (row) => ({
 
+
                   name:
+
                     row
                       .querySelector(
                         '.registration-student-name'
@@ -1550,7 +3365,11 @@ if (supabase) {
                       .value
                       .trim(),
 
+
+
+
                   grade:
+
                     row
                       .querySelector(
                         '.registration-student-grade'
@@ -1558,22 +3377,39 @@ if (supabase) {
                       .value,
 
                 })
+
               )
               .filter(
+
                 (student) =>
                   student.name
+
               );
 
 
+
+
           if (
-            students.length === 0
+            students.length ===
+            0
           ) {
 
-            message.textContent =
-              'Please add at least one student.';
+
+            if (
+              message
+            ) {
+
+              message.textContent =
+                'Please add at least one student.';
+
+            }
+
 
             return;
+
           }
+
+
 
 
           const teacherLanguages =
@@ -1582,37 +3418,61 @@ if (supabase) {
                 '#registration-teacher-languages'
               )
               .value
-              .split(',')
+              .split(
+                ','
+              )
               .map(
+
                 (value) =>
                   value.trim()
+
               )
-              .filter(Boolean);
+              .filter(
+                Boolean
+              );
+
+
 
 
           const canFacilitate =
-            facilitator.checked;
+            Boolean(
+              facilitator?.checked
+            );
+
+
 
 
           const facilitatorTopics =
             canFacilitate
+
               ? document
                   .querySelector(
                     '#registration-facilitator-topics'
                   )
                   .value
-                  .split(',')
+                  .split(
+                    ','
+                  )
                   .map(
+
                     (value) =>
                       value.trim()
+
                   )
-                  .filter(Boolean)
+                  .filter(
+                    Boolean
+                  )
+
               : [];
+
+
 
 
           const registration = {
 
+
             invite_code:
+
               document
                 .querySelector(
                   '#registration-invite-code'
@@ -1620,13 +3480,25 @@ if (supabase) {
                 .value
                 .trim(),
 
+
+
+
             school_id:
-              schoolSelect.value ||
+
+              schoolSelect
+                ?.value ||
               null,
 
+
+
+
             new_school_name:
-              schoolSelect.value
+
+              schoolSelect
+                ?.value
+
                 ? null
+
                 : document
                     .querySelector(
                       '#registration-new-school'
@@ -1634,9 +3506,16 @@ if (supabase) {
                     .value
                     .trim(),
 
+
+
+
             new_school_country:
-              schoolSelect.value
+
+              schoolSelect
+                ?.value
+
                 ? null
+
                 : document
                     .querySelector(
                       '#registration-country'
@@ -1644,9 +3523,16 @@ if (supabase) {
                     .value
                     .trim(),
 
+
+
+
             new_school_city:
-              schoolSelect.value
+
+              schoolSelect
+                ?.value
+
                 ? null
+
                 : document
                     .querySelector(
                       '#registration-city'
@@ -1654,7 +3540,11 @@ if (supabase) {
                     .value
                     .trim(),
 
+
+
+
             teacher_name:
+
               document
                 .querySelector(
                   '#registration-teacher-name'
@@ -1662,7 +3552,11 @@ if (supabase) {
                 .value
                 .trim(),
 
+
+
+
             teacher_email:
+
               document
                 .querySelector(
                   '#registration-teacher-email'
@@ -1670,25 +3564,45 @@ if (supabase) {
                 .value
                 .trim(),
 
+
+
+
             teacher_languages:
               teacherLanguages,
 
+
+
+
             participation_style:
+
               document
                 .querySelector(
                   '#registration-participation-style'
                 )
                 .value,
 
+
+
+
             can_facilitate:
               canFacilitate,
+
+
+
 
             facilitator_topics:
               facilitatorTopics,
 
+
+
+
             students,
 
+
+
+
             notes:
+
               document
                 .querySelector(
                   '#registration-notes'
@@ -1700,44 +3614,105 @@ if (supabase) {
           };
 
 
-          submitButton.disabled =
-            true;
-
-          submitButton.textContent =
-            'Submitting...';
 
 
-          message.textContent =
-            'Sending registration...';
+          if (
+            submitButton
+          ) {
+
+
+            submitButton.disabled =
+              true;
+
+
+            submitButton.textContent =
+              'Submitting...';
+
+          }
+
+
+
+
+          if (
+            message
+          ) {
+
+            message.textContent =
+              'Sending registration...';
+
+          }
+
+
 
 
           try {
+
 
             await submitRegistration(
               registration
             );
 
 
+
+
             registrationForm.reset();
 
 
-            studentList.innerHTML =
-              '';
 
 
-            studentNumber = 0;
+            if (
+              studentList
+            ) {
+
+              studentList.innerHTML =
+                '';
+
+            }
+
+
+
+
+            studentNumber =
+              0;
+
+
 
 
             addStudentRow();
+
             addStudentRow();
+
             addStudentRow();
 
 
-            message.textContent =
-              '✓ Registration received. The host will review your information.';
+
+
+            updateSchoolFields();
+
+
+
+
+            facilitatorField
+              ?.classList
+              .add(
+                'hidden'
+              );
+
+
+
+
+            if (
+              message
+            ) {
+
+              message.textContent =
+                '✓ Registration received. The host will review your information.';
+
+            }
 
 
           } catch (error) {
+
 
             console.error(
               'Registration error:',
@@ -1745,32 +3720,210 @@ if (supabase) {
             );
 
 
+
+
             if (
-              error?.code === '42501'
+              message
             ) {
 
-              message.textContent =
-                'Invitation code is invalid or no longer active.';
 
-            } else {
+              if (
+                error?.code ===
+                '42501'
+              ) {
 
-              message.textContent =
-                error?.message ||
-                'Could not submit registration.';
+
+                message.textContent =
+                  'Invitation code is invalid or no longer active.';
+
+
+              } else {
+
+
+                message.textContent =
+
+                  error?.message ||
+                  'Could not submit registration.';
+
+              }
 
             }
 
+
           } finally {
 
-            submitButton.disabled =
-              false;
 
-            submitButton.textContent =
-              'Submit Registration';
+            if (
+              submitButton
+            ) {
+
+
+              submitButton.disabled =
+                false;
+
+
+              submitButton.textContent =
+                'Submit Registration';
+
+            }
 
           }
 
         }
+
       );
 
   }
+
+}
+
+
+
+
+export async function renderApp() {
+
+
+  const route =
+    getCurrentRoute();
+
+
+
+
+  const app =
+    document.querySelector(
+      '#app'
+    );
+
+
+
+
+  if (
+    !app
+  ) {
+
+    return;
+
+  }
+
+
+
+
+  if (
+    route ===
+    'login'
+  ) {
+
+
+    app.innerHTML = `
+
+      <main
+        id="page-content"
+        class="page-content"
+      ></main>
+
+    `;
+
+
+  } else {
+
+
+    app.innerHTML = `
+
+      <div class="app-shell">
+
+
+        ${Sidebar(
+          route
+        )}
+
+
+        <div class="main-shell">
+
+
+          ${Header(
+            route
+          )}
+
+
+          <main
+            id="page-content"
+            class="page-content"
+          ></main>
+
+
+        </div>
+
+
+      </div>
+
+    `;
+
+  }
+
+
+
+
+  await renderCurrentPage(
+    route
+  );
+
+
+
+
+  bindUiEvents();
+
+}
+
+
+
+
+// =========================================================
+// Supabase connection check
+// =========================================================
+
+
+if (
+  supabase
+) {
+
+
+  supabase
+    .auth
+    .getSession()
+    .then(
+
+      ({
+        error
+      }) => {
+
+
+        if (
+          error
+        ) {
+
+
+          console.error(
+
+            '❌ Supabase connection error:',
+
+            error.message
+
+          );
+
+
+        } else {
+
+
+          console.log(
+
+            '✅ Global Classroom Connect connected to Supabase'
+
+          );
+
+        }
+
+      }
+
+    );
+
+}

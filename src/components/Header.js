@@ -3,7 +3,11 @@ const titles = {
   events: 'Event Management',
   schools: 'School Library',
   teachers: 'Teacher Database',
+  participants: 'Participant Pool',
   rooms: 'Room Builder',
+
+  'round-overview': 'Round Overview',
+
   registration: 'Teacher Registration',
   'session-board': 'Participant Session Board',
 };

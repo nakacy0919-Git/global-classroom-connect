@@ -65,3 +65,50 @@ export async function getRegistrationRequests() {
 
   return data ?? [];
 }
+export async function approveRegistrationRequest(
+  requestId
+) {
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      'approve_registration_request',
+      {
+        p_request_id:
+          requestId,
+      }
+    );
+
+
+  if (error) {
+    throw error;
+  }
+
+
+  return data;
+}
+
+
+export async function rejectRegistrationRequest(
+  requestId
+) {
+
+  const {
+    error,
+  } =
+    await supabase.rpc(
+      'reject_registration_request',
+      {
+        p_request_id:
+          requestId,
+      }
+    );
+
+
+  if (error) {
+    throw error;
+  }
+
+}
