@@ -1653,8 +1653,6 @@ function bindUiEvents() {
             : [];
 
 
-
-
         const teacherData = {
 
 
@@ -2831,7 +2829,168 @@ const newSchoolCountryInput =
 
               : [];
 
+const hasExistingSchool =
+  Boolean(
+    schoolSelect?.value
+  );
 
+
+const schoolType =
+  document
+    .querySelector(
+      '#registration-school-type'
+    )
+    ?.value || '';
+
+
+const schoolLevel =
+  document
+    .querySelector(
+      '#registration-school-level'
+    )
+    ?.value || '';
+
+
+const schoolTimezone =
+  document
+    .querySelector(
+      '#registration-timezone'
+    )
+    ?.value || '';
+
+
+const schoolWebsite =
+  document
+    .querySelector(
+      '#registration-website'
+    )
+    ?.value
+    .trim() || '';
+
+
+const schoolVerificationUrl =
+  document
+    .querySelector(
+      '#registration-verification-url'
+    )
+    ?.value
+    .trim() || '';
+
+
+const schoolGrades =
+  document
+    .querySelector(
+      '#registration-school-grades'
+    )
+    ?.value
+    .split(',')
+    .map(
+      (value) =>
+        value.trim()
+    )
+    .filter(Boolean) ||
+  [];
+
+
+const studentCountValue =
+  document
+    .querySelector(
+      '#registration-student-count'
+    )
+    ?.value || '';
+
+
+const schoolStudentCount =
+  studentCountValue
+    ? Number(studentCountValue)
+    : null;
+
+
+if (
+  !hasExistingSchool
+) {
+
+  if (
+    !schoolType
+  ) {
+
+    if (message) {
+      message.textContent =
+        'Please select your school type.';
+    }
+
+    document
+      .querySelector(
+        '#registration-school-type'
+      )
+      ?.focus();
+
+    return;
+
+  }
+
+
+  if (
+    !schoolLevel
+  ) {
+
+    if (message) {
+      message.textContent =
+        'Please select your school level.';
+    }
+
+    document
+      .querySelector(
+        '#registration-school-level'
+      )
+      ?.focus();
+
+    return;
+
+  }
+
+
+  if (
+    !schoolTimezone
+  ) {
+
+    if (message) {
+      message.textContent =
+        'Please select your school time zone.';
+    }
+
+    document
+      .querySelector(
+        '#registration-timezone'
+      )
+      ?.focus();
+
+    return;
+
+  }
+
+
+  if (
+    !schoolWebsite &&
+    !schoolVerificationUrl
+  ) {
+
+    if (message) {
+      message.textContent =
+        'Please provide either an official school website or an alternative verification URL.';
+    }
+
+    document
+      .querySelector(
+        '#registration-website'
+      )
+      ?.focus();
+
+    return;
+
+  }
+
+}
 
 
           const registration = {
@@ -2849,64 +3008,141 @@ const newSchoolCountryInput =
 
 
 
-            school_id:
+school_id:
 
-              schoolSelect
-                ?.value ||
-              null,
-
-
-
-
-            new_school_name:
-
-              schoolSelect
-                ?.value
-
-                ? null
-
-                : document
-                    .querySelector(
-                      '#registration-new-school'
-                    )
-                    .value
-                    .trim(),
+  hasExistingSchool
+    ? schoolSelect.value
+    : null,
 
 
 
+new_school_name:
 
-            new_school_country:
+  hasExistingSchool
 
-              schoolSelect
-                ?.value
+    ? null
 
-                ? null
-
-                : document
-                    .querySelector(
-                      '#registration-country'
-                    )
-                    .value
-                    .trim(),
+    : document
+        .querySelector(
+          '#registration-new-school'
+        )
+        .value
+        .trim(),
 
 
 
+new_school_country:
 
-            new_school_city:
+  hasExistingSchool
 
-              schoolSelect
-                ?.value
+    ? null
 
-                ? null
-
-                : document
-                    .querySelector(
-                      '#registration-city'
-                    )
-                    .value
-                    .trim(),
+    : newSchoolCountryInput
+        ?.value
+        .trim() ||
+      null,
 
 
+
+new_school_country_code:
+
+  hasExistingSchool
+
+    ? null
+
+    : newSchoolCountryInput
+        ?.selectedOptions?.[0]
+        ?.dataset
+        ?.code ||
+      null,
+
+
+
+new_school_city:
+
+  hasExistingSchool
+
+    ? null
+
+    : document
+        .querySelector(
+          '#registration-city'
+        )
+        ?.value
+        .trim() ||
+      null,
+
+
+
+new_school_address:
+
+  hasExistingSchool
+
+    ? null
+
+    : document
+        .querySelector(
+          '#registration-address'
+        )
+        ?.value
+        .trim() ||
+      null,
+
+
+
+new_school_type:
+
+  hasExistingSchool
+    ? null
+    : schoolType || null,
+
+
+
+new_school_level:
+
+  hasExistingSchool
+    ? null
+    : schoolLevel || null,
+
+
+
+new_school_student_count:
+
+  hasExistingSchool
+    ? null
+    : schoolStudentCount,
+
+
+
+new_school_grades:
+
+  hasExistingSchool
+    ? []
+    : schoolGrades,
+
+
+
+new_school_timezone:
+
+  hasExistingSchool
+    ? null
+    : schoolTimezone || null,
+
+
+
+new_school_website_url:
+
+  hasExistingSchool
+    ? null
+    : schoolWebsite || null,
+
+
+
+new_school_verification_url:
+
+  hasExistingSchool
+    ? null
+    : schoolVerificationUrl || null,
 
 
             teacher_name:
@@ -2918,7 +3154,15 @@ const newSchoolCountryInput =
                 .value
                 .trim(),
 
+teacher_job_title:
 
+  document
+    .querySelector(
+      '#registration-teacher-job-title'
+    )
+    ?.value
+    .trim() ||
+  null,
 
 
             teacher_email:

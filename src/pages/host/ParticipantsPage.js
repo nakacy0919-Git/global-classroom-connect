@@ -17,26 +17,52 @@ function escapeHtml(value = '') {
 }
 
 
-function getCountryFlag(countryCode) {
+function getCountryFlagHtml(
+  countryCode,
+  countryName = ''
+) {
+
+  const code =
+    String(
+      countryCode || ''
+    )
+      .trim()
+      .toLowerCase();
+
 
   if (
-    !countryCode ||
-    countryCode.length !== 2
+    !/^[a-z]{2}$/.test(
+      code
+    )
   ) {
-    return '🌍';
+
+    return `
+      <span
+        class="country-flag-fallback"
+        title="Country flag unavailable"
+      >
+        🌐
+      </span>
+    `;
+
   }
 
 
-  return countryCode
-    .toUpperCase()
-    .replace(
-      /./g,
-      (char) =>
-        String.fromCodePoint(
-          127397 +
-          char.charCodeAt()
-        )
-    );
+  return `
+    <img
+      class="country-flag-image"
+      src="https://flagcdn.com/24x18/${code}.png"
+      srcset="
+        https://flagcdn.com/48x36/${code}.png 2x
+      "
+      width="24"
+      height="18"
+      alt="${escapeHtml(
+        countryName
+      )} flag"
+      loading="lazy"
+    />
+  `;
 
 }
 
@@ -286,10 +312,11 @@ export async function ParticipantsPage() {
                       const teacher =
                         participant.teachers;
 
-                      const flag =
-                        getCountryFlag(
-                          school?.country_code
-                        );
+                      const flagHtml =
+  getCountryFlagHtml(
+    school?.country_code,
+    school?.country_name
+  );
 
 
                       const searchText =
@@ -354,13 +381,18 @@ export async function ParticipantsPage() {
                           </span>
 
 
-                          <span>
-                            ${flag}
-                            ${escapeHtml(
-                              school?.country_name ||
-                              '-'
-                            )}
-                          </span>
+                          <span
+  class="participant-country-cell"
+>
+  ${flagHtml}
+
+  <span>
+    ${escapeHtml(
+      school?.country_name ||
+      '-'
+    )}
+  </span>
+</span>
 
 
                           <span>

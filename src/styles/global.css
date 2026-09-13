@@ -4111,3 +4111,646 @@ textarea {
   }
 
 }
+/* =========================================================
+   PARTICIPANT POOL - POLISHED LAYOUT
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Statistics
+   --------------------------------------------------------- */
+
+.participant-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin: 24px 0;
+}
+
+
+.participant-stat {
+  padding: 18px 20px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.62);
+
+  border:
+    1px solid
+    rgba(19, 50, 74, 0.08);
+
+  box-shadow:
+    0 8px 22px
+    rgba(13, 62, 92, 0.05);
+}
+
+
+.participant-stat strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 1.55rem;
+  line-height: 1;
+
+  color: var(--accent-dark);
+}
+
+
+.participant-stat span {
+  color: var(--muted);
+
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   Search / Filter
+   --------------------------------------------------------- */
+
+.participant-toolbar {
+  display: grid;
+
+  grid-template-columns:
+    minmax(280px, 1fr)
+    280px;
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+
+.participant-toolbar .input {
+  min-height: 50px;
+
+  background:
+    rgba(255, 255, 255, 0.9);
+}
+
+
+/* ---------------------------------------------------------
+   Table container
+   --------------------------------------------------------- */
+
+.participant-table {
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background:
+    rgba(255, 255, 255, 0.5);
+
+  border:
+    1px solid
+    rgba(19, 50, 74, 0.08);
+
+  box-shadow:
+    0 12px 30px
+    rgba(13, 62, 92, 0.05);
+}
+
+
+/* ---------------------------------------------------------
+   Table Header
+   --------------------------------------------------------- */
+
+.participant-table-head,
+.participant-row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(180px, 1.1fr)
+    100px
+    minmax(220px, 1.4fr)
+    minmax(150px, 0.9fr)
+    minmax(170px, 1fr);
+
+  align-items: center;
+
+  column-gap: 18px;
+}
+
+
+.participant-table-head {
+  padding: 13px 18px;
+
+  background:
+    rgba(18, 120, 197, 0.08);
+
+  border-bottom:
+    1px solid
+    rgba(19, 50, 74, 0.08);
+}
+
+
+.participant-table-head span {
+  color: var(--muted);
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.07em;
+}
+
+
+/* ---------------------------------------------------------
+   Participant Row
+   --------------------------------------------------------- */
+
+.participant-row {
+  min-height: 68px;
+
+  padding: 12px 18px;
+
+  border-bottom:
+    1px solid
+    rgba(19, 50, 74, 0.07);
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+.participant-row:last-child {
+  border-bottom: none;
+}
+
+
+.participant-row:hover {
+  background:
+    rgba(255, 255, 255, 0.68);
+}
+
+
+.participant-row > span {
+  color: var(--text);
+
+  font-size: 0.9rem;
+
+  line-height: 1.45;
+}
+
+
+/* ---------------------------------------------------------
+   Participant Name
+   --------------------------------------------------------- */
+
+.participant-name-cell {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+}
+
+
+.participant-avatar {
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #56bce9,
+      #167bbb
+    );
+
+  color: white;
+
+  font-size: 0.9rem;
+  font-weight: 900;
+
+  box-shadow:
+    0 6px 14px
+    rgba(18, 120, 197, 0.18);
+}
+
+
+.participant-name-cell strong {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 0.96rem;
+}
+
+
+/* ---------------------------------------------------------
+   Small details
+   --------------------------------------------------------- */
+
+.participant-row > span:nth-child(2) {
+  color: var(--muted);
+
+  font-size: 0.84rem;
+}
+
+
+.participant-row > span:nth-child(4) {
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 1050px) {
+
+  .participant-table {
+    overflow-x: auto;
+  }
+
+
+  .participant-table-head,
+  .participant-row {
+    min-width: 900px;
+  }
+
+}
+
+
+@media (max-width: 760px) {
+
+  .participant-stats {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+
+  .participant-stat {
+    padding: 14px 12px;
+
+    text-align: center;
+  }
+
+
+  .participant-stat strong {
+    font-size: 1.3rem;
+  }
+
+
+  .participant-stat span {
+    font-size: 0.72rem;
+  }
+
+
+  .participant-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+
+  .participant-table {
+    background: transparent;
+
+    border: 0;
+
+    box-shadow: none;
+
+    overflow: visible;
+  }
+
+
+  .participant-table-head {
+    display: none;
+  }
+
+
+  .participant-row {
+    min-width: 0;
+
+    grid-template-columns:
+      52px
+      1fr;
+
+    gap: 8px 12px;
+
+    margin-bottom: 12px;
+
+    padding: 16px;
+
+    border:
+      1px solid
+      rgba(19, 50, 74, 0.08);
+
+    border-radius: 18px;
+
+    background:
+      rgba(255, 255, 255, 0.68);
+  }
+
+
+  .participant-name-cell {
+    grid-column:
+      1 / -1;
+
+    margin-bottom: 6px;
+  }
+
+
+  .participant-row > span {
+    grid-column: 2;
+  }
+
+
+  .participant-row > span::before {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: var(--muted);
+
+    font-size: 0.65rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+  }
+
+
+  .participant-row > span:nth-child(2)::before {
+    content: "Grade";
+  }
+
+
+  .participant-row > span:nth-child(3)::before {
+    content: "School";
+  }
+
+
+  .participant-row > span:nth-child(4)::before {
+    content: "Country";
+  }
+
+
+  .participant-row > span:nth-child(5)::before {
+    content: "Teacher";
+  }
+
+}
+/* =========================================================
+   COUNTRY FLAG
+   ========================================================= */
+
+.participant-country-cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 600;
+}
+
+
+.country-flag-image {
+  width: 24px;
+  height: 18px;
+
+  flex: 0 0 24px;
+
+  object-fit: cover;
+
+  border-radius: 3px;
+
+  box-shadow:
+    0 1px 4px
+    rgba(0, 0, 0, 0.16);
+}
+
+
+.country-flag-fallback {
+  width: 24px;
+
+  display: inline-flex;
+  justify-content: center;
+
+  font-size: 1rem;
+}
+/* =========================================================
+   REGISTRATION - SCHOOL PROFILE CARDS
+   ========================================================= */
+
+.registration-public .registration-profile-group {
+  margin-top: 22px;
+  padding: 24px;
+  border: 1px solid rgba(72, 132, 176, 0.16);
+  border-radius: 20px;
+  background:
+    rgba(255, 255, 255, 0.58);
+  box-shadow:
+    0 8px 24px rgba(41, 91, 126, 0.06);
+}
+
+
+/* ---------------------------------------------------------
+   Group heading
+   --------------------------------------------------------- */
+
+.registration-public
+.registration-profile-group-head {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom:
+    1px solid rgba(67, 125, 165, 0.12);
+}
+
+
+.registration-public
+.registration-profile-group-head strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 1rem;
+  font-weight: 750;
+  color: #163a54;
+  line-height: 1.35;
+}
+
+
+.registration-public
+.registration-profile-group-head .muted {
+  display: block;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #66839a;
+}
+
+
+/* ---------------------------------------------------------
+   Fields inside profile cards
+   --------------------------------------------------------- */
+
+.registration-public
+.registration-profile-group .form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 20px 18px;
+}
+
+
+.registration-public
+.registration-profile-group .field {
+  gap: 7px;
+}
+
+
+.registration-public
+.registration-profile-group .field > span {
+  font-size: 0.91rem;
+  font-weight: 650;
+  color: #25465e;
+}
+
+
+.registration-public
+.registration-profile-group .input {
+  min-height: 52px;
+  background:
+    rgba(255, 255, 255, 0.88);
+  border:
+    1px solid rgba(73, 119, 151, 0.18);
+}
+
+
+.registration-public
+.registration-profile-group .input:focus {
+  background: #ffffff;
+  border-color: rgba(48, 127, 181, 0.5);
+  box-shadow:
+    0 0 0 4px rgba(74, 153, 207, 0.10);
+}
+
+
+/* ---------------------------------------------------------
+   Help text
+   --------------------------------------------------------- */
+
+.registration-public
+.registration-profile-group small.muted {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #6f8da3;
+}
+
+
+/* ---------------------------------------------------------
+   Verification note
+   --------------------------------------------------------- */
+
+.registration-public
+.registration-verification-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 15px 17px;
+  border-radius: 14px;
+  background:
+    rgba(218, 241, 250, 0.72);
+  border:
+    1px solid rgba(62, 142, 184, 0.13);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: #43677f;
+}
+
+
+.registration-public
+.registration-verification-note strong {
+  flex: 0 0 auto;
+  color: #1f506e;
+}
+
+
+.registration-public
+.registration-verification-note span {
+  flex: 1;
+}
+
+
+/* ---------------------------------------------------------
+   New school block
+   --------------------------------------------------------- */
+
+.registration-public
+#new-school-registration {
+  margin-top: 8px;
+}
+
+
+/* Remove awkward field styling from wrapper */
+.registration-public
+#new-school-registration.field {
+  gap: 0;
+}
+
+
+/* ---------------------------------------------------------
+   Better spacing between major registration sections
+   --------------------------------------------------------- */
+
+.registration-public
+.registration-section {
+  padding-top: 10px;
+  padding-bottom: 32px;
+}
+
+
+.registration-public
+.registration-section + .registration-section {
+  margin-top: 10px;
+}
+
+
+/* ---------------------------------------------------------
+   Mobile
+   --------------------------------------------------------- */
+
+@media (max-width: 760px) {
+
+  .registration-public
+  .registration-profile-group {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+
+  .registration-public
+  .registration-profile-group .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+
+  .registration-public
+  .registration-verification-note {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+}
