@@ -1,4 +1,5 @@
 import { supabase } from './services/supabase.js';
+import { initRegistrationWizard } from './controllers/registrationWizard.js';
 
 import {
   addSchool,
@@ -3537,6 +3538,7 @@ export async function renderApp() {
 
 
   bindUiEvents();
+  if (route === 'registration') initRegistrationWizard();
 
 }
 
