@@ -1,6 +1,7 @@
 const titles = {
   dashboard: 'Host Dashboard',
   events: 'Event Management',
+  scheduling: 'Schedule Planner',
   schools: 'School Library',
   teachers: 'Teacher Database',
   participants: 'Participant Pool',

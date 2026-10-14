@@ -1,0 +1,2530 @@
+{
+  "version": 1,
+  "count": 197,
+  "definition": "193 UN members + 2 UN observers + Taiwan + Kosovo",
+  "countries": [
+    {
+      "code": "AF",
+      "name": "Afghanistan",
+      "nameJa": "アフガニスタン",
+      "region": "Asia",
+      "capital": "Kabul",
+      "lat": 33,
+      "lon": 65,
+      "zones": [
+        "Asia/Kabul"
+      ]
+    },
+    {
+      "code": "AL",
+      "name": "Albania",
+      "nameJa": "アルバニア",
+      "region": "Europe",
+      "capital": "Tirana",
+      "lat": 41,
+      "lon": 20,
+      "zones": [
+        "Europe/Tirane"
+      ]
+    },
+    {
+      "code": "DZ",
+      "name": "Algeria",
+      "nameJa": "アルジェリア",
+      "region": "Africa",
+      "capital": "Algiers",
+      "lat": 28,
+      "lon": 3,
+      "zones": [
+        "Africa/Algiers"
+      ]
+    },
+    {
+      "code": "AD",
+      "name": "Andorra",
+      "nameJa": "アンドラ",
+      "region": "Europe",
+      "capital": "Andorra la Vella",
+      "lat": 42.5,
+      "lon": 1.5,
+      "zones": [
+        "Europe/Andorra"
+      ]
+    },
+    {
+      "code": "AO",
+      "name": "Angola",
+      "nameJa": "アンゴラ",
+      "region": "Africa",
+      "capital": "Luanda",
+      "lat": -12.5,
+      "lon": 18.5,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "AG",
+      "name": "Antigua and Barbuda",
+      "nameJa": "アンティグア・バーブーダ",
+      "region": "Americas",
+      "capital": "Saint John's",
+      "lat": 17.05,
+      "lon": -61.8,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "AR",
+      "name": "Argentina",
+      "nameJa": "アルゼンチン",
+      "region": "Americas",
+      "capital": "Buenos Aires",
+      "lat": -34,
+      "lon": -64,
+      "zones": [
+        "America/Argentina/Buenos_Aires",
+        "America/Argentina/Catamarca",
+        "America/Argentina/Cordoba",
+        "America/Argentina/Jujuy",
+        "America/Argentina/La_Rioja",
+        "America/Argentina/Mendoza",
+        "America/Argentina/Rio_Gallegos",
+        "America/Argentina/Salta",
+        "America/Argentina/San_Juan",
+        "America/Argentina/San_Luis",
+        "America/Argentina/Tucuman",
+        "America/Argentina/Ushuaia"
+      ]
+    },
+    {
+      "code": "AM",
+      "name": "Armenia",
+      "nameJa": "アルメニア",
+      "region": "Asia",
+      "capital": "Yerevan",
+      "lat": 40,
+      "lon": 45,
+      "zones": [
+        "Asia/Yerevan"
+      ]
+    },
+    {
+      "code": "AU",
+      "name": "Australia",
+      "nameJa": "オーストラリア",
+      "region": "Oceania",
+      "capital": "Canberra",
+      "lat": -27,
+      "lon": 133,
+      "zones": [
+        "Antarctica/Macquarie",
+        "Asia/Tokyo",
+        "Australia/Adelaide",
+        "Australia/Brisbane",
+        "Australia/Broken_Hill",
+        "Australia/Darwin",
+        "Australia/Eucla",
+        "Australia/Hobart",
+        "Australia/Lindeman",
+        "Australia/Lord_Howe",
+        "Australia/Melbourne",
+        "Australia/Perth",
+        "Australia/Sydney"
+      ]
+    },
+    {
+      "code": "AT",
+      "name": "Austria",
+      "nameJa": "オーストリア",
+      "region": "Europe",
+      "capital": "Vienna",
+      "lat": 47.33333333,
+      "lon": 13.33333333,
+      "zones": [
+        "Europe/Vienna"
+      ]
+    },
+    {
+      "code": "AZ",
+      "name": "Azerbaijan",
+      "nameJa": "アゼルバイジャン",
+      "region": "Asia",
+      "capital": "Baku",
+      "lat": 40.5,
+      "lon": 47.5,
+      "zones": [
+        "Asia/Baku"
+      ]
+    },
+    {
+      "code": "BS",
+      "name": "Bahamas",
+      "nameJa": "バハマ",
+      "region": "Americas",
+      "capital": "Nassau",
+      "lat": 24.25,
+      "lon": -76,
+      "zones": [
+        "America/Toronto"
+      ]
+    },
+    {
+      "code": "BH",
+      "name": "Bahrain",
+      "nameJa": "バーレーン",
+      "region": "Asia",
+      "capital": "Manama",
+      "lat": 26,
+      "lon": 50.55,
+      "zones": [
+        "Asia/Qatar"
+      ]
+    },
+    {
+      "code": "BD",
+      "name": "Bangladesh",
+      "nameJa": "バングラデシュ",
+      "region": "Asia",
+      "capital": "Dhaka",
+      "lat": 24,
+      "lon": 90,
+      "zones": [
+        "Asia/Dhaka"
+      ]
+    },
+    {
+      "code": "BB",
+      "name": "Barbados",
+      "nameJa": "バルバドス",
+      "region": "Americas",
+      "capital": "Bridgetown",
+      "lat": 13.16666666,
+      "lon": -59.53333333,
+      "zones": [
+        "America/Barbados"
+      ]
+    },
+    {
+      "code": "BY",
+      "name": "Belarus",
+      "nameJa": "ベラルーシ",
+      "region": "Europe",
+      "capital": "Minsk",
+      "lat": 53,
+      "lon": 28,
+      "zones": [
+        "Europe/Minsk"
+      ]
+    },
+    {
+      "code": "BE",
+      "name": "Belgium",
+      "nameJa": "ベルギー",
+      "region": "Europe",
+      "capital": "Brussels",
+      "lat": 50.83333333,
+      "lon": 4,
+      "zones": [
+        "Europe/Brussels"
+      ]
+    },
+    {
+      "code": "BZ",
+      "name": "Belize",
+      "nameJa": "ベリーズ",
+      "region": "Americas",
+      "capital": "Belmopan",
+      "lat": 17.25,
+      "lon": -88.75,
+      "zones": [
+        "America/Belize"
+      ]
+    },
+    {
+      "code": "BJ",
+      "name": "Benin",
+      "nameJa": "ベナン",
+      "region": "Africa",
+      "capital": "Porto-Novo",
+      "lat": 9.5,
+      "lon": 2.25,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "BT",
+      "name": "Bhutan",
+      "nameJa": "ブータン",
+      "region": "Asia",
+      "capital": "Thimphu",
+      "lat": 27.5,
+      "lon": 90.5,
+      "zones": [
+        "Asia/Thimphu"
+      ]
+    },
+    {
+      "code": "BO",
+      "name": "Bolivia",
+      "nameJa": "ボリビア",
+      "region": "Americas",
+      "capital": "Sucre",
+      "lat": -17,
+      "lon": -65,
+      "zones": [
+        "America/La_Paz"
+      ]
+    },
+    {
+      "code": "BA",
+      "name": "Bosnia and Herzegovina",
+      "nameJa": "ボスニア・ヘルツェゴビナ",
+      "region": "Europe",
+      "capital": "Sarajevo",
+      "lat": 44,
+      "lon": 18,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "BW",
+      "name": "Botswana",
+      "nameJa": "ボツワナ",
+      "region": "Africa",
+      "capital": "Gaborone",
+      "lat": -22,
+      "lon": 24,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "BR",
+      "name": "Brazil",
+      "nameJa": "ブラジル",
+      "region": "Americas",
+      "capital": "Brasília",
+      "lat": -10,
+      "lon": -55,
+      "zones": [
+        "America/Araguaina",
+        "America/Bahia",
+        "America/Belem",
+        "America/Boa_Vista",
+        "America/Campo_Grande",
+        "America/Cuiaba",
+        "America/Eirunepe",
+        "America/Fortaleza",
+        "America/Maceio",
+        "America/Manaus",
+        "America/Noronha",
+        "America/Porto_Velho",
+        "America/Recife",
+        "America/Rio_Branco",
+        "America/Santarem",
+        "America/Sao_Paulo"
+      ]
+    },
+    {
+      "code": "BN",
+      "name": "Brunei",
+      "nameJa": "ブルネイ",
+      "region": "Asia",
+      "capital": "Bandar Seri Begawan",
+      "lat": 4.5,
+      "lon": 114.66666666,
+      "zones": [
+        "Asia/Kuching"
+      ]
+    },
+    {
+      "code": "BG",
+      "name": "Bulgaria",
+      "nameJa": "ブルガリア",
+      "region": "Europe",
+      "capital": "Sofia",
+      "lat": 43,
+      "lon": 25,
+      "zones": [
+        "Europe/Sofia"
+      ]
+    },
+    {
+      "code": "BF",
+      "name": "Burkina Faso",
+      "nameJa": "ブルキナファソ",
+      "region": "Africa",
+      "capital": "Ouagadougou",
+      "lat": 13,
+      "lon": -2,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "BI",
+      "name": "Burundi",
+      "nameJa": "ブルンジ",
+      "region": "Africa",
+      "capital": "Gitega",
+      "lat": -3.5,
+      "lon": 30,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "KH",
+      "name": "Cambodia",
+      "nameJa": "カンボジア",
+      "region": "Asia",
+      "capital": "Phnom Penh",
+      "lat": 13,
+      "lon": 105,
+      "zones": [
+        "Asia/Bangkok"
+      ]
+    },
+    {
+      "code": "CM",
+      "name": "Cameroon",
+      "nameJa": "カメルーン",
+      "region": "Africa",
+      "capital": "Yaoundé",
+      "lat": 6,
+      "lon": 12,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "CA",
+      "name": "Canada",
+      "nameJa": "カナダ",
+      "region": "Americas",
+      "capital": "Ottawa",
+      "lat": 60,
+      "lon": -95,
+      "zones": [
+        "America/Cambridge_Bay",
+        "America/Dawson",
+        "America/Dawson_Creek",
+        "America/Edmonton",
+        "America/Fort_Nelson",
+        "America/Glace_Bay",
+        "America/Goose_Bay",
+        "America/Halifax",
+        "America/Inuvik",
+        "America/Iqaluit",
+        "America/Moncton",
+        "America/Panama",
+        "America/Phoenix",
+        "America/Puerto_Rico",
+        "America/Rankin_Inlet",
+        "America/Regina",
+        "America/Resolute",
+        "America/St_Johns",
+        "America/Swift_Current",
+        "America/Toronto",
+        "America/Vancouver",
+        "America/Whitehorse",
+        "America/Winnipeg"
+      ]
+    },
+    {
+      "code": "CV",
+      "name": "Cape Verde",
+      "nameJa": "カーボベルデ",
+      "region": "Africa",
+      "capital": "Praia",
+      "lat": 16,
+      "lon": -24,
+      "zones": [
+        "Atlantic/Cape_Verde"
+      ]
+    },
+    {
+      "code": "CF",
+      "name": "Central African Republic",
+      "nameJa": "中央アフリカ",
+      "region": "Africa",
+      "capital": "Bangui",
+      "lat": 7,
+      "lon": 21,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "TD",
+      "name": "Chad",
+      "nameJa": "チャド",
+      "region": "Africa",
+      "capital": "N'Djamena",
+      "lat": 15,
+      "lon": 19,
+      "zones": [
+        "Africa/Ndjamena"
+      ]
+    },
+    {
+      "code": "CL",
+      "name": "Chile",
+      "nameJa": "チリ",
+      "region": "Americas",
+      "capital": "Santiago",
+      "lat": -30,
+      "lon": -71,
+      "zones": [
+        "America/Coyhaique",
+        "America/Punta_Arenas",
+        "America/Santiago",
+        "Pacific/Easter"
+      ]
+    },
+    {
+      "code": "CN",
+      "name": "China",
+      "nameJa": "中国",
+      "region": "Asia",
+      "capital": "Beijing",
+      "lat": 35,
+      "lon": 105,
+      "zones": [
+        "Asia/Shanghai",
+        "Asia/Urumqi"
+      ]
+    },
+    {
+      "code": "CO",
+      "name": "Colombia",
+      "nameJa": "コロンビア",
+      "region": "Americas",
+      "capital": "Bogotá",
+      "lat": 4,
+      "lon": -72,
+      "zones": [
+        "America/Bogota"
+      ]
+    },
+    {
+      "code": "KM",
+      "name": "Comoros",
+      "nameJa": "コモロ",
+      "region": "Africa",
+      "capital": "Moroni",
+      "lat": -12.16666666,
+      "lon": 44.25,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "CG",
+      "name": "Congo",
+      "nameJa": "コンゴ共和国",
+      "region": "Africa",
+      "capital": "Brazzaville",
+      "lat": -1,
+      "lon": 15,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "CR",
+      "name": "Costa Rica",
+      "nameJa": "コスタリカ",
+      "region": "Americas",
+      "capital": "San José",
+      "lat": 10,
+      "lon": -84,
+      "zones": [
+        "America/Costa_Rica"
+      ]
+    },
+    {
+      "code": "HR",
+      "name": "Croatia",
+      "nameJa": "クロアチア",
+      "region": "Europe",
+      "capital": "Zagreb",
+      "lat": 45.16666666,
+      "lon": 15.5,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "CU",
+      "name": "Cuba",
+      "nameJa": "キューバ",
+      "region": "Americas",
+      "capital": "Havana",
+      "lat": 21.5,
+      "lon": -80,
+      "zones": [
+        "America/Havana"
+      ]
+    },
+    {
+      "code": "CY",
+      "name": "Cyprus",
+      "nameJa": "キプロス",
+      "region": "Europe",
+      "capital": "Nicosia",
+      "lat": 35,
+      "lon": 33,
+      "zones": [
+        "Asia/Famagusta",
+        "Asia/Nicosia"
+      ]
+    },
+    {
+      "code": "CZ",
+      "name": "Czechia",
+      "nameJa": "チェコ",
+      "region": "Europe",
+      "capital": "Prague",
+      "lat": 49.75,
+      "lon": 15.5,
+      "zones": [
+        "Europe/Prague"
+      ]
+    },
+    {
+      "code": "DK",
+      "name": "Denmark",
+      "nameJa": "デンマーク",
+      "region": "Europe",
+      "capital": "Copenhagen",
+      "lat": 56,
+      "lon": 10,
+      "zones": [
+        "Europe/Berlin"
+      ]
+    },
+    {
+      "code": "DJ",
+      "name": "Djibouti",
+      "nameJa": "ジブチ",
+      "region": "Africa",
+      "capital": "Djibouti",
+      "lat": 11.5,
+      "lon": 43,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "DM",
+      "name": "Dominica",
+      "nameJa": "ドミニカ国",
+      "region": "Americas",
+      "capital": "Roseau",
+      "lat": 15.41666666,
+      "lon": -61.33333333,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "DO",
+      "name": "Dominican Republic",
+      "nameJa": "ドミニカ共和国",
+      "region": "Americas",
+      "capital": "Santo Domingo",
+      "lat": 19,
+      "lon": -70.66666666,
+      "zones": [
+        "America/Santo_Domingo"
+      ]
+    },
+    {
+      "code": "CD",
+      "name": "DR Congo",
+      "nameJa": "コンゴ民主共和国",
+      "region": "Africa",
+      "capital": "Kinshasa",
+      "lat": 0,
+      "lon": 25,
+      "zones": [
+        "Africa/Lagos",
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "EC",
+      "name": "Ecuador",
+      "nameJa": "エクアドル",
+      "region": "Americas",
+      "capital": "Quito",
+      "lat": -2,
+      "lon": -77.5,
+      "zones": [
+        "America/Guayaquil",
+        "Pacific/Galapagos"
+      ]
+    },
+    {
+      "code": "EG",
+      "name": "Egypt",
+      "nameJa": "エジプト",
+      "region": "Africa",
+      "capital": "Cairo",
+      "lat": 27,
+      "lon": 30,
+      "zones": [
+        "Africa/Cairo"
+      ]
+    },
+    {
+      "code": "SV",
+      "name": "El Salvador",
+      "nameJa": "エルサルバドル",
+      "region": "Americas",
+      "capital": "San Salvador",
+      "lat": 13.83333333,
+      "lon": -88.91666666,
+      "zones": [
+        "America/El_Salvador"
+      ]
+    },
+    {
+      "code": "GQ",
+      "name": "Equatorial Guinea",
+      "nameJa": "赤道ギニア",
+      "region": "Africa",
+      "capital": "Malabo",
+      "lat": 2,
+      "lon": 10,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "ER",
+      "name": "Eritrea",
+      "nameJa": "エリトリア",
+      "region": "Africa",
+      "capital": "Asmara",
+      "lat": 15,
+      "lon": 39,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "EE",
+      "name": "Estonia",
+      "nameJa": "エストニア",
+      "region": "Europe",
+      "capital": "Tallinn",
+      "lat": 59,
+      "lon": 26,
+      "zones": [
+        "Europe/Tallinn"
+      ]
+    },
+    {
+      "code": "SZ",
+      "name": "Eswatini",
+      "nameJa": "エスワティニ",
+      "region": "Africa",
+      "capital": "Lobamba",
+      "lat": -26.5,
+      "lon": 31.5,
+      "zones": [
+        "Africa/Johannesburg"
+      ]
+    },
+    {
+      "code": "ET",
+      "name": "Ethiopia",
+      "nameJa": "エチオピア",
+      "region": "Africa",
+      "capital": "Addis Ababa",
+      "lat": 8,
+      "lon": 38,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "FJ",
+      "name": "Fiji",
+      "nameJa": "フィジー",
+      "region": "Oceania",
+      "capital": "Suva",
+      "lat": -18,
+      "lon": 175,
+      "zones": [
+        "Pacific/Fiji"
+      ]
+    },
+    {
+      "code": "FI",
+      "name": "Finland",
+      "nameJa": "フィンランド",
+      "region": "Europe",
+      "capital": "Helsinki",
+      "lat": 64,
+      "lon": 26,
+      "zones": [
+        "Europe/Helsinki"
+      ]
+    },
+    {
+      "code": "FR",
+      "name": "France",
+      "nameJa": "フランス",
+      "region": "Europe",
+      "capital": "Paris",
+      "lat": 46,
+      "lon": 2,
+      "zones": [
+        "Europe/Paris"
+      ]
+    },
+    {
+      "code": "GA",
+      "name": "Gabon",
+      "nameJa": "ガボン",
+      "region": "Africa",
+      "capital": "Libreville",
+      "lat": -1,
+      "lon": 11.75,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "GM",
+      "name": "Gambia",
+      "nameJa": "ガンビア",
+      "region": "Africa",
+      "capital": "Banjul",
+      "lat": 13.46666666,
+      "lon": -16.56666666,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "GE",
+      "name": "Georgia",
+      "nameJa": "ジョージア",
+      "region": "Asia",
+      "capital": "Tbilisi",
+      "lat": 42,
+      "lon": 43.5,
+      "zones": [
+        "Asia/Tbilisi"
+      ]
+    },
+    {
+      "code": "DE",
+      "name": "Germany",
+      "nameJa": "ドイツ",
+      "region": "Europe",
+      "capital": "Berlin",
+      "lat": 51,
+      "lon": 9,
+      "zones": [
+        "Europe/Berlin",
+        "Europe/Zurich"
+      ]
+    },
+    {
+      "code": "GH",
+      "name": "Ghana",
+      "nameJa": "ガーナ",
+      "region": "Africa",
+      "capital": "Accra",
+      "lat": 8,
+      "lon": -2,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "GR",
+      "name": "Greece",
+      "nameJa": "ギリシャ",
+      "region": "Europe",
+      "capital": "Athens",
+      "lat": 39,
+      "lon": 22,
+      "zones": [
+        "Europe/Athens"
+      ]
+    },
+    {
+      "code": "GD",
+      "name": "Grenada",
+      "nameJa": "グレナダ",
+      "region": "Americas",
+      "capital": "St. George's",
+      "lat": 12.11666666,
+      "lon": -61.66666666,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "GT",
+      "name": "Guatemala",
+      "nameJa": "グアテマラ",
+      "region": "Americas",
+      "capital": "Guatemala City",
+      "lat": 15.5,
+      "lon": -90.25,
+      "zones": [
+        "America/Guatemala"
+      ]
+    },
+    {
+      "code": "GN",
+      "name": "Guinea",
+      "nameJa": "ギニア",
+      "region": "Africa",
+      "capital": "Conakry",
+      "lat": 11,
+      "lon": -10,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "GW",
+      "name": "Guinea-Bissau",
+      "nameJa": "ギニアビサウ",
+      "region": "Africa",
+      "capital": "Bissau",
+      "lat": 12,
+      "lon": -15,
+      "zones": [
+        "Africa/Bissau"
+      ]
+    },
+    {
+      "code": "GY",
+      "name": "Guyana",
+      "nameJa": "ガイアナ",
+      "region": "Americas",
+      "capital": "Georgetown",
+      "lat": 5,
+      "lon": -59,
+      "zones": [
+        "America/Guyana"
+      ]
+    },
+    {
+      "code": "HT",
+      "name": "Haiti",
+      "nameJa": "ハイチ",
+      "region": "Americas",
+      "capital": "Port-au-Prince",
+      "lat": 19,
+      "lon": -72.41666666,
+      "zones": [
+        "America/Port-au-Prince"
+      ]
+    },
+    {
+      "code": "HN",
+      "name": "Honduras",
+      "nameJa": "ホンジュラス",
+      "region": "Americas",
+      "capital": "Tegucigalpa",
+      "lat": 15,
+      "lon": -86.5,
+      "zones": [
+        "America/Tegucigalpa"
+      ]
+    },
+    {
+      "code": "HU",
+      "name": "Hungary",
+      "nameJa": "ハンガリー",
+      "region": "Europe",
+      "capital": "Budapest",
+      "lat": 47,
+      "lon": 20,
+      "zones": [
+        "Europe/Budapest"
+      ]
+    },
+    {
+      "code": "IS",
+      "name": "Iceland",
+      "nameJa": "アイスランド",
+      "region": "Europe",
+      "capital": "Reykjavik",
+      "lat": 65,
+      "lon": -18,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "IN",
+      "name": "India",
+      "nameJa": "インド",
+      "region": "Asia",
+      "capital": "New Delhi",
+      "lat": 20,
+      "lon": 77,
+      "zones": [
+        "Asia/Kolkata"
+      ]
+    },
+    {
+      "code": "ID",
+      "name": "Indonesia",
+      "nameJa": "インドネシア",
+      "region": "Asia",
+      "capital": "Jakarta",
+      "lat": -5,
+      "lon": 120,
+      "zones": [
+        "Asia/Jakarta",
+        "Asia/Jayapura",
+        "Asia/Makassar",
+        "Asia/Pontianak"
+      ]
+    },
+    {
+      "code": "IR",
+      "name": "Iran",
+      "nameJa": "イラン",
+      "region": "Asia",
+      "capital": "Tehran",
+      "lat": 32,
+      "lon": 53,
+      "zones": [
+        "Asia/Tehran"
+      ]
+    },
+    {
+      "code": "IQ",
+      "name": "Iraq",
+      "nameJa": "イラク",
+      "region": "Asia",
+      "capital": "Baghdad",
+      "lat": 33,
+      "lon": 44,
+      "zones": [
+        "Asia/Baghdad"
+      ]
+    },
+    {
+      "code": "IE",
+      "name": "Ireland",
+      "nameJa": "アイルランド",
+      "region": "Europe",
+      "capital": "Dublin",
+      "lat": 53,
+      "lon": -8,
+      "zones": [
+        "Europe/Dublin"
+      ]
+    },
+    {
+      "code": "IL",
+      "name": "Israel",
+      "nameJa": "イスラエル",
+      "region": "Asia",
+      "capital": "Jerusalem",
+      "lat": 31.47,
+      "lon": 35.13,
+      "zones": [
+        "Asia/Jerusalem"
+      ]
+    },
+    {
+      "code": "IT",
+      "name": "Italy",
+      "nameJa": "イタリア",
+      "region": "Europe",
+      "capital": "Rome",
+      "lat": 42.83333333,
+      "lon": 12.83333333,
+      "zones": [
+        "Europe/Rome"
+      ]
+    },
+    {
+      "code": "CI",
+      "name": "Ivory Coast",
+      "nameJa": "コートジボワール",
+      "region": "Africa",
+      "capital": "Yamoussoukro",
+      "lat": 8,
+      "lon": -5,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "JM",
+      "name": "Jamaica",
+      "nameJa": "ジャマイカ",
+      "region": "Americas",
+      "capital": "Kingston",
+      "lat": 18.25,
+      "lon": -77.5,
+      "zones": [
+        "America/Jamaica"
+      ]
+    },
+    {
+      "code": "JP",
+      "name": "Japan",
+      "nameJa": "日本",
+      "region": "Asia",
+      "capital": "Tokyo",
+      "lat": 36,
+      "lon": 138,
+      "zones": [
+        "Asia/Tokyo"
+      ]
+    },
+    {
+      "code": "JO",
+      "name": "Jordan",
+      "nameJa": "ヨルダン",
+      "region": "Asia",
+      "capital": "Amman",
+      "lat": 31,
+      "lon": 36,
+      "zones": [
+        "Asia/Amman"
+      ]
+    },
+    {
+      "code": "KZ",
+      "name": "Kazakhstan",
+      "nameJa": "カザフスタン",
+      "region": "Asia",
+      "capital": "Astana",
+      "lat": 48,
+      "lon": 68,
+      "zones": [
+        "Asia/Almaty",
+        "Asia/Aqtau",
+        "Asia/Aqtobe",
+        "Asia/Atyrau",
+        "Asia/Oral",
+        "Asia/Qostanay",
+        "Asia/Qyzylorda"
+      ]
+    },
+    {
+      "code": "KE",
+      "name": "Kenya",
+      "nameJa": "ケニア",
+      "region": "Africa",
+      "capital": "Nairobi",
+      "lat": 1,
+      "lon": 38,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "KI",
+      "name": "Kiribati",
+      "nameJa": "キリバス",
+      "region": "Oceania",
+      "capital": "South Tarawa",
+      "lat": 1.41666666,
+      "lon": 173,
+      "zones": [
+        "Pacific/Kanton",
+        "Pacific/Kiritimati",
+        "Pacific/Tarawa"
+      ]
+    },
+    {
+      "code": "XK",
+      "name": "Kosovo",
+      "nameJa": "コソボ",
+      "region": "Europe",
+      "capital": "Pristina",
+      "lat": 42.666667,
+      "lon": 21.166667,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "KW",
+      "name": "Kuwait",
+      "nameJa": "クウェート",
+      "region": "Asia",
+      "capital": "Kuwait City",
+      "lat": 29.5,
+      "lon": 45.75,
+      "zones": [
+        "Asia/Riyadh"
+      ]
+    },
+    {
+      "code": "KG",
+      "name": "Kyrgyzstan",
+      "nameJa": "キルギス",
+      "region": "Asia",
+      "capital": "Bishkek",
+      "lat": 41,
+      "lon": 75,
+      "zones": [
+        "Asia/Bishkek"
+      ]
+    },
+    {
+      "code": "LA",
+      "name": "Laos",
+      "nameJa": "ラオス",
+      "region": "Asia",
+      "capital": "Vientiane",
+      "lat": 18,
+      "lon": 105,
+      "zones": [
+        "Asia/Bangkok"
+      ]
+    },
+    {
+      "code": "LV",
+      "name": "Latvia",
+      "nameJa": "ラトビア",
+      "region": "Europe",
+      "capital": "Riga",
+      "lat": 57,
+      "lon": 25,
+      "zones": [
+        "Europe/Riga"
+      ]
+    },
+    {
+      "code": "LB",
+      "name": "Lebanon",
+      "nameJa": "レバノン",
+      "region": "Asia",
+      "capital": "Beirut",
+      "lat": 33.83333333,
+      "lon": 35.83333333,
+      "zones": [
+        "Asia/Beirut"
+      ]
+    },
+    {
+      "code": "LS",
+      "name": "Lesotho",
+      "nameJa": "レソト",
+      "region": "Africa",
+      "capital": "Maseru",
+      "lat": -29.5,
+      "lon": 28.5,
+      "zones": [
+        "Africa/Johannesburg"
+      ]
+    },
+    {
+      "code": "LR",
+      "name": "Liberia",
+      "nameJa": "リベリア",
+      "region": "Africa",
+      "capital": "Monrovia",
+      "lat": 6.5,
+      "lon": -9.5,
+      "zones": [
+        "Africa/Monrovia"
+      ]
+    },
+    {
+      "code": "LY",
+      "name": "Libya",
+      "nameJa": "リビア",
+      "region": "Africa",
+      "capital": "Tripoli",
+      "lat": 25,
+      "lon": 17,
+      "zones": [
+        "Africa/Tripoli"
+      ]
+    },
+    {
+      "code": "LI",
+      "name": "Liechtenstein",
+      "nameJa": "リヒテンシュタイン",
+      "region": "Europe",
+      "capital": "Vaduz",
+      "lat": 47.26666666,
+      "lon": 9.53333333,
+      "zones": [
+        "Europe/Zurich"
+      ]
+    },
+    {
+      "code": "LT",
+      "name": "Lithuania",
+      "nameJa": "リトアニア",
+      "region": "Europe",
+      "capital": "Vilnius",
+      "lat": 56,
+      "lon": 24,
+      "zones": [
+        "Europe/Vilnius"
+      ]
+    },
+    {
+      "code": "LU",
+      "name": "Luxembourg",
+      "nameJa": "ルクセンブルク",
+      "region": "Europe",
+      "capital": "Luxembourg",
+      "lat": 49.75,
+      "lon": 6.16666666,
+      "zones": [
+        "Europe/Brussels"
+      ]
+    },
+    {
+      "code": "MG",
+      "name": "Madagascar",
+      "nameJa": "マダガスカル",
+      "region": "Africa",
+      "capital": "Antananarivo",
+      "lat": -20,
+      "lon": 47,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "MW",
+      "name": "Malawi",
+      "nameJa": "マラウイ",
+      "region": "Africa",
+      "capital": "Lilongwe",
+      "lat": -13.5,
+      "lon": 34,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "MY",
+      "name": "Malaysia",
+      "nameJa": "マレーシア",
+      "region": "Asia",
+      "capital": "Kuala Lumpur",
+      "lat": 2.5,
+      "lon": 112.5,
+      "zones": [
+        "Asia/Kuching",
+        "Asia/Singapore"
+      ]
+    },
+    {
+      "code": "MV",
+      "name": "Maldives",
+      "nameJa": "モルディブ",
+      "region": "Asia",
+      "capital": "Malé",
+      "lat": 3.25,
+      "lon": 73,
+      "zones": [
+        "Indian/Maldives"
+      ]
+    },
+    {
+      "code": "ML",
+      "name": "Mali",
+      "nameJa": "マリ",
+      "region": "Africa",
+      "capital": "Bamako",
+      "lat": 17,
+      "lon": -4,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "MT",
+      "name": "Malta",
+      "nameJa": "マルタ",
+      "region": "Europe",
+      "capital": "Valletta",
+      "lat": 35.83333333,
+      "lon": 14.58333333,
+      "zones": [
+        "Europe/Malta"
+      ]
+    },
+    {
+      "code": "MH",
+      "name": "Marshall Islands",
+      "nameJa": "マーシャル諸島",
+      "region": "Oceania",
+      "capital": "Majuro",
+      "lat": 9,
+      "lon": 168,
+      "zones": [
+        "Pacific/Kwajalein",
+        "Pacific/Tarawa"
+      ]
+    },
+    {
+      "code": "MR",
+      "name": "Mauritania",
+      "nameJa": "モーリタニア",
+      "region": "Africa",
+      "capital": "Nouakchott",
+      "lat": 20,
+      "lon": -12,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "MU",
+      "name": "Mauritius",
+      "nameJa": "モーリシャス",
+      "region": "Africa",
+      "capital": "Port Louis",
+      "lat": -20.28333333,
+      "lon": 57.55,
+      "zones": [
+        "Indian/Mauritius"
+      ]
+    },
+    {
+      "code": "MX",
+      "name": "Mexico",
+      "nameJa": "メキシコ",
+      "region": "Americas",
+      "capital": "Mexico City",
+      "lat": 23,
+      "lon": -102,
+      "zones": [
+        "America/Bahia_Banderas",
+        "America/Cancun",
+        "America/Chihuahua",
+        "America/Ciudad_Juarez",
+        "America/Hermosillo",
+        "America/Matamoros",
+        "America/Mazatlan",
+        "America/Merida",
+        "America/Mexico_City",
+        "America/Monterrey",
+        "America/Ojinaga",
+        "America/Tijuana"
+      ]
+    },
+    {
+      "code": "FM",
+      "name": "Micronesia",
+      "nameJa": "ミクロネシア",
+      "region": "Oceania",
+      "capital": "Palikir",
+      "lat": 6.91666666,
+      "lon": 158.25,
+      "zones": [
+        "Pacific/Guadalcanal",
+        "Pacific/Kosrae",
+        "Pacific/Port_Moresby"
+      ]
+    },
+    {
+      "code": "MD",
+      "name": "Moldova",
+      "nameJa": "モルドバ",
+      "region": "Europe",
+      "capital": "Chișinău",
+      "lat": 47,
+      "lon": 29,
+      "zones": [
+        "Europe/Chisinau"
+      ]
+    },
+    {
+      "code": "MC",
+      "name": "Monaco",
+      "nameJa": "モナコ",
+      "region": "Europe",
+      "capital": "Monaco",
+      "lat": 43.73333333,
+      "lon": 7.4,
+      "zones": [
+        "Europe/Paris"
+      ]
+    },
+    {
+      "code": "MN",
+      "name": "Mongolia",
+      "nameJa": "モンゴル",
+      "region": "Asia",
+      "capital": "Ulan Bator",
+      "lat": 46,
+      "lon": 105,
+      "zones": [
+        "Asia/Hovd",
+        "Asia/Ulaanbaatar"
+      ]
+    },
+    {
+      "code": "ME",
+      "name": "Montenegro",
+      "nameJa": "モンテネグロ",
+      "region": "Europe",
+      "capital": "Podgorica",
+      "lat": 42.5,
+      "lon": 19.3,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "MA",
+      "name": "Morocco",
+      "nameJa": "モロッコ",
+      "region": "Africa",
+      "capital": "Rabat",
+      "lat": 32,
+      "lon": -5,
+      "zones": [
+        "Africa/Casablanca"
+      ]
+    },
+    {
+      "code": "MZ",
+      "name": "Mozambique",
+      "nameJa": "モザンビーク",
+      "region": "Africa",
+      "capital": "Maputo",
+      "lat": -18.25,
+      "lon": 35,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "MM",
+      "name": "Myanmar",
+      "nameJa": "ミャンマー",
+      "region": "Asia",
+      "capital": "Naypyidaw",
+      "lat": 22,
+      "lon": 98,
+      "zones": [
+        "Asia/Yangon"
+      ]
+    },
+    {
+      "code": "NA",
+      "name": "Namibia",
+      "nameJa": "ナミビア",
+      "region": "Africa",
+      "capital": "Windhoek",
+      "lat": -22,
+      "lon": 17,
+      "zones": [
+        "Africa/Windhoek"
+      ]
+    },
+    {
+      "code": "NR",
+      "name": "Nauru",
+      "nameJa": "ナウル",
+      "region": "Oceania",
+      "capital": "Yaren",
+      "lat": -0.53333333,
+      "lon": 166.91666666,
+      "zones": [
+        "Pacific/Nauru"
+      ]
+    },
+    {
+      "code": "NP",
+      "name": "Nepal",
+      "nameJa": "ネパール",
+      "region": "Asia",
+      "capital": "Kathmandu",
+      "lat": 28,
+      "lon": 84,
+      "zones": [
+        "Asia/Kathmandu"
+      ]
+    },
+    {
+      "code": "NL",
+      "name": "Netherlands",
+      "nameJa": "オランダ",
+      "region": "Europe",
+      "capital": "Amsterdam",
+      "lat": 52.5,
+      "lon": 5.75,
+      "zones": [
+        "Europe/Brussels"
+      ]
+    },
+    {
+      "code": "NZ",
+      "name": "New Zealand",
+      "nameJa": "ニュージーランド",
+      "region": "Oceania",
+      "capital": "Wellington",
+      "lat": -41,
+      "lon": 174,
+      "zones": [
+        "Pacific/Auckland",
+        "Pacific/Chatham"
+      ]
+    },
+    {
+      "code": "NI",
+      "name": "Nicaragua",
+      "nameJa": "ニカラグア",
+      "region": "Americas",
+      "capital": "Managua",
+      "lat": 13,
+      "lon": -85,
+      "zones": [
+        "America/Managua"
+      ]
+    },
+    {
+      "code": "NE",
+      "name": "Niger",
+      "nameJa": "ニジェール",
+      "region": "Africa",
+      "capital": "Niamey",
+      "lat": 16,
+      "lon": 8,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "NG",
+      "name": "Nigeria",
+      "nameJa": "ナイジェリア",
+      "region": "Africa",
+      "capital": "Abuja",
+      "lat": 10,
+      "lon": 8,
+      "zones": [
+        "Africa/Lagos"
+      ]
+    },
+    {
+      "code": "KP",
+      "name": "North Korea",
+      "nameJa": "北朝鮮",
+      "region": "Asia",
+      "capital": "Pyongyang",
+      "lat": 40,
+      "lon": 127,
+      "zones": [
+        "Asia/Pyongyang"
+      ]
+    },
+    {
+      "code": "MK",
+      "name": "North Macedonia",
+      "nameJa": "北マケドニア",
+      "region": "Europe",
+      "capital": "Skopje",
+      "lat": 41.83333333,
+      "lon": 22,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "NO",
+      "name": "Norway",
+      "nameJa": "ノルウェー",
+      "region": "Europe",
+      "capital": "Oslo",
+      "lat": 62,
+      "lon": 10,
+      "zones": [
+        "Europe/Berlin"
+      ]
+    },
+    {
+      "code": "OM",
+      "name": "Oman",
+      "nameJa": "オマーン",
+      "region": "Asia",
+      "capital": "Muscat",
+      "lat": 21,
+      "lon": 57,
+      "zones": [
+        "Asia/Dubai"
+      ]
+    },
+    {
+      "code": "PK",
+      "name": "Pakistan",
+      "nameJa": "パキスタン",
+      "region": "Asia",
+      "capital": "Islamabad",
+      "lat": 30,
+      "lon": 70,
+      "zones": [
+        "Asia/Karachi"
+      ]
+    },
+    {
+      "code": "PW",
+      "name": "Palau",
+      "nameJa": "パラオ",
+      "region": "Oceania",
+      "capital": "Ngerulmud",
+      "lat": 7.5,
+      "lon": 134.5,
+      "zones": [
+        "Pacific/Palau"
+      ]
+    },
+    {
+      "code": "PS",
+      "name": "Palestine",
+      "nameJa": "パレスチナ",
+      "region": "Asia",
+      "capital": "Ramallah",
+      "lat": 31.9,
+      "lon": 35.2,
+      "zones": [
+        "Asia/Gaza",
+        "Asia/Hebron"
+      ]
+    },
+    {
+      "code": "PA",
+      "name": "Panama",
+      "nameJa": "パナマ",
+      "region": "Americas",
+      "capital": "Panama City",
+      "lat": 9,
+      "lon": -80,
+      "zones": [
+        "America/Panama"
+      ]
+    },
+    {
+      "code": "PG",
+      "name": "Papua New Guinea",
+      "nameJa": "パプアニューギニア",
+      "region": "Oceania",
+      "capital": "Port Moresby",
+      "lat": -6,
+      "lon": 147,
+      "zones": [
+        "Pacific/Bougainville",
+        "Pacific/Port_Moresby"
+      ]
+    },
+    {
+      "code": "PY",
+      "name": "Paraguay",
+      "nameJa": "パラグアイ",
+      "region": "Americas",
+      "capital": "Asunción",
+      "lat": -23,
+      "lon": -58,
+      "zones": [
+        "America/Asuncion"
+      ]
+    },
+    {
+      "code": "PE",
+      "name": "Peru",
+      "nameJa": "ペルー",
+      "region": "Americas",
+      "capital": "Lima",
+      "lat": -10,
+      "lon": -76,
+      "zones": [
+        "America/Lima"
+      ]
+    },
+    {
+      "code": "PH",
+      "name": "Philippines",
+      "nameJa": "フィリピン",
+      "region": "Asia",
+      "capital": "Manila",
+      "lat": 13,
+      "lon": 122,
+      "zones": [
+        "Asia/Manila"
+      ]
+    },
+    {
+      "code": "PL",
+      "name": "Poland",
+      "nameJa": "ポーランド",
+      "region": "Europe",
+      "capital": "Warsaw",
+      "lat": 52,
+      "lon": 20,
+      "zones": [
+        "Europe/Warsaw"
+      ]
+    },
+    {
+      "code": "PT",
+      "name": "Portugal",
+      "nameJa": "ポルトガル",
+      "region": "Europe",
+      "capital": "Lisbon",
+      "lat": 39.5,
+      "lon": -8,
+      "zones": [
+        "Atlantic/Azores",
+        "Atlantic/Madeira",
+        "Europe/Lisbon"
+      ]
+    },
+    {
+      "code": "QA",
+      "name": "Qatar",
+      "nameJa": "カタール",
+      "region": "Asia",
+      "capital": "Doha",
+      "lat": 25.5,
+      "lon": 51.25,
+      "zones": [
+        "Asia/Qatar"
+      ]
+    },
+    {
+      "code": "RO",
+      "name": "Romania",
+      "nameJa": "ルーマニア",
+      "region": "Europe",
+      "capital": "Bucharest",
+      "lat": 46,
+      "lon": 25,
+      "zones": [
+        "Europe/Bucharest"
+      ]
+    },
+    {
+      "code": "RU",
+      "name": "Russia",
+      "nameJa": "ロシア",
+      "region": "Europe",
+      "capital": "Moscow",
+      "lat": 60,
+      "lon": 100,
+      "zones": [
+        "Asia/Anadyr",
+        "Asia/Barnaul",
+        "Asia/Chita",
+        "Asia/Irkutsk",
+        "Asia/Kamchatka",
+        "Asia/Khandyga",
+        "Asia/Krasnoyarsk",
+        "Asia/Magadan",
+        "Asia/Novokuznetsk",
+        "Asia/Novosibirsk",
+        "Asia/Omsk",
+        "Asia/Sakhalin",
+        "Asia/Srednekolymsk",
+        "Asia/Tomsk",
+        "Asia/Ust-Nera",
+        "Asia/Vladivostok",
+        "Asia/Yakutsk",
+        "Asia/Yekaterinburg",
+        "Europe/Astrakhan",
+        "Europe/Kaliningrad",
+        "Europe/Kirov",
+        "Europe/Moscow",
+        "Europe/Samara",
+        "Europe/Saratov",
+        "Europe/Simferopol",
+        "Europe/Ulyanovsk",
+        "Europe/Volgograd"
+      ]
+    },
+    {
+      "code": "RW",
+      "name": "Rwanda",
+      "nameJa": "ルワンダ",
+      "region": "Africa",
+      "capital": "Kigali",
+      "lat": -2,
+      "lon": 30,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "KN",
+      "name": "Saint Kitts and Nevis",
+      "nameJa": "セントキッツ・ネーヴィス連邦",
+      "region": "Americas",
+      "capital": "Basseterre",
+      "lat": 17.33333333,
+      "lon": -62.75,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "LC",
+      "name": "Saint Lucia",
+      "nameJa": "セントルシア",
+      "region": "Americas",
+      "capital": "Castries",
+      "lat": 13.88333333,
+      "lon": -60.96666666,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "VC",
+      "name": "Saint Vincent and the Grenadines",
+      "nameJa": "セントビンセント・グレナディーン",
+      "region": "Americas",
+      "capital": "Kingstown",
+      "lat": 13.25,
+      "lon": -61.2,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "WS",
+      "name": "Samoa",
+      "nameJa": "サモア",
+      "region": "Oceania",
+      "capital": "Apia",
+      "lat": -13.58333333,
+      "lon": -172.33333333,
+      "zones": [
+        "Pacific/Apia"
+      ]
+    },
+    {
+      "code": "SM",
+      "name": "San Marino",
+      "nameJa": "サンマリノ",
+      "region": "Europe",
+      "capital": "City of San Marino",
+      "lat": 43.76666666,
+      "lon": 12.41666666,
+      "zones": [
+        "Europe/Rome"
+      ]
+    },
+    {
+      "code": "ST",
+      "name": "São Tomé and Príncipe",
+      "nameJa": "サントメ・プリンシペ",
+      "region": "Africa",
+      "capital": "São Tomé",
+      "lat": 1,
+      "lon": 7,
+      "zones": [
+        "Africa/Sao_Tome"
+      ]
+    },
+    {
+      "code": "SA",
+      "name": "Saudi Arabia",
+      "nameJa": "サウジアラビア",
+      "region": "Asia",
+      "capital": "Riyadh",
+      "lat": 25,
+      "lon": 45,
+      "zones": [
+        "Asia/Riyadh"
+      ]
+    },
+    {
+      "code": "SN",
+      "name": "Senegal",
+      "nameJa": "セネガル",
+      "region": "Africa",
+      "capital": "Dakar",
+      "lat": 14,
+      "lon": -14,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "RS",
+      "name": "Serbia",
+      "nameJa": "セルビア",
+      "region": "Europe",
+      "capital": "Belgrade",
+      "lat": 44,
+      "lon": 21,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "SC",
+      "name": "Seychelles",
+      "nameJa": "セーシェル",
+      "region": "Africa",
+      "capital": "Victoria",
+      "lat": -4.58333333,
+      "lon": 55.66666666,
+      "zones": [
+        "Asia/Dubai"
+      ]
+    },
+    {
+      "code": "SL",
+      "name": "Sierra Leone",
+      "nameJa": "シエラレオネ",
+      "region": "Africa",
+      "capital": "Freetown",
+      "lat": 8.5,
+      "lon": -11.5,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "SG",
+      "name": "Singapore",
+      "nameJa": "シンガポール",
+      "region": "Asia",
+      "capital": "Singapore",
+      "lat": 1.36666666,
+      "lon": 103.8,
+      "zones": [
+        "Asia/Singapore"
+      ]
+    },
+    {
+      "code": "SK",
+      "name": "Slovakia",
+      "nameJa": "スロバキア",
+      "region": "Europe",
+      "capital": "Bratislava",
+      "lat": 48.66666666,
+      "lon": 19.5,
+      "zones": [
+        "Europe/Prague"
+      ]
+    },
+    {
+      "code": "SI",
+      "name": "Slovenia",
+      "nameJa": "スロベニア",
+      "region": "Europe",
+      "capital": "Ljubljana",
+      "lat": 46.11666666,
+      "lon": 14.81666666,
+      "zones": [
+        "Europe/Belgrade"
+      ]
+    },
+    {
+      "code": "SB",
+      "name": "Solomon Islands",
+      "nameJa": "ソロモン諸島",
+      "region": "Oceania",
+      "capital": "Honiara",
+      "lat": -8,
+      "lon": 159,
+      "zones": [
+        "Pacific/Guadalcanal"
+      ]
+    },
+    {
+      "code": "SO",
+      "name": "Somalia",
+      "nameJa": "ソマリア",
+      "region": "Africa",
+      "capital": "Mogadishu",
+      "lat": 10,
+      "lon": 49,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "ZA",
+      "name": "South Africa",
+      "nameJa": "南アフリカ",
+      "region": "Africa",
+      "capital": "Pretoria",
+      "lat": -29,
+      "lon": 24,
+      "zones": [
+        "Africa/Johannesburg"
+      ]
+    },
+    {
+      "code": "KR",
+      "name": "South Korea",
+      "nameJa": "韓国",
+      "region": "Asia",
+      "capital": "Seoul",
+      "lat": 37,
+      "lon": 127.5,
+      "zones": [
+        "Asia/Seoul"
+      ]
+    },
+    {
+      "code": "SS",
+      "name": "South Sudan",
+      "nameJa": "南スーダン",
+      "region": "Africa",
+      "capital": "Juba",
+      "lat": 7,
+      "lon": 30,
+      "zones": [
+        "Africa/Juba"
+      ]
+    },
+    {
+      "code": "ES",
+      "name": "Spain",
+      "nameJa": "スペイン",
+      "region": "Europe",
+      "capital": "Madrid",
+      "lat": 40,
+      "lon": -4,
+      "zones": [
+        "Africa/Ceuta",
+        "Atlantic/Canary",
+        "Europe/Madrid"
+      ]
+    },
+    {
+      "code": "LK",
+      "name": "Sri Lanka",
+      "nameJa": "スリランカ",
+      "region": "Asia",
+      "capital": "Colombo",
+      "lat": 7,
+      "lon": 81,
+      "zones": [
+        "Asia/Colombo"
+      ]
+    },
+    {
+      "code": "SD",
+      "name": "Sudan",
+      "nameJa": "スーダン",
+      "region": "Africa",
+      "capital": "Khartoum",
+      "lat": 15,
+      "lon": 30,
+      "zones": [
+        "Africa/Khartoum"
+      ]
+    },
+    {
+      "code": "SR",
+      "name": "Suriname",
+      "nameJa": "スリナム",
+      "region": "Americas",
+      "capital": "Paramaribo",
+      "lat": 4,
+      "lon": -56,
+      "zones": [
+        "America/Paramaribo"
+      ]
+    },
+    {
+      "code": "SE",
+      "name": "Sweden",
+      "nameJa": "スウェーデン",
+      "region": "Europe",
+      "capital": "Stockholm",
+      "lat": 62,
+      "lon": 15,
+      "zones": [
+        "Europe/Berlin"
+      ]
+    },
+    {
+      "code": "CH",
+      "name": "Switzerland",
+      "nameJa": "スイス",
+      "region": "Europe",
+      "capital": "Bern",
+      "lat": 47,
+      "lon": 8,
+      "zones": [
+        "Europe/Zurich"
+      ]
+    },
+    {
+      "code": "SY",
+      "name": "Syria",
+      "nameJa": "シリア",
+      "region": "Asia",
+      "capital": "Damascus",
+      "lat": 35,
+      "lon": 38,
+      "zones": [
+        "Asia/Damascus"
+      ]
+    },
+    {
+      "code": "TW",
+      "name": "Taiwan",
+      "nameJa": "中華民国",
+      "region": "Asia",
+      "capital": "Taipei",
+      "lat": 23.5,
+      "lon": 121,
+      "zones": [
+        "Asia/Taipei"
+      ]
+    },
+    {
+      "code": "TJ",
+      "name": "Tajikistan",
+      "nameJa": "タジキスタン",
+      "region": "Asia",
+      "capital": "Dushanbe",
+      "lat": 39,
+      "lon": 71,
+      "zones": [
+        "Asia/Dushanbe"
+      ]
+    },
+    {
+      "code": "TZ",
+      "name": "Tanzania",
+      "nameJa": "タンザニア",
+      "region": "Africa",
+      "capital": "Dodoma",
+      "lat": -6,
+      "lon": 35,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "TH",
+      "name": "Thailand",
+      "nameJa": "タイ",
+      "region": "Asia",
+      "capital": "Bangkok",
+      "lat": 15,
+      "lon": 100,
+      "zones": [
+        "Asia/Bangkok"
+      ]
+    },
+    {
+      "code": "TL",
+      "name": "Timor-Leste",
+      "nameJa": "東ティモール",
+      "region": "Asia",
+      "capital": "Dili",
+      "lat": -8.83333333,
+      "lon": 125.91666666,
+      "zones": [
+        "Asia/Dili"
+      ]
+    },
+    {
+      "code": "TG",
+      "name": "Togo",
+      "nameJa": "トーゴ",
+      "region": "Africa",
+      "capital": "Lomé",
+      "lat": 8,
+      "lon": 1.16666666,
+      "zones": [
+        "Africa/Abidjan"
+      ]
+    },
+    {
+      "code": "TO",
+      "name": "Tonga",
+      "nameJa": "トンガ",
+      "region": "Oceania",
+      "capital": "Nuku'alofa",
+      "lat": -20,
+      "lon": -175,
+      "zones": [
+        "Pacific/Tongatapu"
+      ]
+    },
+    {
+      "code": "TT",
+      "name": "Trinidad and Tobago",
+      "nameJa": "トリニダード・トバゴ",
+      "region": "Americas",
+      "capital": "Port of Spain",
+      "lat": 11,
+      "lon": -61,
+      "zones": [
+        "America/Puerto_Rico"
+      ]
+    },
+    {
+      "code": "TN",
+      "name": "Tunisia",
+      "nameJa": "チュニジア",
+      "region": "Africa",
+      "capital": "Tunis",
+      "lat": 34,
+      "lon": 9,
+      "zones": [
+        "Africa/Tunis"
+      ]
+    },
+    {
+      "code": "TR",
+      "name": "Türkiye",
+      "nameJa": "トルコ",
+      "region": "Asia",
+      "capital": "Ankara",
+      "lat": 39,
+      "lon": 35,
+      "zones": [
+        "Europe/Istanbul"
+      ]
+    },
+    {
+      "code": "TM",
+      "name": "Turkmenistan",
+      "nameJa": "トルクメニスタン",
+      "region": "Asia",
+      "capital": "Ashgabat",
+      "lat": 40,
+      "lon": 60,
+      "zones": [
+        "Asia/Ashgabat"
+      ]
+    },
+    {
+      "code": "TV",
+      "name": "Tuvalu",
+      "nameJa": "ツバル",
+      "region": "Oceania",
+      "capital": "Funafuti",
+      "lat": -8,
+      "lon": 178,
+      "zones": [
+        "Pacific/Tarawa"
+      ]
+    },
+    {
+      "code": "UG",
+      "name": "Uganda",
+      "nameJa": "ウガンダ",
+      "region": "Africa",
+      "capital": "Kampala",
+      "lat": 1,
+      "lon": 32,
+      "zones": [
+        "Africa/Nairobi"
+      ]
+    },
+    {
+      "code": "UA",
+      "name": "Ukraine",
+      "nameJa": "ウクライナ",
+      "region": "Europe",
+      "capital": "Kyiv",
+      "lat": 49,
+      "lon": 32,
+      "zones": [
+        "Europe/Kyiv",
+        "Europe/Simferopol"
+      ]
+    },
+    {
+      "code": "AE",
+      "name": "United Arab Emirates",
+      "nameJa": "UAE",
+      "region": "Asia",
+      "capital": "Abu Dhabi",
+      "lat": 24,
+      "lon": 54,
+      "zones": [
+        "Asia/Dubai"
+      ]
+    },
+    {
+      "code": "GB",
+      "name": "United Kingdom",
+      "nameJa": "イギリス",
+      "region": "Europe",
+      "capital": "London",
+      "lat": 54,
+      "lon": -2,
+      "zones": [
+        "Europe/London"
+      ]
+    },
+    {
+      "code": "US",
+      "name": "United States",
+      "nameJa": "アメリカ",
+      "region": "Americas",
+      "capital": "Washington D.C.",
+      "lat": 38,
+      "lon": -97,
+      "zones": [
+        "America/Adak",
+        "America/Anchorage",
+        "America/Boise",
+        "America/Chicago",
+        "America/Denver",
+        "America/Detroit",
+        "America/Indiana/Indianapolis",
+        "America/Indiana/Knox",
+        "America/Indiana/Marengo",
+        "America/Indiana/Petersburg",
+        "America/Indiana/Tell_City",
+        "America/Indiana/Vevay",
+        "America/Indiana/Vincennes",
+        "America/Indiana/Winamac",
+        "America/Juneau",
+        "America/Kentucky/Louisville",
+        "America/Kentucky/Monticello",
+        "America/Los_Angeles",
+        "America/Menominee",
+        "America/Metlakatla",
+        "America/New_York",
+        "America/Nome",
+        "America/North_Dakota/Beulah",
+        "America/North_Dakota/Center",
+        "America/North_Dakota/New_Salem",
+        "America/Phoenix",
+        "America/Sitka",
+        "America/Yakutat",
+        "Pacific/Honolulu"
+      ]
+    },
+    {
+      "code": "UY",
+      "name": "Uruguay",
+      "nameJa": "ウルグアイ",
+      "region": "Americas",
+      "capital": "Montevideo",
+      "lat": -33,
+      "lon": -56,
+      "zones": [
+        "America/Montevideo"
+      ]
+    },
+    {
+      "code": "UZ",
+      "name": "Uzbekistan",
+      "nameJa": "ウズベキスタン",
+      "region": "Asia",
+      "capital": "Tashkent",
+      "lat": 41,
+      "lon": 64,
+      "zones": [
+        "Asia/Samarkand",
+        "Asia/Tashkent"
+      ]
+    },
+    {
+      "code": "VU",
+      "name": "Vanuatu",
+      "nameJa": "バヌアツ",
+      "region": "Oceania",
+      "capital": "Port Vila",
+      "lat": -16,
+      "lon": 167,
+      "zones": [
+        "Pacific/Efate"
+      ]
+    },
+    {
+      "code": "VA",
+      "name": "Vatican City",
+      "nameJa": "バチカン",
+      "region": "Europe",
+      "capital": "Vatican City",
+      "lat": 41.9,
+      "lon": 12.45,
+      "zones": [
+        "Europe/Rome"
+      ]
+    },
+    {
+      "code": "VE",
+      "name": "Venezuela",
+      "nameJa": "ベネズエラ",
+      "region": "Americas",
+      "capital": "Caracas",
+      "lat": 8,
+      "lon": -66,
+      "zones": [
+        "America/Caracas"
+      ]
+    },
+    {
+      "code": "VN",
+      "name": "Vietnam",
+      "nameJa": "ベトナム",
+      "region": "Asia",
+      "capital": "Hanoi",
+      "lat": 16.16666666,
+      "lon": 107.83333333,
+      "zones": [
+        "Asia/Bangkok",
+        "Asia/Ho_Chi_Minh"
+      ]
+    },
+    {
+      "code": "YE",
+      "name": "Yemen",
+      "nameJa": "イエメン",
+      "region": "Asia",
+      "capital": "Sana'a",
+      "lat": 15,
+      "lon": 48,
+      "zones": [
+        "Asia/Riyadh"
+      ]
+    },
+    {
+      "code": "ZM",
+      "name": "Zambia",
+      "nameJa": "ザンビア",
+      "region": "Africa",
+      "capital": "Lusaka",
+      "lat": -15,
+      "lon": 30,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    },
+    {
+      "code": "ZW",
+      "name": "Zimbabwe",
+      "nameJa": "ジンバブエ",
+      "region": "Africa",
+      "capital": "Harare",
+      "lat": -20,
+      "lon": 30,
+      "zones": [
+        "Africa/Maputo"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { supabase } from './services/supabase.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
+import { SchedulingPage, bindSchedulePlanner } from './pages/host/SchedulingPage.js';
 
 import {
   addSchool,
@@ -90,6 +91,7 @@ import {
 const routes = {
   dashboard: DashboardPage,
   events: EventsPage,
+  scheduling: SchedulingPage,
   schools: SchoolsPage,
   teachers: TeachersPage,
   participants: ParticipantsPage,
@@ -226,6 +228,7 @@ function bindUiEvents() {
   bindEventManagement({
     renderApp,
   });
+  bindSchedulePlanner();
   
   // =========================================================
   // Language

@@ -1,0 +1,751 @@
+/* World Time Map */
+
+.gc-map-switch {
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:5px;
+}
+
+.gc-map-switch button,
+.gc-map-filter {
+  border:1px solid #c8dce9;
+  background:#fff;
+  color:#235675;
+  border-radius:9px;
+  padding:7px 12px;
+  cursor:pointer;
+  font:inherit;
+  font-size:.8rem;
+  font-weight:700;
+}
+
+.gc-map-switch button.active,
+.gc-map-filter.active {
+  background:#1479bc;
+  color:#fff;
+  border-color:#1479bc;
+}
+
+.gc-plan[data-clock-view="map"] #gcp-clocks,
+.gc-plan[data-clock-view="map"] .gc-world-tools,
+.gc-plan[data-clock-view="map"] .gc-world-pagination {
+  display:none!important;
+}
+
+.gc-plan[data-clock-view="list"] #gcp-map-panel {
+  display:none!important;
+}
+
+.gc-plan #gcp-map-panel {
+  flex:1;
+  min-height:0;
+  display:flex;
+  margin-top:9px;
+}
+
+.gc-map-shell {
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0;
+  min-width:0;
+  gap:9px;
+}
+
+.gc-map-filters {
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.gc-map-filter {
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:.76rem;
+}
+
+.gc-map-area {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 245px;
+  flex:1;
+  min-height:0;
+  gap:12px;
+}
+
+.gc-map-stage {
+  position:relative;
+  min-width:0;
+  min-height:260px;
+  border:1px solid #d3e5f2;
+  background:#eaf4fb;
+  border-radius:13px;
+  overflow:hidden;
+}
+
+.gc-map-stage svg {
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.gc-map-country-layer path {
+  fill:#d6e7ef;
+  stroke:#a9c8d8;
+  stroke-width:.55px;
+}
+
+.gc-map-pin {
+  cursor:pointer;
+  stroke:#fff;
+  stroke-width:1.8px;
+  filter:drop-shadow(0 1px 2px #223c57aa);
+}
+
+.gc-map-pin-day {
+  fill:#f3b638;
+}
+
+.gc-map-pin-night {
+  fill:#234b70;
+}
+
+.gc-map-pin.selected {
+  stroke:#e43b68;
+  stroke-width:3px;
+}
+
+.gc-map-pin:focus {
+  outline:none;
+  stroke:#f12b58;
+  stroke-width:4px;
+}
+
+.gc-map-detail {
+  background:white;
+  border:1px solid #d7e7f2;
+  border-radius:13px;
+  padding:18px 14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  gap:9px;
+}
+
+.gc-map-place {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#183e5b;
+  line-height:1.45;
+}
+
+.gc-map-place img {
+  object-fit:cover;
+  border-radius:3px;
+}
+
+.gc-map-big-time {
+  font-size:clamp(2.2rem,3.5vw,3.3rem);
+  font-weight:850;
+  line-height:1.05;
+  color:#123d5f;
+}
+
+.gc-map-small-date,
+.gc-map-offset,
+.gc-map-phase {
+  margin:0!important;
+  color:#547590!important;
+  font-size:.9rem;
+  overflow-wrap:anywhere;
+}
+
+.gc-map-phase {
+  font-weight:700;
+}
+
+.gc-map-load-error {
+  position:absolute;
+  bottom:8px;
+  left:10px;
+  color:#b32929;
+  background:white;
+  padding:8px;
+}
+
+@media(min-width:900px) and (min-height:640px) {
+  body:has(.gc-plan) [data-step="1"] .gc-plan-fields {
+    grid-template-columns:220px 180px!important;
+    justify-content:start;
+    gap:14px!important;
+    margin-top:5px!important;
+  }
+
+  body:has(.gc-plan) .gc-plan {
+    min-height:0;
+  }
+}
+
+@media(max-width:900px) {
+  .gc-map-area {
+    grid-template-columns:1fr;
+  }
+
+  .gc-map-stage {
+    height:330px;
+    min-height:280px;
+  }
+
+  .gc-map-detail {
+    min-height:155px;
+  }
+
+  .gc-plan #gcp-map-panel {
+    flex:initial;
+  }
+}
+
+/* ===== GC_MAP_FOCUS_LAYOUT_V1 ===== */
+/* Compact header and maximize the map/list workspace. */
+
+@media (min-width:1050px) and (min-height:680px) {
+
+  body:has(.gc-plan) {
+    overflow: hidden !important;
+  }
+
+  body:has(.gc-plan) #app {
+    height: 100dvh !important;
+    min-height: 0 !important;
+    padding: 8px !important;
+    overflow: hidden !important;
+  }
+
+  body:has(.gc-plan) .app-shell {
+    grid-template-columns: 200px minmax(0,1fr) !important;
+    gap: 10px !important;
+    height: calc(100dvh - 16px) !important;
+    min-height: 0 !important;
+  }
+
+  /* Keep navigation usable, but reduce wasted space. */
+  body:has(.gc-plan) .sidebar {
+    padding: 14px 10px !important;
+    border-radius: 19px !important;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  body:has(.gc-plan) .brand-block {
+    margin-bottom: 15px !important;
+    gap: 9px;
+  }
+
+  body:has(.gc-plan) .brand-mark {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+  }
+
+  body:has(.gc-plan) .brand-title {
+    font-size: 1.15rem;
+  }
+
+  body:has(.gc-plan) .sidebar-nav {
+    gap: 3px !important;
+  }
+
+  body:has(.gc-plan) .route-link {
+    padding: 9px 11px !important;
+    border-radius: 11px !important;
+    font-size: .87rem;
+  }
+
+  /* Main application header: show the title only once. */
+  body:has(.gc-plan) .main-shell {
+    height: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    gap: 8px !important;
+  }
+
+  body:has(.gc-plan) .topbar {
+    padding: 8px 15px !important;
+    min-height: 48px;
+    flex-shrink: 0;
+    border-radius: 16px !important;
+  }
+
+  body:has(.gc-plan) .topbar .eyebrow {
+    display: none !important;
+  }
+
+  body:has(.gc-plan) .page-title {
+    font-size: 1.25rem !important;
+  }
+
+  body:has(.gc-plan) .topbar-pill,
+  body:has(.gc-plan) .lang-button {
+    padding: 6px 10px !important;
+  }
+
+  body:has(.gc-plan) .page-content {
+    flex: 1;
+    min-width: 0;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Planner: remove its duplicate title. */
+  body:has(.gc-plan) .gc-plan {
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 10px 15px !important;
+    overflow: hidden !important;
+  }
+
+  body:has(.gc-plan) .gc-plan-head {
+    min-height: 18px;
+    justify-content: flex-end;
+    margin: 0;
+  }
+
+  body:has(.gc-plan) .gc-plan-head > div {
+    display: none !important;
+  }
+
+  body:has(.gc-plan) .gc-plan-head #gcp-counter {
+    font-size: .8rem;
+  }
+
+  body:has(.gc-plan) .gc-plan-progress {
+    height: 5px;
+    margin: 4px 0 6px !important;
+  }
+
+  body:has(.gc-plan) .gc-plan-tabs {
+    padding-bottom: 5px !important;
+    font-size: .75rem;
+  }
+
+  body:has(.gc-plan) .gc-plan-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    padding: 3px 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Step 2: remove redundant explanation lines. */
+  body:has(.gc-plan) [data-step="1"]:not([hidden]) {
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative;
+    height: 100%;
+    min-height: 0;
+  }
+
+  body:has(.gc-plan) [data-step="1"] > h3,
+  body:has(.gc-plan) [data-step="1"] > p {
+    display: none !important;
+  }
+
+  /* Compact date/time fields. */
+  body:has(.gc-plan) [data-step="1"] .gc-plan-fields {
+    display: grid !important;
+    grid-template-columns: 175px 140px !important;
+    justify-content: start !important;
+    gap: 11px !important;
+    margin: 0 0 7px !important;
+    flex-shrink: 0;
+  }
+
+  body:has(.gc-plan) [data-step="1"] .gc-plan-fields label {
+    gap: 3px !important;
+    font-size: .78rem !important;
+    max-width: none !important;
+  }
+
+  body:has(.gc-plan) #gcp-date,
+  body:has(.gc-plan) #gcp-time {
+    height: 36px;
+    width: 100% !important;
+    padding: 5px 9px !important;
+    font-size: .85rem;
+  }
+
+  /* Place Map / Time list on the same visual row. */
+  body:has(.gc-plan) .gc-map-switch {
+    position: absolute;
+    top: 13px;
+    right: 2px;
+    z-index: 2;
+    margin: 0 !important;
+    gap: 6px;
+  }
+
+  body:has(.gc-plan) .gc-map-switch button {
+    padding: 7px 12px !important;
+    font-size: .78rem;
+  }
+
+  /* World map gets most of the available height. */
+  body:has(.gc-plan) #gcp-map-panel {
+    flex: 1 !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    overflow: hidden;
+  }
+
+  body:has(.gc-plan) .gc-map-shell {
+    flex: 1 !important;
+    min-height: 0 !important;
+    gap: 6px !important;
+  }
+
+  body:has(.gc-plan) .gc-map-filters {
+    gap: 4px !important;
+    flex-shrink: 0;
+  }
+
+  body:has(.gc-plan) .gc-map-filter {
+    padding: 5px 10px !important;
+    font-size: .75rem;
+  }
+
+  body:has(.gc-plan) .gc-map-area {
+    display: grid !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    grid-template-columns: minmax(0,1fr) 230px !important;
+    gap: 9px !important;
+  }
+
+  body:has(.gc-plan) .gc-map-stage {
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden;
+  }
+
+  body:has(.gc-plan) .gc-map-stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  body:has(.gc-plan) .gc-map-detail {
+    min-height: 0 !important;
+    padding: 13px !important;
+  }
+
+  /* Time list gets the same screen priority. */
+  body:has(.gc-plan) .gc-world-tools {
+    margin: 5px 0 2px !important;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  body:has(.gc-plan) .gc-world-summary {
+    margin: 0 !important;
+  }
+
+  body:has(.gc-plan) .gc-world-pagination {
+    margin-top: 4px !important;
+    flex-shrink: 0;
+  }
+
+  body:has(.gc-plan) #gcp-clocks {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    margin-top: 3px !important;
+    gap: 8px !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    grid-template-rows: repeat(2,minmax(0,1fr)) !important;
+    align-content: stretch !important;
+  }
+
+  body:has(.gc-plan) .gc-world-card {
+    min-height: 0 !important;
+    padding: 9px !important;
+    overflow: hidden;
+  }
+
+  body:has(.gc-plan) .gc-world-card-head {
+    min-height: 73px !important;
+    gap: 7px;
+    margin-bottom: 6px;
+  }
+
+  body:has(.gc-plan) .gc-world-countries {
+    flex: 1;
+    min-height: 0;
+    max-height: none !important;
+    overflow-y: auto;
+    margin-top: 2px;
+  }
+
+  /* Compact bottom actions. */
+  body:has(.gc-plan) .gc-plan-footer {
+    margin-top: 5px !important;
+    padding-top: 6px !important;
+    flex-shrink: 0;
+  }
+
+  body:has(.gc-plan) .gc-plan-footer button {
+    padding: 8px 14px !important;
+    min-height: 36px;
+  }
+
+}
+
+/* Narrow screens: prioritize legibility over forced clipping. */
+@media (max-width:1049px), (max-height:679px) {
+  body:has(.gc-plan) .gc-plan-head > div {
+    display: none;
+  }
+
+  body:has(.gc-plan) .gc-plan-head {
+    justify-content: flex-end;
+  }
+
+  body:has(.gc-plan) .gc-map-area {
+    min-height: 320px;
+  }
+
+  body:has(.gc-plan) .gc-plan-body {
+    overflow-y: auto !important;
+  }
+}
+
+
+/* ===== WORLD TIME MAP V2: MERIDIAN GUIDES ===== */
+
+.gc-map-meridian-layer {
+  pointer-events: none;
+}
+
+.gc-map-meridian {
+  stroke: #277eae;
+  stroke-width: .75;
+  stroke-dasharray: 4 7;
+  opacity: .32;
+}
+
+.gc-map-zero-meridian {
+  stroke: #1267a0;
+  stroke-width: 1.1;
+  stroke-dasharray: 7 6;
+  opacity: .50;
+}
+
+.gc-map-date-meridian {
+  stroke: #e84c6a;
+  stroke-width: 1.7;
+  stroke-dasharray: 7 8;
+  opacity: .58;
+}
+
+.gc-map-meridian-label {
+  fill: #285e82;
+  font-size: 13px;
+  font-weight: 700;
+  stroke: #eef7fc;
+  stroke-width: 3px;
+  paint-order: stroke;
+}
+
+.gc-map-guide-legend {
+  position: absolute;
+  left: 9px;
+  bottom: 8px;
+  z-index: 1;
+  max-width: calc(100% - 18px);
+  padding: 6px 9px;
+  background: rgba(255,255,255,.91);
+  border: 1px solid #d3e4ef;
+  border-radius: 8px;
+  color: #315b76;
+  font-size: .72rem;
+  font-weight: 650;
+  pointer-events: none;
+}
+
+.gc-map-day-status {
+  margin: 0 !important;
+  padding: 8px 10px;
+  background: #e9f3fb;
+  color: #185d90 !important;
+  border-radius: 9px;
+  font-size: .82rem !important;
+  font-weight: 750;
+}
+
+@media (max-width: 700px) {
+  .gc-map-guide-legend {
+    font-size: .65rem;
+    padding: 5px 7px;
+  }
+}
+
+/* ===== GC_SESSION_COMPACT_V1 ===== */
+
+/* Session title + timezone close together */
+body:has(.gc-plan) [data-step="0"] .gc-plan-fields {
+  width: min(100%, 640px) !important;
+  max-width: 640px !important;
+  grid-template-columns:
+    minmax(0, 1.6fr)
+    minmax(0, 1fr) !important;
+  gap: 14px !important;
+  margin: 15px 0 0 !important;
+  align-items: end;
+}
+
+body:has(.gc-plan) [data-step="0"] .gc-plan-fields label {
+  min-width: 0;
+  width: 100%;
+  gap: 6px;
+}
+
+body:has(.gc-plan) #gcp-title,
+body:has(.gc-plan) #gcp-zone {
+  width: 100% !important;
+  min-width: 0;
+  height: 46px;
+  padding: 10px 12px;
+  font-size: .95rem;
+}
+
+/* Narrow screens */
+@media (max-width: 680px) {
+  body:has(.gc-plan) [data-step="0"] .gc-plan-fields {
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 420px !important;
+    gap: 12px !important;
+  }
+}
+
+
+/* ===== GC_SESSION_NEXT_NEAR_FIELDS ===== */
+
+/* Keep Step 1 actions close to the related inputs. */
+.gc-plan [data-step="0"] .gc-session-next-area {
+  width: min(100%, 640px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.gc-plan [data-step="0"] .gc-session-next-area #gcp-next {
+  min-width: 138px;
+  min-height: 44px;
+  padding: 11px 23px;
+  font-size: .95rem;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+/* Hide the distant bottom toolbar only on Step 1. */
+.gc-plan.gc-session-step .gc-plan-footer {
+  display: none !important;
+}
+
+/* Keyboard focus remains clearly visible. */
+.gc-session-next-area #gcp-next:focus-visible {
+  outline: 3px solid #7cc8fa;
+  outline-offset: 3px;
+}
+
+@media (max-width: 680px) {
+  .gc-plan [data-step="0"] .gc-session-next-area {
+    max-width: 420px;
+    margin-top: 14px;
+  }
+}
+
+/* ===== GC_MAP_POINTS_V2 ===== */
+
+.gc-map-meridian-label {
+  opacity: .72;
+}
+
+.gc-map-pin {
+  transition: transform .12s ease, opacity .12s ease;
+}
+
+.gc-map-pin:hover {
+  opacity: 1;
+}
+
+.gc-map-pin-day,
+.gc-map-pin-night {
+  opacity: .92;
+}
+
+/* ===== GC_LARGER_DATE_TIME_V1 ===== */
+
+/* Larger and easier date/time inputs on Step 2 */
+@media (min-width: 1050px) and (min-height: 680px) {
+
+  body:has(.gc-plan) [data-step="1"] .gc-plan-fields {
+    grid-template-columns: 220px 180px !important;
+    gap: 14px !important;
+    margin-bottom: 9px !important;
+  }
+
+  body:has(.gc-plan) [data-step="1"] .gc-plan-fields label {
+    font-size: .88rem !important;
+    font-weight: 650;
+    gap: 5px !important;
+  }
+
+  body:has(.gc-plan) #gcp-date,
+  body:has(.gc-plan) #gcp-time {
+    width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px;
+    font-size: 1rem !important;
+    box-sizing: border-box;
+  }
+}
+
+/* Easier tapping on smaller screens */
+@media (max-width: 1049px), (max-height: 679px) {
+
+  body:has(.gc-plan) [data-step="1"] .gc-plan-fields {
+    grid-template-columns:
+      minmax(0, 220px)
+      minmax(0, 180px) !important;
+    max-width: 100%;
+    gap: 12px !important;
+  }
+
+  body:has(.gc-plan) #gcp-date,
+  body:has(.gc-plan) #gcp-time {
+    width: 100% !important;
+    min-width: 0;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 8px 10px !important;
+    font-size: .95rem !important;
+    box-sizing: border-box;
+  }
+}
+
+body:has(.gc-plan) #gcp-date::-webkit-calendar-picker-indicator,
+body:has(.gc-plan) #gcp-time::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 5px;
+}
+
+body:has(.gc-plan) #gcp-date:focus-visible,
+body:has(.gc-plan) #gcp-time:focus-visible {
+  outline: 2px solid #2b89cb;
+  outline-offset: 2px;
+}

@@ -1,6 +1,7 @@
 const menuItems = [
   { key: 'dashboard', label: 'Host Dashboard' },
   { key: 'events', label: 'Events' },
+  { key: 'scheduling', label: 'Schedule Planner' },
   { key: 'schools', label: 'School Library' },
   { key: 'teachers', label: 'Teacher Database' },
   { key: 'participants', label: 'Participant Pool' },
