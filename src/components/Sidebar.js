@@ -1,8 +1,12 @@
 const menuItems = [
   { key: 'dashboard', label: 'Host Dashboard' },
   { key: 'events', label: 'Events' },
+  { key: 'session-control', label: 'Session Control Center' }, // GCC_SESSION_ROSTER_V6
   { key: 'scheduling', label: 'Schedule Planner' },
-  { key: 'matching', label: 'Exchange Matching' }, // GCC_EXCHANGE_MATCHING_V1
+  { key: 'register-session', label: '＋ Register a Session' }, // GCC_SESSION_SPLIT_V3
+  { key: 'find-session', label: '⌕ Find a Session' },
+  { key: 'join-requests', label: '✉ Join Requests' }, // GCC_JOIN_V4
+  { key: 'teacher-invites', label: '✉ Teacher Invitations' }, // GCC_TEACHER_SELF_V5
   { key: 'schools', label: 'School Library' },
   { key: 'teachers', label: 'Teacher Database' },
   { key: 'participants', label: 'Participant Pool' },

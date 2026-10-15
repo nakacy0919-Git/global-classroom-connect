@@ -6,6 +6,8 @@ import {
   getTeachers,
 } from './teacherService.js';
 
+import {getEventFacilitatorIds} from './sessionRosterService.js'; // GCC_SESSION_ROSTER_V6
+
 import {
   getPreviousRoommateCounts,
   getParticipantPairKey,
@@ -1635,6 +1637,7 @@ export async function buildRoomPlan({
   const [
     participants,
     teachers,
+    facilitatorScope,
   ] =
     await Promise.all([
 
@@ -1644,13 +1647,15 @@ export async function buildRoomPlan({
 
       getTeachers(),
 
+      getEventFacilitatorIds(eventId),
+
     ]);
 
 
   const facilitators =
     teachers.filter(
       (teacher) =>
-        teacher.can_facilitate
+        teacher.can_facilitate && (!facilitatorScope.managed || facilitatorScope.ids.has(teacher.id))
     );
 
 

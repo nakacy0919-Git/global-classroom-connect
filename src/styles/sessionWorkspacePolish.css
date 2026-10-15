@@ -1,0 +1,121 @@
+/* GCC_WORKFLOW_POLISH_V41
+   One meaningful heading per screen. Actions are close to the data they change.
+   Scoped to registration, search and review host routes. */
+
+/* Compact shared host topbar for the three session pages. */
+body:has(.gc-register-only) .topbar,
+body:has(.gcf-page) .topbar,
+body:has(.gc-requests) .topbar {
+  min-height:56px; padding:10px 17px; border-radius:17px; flex-shrink:0;
+}
+body:has(.gc-register-only) .topbar .eyebrow,
+body:has(.gcf-page) .topbar .eyebrow,
+body:has(.gc-requests) .topbar .eyebrow {display:none!important}
+body:has(.gc-register-only) .page-title,
+body:has(.gcf-page) .page-title,
+body:has(.gc-requests) .page-title {font-size:1.31rem!important}
+
+/* REGISTER: use the app title, not a second large Register heading and tab strip. */
+.gc-register-only .gc-match-hero,
+.gc-register-only .gc-match-nav {display:none!important}
+.gc-register-only {padding:10px!important;gap:7px!important}
+.gc-register-only .gc-match-workspace {gap:11px}
+.gc-register-only .gc-match-wizard-top {padding-top:12px}
+.gc-register-only .gc-match-panel-scroll {padding-top:16px}
+.gc-register-only .gc-match-step-intro {margin-bottom:13px}
+.gc-register-only .gc-match-step-intro h3 {margin-bottom:0}
+.gc-register-only .gc-match-guide-caption:empty {display:none}
+.gc-register-only .gc-match-steps {padding-bottom:6px}
+
+/* FIND: prominent early Search and progressive disclosure of optional filters. */
+.gcf-page {gap:8px!important}
+.gcf-page .gcf-main {flex:1;min-height:0}
+.gcf-page .gcf-filter-panel {gap:10px!important;padding:15px 17px!important}
+.gcf-page .gcf-subhead {margin-bottom:2px!important}
+.gcf-page .gcf-intro {margin:0!important;line-height:1.4!important}
+.gcf-page .gcf-field {gap:5px!important}
+.gcf-page .gcf-time-grid {margin:2px 0!important}
+.gcf-page .gcf-search-actions {
+  display:grid;grid-template-columns:minmax(0,1fr);gap:6px;
+  margin:5px 0 6px;padding-bottom:9px;border-bottom:1px solid #e3eef1;
+}
+.gcf-page .gcf-search-actions .gcf-primary {
+  display:flex;align-items:center;justify-content:center;min-height:47px;
+  border-radius:11px;box-shadow:0 5px 12px #138cb02a;
+}
+.gcf-page .gcf-search-actions .gcf-clear {min-height:30px;padding:3px 8px!important}
+.gcf-page .gcf-more-filters {border:1px solid #d5e8eb;background:#f8fcff;border-radius:11px;padding:0 11px 2px}
+.gcf-page .gcf-more-filters summary {
+  cursor:pointer;min-height:41px;display:flex;align-items:center;gap:8px;
+  font-size:.84rem;font-weight:750;color:#246d89;list-style:none;
+}
+.gcf-page .gcf-more-filters summary::-webkit-details-marker {display:none}
+.gcf-page .gcf-more-filters summary::before {content:'＋';color:#1687b9;font-size:1.18rem}
+.gcf-page .gcf-more-filters[open] summary::before {content:'−'}
+.gcf-page .gcf-more-filters[open] summary {margin-bottom:11px;border-bottom:1px solid #deecf2}
+.gcf-page .gcf-more-filters .gcf-field {margin-bottom:10px}
+.gcf-page .gcf-results-top {display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gcf-page .gcf-results-top .gcf-side-link {margin-left:auto;min-height:38px;white-space:nowrap}
+.gcf-page .gcf-results-top .gcf-result-count {margin-left:0}
+.gcf-page .gcf-list {min-height:0}
+.gcf-page .gcf-current-search {padding:9px 11px!important;font-size:.79rem}
+.gcf-page .gcf-session-card {min-width:0}
+.gcf-page .gcf-details-content {overflow-wrap:anywhere}
+
+/* JOIN REQUESTS: one header, summary then an action-first review queue. */
+.gc-requests {padding:10px!important;gap:9px!important}
+.gc-requests .gc-requests-stats {gap:9px}
+.gc-requests .gc-requests-stat {min-height:57px;padding:9px 13px}
+.gc-requests .gc-requests-stat:first-child {
+  border-color:#93d3e5;background:linear-gradient(110deg,#e8f8fd,#fff);
+}
+.gc-requests .gc-requests-stat:first-child strong {color:#087aaa}
+.gc-requests .gc-requests-bar {gap:8px;flex-wrap:wrap;padding:9px 12px}
+.gc-requests .gc-requests-bar h3 {font-size:1.03rem;white-space:nowrap}
+.gc-requests .gc-requests-bar .gc-requests-link {margin-left:0;padding:9px 11px}
+.gc-requests .gc-requests-card {gap:9px;padding:14px}
+.gc-requests .gc-requests-approve {min-height:39px;box-shadow:0 3px 10px #147cac20}
+.gc-requests .gc-requests-decline {min-height:39px}
+.gc-requests .gc-requests-list {scrollbar-color:#bddfe8 transparent}
+
+@media (max-width:1050px){
+  .gcf-page .gcf-results-top .gcf-side-link {order:3;margin-left:0}
+  .gc-requests .gc-requests-bar h3 {width:100%;margin:0}
+}
+@media (max-width:720px){
+  .gc-requests .gc-requests-stats {grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .gc-requests .gc-requests-stat {gap:4px;padding:8px;font-size:.77rem}
+  .gc-requests .gc-requests-stat strong {font-size:1.15rem}
+  .gcf-page .gcf-search-actions {grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .gc-register-only *, .gcf-page *, .gc-requests * {scroll-behavior:auto!important}
+}
+
+/* Consistent full-height host workspace for registration and review. */
+@media (min-width:1050px) and (min-height:680px) {
+  body:has(.gc-register-only),body:has(.gc-requests) {overflow:hidden}
+  body:has(.gc-register-only) #app,body:has(.gc-requests) #app {
+    padding:8px;min-height:0;height:100dvh;overflow:hidden;
+  }
+  body:has(.gc-register-only) .app-shell,body:has(.gc-requests) .app-shell {
+    grid-template-columns:200px minmax(0,1fr);gap:10px;min-height:0;height:calc(100dvh - 16px);
+  }
+  body:has(.gc-register-only) .sidebar,body:has(.gc-requests) .sidebar {
+    min-height:0;overflow-y:auto;border-radius:19px;padding:14px 10px;
+  }
+  body:has(.gc-register-only) .brand-block,body:has(.gc-requests) .brand-block {margin-bottom:15px}
+  body:has(.gc-register-only) .brand-mark,body:has(.gc-requests) .brand-mark {width:43px;height:43px}
+  body:has(.gc-register-only) .sidebar-nav,body:has(.gc-requests) .sidebar-nav {gap:3px}
+  body:has(.gc-register-only) .route-link,body:has(.gc-requests) .route-link {
+    padding:9px 11px;font-size:.87rem;border-radius:11px;
+  }
+  body:has(.gc-register-only) .main-shell,body:has(.gc-requests) .main-shell {
+    gap:8px;min-height:0;
+  }
+  body:has(.gc-register-only) .page-content,body:has(.gc-requests) .page-content {
+    flex:1;min-height:0;overflow:hidden;
+  }
+  body:has(.gc-requests) .gc-requests {flex:1;min-height:0;overflow:hidden}
+  body:has(.gc-requests) .gc-requests-list {flex:1;min-height:0;overflow-y:auto}
+}

@@ -1,6 +1,8 @@
+// GCC_SESSION_SPLIT_V3: independent register/search routes; shared host services.
 // GCC_MATCHING_GUIDE_V22: minimal copy and focused guidance
 // GCC_MATCHING_GUIDED_V2 · host UI only; keeps existing database/service contracts.
 import '../../styles/matching.css';
+import '../../styles/sessionWorkspacePolish.css'; // GCC_WORKFLOW_POLISH_V41
 import {makeSlot,findMatches} from '../../lib/matching.js';
 import {loadMatchData,createAvailability,setAvailabilityStatus,saveShortlist,removeShortlist} from '../../services/matchingService.js';
 
@@ -20,7 +22,7 @@ const timezoneValid = zone => {try{new Intl.DateTimeFormat('en',{timeZone:zone})
 function localDateTomorrow(){const d=new Date();d.setDate(d.getDate()+1);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
 
 const WIZARD_STEPS = [
-  {icon:'🏫',short:'Who',title:'Choose your school',hint:'Start with the teacher and the students’ school.'},
+  {icon:'🏫',short:'Who',title:'Choose a teacher / school',hint:''},
   {icon:'🗓️',short:'When',title:'Find a good time',hint:'Tell us when your class can join, in its own local time.'},
   {icon:'✨',short:'Details',title:'Make it yours',hint:'Add students, rooms, and a conversation topic.'},
   {icon:'✅',short:'Review',title:'Ready to connect?',hint:'Review the details before making your time available.'}
@@ -28,19 +30,19 @@ const WIZARD_STEPS = [
 
 export function MatchingPage() {
   return `
-  <section class="gc-matching" aria-label="Exchange matching workspace">
+  <section class="gc-matching${window.location.hash.startsWith('#/register-session')?' gc-register-only':''}" aria-label="Register a Session">
     <div class="gc-match-hero">
       <div class="gc-match-hero-icon" aria-hidden="true">🌍</div>
       <div class="gc-match-hero-copy">
         <span class="gc-match-eyebrow">GLOBAL CLASSROOM · EXCHANGE HUB</span>
-        <h2>Make a connection <em>worth remembering.</em></h2>
+        <h2>Register a <em>Session.</em></h2>
       </div>
     </div>
 
     <div class="gc-match-nav" aria-label="Exchange Matching sections">
       <div class="gc-match-mode-switch" role="group" aria-label="Workspace view">
-        <button id="gcm-mode-form" type="button" aria-pressed="true" class="active"><span aria-hidden="true">✦</span> Plan an exchange</button>
-        <button id="gcm-mode-results" type="button" aria-pressed="false"><span aria-hidden="true">♡</span> Find partners <span class="gc-match-nav-count" id="gcm-match-nav-count">0</span></button>
+        <button id="gcm-mode-form" type="button" aria-pressed="true" class="active"><span aria-hidden="true">＋</span> Register a Session</button>
+        <button id="gcm-mode-results" type="button" aria-pressed="false"><span aria-hidden="true">⌕</span> Find a Session <span class="gc-match-nav-count" id="gcm-match-nav-count">0</span></button>
       </div>
     </div>
     <div id="gcm-notice" class="gc-match-notice" role="status" aria-live="polite" hidden></div>
@@ -386,15 +388,15 @@ export function bindMatchingPage() {
       await createAvailability({teacher_id:teacher.id,country_code:country,timezone:zone,
         starts_at:slot.startsAt,ends_at:slot.endsAt,student_count:Number($('gcm-students').value),room_count:Number($('gcm-rooms').value),
         age_band:$('gcm-band').value,topic:$('gcm-topic').value.trim(),notes:$('gcm-notes').value.trim(),status:'open'});
-      await reload();setMode('results');notice('✓ Availability saved! Your suggested partners have been refreshed. No invitation was sent.');
+      await reload();window.location.hash='#/find-session';
       visited.forEach(group=>group.clear());
       showStep(0);
     }catch(e){$('gcm-form-error').textContent=e.message||'Could not save availability.';}
     finally{submit.disabled=false;submit.textContent='Save availability ✓';}
   }
   $('gcm-mode-form').addEventListener('click',()=>{if(demo){setMode('results');notice('Refresh to leave sample preview before registering an availability.',true);return;}setMode('form');});
-  $('gcm-mode-results').addEventListener('click',()=>setMode('results'));
-  $('gcm-see-matches').addEventListener('click',()=>setMode('results'));
+  $('gcm-mode-results').addEventListener('click',()=>{window.location.hash='#/find-session';});
+  $('gcm-see-matches').addEventListener('click',()=>{window.location.hash='#/find-session';});
   $('gcm-step-back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
   $('gcm-step-next').addEventListener('click',()=>{if(validateStage(step))showStep(Math.min(3,step+1));});
   for(const b of root.querySelectorAll('[data-gcm-step]'))b.addEventListener('click',()=>{
@@ -426,6 +428,7 @@ export function bindMatchingPage() {
   $('gcm-refresh').addEventListener('click',()=>reload());
   $('gcm-demo').addEventListener('click',previewSample);
   $('gcm-date').value=localDateTomorrow();showStep(0);
+  if(window.location.hash==='#/matching')setMode('results');
   (async()=>{
     try{const response=await fetch(`${import.meta.env.BASE_URL}country-master.json`);
       if(!response.ok)throw Error('Country master unavailable');const data=await response.json();

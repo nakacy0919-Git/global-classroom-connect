@@ -1,7 +1,15 @@
 import { supabase } from './services/supabase.js';
+import {SessionSignupPage,bindSessionSignupPage} from './pages/public/SessionSignupPage.js'; // GCC_SESSION_ROSTER_V6
+import {SessionControlPage,bindSessionControlPage} from './pages/host/SessionControlPage.js';
+import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAccessPage.js'; // GCC_TEACHER_SELF_V5
+import {TeacherPortalPage,bindTeacherPortalPage} from './pages/teacher/TeacherPortalPage.js';
+import {TeacherInvitesPage,bindTeacherInvitesPage} from './pages/host/TeacherInvitesPage.js';
+import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
 import { SchedulingPage, bindSchedulePlanner } from './pages/host/SchedulingPage.js';
 import { MatchingPage, bindMatchingPage } from './pages/host/MatchingPage.js'; // GCC_EXCHANGE_MATCHING_V1
+import { FindSessionPage, bindFindSessionPage } from './pages/host/FindSessionPage.js'; // GCC_SESSION_SPLIT_V3
+import { JoinRequestsPage, bindJoinRequestsPage } from './pages/host/JoinRequestsPage.js'; // GCC_JOIN_V4
 
 import {
   addSchool,
@@ -93,7 +101,10 @@ const routes = {
   dashboard: DashboardPage,
   events: EventsPage,
   scheduling: SchedulingPage,
-  matching: MatchingPage,
+  matching: MatchingPage, // Legacy host comparison (advanced)
+  'register-session': MatchingPage,
+  'find-session': FindSessionPage,
+  'join-requests': JoinRequestsPage, // GCC_JOIN_V4
   schools: SchoolsPage,
   teachers: TeachersPage,
   participants: ParticipantsPage,
@@ -104,12 +115,19 @@ const routes = {
   registration: RegistrationPage,
   'session-board': SessionBoardPage,
   login: LoginPage,
+  'session-join': SessionSignupPage,
+  'session-control': SessionControlPage,
+  'teacher-access': TeacherAccessPage,
+  'teacher-portal': TeacherPortalPage,
+  'teacher-invites': TeacherInvitesPage,
 };
 
 const publicRoutes =
   new Set([
     'login',
     'registration',
+    'teacher-access',
+    'session-join',
   ]);
 
 
@@ -232,6 +250,13 @@ function bindUiEvents() {
   });
   bindSchedulePlanner();
   bindMatchingPage();
+  bindFindSessionPage();
+  bindJoinRequestsPage(); // GCC_JOIN_V4
+  bindTeacherAccessPage(); // GCC_TEACHER_SELF_V5
+  bindTeacherPortalPage();
+  bindTeacherInvitesPage();
+  bindSessionSignupPage(); // GCC_SESSION_ROSTER_V6
+  bindSessionControlPage();
   
   // =========================================================
   // Language
@@ -3463,11 +3488,11 @@ export async function renderApp() {
 
     if (
       !profile ||
-      profile.role !== 'host'
+      (route === 'teacher-portal' ? profile.role !== 'teacher' : profile.role !== 'host')
     ) {
 
       window.location.hash =
-        '#/login';
+        route === 'teacher-portal' ? '#/teacher-access' : '#/login';
 
 
       return;
@@ -3483,7 +3508,9 @@ export async function renderApp() {
 
   if (
     route === 'login' ||
-    route === 'registration'
+    route === 'registration' ||
+    route === 'teacher-access' ||
+    route === 'session-join'
   ) {
 
     app.innerHTML = `
@@ -3509,9 +3536,7 @@ export async function renderApp() {
       <div class="app-shell">
 
 
-        ${Sidebar(
-          route
-        )}
+        ${route === 'teacher-portal' ? TeacherSidebar() : Sidebar(route)}
 
 
         <div class="main-shell">

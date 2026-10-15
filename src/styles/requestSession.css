@@ -1,0 +1,21 @@
+/* Host-assisted request to join panel, matched to Find a Session V3. */
+.gcf-request-cta{margin-top:5px;display:flex;justify-content:center;align-items:center;gap:8px;border:0;background:linear-gradient(110deg,#168faf,#1578aa);
+ color:#fff;border-radius:11px;padding:12px 16px;font-size:.85rem;font-weight:800;cursor:pointer;min-height:45px;box-shadow:0 5px 15px #2781aa24}
+.gcf-request-cta:hover{filter:brightness(1.07)}
+.gcf-request-count{font-size:.78rem;padding:8px 10px;background:#ebf8f1;color:#21876b;border-radius:9px}
+.gcf-join-dialog{border:1px solid #c9e5eb;border-radius:19px;padding:0;width:min(520px,calc(100vw - 28px));max-height:90dvh;
+ box-shadow:0 30px 70px rgba(17,66,87,.23);color:#204b63;background:#fff}
+.gcf-join-dialog::backdrop{background:#0e344d80;backdrop-filter:blur(3px)}
+.gcf-join-dialog form{display:flex;flex-direction:column;gap:14px;padding:22px}
+.gcf-join-dialog h3{margin:0;font-size:1.3rem;color:#174d69}.gcf-join-dialog p{font-size:.83rem;color:#668596;margin:0;line-height:1.5}
+.gcf-request-label{display:flex;flex-direction:column;gap:7px;font-size:.83rem;font-weight:750;color:#315c72}
+.gcf-request-label select,.gcf-request-label textarea{width:100%;min-height:46px;background:#fbfeff;border:1px solid #b8dce9;
+ border-radius:11px;padding:11px;font:inherit;color:#1d506b;max-width:100%}
+.gcf-request-label textarea{resize:vertical;min-height:85px}.gcf-request-label select:focus-visible,.gcf-request-label textarea:focus-visible{outline:3px solid #70c6e2;outline-offset:2px}
+.gcf-request-error{padding:9px;border-radius:9px;background:#fff1eb!important;color:#a84341!important}
+.gcf-request-actions{display:flex;gap:10px;justify-content:flex-end}.gcf-request-actions button{padding:11px 14px;border-radius:10px;cursor:pointer;font-size:.85rem;font-weight:750}
+.gcf-request-actions .gcf-request-cancel{background:#fff;border:1px solid #c8e0e9;color:#48788d}
+.gcf-request-actions .gcf-request-submit{background:linear-gradient(110deg,#1593b9,#1176a9);color:#fff;border:0}
+.gcf-request-actions button:disabled{opacity:.45;cursor:not-allowed}
+.gcf-request-helper{border:1px solid #d4e9ee;background:#f0fafb;border-radius:11px;padding:9px 11px}
+@media(prefers-reduced-motion:reduce){.gcf-request-cta{transition:none}}
