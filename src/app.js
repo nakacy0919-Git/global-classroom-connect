@@ -1,6 +1,7 @@
 import { supabase } from './services/supabase.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
 import { SchedulingPage, bindSchedulePlanner } from './pages/host/SchedulingPage.js';
+import { MatchingPage, bindMatchingPage } from './pages/host/MatchingPage.js'; // GCC_EXCHANGE_MATCHING_V1
 
 import {
   addSchool,
@@ -92,6 +93,7 @@ const routes = {
   dashboard: DashboardPage,
   events: EventsPage,
   scheduling: SchedulingPage,
+  matching: MatchingPage,
   schools: SchoolsPage,
   teachers: TeachersPage,
   participants: ParticipantsPage,
@@ -229,6 +231,7 @@ function bindUiEvents() {
     renderApp,
   });
   bindSchedulePlanner();
+  bindMatchingPage();
   
   // =========================================================
   // Language

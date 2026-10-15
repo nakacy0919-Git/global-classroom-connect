@@ -2,6 +2,7 @@ const titles = {
   dashboard: 'Host Dashboard',
   events: 'Event Management',
   scheduling: 'Schedule Planner',
+  matching: 'Exchange Matching', // GCC_EXCHANGE_MATCHING_V1
   schools: 'School Library',
   teachers: 'Teacher Database',
   participants: 'Participant Pool',

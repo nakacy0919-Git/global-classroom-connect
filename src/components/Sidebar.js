@@ -2,6 +2,7 @@ const menuItems = [
   { key: 'dashboard', label: 'Host Dashboard' },
   { key: 'events', label: 'Events' },
   { key: 'scheduling', label: 'Schedule Planner' },
+  { key: 'matching', label: 'Exchange Matching' }, // GCC_EXCHANGE_MATCHING_V1
   { key: 'schools', label: 'School Library' },
   { key: 'teachers', label: 'Teacher Database' },
   { key: 'participants', label: 'Participant Pool' },
