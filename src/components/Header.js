@@ -1,5 +1,6 @@
 const titles = {
   dashboard: 'Host Dashboard',
+  sessions: 'Sessions',
   events: 'Event Management',
   'session-control': 'Session Control Center', // GCC_SESSION_ROSTER_V6
   scheduling: 'Schedule Planner',

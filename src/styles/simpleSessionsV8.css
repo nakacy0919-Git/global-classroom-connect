@@ -1,0 +1,75 @@
+/* Global Classroom Connect V8: teacher-ready, one task per screen. */
+body:has(.gcc-v8-host){background:linear-gradient(145deg,#fffbf3,#f3f9f7 52%,#e9f3f6) fixed}
+body:has(.gcc-v8-host) .app-shell{grid-template-columns:232px minmax(0,1fr);gap:16px}
+body:has(.gcc-v8-host) .sidebar{background:linear-gradient(155deg,#547c79,#295b65 68%,#264a64)}
+body:has(.gcc-v8-host) .main-shell,body:has(.gcc-v8-host) #page-content{min-width:0}
+.gcc-v8{--ink:#254b58;--muted:#66818b;--line:#dce8e3;--blue:#2e788c;--cream:#fffaf1;--shadow:0 12px 35px rgba(40,85,98,.065);font:inherit;font-size:16px;color:var(--ink)}
+.gcc-v8 *{box-sizing:border-box}.gcc-v8 [hidden]{display:none!important}
+.gcc-v8 button,.gcc-v8 input,.gcc-v8 select,.gcc-v8 textarea{font:inherit}
+.gcc-v8 button{cursor:pointer}.gcc-v8 button:disabled{opacity:.5;cursor:wait}
+.gcc-v8 :is(button,input,select,textarea):focus-visible{outline:3px solid #76b8b0;outline-offset:2px}
+.gcc-v8-primary,.gcc-v8-secondary{border-radius:13px;display:inline-flex;align-items:center;justify-content:center;min-height:47px;padding:11px 18px;font-weight:750;text-decoration:none!important;text-align:center}
+.gcc-v8-primary{background:#2e8194!important;border:1px solid #2e8194!important;color:#fff!important;box-shadow:0 7px 15px #287a8c20}
+.gcc-v8-primary:hover{background:#1f6a7d!important}.gcc-v8-secondary{background:#fff;border:1px solid #bddbd7;color:#396d77}
+.gcc-v8-secondary:hover{background:#f1f8f6}.gcc-v8-desc{color:var(--muted);font-size:1rem;line-height:1.6;margin:5px 0 21px}
+.gcc-v8-help{font-size:.88rem;color:var(--muted);line-height:1.55;margin:8px 0}
+.gcc-v8-small{letter-spacing:.13em;font-size:.74rem;font-weight:850;color:#588e8d}
+.gcc-v8-error{min-height:1.3em;color:#a13d38;font-weight:650;font-size:.91rem;margin:12px 0 0}
+.gcc-v8-error:empty{display:none}.gcc-v8-host-message.bad{color:#ab4141}
+.gcc-v8 label{display:grid;gap:9px;font-size:.92rem;font-weight:750}
+.gcc-v8 input,.gcc-v8 select,.gcc-v8 textarea{width:100%;min-width:0;padding:11px 13px;border:1px solid #c6ddd8;background:#fff;border-radius:12px;color:var(--ink);min-height:46px}
+.gcc-v8 textarea{line-height:1.6;resize:vertical}
+.gcc-v8-actions,.gcc-v8-footer{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.gcc-v8-footer{justify-content:flex-end;border-top:1px solid #e6eee9;padding-top:18px;margin-top:24px}
+.gcc-v8-footer .gcc-v8-secondary{margin-right:auto}
+.gcc-v8-progress{display:flex;gap:6px;width:min(380px,100%);margin:10px 0 17px}
+.gcc-v8-progress span{height:6px;flex:1;background:#e2eeea;border-radius:6px}
+.gcc-v8-progress span.active{background:#61ada3}
+.gcc-v8-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 6px 18px}
+.gcc-v8-top p{color:var(--muted);margin:5px 0 0}
+.gcc-v8-current{display:grid;grid-template-columns:minmax(260px,360px) 1fr;align-items:center;gap:25px;padding:22px 26px;margin-bottom:18px;border-radius:20px;background:linear-gradient(110deg,#fffaf0,#fffdf9,#eff7f4);border:1px solid #e7e9dd;box-shadow:var(--shadow)}
+.gcc-v8-current label{font-size:.78rem;letter-spacing:.07em;color:#588b87}
+.gcc-v8-current-title{display:grid;gap:4px}.gcc-v8-current-title strong{font-size:1.18rem;color:#365d69}
+.gcc-v8-current-title span{font-size:.87rem;color:var(--muted)}
+.gcc-v8-focus{max-width:1150px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px 35px;box-shadow:var(--shadow)}
+.gcc-v8-focus h2{font-size:clamp(1.45rem,2.4vw,2.1rem);margin:0;line-height:1.25;color:#265468}
+.gcc-v8-focus h3{font-size:1.07rem;color:#315d63;margin:0 0 11px}
+.gcc-v8-focus .gcc-v8-primary{margin:5px 0}
+.gcc-v8-focus-head{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.gcc-v8-focus-head .gcc-v8-progress{margin:0;width:210px}
+.gcc-v8-url{background:#f5faf8!important;margin:12px 0;max-width:630px}
+.gcc-v8-information{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #e5eeeb;padding:13px 0}
+.gcc-v8-information span{color:var(--muted)}.gcc-v8-information strong{font-size:1.06rem}
+.gcc-v8-summary{font-weight:750;color:#416f70;margin-bottom:18px}
+.gcc-v8-new-form{background:#fff;border:1px solid var(--line);border-radius:20px;padding:25px;margin-bottom:18px;box-shadow:var(--shadow)}
+.gcc-v8-new-form h2{margin:0 0 18px;font-size:1.5rem}
+.gcc-v8-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.gcc-v8-info-box{background:var(--cream);border:1px solid #f0e3cd;border-radius:14px;padding:15px 17px;line-height:1.55;color:#716343}
+.gcc-v8-config{margin-top:25px;border-top:1px solid #e5eeeb;padding-top:19px}
+.gcc-v8-config-form{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:15px;align-items:end}
+.gcc-v8-config-form button{min-height:46px;grid-column:1/-1;justify-self:start}
+.gcc-v8-school-card{border:1px solid var(--line);border-radius:16px;margin:12px 0;padding:19px;background:#fcfefc}
+.gcc-v8-school-card h3{margin:0 0 6px}.gcc-v8-school-card details{padding:12px 0}.gcc-v8-school-card summary{cursor:pointer;color:#2d7c85;font-weight:740}
+.gcc-v8-name{display:inline-block;background:#f0f8f6;padding:6px 10px;margin:4px;border-radius:8px}
+.gcc-v8-modal-cover{position:fixed;inset:0;z-index:260;background:#163b487d;padding:18px;display:grid;place-items:center}
+.gcc-v8-modal{background:#fff;border-radius:20px;border:1px solid #d9e8e4;padding:24px;width:min(770px,100%);max-height:90vh;overflow:auto}
+.gcc-v8-edit-rows{margin:18px 0;display:grid;gap:8px;max-height:48vh;overflow:auto}
+.gcc-v8-edit-row{display:grid;grid-template-columns:30px minmax(0,1fr) 90px;gap:9px;align-items:center}
+.gcc-v8-teacher{max-width:740px;margin:24px auto 30px;padding:28px 36px 24px;border:1px solid #dbe9e5;border-radius:24px;background:#fffefa;box-shadow:var(--shadow)}
+.gcc-v8-brand{display:flex;align-items:center;gap:13px;margin-bottom:30px}
+.gcc-v8-brand>span{display:grid;place-items:center;font-size:1.7rem;width:54px;height:54px;background:#eaf6f2;border-radius:15px}
+.gcc-v8-brand div{display:grid;gap:4px}.gcc-v8-brand strong{font-size:1rem;color:#315a69}.gcc-v8-brand small{color:var(--muted)}
+.gcc-v8-teacher h1{font-size:clamp(1.6rem,3vw,2.25rem);line-height:1.2;color:#2a5264;margin:0 0 8px}
+.gcc-v8-stage{display:grid;gap:19px}.gcc-v8-stage[hidden]{display:none!important}
+.gcc-v8-roster-count{border-radius:10px;background:#edf7f4;color:#287871;padding:11px 13px;font-weight:750}
+.gcc-v8-mini-preview{max-height:175px;overflow:auto;background:#fbfdfb;border-radius:11px;padding:9px 12px}
+.gcc-v8-mini-preview div{padding:5px 0;font-size:.88rem}.gcc-v8-line-error{font-size:.83rem;color:#aa4240;margin:5px 0}
+.gcc-v8-review{border:1px solid #d9e8e4;border-radius:14px;padding:7px 14px;background:#fff}
+.gcc-v8-review-row{display:flex;justify-content:space-between;gap:18px;padding:11px 0;border-bottom:1px solid #e8eeeb}
+.gcc-v8-review-row:last-child{border:0}.gcc-v8-review-row span{color:var(--muted)}.gcc-v8-review-row strong{text-align:right;overflow-wrap:anywhere}
+.gcc-v8-privacy{margin-top:25px;color:#829397;font-size:.79rem;text-align:center}
+.gcc-v8-success{margin-top:22px;padding:23px;border:1px solid #c9e7d7;border-radius:14px;background:#eef8f1;color:#2c775b;line-height:1.7;font-weight:700}
+@media(max-width:1060px){.gcc-v8-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.gcc-v8-config-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:830px){body:has(.gcc-v8-host) .app-shell{grid-template-columns:1fr}.gcc-v8-current{grid-template-columns:1fr;gap:10px}.gcc-v8-focus{padding:22px}}
+@media(max-width:540px){.gcc-v8-teacher{margin:0;padding:20px 17px;border-radius:0;min-height:100vh}.gcc-v8-focus{padding:18px}.gcc-v8-fields,.gcc-v8-config-form{grid-template-columns:1fr}.gcc-v8-top{align-items:start}.gcc-v8-current{padding:16px}.gcc-v8-edit-row{grid-template-columns:20px 1fr 65px}.gcc-v8-review-row{font-size:.87rem}}
+@media(prefers-reduced-motion:reduce){.gcc-v8 *{animation:none!important;transition:none!important}}

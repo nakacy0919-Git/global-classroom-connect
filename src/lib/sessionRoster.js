@@ -1,3 +1,4 @@
+import {isEnglishName} from './englishNames.js';
 // Pasted spreadsheet rows: Name [TAB Grade], CSV, or one name per line.
 export function parseRoster(raw) {
   const lines=String(raw??'').replace(/\r/g,'').split('\n');
@@ -8,7 +9,7 @@ export function parseRoster(raw) {
     cells=cells.map(s=>s.replace(/^"|"$/g,'').trim());
     if(i===0 && /^((full\s*)?name|student\s*name|氏名|名前)$/i.test(cells[0]))continue;
     const [name,grade='']=cells;
-    if(cells.length>2||!name||name.length>120||grade.length>40){invalid.push(i+1);continue;}
+    if(cells.length>2||!name||!isEnglishName(name)||name.length>120||grade.length>40){invalid.push(i+1);continue;}
     records.push({name,grade});
   }
   return {records,invalid};

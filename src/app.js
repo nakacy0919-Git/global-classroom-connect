@@ -1,4 +1,7 @@
 import { supabase } from './services/supabase.js';
+import {SessionsPage,bindSessionsPage} from './pages/host/SessionsPage.js';
+import {SimpleSessionsPage,bindSimpleSessionsPage} from './pages/host/SimpleSessionsPage.js';
+import {SharedRegistrationPage,bindSharedRegistrationPage} from './pages/public/SharedRegistrationPage.js';
 import {SessionSignupPage,bindSessionSignupPage} from './pages/public/SessionSignupPage.js'; // GCC_SESSION_ROSTER_V6
 import {SessionControlPage,bindSessionControlPage} from './pages/host/SessionControlPage.js';
 import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAccessPage.js'; // GCC_TEACHER_SELF_V5
@@ -99,6 +102,7 @@ import {
 
 const routes = {
   dashboard: DashboardPage,
+  sessions: SimpleSessionsPage,
   events: EventsPage,
   scheduling: SchedulingPage,
   matching: MatchingPage, // Legacy host comparison (advanced)
@@ -116,6 +120,7 @@ const routes = {
   'session-board': SessionBoardPage,
   login: LoginPage,
   'session-join': SessionSignupPage,
+  'session-register': SharedRegistrationPage,
   'session-control': SessionControlPage,
   'teacher-access': TeacherAccessPage,
   'teacher-portal': TeacherPortalPage,
@@ -128,6 +133,7 @@ const publicRoutes =
     'registration',
     'teacher-access',
     'session-join',
+    'session-register',
   ]);
 
 
@@ -146,7 +152,7 @@ function getCurrentRoute() {
 
   return routes[raw]
     ? raw
-    : 'dashboard';
+    : 'sessions';
 
 }
 
@@ -257,6 +263,9 @@ function bindUiEvents() {
   bindTeacherInvitesPage();
   bindSessionSignupPage(); // GCC_SESSION_ROSTER_V6
   bindSessionControlPage();
+  bindSessionsPage();
+  bindSimpleSessionsPage();
+  bindSharedRegistrationPage();
   
   // =========================================================
   // Language
@@ -2312,7 +2321,7 @@ function bindUiEvents() {
 
 
             window.location.hash =
-              '#/dashboard';
+              '#/sessions';
 
 
           } catch (error) {
@@ -3510,7 +3519,8 @@ export async function renderApp() {
     route === 'login' ||
     route === 'registration' ||
     route === 'teacher-access' ||
-    route === 'session-join'
+    route === 'session-join' ||
+    route === 'session-register'
   ) {
 
     app.innerHTML = `

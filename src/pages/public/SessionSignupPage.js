@@ -1,5 +1,6 @@
 import '../../styles/sessionSignupV6.css';
 import {parseRoster,parseFacilitators,isIdentityComplete} from '../../lib/sessionRoster.js';
+import {isEnglishName} from '../../lib/englishNames.js';
 import {publicSessions,submitSessionSignup} from '../../services/sessionRosterService.js';
 const $=id=>document.getElementById(id);
 const el=(tag,cls='',text='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=text;return n;};
@@ -45,7 +46,7 @@ export function bindSessionSignupPage(){
  const identity=()=>({country:$('gcc-v6-country').value,school:$('gcc-v6-school').value.trim(),teacher:$('gcc-v6-teacher').value.trim()});
  const students=()=>parseRoster($('gcc-v6-roster').value);
  function renderRoster(){const {records,invalid}=students();$('gcc-v6-roster-count').textContent=`${records.length} students detected`;
- $('gcc-v6-roster-warnings').textContent=invalid.length?`Check lines: ${invalid.join(', ')}`:'';
+ $('gcc-v6-roster-warnings').textContent=invalid.length?`Names must use A–Z letters. Correct lines: ${invalid.join(', ')}`:'';
  const box=$('gcc-v6-roster-list');box.replaceChildren();for(const [i,s] of records.slice(0,20).entries())box.append(el('div','',`${i+1}. ${s.name}  ${s.grade}`));
  if(records.length>20)box.append(el('small','',`… and ${records.length-20} more`));}
  function showStep(n){step=n;msg('');root.querySelectorAll('[data-v6-step]').forEach(e=>e.hidden=Number(e.dataset.v6Step)!==n);
@@ -60,8 +61,9 @@ export function bindSessionSignupPage(){
  function validate(n){if(n===0){if(!/^[a-f0-9]{32}$/.test($('gcc-v6-code').value.trim().toLowerCase()))return 'Enter the 32-character invitation code from your host.';
  if(!allSessions.some(s=>s.id===$('gcc-v6-event').value))return 'Choose a session.';}
  if(n===1&&!isIdentityComplete(identity()))return 'Country, school name, and teacher name are all required.';
+ if(n===1&&!isEnglishName(identity().teacher))return 'Teacher name must use A–Z English letters, spaces, hyphens or apostrophes.';
  if(n===2){const {records,invalid}=students();if(invalid.length)return 'Please correct the highlighted spreadsheet lines.';if(records.length<1||records.length>500)return 'Provide between 1 and 500 students.';}
- if(n===3){const fac=parseFacilitators($('gcc-v6-facilitators').value);if(fac.length>50||fac.some(x=>x.length<2||x.length>120))return 'Facilitator names must be 2–120 characters, maximum 50 names.';}
+ if(n===3){const fac=parseFacilitators($('gcc-v6-facilitators').value);if(fac.length>50||fac.some(x=>!isEnglishName(x)))return 'Facilitator names must be 2–120 characters, maximum 50 names.';}
  return null;}
  $('gcc-v6-back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
  $('gcc-v6-next').addEventListener('click',()=>{const problem=validate(step);if(problem){msg(problem,true);return;}showStep(Math.min(3,step+1));});
