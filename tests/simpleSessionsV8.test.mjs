@@ -34,7 +34,7 @@ test('teacher registration is a single link, private, no invite codes',()=>{
  assert.match(teacher,/Other schools cannot view or change it/);
 });
 test('host wizard supports rooms, cap, register/review, and does not fabricate sharing',()=>{
- for(const key of ['name="rooms"','name="capacity"','name="facs"','reviewSessionSignup','updateRegistrationNames','Open Room Builder','No plan has been published'])assert.match(host,new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+ for(const key of ['name="rooms"','name="capacity"','name="facs"','reviewSessionSignup','updateRegistrationNames','mountRoomPlannerV9','No plan has been published'])assert.match(host,new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
  assert.doesNotMatch(host,/Generate invite code|issueSessionCode/);
 });
 test('only the host lists signups; public form submits via RPC',()=>{

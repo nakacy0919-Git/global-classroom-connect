@@ -2,6 +2,7 @@ import { supabase } from './services/supabase.js';
 import {SessionsPage,bindSessionsPage} from './pages/host/SessionsPage.js';
 import {SimpleSessionsPage,bindSimpleSessionsPage} from './pages/host/SimpleSessionsPage.js';
 import {SharedRegistrationPage,bindSharedRegistrationPage} from './pages/public/SharedRegistrationPage.js';
+import {RoomPlanLookupPage,bindRoomPlanLookupPage} from './pages/public/RoomPlanLookupPage.js';
 import {SessionSignupPage,bindSessionSignupPage} from './pages/public/SessionSignupPage.js'; // GCC_SESSION_ROSTER_V6
 import {SessionControlPage,bindSessionControlPage} from './pages/host/SessionControlPage.js';
 import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAccessPage.js'; // GCC_TEACHER_SELF_V5
@@ -121,6 +122,7 @@ const routes = {
   login: LoginPage,
   'session-join': SessionSignupPage,
   'session-register': SharedRegistrationPage,
+  'room-plan': RoomPlanLookupPage,
   'session-control': SessionControlPage,
   'teacher-access': TeacherAccessPage,
   'teacher-portal': TeacherPortalPage,
@@ -134,6 +136,7 @@ const publicRoutes =
     'teacher-access',
     'session-join',
     'session-register',
+    'room-plan',
   ]);
 
 
@@ -150,8 +153,9 @@ function getCurrentRoute() {
       .trim();
 
 
-  return routes[raw]
-    ? raw
+  const name=raw.split('?')[0];
+    return routes[name]
+    ? name
     : 'sessions';
 
 }
@@ -266,6 +270,7 @@ function bindUiEvents() {
   bindSessionsPage();
   bindSimpleSessionsPage();
   bindSharedRegistrationPage();
+  bindRoomPlanLookupPage();
   
   // =========================================================
   // Language
@@ -3520,7 +3525,8 @@ export async function renderApp() {
     route === 'registration' ||
     route === 'teacher-access' ||
     route === 'session-join' ||
-    route === 'session-register'
+    route === 'session-register' ||
+    route === 'room-plan'
   ) {
 
     app.innerHTML = `

@@ -58,7 +58,7 @@ export function bindSharedRegistrationPage(){
      const row=el('div','gcc-v8-review-row');row.append(el('span','',label),el('strong','',value));box.append(row);
    }
  }
- function show(n){step=n;message('');$('gcc-v8-step-index').textContent=`STEP ${n+1} OF 4`;$('gcc-v8-title').textContent=titles[n];$('gcc-v8-subtitle').textContent=subtitles[n];
+ function show(n){step=n;message('');root.dataset.popStep=String(n);$('gcc-v8-step-index').textContent=`STEP ${n+1} OF 4`;$('gcc-v8-title').textContent=titles[n];$('gcc-v8-subtitle').textContent=subtitles[n];
    for(const e of root.querySelectorAll('[data-v8-stage]'))e.hidden=Number(e.dataset.v8Stage)!==n;
    $('gcc-v8-progress').replaceChildren(...[0,1,2,3].map(i=>{const x=el('span',i<=n?'active':'');return x;}));
    $('gcc-v8-back').hidden=n===0;$('gcc-v8-next').hidden=n===3;$('gcc-v8-submit').hidden=n!==3;

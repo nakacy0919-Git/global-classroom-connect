@@ -1,0 +1,35 @@
+/* GCC V10.2 — Academic Pop share workflow. Scoped to own components. */
+.gcc-v102{--v102-ink:#173b4b;--v102-mint:#20b5a2;--v102-coral:#ec7654;--v102-cream:#fffaf0;--v102-line:#dae8e4;color:var(--v102-ink);font-family:ui-rounded,'Segoe UI','Yu Gothic UI',system-ui,sans-serif}
+.gcc-v102 [hidden],.gcc-v8 [hidden]{display:none!important}
+.gcc-v102 :is(input,button){font:inherit}
+.gcc-v102 :is(input,button,a):focus-visible,.gcc-v8-share :is(input,button):focus-visible{outline:3px solid #f0a968;outline-offset:3px}
+.gcc-v102-public{max-width:740px;margin:36px auto;padding:32px;background:#fffefa;border:1px solid #e8e7d9;border-radius:28px;box-shadow:0 8px 0 #e4e8dd,0 22px 45px #1a464323}
+.gcc-v102-brand{display:flex;align-items:center;gap:12px;padding-bottom:19px;border-bottom:1px solid #e7efea}
+.gcc-v102-brand>span{display:grid;place-items:center;width:53px;height:53px;border-radius:17px;background:#ffe6c8;color:#d36749;font-size:29px}
+.gcc-v102-brand div{display:grid;gap:2px}.gcc-v102-brand strong{font-size:18px}.gcc-v102-brand small{font-size:12px;color:#66818a}
+.gcc-v102-hero{padding:28px 0 18px}.gcc-v102-kicker{font-weight:900;letter-spacing:.11em;color:#258d83;font-size:12px}
+.gcc-v102-hero h1{font-size:clamp(26px,4vw,37px);line-height:1.18;margin:7px 0 9px}.gcc-v102-hero p{color:#66818a;line-height:1.6;margin:0}
+.gcc-v102-lookup{display:grid;gap:17px}.gcc-v102-lookup label{font-weight:750;display:grid;gap:8px}
+.gcc-v102-lookup input{width:100%;min-height:52px;border-radius:14px;border:1px solid #badbd5;background:#fff;padding:12px 15px;color:#173b4b}
+.gcc-v102-primary,.gcc-v8-share .gcc-v102-primary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;background:linear-gradient(145deg,#f68b63,#e86b4c);color:#fff!important;min-height:53px;padding:12px 22px;border:0;border-radius:15px;font-weight:850;box-shadow:0 5px 0 #b95640,0 11px 18px #b956401d;transition:transform .16s,box-shadow .16s}
+.gcc-v102-primary:hover:not(:disabled),.gcc-v8-share .gcc-v102-primary:hover:not(:disabled){transform:translateY(-1px)}
+.gcc-v102-primary:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #b95640}
+.gcc-v102-primary:disabled{opacity:.48;cursor:default}
+.gcc-v102-message{margin:15px 0;color:#278279;font-weight:700;min-height:1.5em}.gcc-v102-message.error{color:#ac4e43}
+.gcc-v102-privacy{text-align:center;color:#71888b;font-size:12px;margin:22px 0 2px}
+.gcc-v102-result{background:linear-gradient(155deg,#fff4e4,#f4faf6 65%);border:1px solid #eee4cc;border-radius:20px;padding:24px;margin-top:18px}
+.gcc-v102-room-number{font-size:clamp(40px,7vw,64px);line-height:1.3;font-weight:950;color:#173b4b;margin-bottom:16px}
+.gcc-v102-zoom{width:100%;margin-bottom:16px}.gcc-v102-group{margin-top:19px;background:#fff;border:1px solid #e1ebe5;border-radius:17px;padding:15px 17px}
+.gcc-v102-group h2{font-size:18px;margin:0 0 11px}.gcc-v102-person{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #edf0ec}.gcc-v102-person div{display:grid;gap:4px;min-width:0}
+.gcc-v102-person strong{font-size:15px}.gcc-v102-person small{font-size:12px;color:#71888b;overflow-wrap:anywhere}
+.gcc-v102-avatar{display:block;width:47px;height:47px;border-radius:14px;flex:0 0 47px;background-size:cover;background-position:center;border:1px solid #d8e3d6}
+.gcc-v102-teacher{background-image:url('../assets/room-avatars/teacher.svg')}.gcc-v102-student{background-image:url('../assets/room-avatars/student.svg')}
+.gcc-v8-share{display:grid;gap:15px;max-width:730px}.gcc-v8-share h3{font-size:19px}.gcc-v8-share-notice{background:#fff7e5;border:1px solid #eadac0;border-radius:15px;padding:17px;color:#74603b;line-height:1.6}
+.gcc-v8-share-card{border:1px solid #dce8e4;border-radius:18px;padding:19px;background:#fffdfa;display:grid;gap:13px}
+.gcc-v8-share-card label{display:grid;gap:8px}.gcc-v8-share-card input{width:100%;min-height:50px;padding:11px 13px;border:1px solid #bcd8d1;border-radius:12px;color:#173b4b;background:white}
+.gcc-v8-share-actions{display:flex;flex-wrap:wrap;gap:11px;align-items:center}.gcc-v8-share-card .gcc-v102-primary{margin:0}
+.gcc-v8-share-good{padding:15px;background:#e8f7ef;border:1px solid #bde2cf;border-radius:13px;color:#217766;font-weight:750}
+.gcc-v8-share-small{font-size:13px;line-height:1.6;color:#647c82}.gcc-v8-share-secret{display:grid;gap:10px;background:#eff8f5;padding:17px;border-radius:16px;border:1px solid #bcded3}
+.gcc-v8-share-secret input{background:#fff;font-size:13px}.gcc-v8-share-secret strong{font-size:15px}
+@media(max-width:650px){.gcc-v102-public{margin:0;min-height:100dvh;border-radius:0;padding:23px 18px}.gcc-v102-result{padding:15px}.gcc-v8-share-actions{flex-direction:column;align-items:stretch}}
+@media(prefers-reduced-motion:reduce){.gcc-v102-primary{transition:none!important}}

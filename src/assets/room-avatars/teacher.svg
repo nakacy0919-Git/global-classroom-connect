@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Friendly teacher illustration">
+ <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#00abb0"/><stop offset="1" stop-color="#137b8e"/></linearGradient><clipPath id="clip"><circle cx="50" cy="50" r="46"/></clipPath></defs>
+ <rect x="2" y="2" width="96" height="96" rx="23" fill="#fffef6"/><circle cx="50" cy="50" r="46" fill="url(#bg)"/>
+ <g clip-path="url(#clip)">
+  <path d="M11 112c0-28 9-43 39-43s40 17 40 43" fill="#ffc45f"/>
+  <path d="M31 68c4-8 13-12 19-12s17 4 21 12L64 89H35Z" fill="#fffdf0"/>
+  <path d="M29 48V33c0-18 10-26 22-26 18 0 24 15 24 29v22l-6 4-7-10-28 4Z" fill="#4e352c"/>
+  <path d="M33 34c-7 1-8 10-2 12M71 35c7 1 8 10 2 12" fill="#e2a27f"/>
+  <ellipse cx="51" cy="43" rx="20" ry="25" fill="#f5bb97"/>
+  <path d="M30 35c2-13 8-22 22-22 11 0 17 8 19 21-13 1-20-6-23-10-4 8-12 9-18 11" fill="#4e352c"/>
+  <circle cx="44" cy="43" r="8" fill="#fff3de99" stroke="#444345" stroke-width="3"/><circle cx="62" cy="43" r="8" fill="#fff3de99" stroke="#444345" stroke-width="3"/><path d="M52 43h2" stroke="#444345" stroke-width="3"/>
+  <circle cx="45" cy="43" r="1.7" fill="#40332e"/><circle cx="61" cy="43" r="1.7" fill="#40332e"/>
+  <path d="M49 56c4 3 8 3 12-1" fill="none" stroke="#c76d62" stroke-linecap="round" stroke-width="2.5"/>
+  <path d="M24 76c6-10 14-14 26-14s24 8 30 16v32H16Z" fill="#ffcc67"/>
+  <path d="M38 65l12 12 13-12-7 21H46Z" fill="#fff4da"/>
+  <path d="M19 91l21-5 3 19-23 3Z" fill="#fff5dd" stroke="#f4d7ad" stroke-width="2"/>
+  <path d="M24 93l14-3M24 98l13-3" stroke="#d29a6a" stroke-width="2" stroke-linecap="round"/>
+ </g>
+ <path d="M78 16l2.3 5.7L86 24l-5.7 2.3L78 32l-2.3-5.7L70 24l5.7-2.3Z" fill="#f9d977"/>
+ <rect x="2" y="2" width="96" height="96" rx="23" fill="none" stroke="#ecf0df" stroke-width="2"/>
+</svg>

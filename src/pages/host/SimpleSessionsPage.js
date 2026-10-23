@@ -1,5 +1,8 @@
 import '../../styles/simpleSessionsV8.css';
+import {mountRoomPlannerV9} from '../../components/RoomPlannerV9.js';
 import {getEvents,addEvent,updateEvent} from '../../services/eventService.js';
+import {fetchRoomDraft} from '../../services/roomDraftV91.js';
+import {getRoomShareStatus,publishRoomShare,revokeRoomShare} from '../../services/sharePlanV102.js';
 import {toUtc} from '../../lib/matching.js';
 import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessionService.js';
 import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
@@ -48,6 +51,7 @@ export function SimpleSessionsPage(){return `
 export function bindSimpleSessionsPage(){
  const root=document.querySelector('.gcc-v8-host');if(!root)return;
  let events=[],settings=[],signups=[],edit=null;
+ let shareToken='',shareEvent='';
  const current=()=>events.find(x=>x.id===activeEventId);
  const conf=()=>settings.find(s=>s.event_id===activeEventId)||defaultSettings();
  const party=()=>signups.filter(s=>s.event_id===activeEventId);
@@ -71,7 +75,7 @@ export function bindSimpleSessionsPage(){
      panel.append(btn('Copy registration link','gcc-v8-primary',async()=>{try{await navigator.clipboard.writeText(link());notify(location.hostname==='localhost'?'Copied for local testing. Use your deployed website address for teachers.':'Link copied. Send it to participating teachers.');}catch{url.focus();url.select();notify('Select and copy the link above.',true);}}));
      panel.append(el('p','gcc-v8-help','Teachers choose a session and submit their own school and student names. No invitation codes.'));
    }else panel.append(el('p','gcc-v8-info-box','This session is not open for new registrations.'));
-   const c=conf();const section=el('section','gcc-v8-config');section.append(el('h3','','Session limits'));
+   const c=conf();const section=el('details','gcc-v8-config');section.append(el('summary','','Edit room settings'));
    const f=el('form','gcc-v8-config-form');
    for(const [name,label,val,min,max] of [['rooms','Breakout rooms',c.breakout_rooms,1,60],['capacity','Maximum students',c.max_students,1,2000]]){
      const l=el('label','',label),inp=el('input');inp.name=name;inp.type='number';inp.min=min;inp.max=max;inp.required=true;inp.value=val;l.append(inp);f.append(l);
@@ -95,15 +99,68 @@ export function bindSimpleSessionsPage(){
      }card.append(actions);panel.append(card);
    }
  }
- function stageRooms(panel,e){const approved=party().filter(x=>x.status==='approved'),students=approved.reduce((n,x)=>n+(x.students||[]).length,0),c=conf();
-   panel.append(formRow('Approved students',students),formRow('Target rooms',c.breakout_rooms),formRow('Facilitators per room',c.facilitators_per_room));
-   if(!students){panel.append(el('p','gcc-v8-info-box','Approve student registrations before creating rooms.'));return;}
-   panel.append(el('p','gcc-v8-help','The existing Room Builder can distribute students across countries and schools. Manual moving and 2 facilitators per room are the next upgrade.'));
-   const a=el('a','gcc-v8-primary','Open Room Builder →');a.href='#/rooms';panel.append(a);
+ function stageRooms(panel,e){
+   const mount=el('div','gcc-v9-mount');panel.append(mount);
+   mountRoomPlannerV9({root:mount,event:e,settings:conf(),signups:party()});
  }
- function stageShare(panel){panel.append(el('p','gcc-v8-info-box','The online room chart and Zoom sharing will be available after the room planner is finished. No plan has been published.'));
+ function stageShare(panel){
+   const session=current();const eventId=session?.id;
+   const page=el('section','gcc-v8-share');panel.append(page);
+   const title=el('h3','','Share the final seating plan');page.append(title);
+   const guide=el('div','gcc-v8-share-notice','Only a saved room arrangement can be shared. Each student must enter their name and school to see their own room.');page.append(guide);
+   const body=el('div','gcc-v8-share-card');body.append(el('p','gcc-v8-share-small','Checking the saved arrangement and sharing status…'));page.append(body);
+   function repaintStatus(){
+     body.replaceChildren();const line=el('p','gcc-v8-share-small','Checking saved arrangement…');body.append(line);
+     Promise.all([fetchRoomDraft(eventId),getRoomShareStatus(eventId)]).then(([saved,shared])=>{
+       if(!body.isConnected||current()?.id!==eventId)return;
+       body.replaceChildren();
+       if(!saved?.draft||!saved?.revision){
+         body.append(el('div','gcc-v8-share-notice','No plan has been published. First finish and save your room arrangement in Step 3.'));
+         body.append(btn('← Back to Arrange rooms','gcc-v8-secondary',()=>{activeStage=2;paint();}));return;
+       }
+       const revision=Number(saved.revision);
+       body.append(el('div','gcc-v8-share-good',`✓ Saved arrangement ready · Revision ${revision}`));
+       if(shared?.is_active){
+         const upToDate=shared.up_to_date===true;
+         body.append(el('p',upToDate?'gcc-v8-share-good':'gcc-v8-share-notice',
+           upToDate?'Seating plan is published. Keep the private link with your teachers.':'Room assignments changed after publishing. The old link no longer shows rooms. Publish a new link below.'));
+         body.append(el('p','gcc-v8-share-small','Old links are not recoverable here. Publishing again creates a new private link and revokes the previous one.'));
+       }
+       const form=el('form','');const label=el('label','','Zoom meeting link (HTTPS)');
+       const url=el('input');url.type='url';url.required=true;url.placeholder='https://zoom.us/j/123456789';url.maxLength=2000;url.value=shared?.zoom_url||'';
+       label.append(url);form.append(label);
+       const bar=el('div','gcc-v8-share-actions');
+       const publish=el('button','gcc-v102-primary',shared?.is_active?'Create a new private link →':'Publish seating plan →');publish.type='submit';bar.append(publish);
+       if(shared?.is_active){const revoke=btn('Revoke previous link','gcc-v8-secondary',async()=>{
+         if(!confirm('Disable the current seating-plan link? Students will no longer be able to open it.'))return;
+         revoke.disabled=true;try{await revokeRoomShare(eventId);shareToken='';shareEvent='';notify('Previous link revoked.');repaintStatus();}
+         catch(err){notify(`Could not revoke: ${err.message}`,true);revoke.disabled=false;}});bar.append(revoke);}
+       form.append(bar);body.append(form);
+       form.addEventListener('submit',async evt=>{evt.preventDefault();
+         const raw=url.value.trim();let parsed;try{parsed=new URL(raw);}catch{notify('Enter a valid Zoom URL.',true);return;}
+         if(parsed.protocol!=='https:' || !(parsed.hostname==='zoom.us'||parsed.hostname.endsWith('.zoom.us'))){notify('Use an HTTPS zoom.us meeting link.',true);return;}
+         if(!confirm('Publish this saved room arrangement? A new private link will replace any previous link.'))return;
+         publish.disabled=true;
+         try{const result=await publishRoomShare(eventId,revision,raw);shareToken=result.token;shareEvent=eventId;
+           notify('✓ Seating-plan link published. Copy and share it privately with your teachers.');repaintStatus();}
+         catch(err){notify(`Could not publish: ${err.message}`,true);publish.disabled=false;}
+       });
+       if(shareEvent===eventId && shareToken){
+         const secret=el('section','gcc-v8-share-secret');secret.append(el('strong','','Private seating-plan link — copy it now'));
+         const shareUrl=`${location.origin}${location.pathname}#/room-plan?key=${encodeURIComponent(shareToken)}`;
+         const copyField=el('input');copyField.readOnly=true;copyField.value=shareUrl;copyField.setAttribute('aria-label','Private seating-plan link');secret.append(copyField);
+         secret.append(btn('Copy private link','gcc-v102-primary',async()=>{
+           try{await navigator.clipboard.writeText(shareUrl);notify('✓ Private link copied.');}
+           catch{copyField.focus();copyField.select();notify('Select and copy the link above.',true);}
+         }));
+         secret.append(el('p','gcc-v8-share-small','Share only with participating teachers and students. Anyone with this link and a matching name + school can see that student’s room and Zoom link.'));
+         body.append(secret);
+       }
+     }).catch(err=>{if(body.isConnected){body.replaceChildren(el('div','gcc-v8-share-notice',`Could not load saved plan or sharing settings: ${err.message}. Please check the V10.2 Supabase SQL.`));}});
+   }
+   repaintStatus();
  }
- function paint(){const e=current(),panel=$('gcc-v8-host-panel');panel.replaceChildren();currentLabel();
+ function paint(){const e=current(),panel=$('gcc-v8-host-panel');panel.replaceChildren();currentLabel();root.dataset.popStep=String(activeStage);
    $('gcc-v8-focus').hidden=!e;if(!e)return;
    const titles=['Invite teachers','Review registrations','Arrange rooms','Share final plan'];
    const details=['Publish your session, then copy one registration link.','Check each school and approve its student list.','Mix students and prepare your breakout rooms.','Publish your finished room chart and Zoom link.'];
@@ -147,7 +204,7 @@ export function bindSimpleSessionsPage(){
      $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');}
    catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}
  });
- $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;activeStage=0;paint();notify('');});
+ $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();notify('');});
  $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();notify('');});
  $('gcc-v8-host-next').addEventListener('click',()=>{activeStage=Math.min(3,activeStage+1);paint();notify('');});
  reload(true);

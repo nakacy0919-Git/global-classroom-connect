@@ -1,0 +1,206 @@
+/* Global Classroom Connect · Academic Pop V10
+   Visual inspiration: Shout Spot (navy, cream, coral and mint, tactile controls).
+   No registration, authorization, data or room assignment logic is modified. */
+:root {
+  --gpop-ink:#233745; --gpop-navy:#173b4b; --gpop-teal:#167e84;
+  --gpop-mint:#24b9a3; --gpop-coral:#ed7054; --gpop-amber:#f5be57;
+  --gpop-paper:#f8f6f0; --gpop-card:#fffefa; --gpop-outline:#dfebe7;
+  --gpop-shadow:0 12px 38px rgba(38,70,74,.085);
+}
+body:has(.app-shell),body:has(.gcc-v8-teacher) {
+  color:var(--gpop-ink);
+  background:radial-gradient(circle at 95% 3%,#ffe5c9aa,transparent 27%),
+   radial-gradient(circle at 5% 85%,#c9efdf80,transparent 30%),var(--gpop-paper) fixed;
+  font-family:ui-rounded,'Segoe UI','Hiragino Maru Gothic ProN','Yu Gothic UI',system-ui,sans-serif;
+}
+body:has(.app-shell) #app{padding:16px;}
+body:has(.app-shell) .app-shell {grid-template-columns:224px minmax(0,1fr);gap:19px;}
+body:has(.app-shell) .main-shell,body:has(.app-shell) #page-content {min-width:0}
+body:has(.app-shell) .sidebar {
+  border-radius:24px;padding:23px 16px;
+  background:linear-gradient(154deg,#224f5b 0%,#173b4b 58%,#112c39 100%);
+  border:1px solid #335c65;box-shadow:0 12px 0 #15364022,0 24px 48px #112b3e20;
+}
+body:has(.app-shell) .brand-block{padding:4px 2px 22px;margin-bottom:18px;border-bottom:1px solid #ffffff25}
+body:has(.app-shell) .brand-mark{border-radius:16px;background:linear-gradient(160deg,#fff4d9,#a7ece2);color:var(--gpop-navy);box-shadow:0 4px 0 #0d343a50;font-weight:1000}
+body:has(.app-shell) .brand-title{font-size:1.42rem;color:#fff;letter-spacing:-.02em}
+body:has(.app-shell) .brand-name{color:#c6e8e5;font-size:.77rem}
+body:has(.app-shell) .sidebar-nav{gap:7px}
+body:has(.app-shell) .route-link{display:flex;align-items:center;gap:12px;border-radius:14px;font-weight:760;padding:13px 12px;transition:background .18s,transform .16s}
+body:has(.app-shell) .route-link::before{content:'◈';width:25px;height:25px;flex:0 0 25px;display:grid;place-items:center;background:#ffffff12;border-radius:8px;font-size:17px;color:#c4d8dc}
+body:has(.app-shell) .route-link[href='#/sessions']::before{content:'✦';color:#ffd37a}
+body:has(.app-shell) .route-link[href='#/schools']::before{content:'▦';color:#abe9dc}
+body:has(.app-shell) .route-link[href='#/teachers']::before{content:'♧';color:#ffd1aa}
+body:has(.app-shell) .route-link:hover{background:#ffffff20;transform:translateX(2px)}
+body:has(.app-shell) .route-link.active{background:#fbf9ee;color:#173e48;box-shadow:0 5px 0 #09292d7c;border-color:#fff9ed}
+body:has(.app-shell) .route-link.active::before{background:#f7e9d1;color:#d95f46}
+body:has(.app-shell) .sidebar-advanced{margin-top:14px;padding-top:18px;border-top:1px solid #ffffff24}
+body:has(.app-shell) .sidebar-advanced>summary{color:#d4e9e6;font-weight:780;font-size:.83rem;cursor:pointer;padding:10px 7px}
+body:has(.app-shell) .sidebar-advanced-links{margin-top:8px}
+body:has(.app-shell) .sidebar-advanced-links .route-link{font-size:.84rem;padding:9px 11px}
+body:has(.app-shell) .topbar{padding:18px 24px;background:#fffefaed;border:1px solid #eeeae0;border-radius:22px;box-shadow:0 7px 24px #3047540d;gap:12px}
+body:has(.app-shell) .topbar .eyebrow{color:#779096;font-size:.7rem;letter-spacing:.15em}
+body:has(.app-shell) .topbar .page-title{font-size:clamp(1.45rem,2.5vw,2.1rem);color:var(--gpop-ink);font-weight:900;letter-spacing:-.045em}
+body:has(.app-shell) :is(.lang-button,.topbar-pill){border-radius:12px;background:#f4f7f3;border:1px solid #e2eae4;color:#44636a}
+body:has(.app-shell) .topbar-pill{padding:9px 12px}
+body:has(.app-shell) :is(.panel,.hero-card,.card,.stat-card){border-radius:21px;border-color:#e7e9df;box-shadow:var(--gpop-shadow)}
+body:has(.app-shell) .primary-button {border-radius:14px;background:var(--gpop-coral);color:#fff;box-shadow:0 4px 0 #b84d3a,0 9px 17px #bd51331c;font-weight:850}
+body:has(.app-shell) .primary-button:hover{background:#e35c43;transform:translateY(-1px)}
+/* Host setup: one action and one work surface at a time. */
+.gcc-v8.gcc-v8-host{--ink:var(--gpop-ink);--muted:#6d848a;--line:#e2eae5;--blue:#207a83;--cream:#fff7e9;--shadow:var(--gpop-shadow);width:100%;max-width:none}
+.gcc-v8-host .gcc-v8-top{padding:2px 6px 14px;gap:12px}
+.gcc-v8-host .gcc-v8-top::before{content:'✦';width:45px;height:45px;flex:0 0 45px;background:#ffedd6;color:#e36e4c;border:1px solid #f6d8b6;box-shadow:0 3px 0 #efcfab;border-radius:14px;display:grid;place-items:center;font-size:23px}
+.gcc-v8-host .gcc-v8-top>div{margin-right:auto;min-width:0}
+.gcc-v8-host .gcc-v8-top .gcc-v8-small{color:#2b8a86}
+.gcc-v8-host .gcc-v8-top p{font-size:1rem;margin:5px 0 0;color:#667d83}
+.gcc-v8-host .gcc-v8-current{background:linear-gradient(108deg,#fff2d7 0%,#fffdf8 52%,#eaf7f0 100%);border:1px solid #ede2cc;box-shadow:0 5px 0 #e3e9df,0 12px 28px #1e54430d;border-radius:22px;padding:23px 26px;margin-bottom:22px}
+.gcc-v8-host .gcc-v8-current label{font-weight:850;letter-spacing:.08em;color:#417878}
+.gcc-v8-host .gcc-v8-current-title strong{font-size:clamp(1.15rem,2vw,1.5rem);font-weight:950;color:#284b59;letter-spacing:-.025em}
+.gcc-v8-host .gcc-v8-focus{max-width:none;border:1px solid #e5ede5;border-radius:25px;padding:28px clamp(20px,3.4vw,45px);background:#fffefa;box-shadow:0 7px 0 #e8e8dc,0 16px 35px #244c5312;position:relative}
+.gcc-v8-host .gcc-v8-focus-head{margin-bottom:17px;gap:14px}
+.gcc-v8-host .gcc-v8-focus-head>.gcc-v8-small{background:#e3f5ee;padding:9px 13px;border-radius:999px;color:#277b72;letter-spacing:.08em;font-size:.75rem}
+.gcc-v8-host .gcc-v8-progress{gap:8px;width:min(300px,100%)}
+.gcc-v8-host .gcc-v8-progress span{height:10px;border-radius:12px;background:#eaece5;box-shadow:inset 0 1px 2px #142f3424}
+.gcc-v8-host .gcc-v8-progress span.active{background:#2fbaa6;box-shadow:0 2px 0 #18887255}
+.gcc-v8-host .gcc-v8-focus h2{font-size:clamp(1.7rem,3.2vw,2.6rem);font-weight:950;letter-spacing:-.04em;color:var(--gpop-ink);margin:0 0 8px}
+.gcc-v8-host .gcc-v8-focus h2::before{content:'✦';display:inline-grid;place-items:center;width:47px;height:47px;border-radius:14px;margin-right:13px;background:#e1f4ec;color:#1e9388;font-size:23px;vertical-align:middle;box-shadow:0 3px 0 #c0ddd2}
+.gcc-v8-host[data-pop-step='1'] .gcc-v8-focus h2::before{content:'✓';background:#fcecd4;color:#d6754f}
+.gcc-v8-host[data-pop-step='2'] .gcc-v8-focus h2::before{content:'✧';background:#dff4f3;color:#287d89}
+.gcc-v8-host[data-pop-step='3'] .gcc-v8-focus h2::before{content:'➤';background:#fcebdd;color:#d66b4c}
+.gcc-v8-host .gcc-v8-desc{font-size:1rem;margin:6px 0 24px;color:#657f86;max-width:68ch}
+.gcc-v8-host .gcc-v8-footer{position:sticky;bottom:10px;z-index:3;background:linear-gradient(95deg,#fffefafe,#fff9ecf7);box-shadow:0 -8px 28px #fffefaee;border-top:1px solid #e4ebe5;padding:18px 0 3px;margin-top:25px}
+.gcc-v8-host .gcc-v8-summary{background:#e7f6ef;color:#206b69;border-radius:14px;padding:13px 15px;font-size:1rem}
+.gcc-v8-host .gcc-v8-school-card{background:#fffefa;border:1px solid #e5e9df;border-radius:18px;box-shadow:0 4px 0 #e8ebe4;padding:21px}
+.gcc-v8-host .gcc-v8-school-card h3{font-size:1.2rem;font-weight:900;color:var(--gpop-ink)}
+.gcc-v8-host .gcc-v8-school-card details{border-top:1px solid #edf0e9;margin-top:10px}
+.gcc-v8-host .gcc-v8-information{padding:17px 0}
+.gcc-v8-host .gcc-v8-config{margin-top:22px;border-top:1px solid #e7eee9;padding-top:15px}
+.gcc-v8-host .gcc-v8-config>summary{display:list-item;cursor:pointer;font-size:.88rem;color:#62818a;font-weight:850;padding:10px 8px}
+.gcc-v8-host .gcc-v8-config[open]>summary{color:#287a80}
+.gcc-v8-host .gcc-v8-config-form{margin-top:14px;background:#f6f9f5;border-radius:16px;padding:18px}
+.gcc-v8-host .gcc-v8-new-form{border-radius:25px;background:#fffefa;border:1px solid #e5eae1;box-shadow:0 7px 0 #e8e5da,0 16px 28px #204b5212;padding:30px}
+.gcc-v8-host .gcc-v8-new-form h2{font-weight:950;font-size:1.8rem;color:var(--gpop-ink)}
+.gcc-v8-host:has(#gcc-v8-create-wrap:not([hidden])) .gcc-v8-current,
+.gcc-v8-host:has(#gcc-v8-create-wrap:not([hidden])) .gcc-v8-focus{display:none!important}
+/* Primary actions: tangible but accessible, not busy. */
+.gcc-v8 .gcc-v8-primary,.gcc-v9 .gcc-v9-primary{background:var(--gpop-coral)!important;border:1px solid #e46649!important;color:#fff!important;border-radius:15px!important;box-shadow:0 5px 0 #b8533e,0 10px 22px #dd684229!important;font-size:1rem;font-weight:900;letter-spacing:.005em;transition:transform .16s,box-shadow .16s,background .16s}
+.gcc-v8 .gcc-v8-primary:hover,.gcc-v9 .gcc-v9-primary:hover{background:#e65d43!important;transform:translateY(-2px);box-shadow:0 7px 0 #b8533e,0 13px 25px #dd68422c!important}
+.gcc-v8 .gcc-v8-primary:active:not(:disabled),.gcc-v9 .gcc-v9-primary:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #b8533e!important}
+.gcc-v8 .gcc-v8-secondary,.gcc-v9 .gcc-v9-outline{border-radius:14px!important;background:#f7fbf8!important;border-color:#d1e7df!important;color:#34747a!important;font-weight:810}
+.gcc-v8 .gcc-v8-secondary:hover,.gcc-v9 .gcc-v9-outline:hover{background:#eaf7f0!important}
+.gcc-v8 :is(input,select,textarea),.gcc-v9 :is(input,select,textarea){border-radius:13px;transition:box-shadow .15s,border-color .15s}
+.gcc-v8 :is(input,select,textarea):focus,.gcc-v9 :is(input,select,textarea):focus{border-color:#24a99c!important;box-shadow:0 0 0 3px #b6eee477}
+/* Teacher registration: genuinely one step per view. */
+body:has(.gcc-v8-teacher) #app{padding:16px}
+.gcc-v8.gcc-v8-teacher{max-width:760px;margin:30px auto;padding:clamp(22px,4vw,43px);border-radius:28px;border:1px solid #e8e9de;background:#fffefa;box-shadow:0 8px 0 #e8e7da,0 20px 44px #314e5013}
+.gcc-v8-teacher .gcc-v8-brand{border-bottom:1px solid #e8eee7;padding-bottom:20px;margin-bottom:23px}
+.gcc-v8-teacher .gcc-v8-brand>span{background:#fff0d7;border:1px solid #f1ddc3;box-shadow:0 4px 0 #eadcc8;border-radius:16px;width:57px;height:57px}
+.gcc-v8-teacher .gcc-v8-brand strong{font-size:1.18rem;font-weight:950}
+.gcc-v8-teacher .gcc-v8-step-index,#gcc-v8-step-index{display:inline-block;background:#e6f7ed;color:#238a7f;padding:8px 14px;border-radius:999px;font-size:.77rem;letter-spacing:.11em;font-weight:900}
+.gcc-v8-teacher .gcc-v8-progress{width:100%;margin:13px 0 26px;gap:9px}
+.gcc-v8-teacher .gcc-v8-progress span{height:11px;background:#e6eee8;border-radius:999px}
+.gcc-v8-teacher .gcc-v8-progress span.active{background:#22b6a3;box-shadow:0 3px 0 #168b7c50}
+.gcc-v8-teacher h1{font-size:clamp(1.75rem,4vw,2.5rem);letter-spacing:-.045em;font-weight:950;color:var(--gpop-ink)}
+.gcc-v8-teacher h1::before{content:'✦';display:inline-grid;place-items:center;background:#ffecd5;color:#dc6548;width:48px;height:48px;border-radius:15px;margin-right:13px;font-size:25px;vertical-align:middle;box-shadow:0 4px 0 #ecd4b6}
+.gcc-v8-teacher[data-pop-step='1'] h1::before{content:'▦';color:#147d83;background:#e3f5f1}
+.gcc-v8-teacher[data-pop-step='2'] h1::before{content:'♧';color:#e0734e;background:#fff0d7}
+.gcc-v8-teacher[data-pop-step='3'] h1::before{content:'✓';color:#158673;background:#e4f7ee}
+.gcc-v8-teacher .gcc-v8-stage{gap:20px;min-height:168px}
+.gcc-v8-teacher .gcc-v8-stage label{font-size:.94rem;color:#304c5b;font-weight:850}
+.gcc-v8-teacher .gcc-v8-footer{position:sticky;bottom:0;z-index:2;border-top:1px solid #e5ede4;background:#fffefaed;padding:20px 0 3px;margin-top:25px}
+.gcc-v8-teacher .gcc-v8-primary{min-height:54px;min-width:176px}
+.gcc-v8-teacher .gcc-v8-roster-count{background:#e3f6ed;color:#237568;border-radius:13px;padding:14px}
+.gcc-v8-teacher .gcc-v8-privacy{background:#f2f8f4;padding:12px;border-radius:12px;color:#6a8585;font-size:.81rem}
+.gcc-v8-teacher .gcc-v8-success{border-radius:18px;border-color:#b8e8c9;background:#e8fbef;box-shadow:0 4px 0 #cee9d5}
+/* Room planner: structured game-board energy, zero repeated dropdowns. */
+.gcc-v9{--v9-ink:var(--gpop-ink);--v9-teal:var(--gpop-teal);--v9-line:#e2eae5;--v9-warm:#fff7eb;background:#fffefa;border:1px solid #e8eee7;border-radius:23px;padding:clamp(17px,2.5vw,28px);gap:20px}
+.gcc-v9 .gcc-v9-head{position:relative}
+.gcc-v9 .gcc-v9-step{display:inline-flex;background:#e6f7ef;border:1px solid #d1e7dc;color:#257b7a;border-radius:999px;padding:7px 13px;font-weight:900;letter-spacing:.09em;margin-bottom:12px}
+.gcc-v9 .gcc-v9-head h3{font-size:clamp(1.35rem,2.6vw,2rem);font-weight:950;letter-spacing:-.04em;color:var(--gpop-ink);margin:0 0 8px}
+.gcc-v9 .gcc-v9-head p{font-size:1rem;color:#678189;max-width:65ch}
+.gcc-v9 .gcc-v9-intro>*,.gcc-v9 .gcc-v9-stats>*{background:#ecf7f3;border:1px solid #dbebe4;border-radius:999px;padding:10px 15px;font-weight:850;color:#347377}
+.gcc-v9 .gcc-v9-options{gap:19px}
+.gcc-v9 .gcc-v9-field>span{font-size:.9rem;color:#375a68}
+.gcc-v9 .gcc-v9-generate-area{background:linear-gradient(118deg,#e2f7ed 0%,#fff8e9 100%);border:1px solid #cbebe0;border-radius:21px;padding:22px;box-shadow:0 5px 0 #d9eae0}
+.gcc-v9 .gcc-v9-generate-area strong{font-weight:950;color:#234c58;font-size:1.24rem}
+.gcc-v9 .gcc-v9-generate-area .gcc-v9-main-action{min-height:56px;min-width:240px}
+.gcc-v9 .gcc-v9-guide{background:linear-gradient(108deg,#eaf8f2 0%,#fff8e8 100%);border:1px solid #d0e9df;border-radius:20px;box-shadow:0 4px 0 #dfebe2,0 12px 22px #35544c0f;padding:19px 21px}
+.gcc-v9 .gcc-v9-guide-copy strong{font-size:1.15rem;font-weight:950}
+.gcc-v9 .gcc-v9-main-action{min-height:53px;font-size:1rem;min-width:185px}
+.gcc-v9 .gcc-v9-tools{gap:9px}
+.gcc-v9 .gcc-v9-tools .gcc-v9-outline{box-shadow:none}
+.gcc-v9 .gcc-v9-edit-toggle[aria-pressed='true']{background:#d9f4e8!important;color:#147e73!important}
+.gcc-v9 .gcc-v9-rooms{grid-template-columns:repeat(auto-fill,minmax(min(100%,315px),1fr));gap:17px}
+.gcc-v9 .gcc-v9-room{padding:20px;border-radius:21px;border:1px solid #e3eae6;background:#fffefa;box-shadow:0 5px 0 #e4ebe7,0 14px 24px #3557600d;transition:transform .18s,box-shadow .18s}
+.gcc-v9 .gcc-v9-room:hover{transform:translateY(-2px);box-shadow:0 7px 0 #e4ebe7,0 17px 25px #35576014}
+.gcc-v9 .gcc-v9-room-head{border-bottom:1px dashed #dbe8e2;padding-bottom:15px}
+.gcc-v9 .gcc-v9-room-head h4{font-size:1.25rem;font-weight:950;color:#244958}
+.gcc-v9 .gcc-v9-room-head span{border:1px solid #d9eae5;border-radius:999px;background:#eef8f2;padding:6px 10px;color:#447b7c;font-weight:800;font-size:.74rem;white-space:nowrap}
+.gcc-v9 .gcc-v9-person-heading{font-size:.74rem;letter-spacing:.07em;color:#4e8583;font-weight:950;margin:20px 0 11px}
+.gcc-v9 .gcc-v9-person-heading .gcc-v9-avatar{width:31px;height:31px}
+.gcc-v9 .gcc-v9-avatar{background-color:#fff;border:1px solid #e6eae1;border-radius:16px;width:53px;height:53px;background-size:cover;box-shadow:0 3px 0 #e5e9e0}
+.gcc-v9 .gcc-v9-avatar-teacher{background-image:url('../assets/room-avatars/teacher.svg')}
+.gcc-v9 .gcc-v9-avatar-student{background-image:url('../assets/room-avatars/student.svg')}
+.gcc-v9 .gcc-v9-fac-row{border-radius:15px;background:#edf9f4;border:1px solid #cfe9df;padding:7px;gap:10px}
+.gcc-v9 .gcc-v9-fac-row .gcc-v9-avatar{width:51px;height:51px;border-radius:15px}
+.gcc-v9 .gcc-v9-fac-row .gcc-v9-fac-select{background:transparent!important;color:#28596a;font-size:.88rem;font-weight:680;min-height:44px}
+.gcc-v9 .gcc-v9-student{padding:13px 0;min-height:75px;gap:12px}
+.gcc-v9 .gcc-v9-student>.gcc-v9-avatar{width:49px;height:49px;border-radius:15px;flex:0 0 49px}
+.gcc-v9 .gcc-v9-student strong{font-size:1rem;font-weight:900;color:#304b5c}
+.gcc-v9 .gcc-v9-student small{font-size:.79rem;color:#6b8690;line-height:1.35}
+.gcc-v9 .gcc-v9-move-button{background:#eaf8f1;border-color:#bee1d6;color:#24776e}
+.gcc-v9 .gcc-v91-resume{border-radius:18px;background:#e6f7ee;box-shadow:0 4px 0 #d5e7db}
+.gcc-v9 .gcc-v9-message:not(:empty){border-radius:13px}
+/* Accessible motion: playful only where appropriate. */
+.gcc-v8 :is(button,a),.gcc-v9 :is(button,a){-webkit-tap-highlight-color:transparent}
+.gcc-v8 :is(button,a,select,input,textarea):focus-visible,.gcc-v9 :is(button,a,select,input,textarea):focus-visible,
+body:has(.app-shell) a:focus-visible{outline:3px solid #16ab9f!important;outline-offset:3px}
+@media(max-width:1200px){body:has(.app-shell) .app-shell{grid-template-columns:208px minmax(0,1fr);gap:14px}.gcc-v9 .gcc-v9-rooms{grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))}}
+@media(max-width:920px){body:has(.app-shell) .app-shell{grid-template-columns:1fr}.gcc-v8-host .gcc-v8-current{grid-template-columns:1fr;gap:10px}.gcc-v8-host .gcc-v8-focus{padding:25px}}
+@media(max-width:640px){body:has(.app-shell) #app,body:has(.gcc-v8-teacher) #app{padding:8px}.gcc-v8.gcc-v8-teacher{margin:8px auto;padding:21px;border-radius:20px;min-height:0}.gcc-v8-host .gcc-v8-top{flex-wrap:wrap}.gcc-v8-host .gcc-v8-top::before{width:38px;height:38px;flex-basis:38px}.gcc-v8-host .gcc-v8-focus{padding:19px;border-radius:18px}.gcc-v8-host .gcc-v8-focus h2::before{width:38px;height:38px;margin-right:8px;font-size:19px}.gcc-v8-host .gcc-v8-footer{bottom:0;padding:12px 0 3px}.gcc-v8-host .gcc-v8-primary,.gcc-v8-teacher .gcc-v8-primary{min-height:49px}.gcc-v9 .gcc-v9-rooms{grid-template-columns:1fr}.gcc-v9 .gcc-v9-room{padding:16px}.gcc-v9 .gcc-v9-generate-area{padding:17px}}
+@media(prefers-reduced-motion:reduce){body:has(.app-shell) .route-link,.gcc-v9 .gcc-v9-room,.gcc-v8 .gcc-v8-primary,.gcc-v9 .gcc-v9-primary{transition:none!important;transform:none!important;animation:none!important}}
+
+
+/* GCC V10.2.2: unambiguous Step 3 workflow; never cover Generate rooms. */
+.gcc-v8-host[data-pop-step="2"] .gcc-v8-footer {
+  position: static !important;
+  bottom: auto !important;
+  z-index: auto !important;
+  box-shadow: none !important;
+  margin-top: 20px;
+  padding-block: 14px 6px;
+  background: transparent !important;
+}
+/* Step 3's primary action is inside its own workflow, not the host footer.
+   In setup: Generate rooms; when edited: Save arrangement; after save: Continue to Share. */
+.gcc-v8-host[data-pop-step="2"] #gcc-v8-host-next { display: none !important; }
+.gcc-v8-host[data-pop-step="2"] .gcc-v9-generate-area {
+  position: relative;
+  border: 2px solid #77cbbb;
+  box-shadow: 0 5px 0 #bedfd0;
+  padding: 20px 22px;
+  margin-bottom: 10px;
+}
+.gcc-v8-host[data-pop-step="2"] .gcc-v9-generate-area .gcc-v9-main-action {
+  width: min(100%, 360px);
+  min-height: 58px;
+  font-weight: 900;
+}
+.gcc-v9 .gcc-v9-demo-guide {
+  background: linear-gradient(115deg,#fff2dc,#fff9ec);
+  border: 2px solid #efcc8b;
+  border-radius: 17px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 14px 0 18px;
+}
+.gcc-v9 .gcc-v9-demo-guide strong { color: #80572e; font-size: 1.08rem; }
+.gcc-v9 .gcc-v9-demo-guide p { color: #785b3c; margin: 0; line-height: 1.55; }
+.gcc-v9 .gcc-v9-demo-back { min-height: 46px; font-weight: 850; background: #fffdfa; }
+@media (max-width: 680px) {
+  .gcc-v8-host[data-pop-step="2"] .gcc-v9-generate-area{ padding: 16px; }
+  .gcc-v9 .gcc-v9-demo-guide { padding: 15px; }
+}
