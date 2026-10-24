@@ -24,7 +24,11 @@ export function parseSimpleRoster(text){
     const cells=raw.includes('\t')?raw.split('\t').map(x=>x.trim()):csvLine(raw);
     if(!cells){errors.push({line:i+1,message:'Check CSV quotation marks.'});continue;}
     if(i===0 && /^(name|full name|student name)$/i.test(cells[0].trim()))continue;
-    const [name,grade='']=cells;
+    let [name,grade='']=cells;
+    // Also accept "Ana Sample (Grade 11)" without making teachers reformat their lists.
+    if(cells.length===1){const m=name.match(/^(.*?)\s*\(\s*(?:Grade|Gr\.?)\s*(\d{1,2})\s*\)$/i);
+      if(m){name=m[1].trim();grade=m[2];}}
+
     if(cells.length>2){errors.push({line:i+1,message:'Use 1 or 2 columns: name and optional grade.'});continue;}
     if(!englishName(name)){errors.push({line:i+1,message:'Write the name with A–Z letters only.'});continue;}
     if(grade.length>40){errors.push({line:i+1,message:'Grade is too long.'});continue;}

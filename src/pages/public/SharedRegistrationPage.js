@@ -24,10 +24,10 @@ export function SharedRegistrationPage(){return `
     <p class="gcc-v8-help">Paste from Excel or Google Sheets. Name, or Name + Grade. Personal names must use English letters (A–Z).</p>
     <div class="gcc-v8-roster-count" id="gcc-v8-roster-count">0 students</div>
     <div class="gcc-v8-mini-preview" id="gcc-v8-preview"></div>
+    <label>Facilitators (optional) <textarea id="gcc-v8-facilitators" rows="3" placeholder="One teacher per line"></textarea></label>
+    <p class="gcc-v8-help">Add teachers who can support your breakout rooms. Leave empty if you have none.</p>
   </div>
   <div class="gcc-v8-stage" data-v8-stage="3" hidden>
-    <label>Facilitators (optional) <textarea id="gcc-v8-facilitators" rows="3" placeholder="One name per line"></textarea></label>
-    <p class="gcc-v8-help">Teachers who can help guide the breakout rooms.</p>
     <div id="gcc-v8-review" class="gcc-v8-review"></div>
   </div>
   <p role="alert" aria-live="polite" class="gcc-v8-error" id="gcc-v8-error"></p>
@@ -41,8 +41,8 @@ export function SharedRegistrationPage(){return `
 export function bindSharedRegistrationPage(){
  const root=document.querySelector('.gcc-v8-teacher');if(!root)return;
  let step=0,events=[],countries=new Map(),sending=false;
- const titles=['Choose your session','Your school & country','Add your students','Check & submit'];
- const subtitles=['Select the exchange your class would like to join.','These details help us mix students from different schools.','Paste your list straight from your spreadsheet.','Check your class details before submitting.'];
+ const titles=['Choose your session','Your school & country','Students & facilitators','Check & submit'];
+ const subtitles=['Select the exchange your class would like to join.','These details help us mix students from different schools.','Paste students and add any teacher facilitators.','Check your class details before submitting.'];
  const message=s=>$('gcc-v8-error').textContent=s;
  const roster=()=>parseSimpleRoster($('gcc-v8-roster').value);
  const facs=()=>parseSimpleFacilitators($('gcc-v8-facilitators').value);
@@ -68,8 +68,9 @@ export function bindSharedRegistrationPage(){
    if(n===1){if(!$('gcc-v8-country').value)return 'Choose your country.';if($('gcc-v8-school').value.trim().length<2)return 'Enter your school name.';
      if(!englishName($('gcc-v8-teacher').value))return 'Teacher name must use English letters (A–Z).';}
    if(n===2){const r=roster();if(r.errors.length)return `Please fix line ${r.errors[0].line}: ${r.errors[0].message}`;
-     if(r.records.length<1||r.records.length>500)return 'Enter 1–500 students.';}
-   if(n===3){const f=facs();if(f.errors.length)return `Facilitator line ${f.errors[0].line}: ${f.errors[0].message}`;}
+     if(r.records.length<1||r.records.length>500)return 'Enter 1–500 students.';
+     const f=facs();if(f.errors.length)return `Facilitator line ${f.errors[0].line}: ${f.errors[0].message}`;}
+   if(n===3){/* Confirmation only: facilitator names were already validated in step 3. */}
    return '';
  }
  $('gcc-v8-back').addEventListener('click',()=>show(Math.max(0,step-1)));

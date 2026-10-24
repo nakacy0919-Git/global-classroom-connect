@@ -1,0 +1,57 @@
+/* GCC V10.4: progressive disclosure, one primary action per stage. */
+.gcc-v104{--ink:#263d4b;--sea:#207c80;--paper:#fffefa;--coral:#eb7658;--line:#dae9e5;color:var(--ink)}
+.gcc-v104 [hidden]{display:none!important}
+.gcc-v104-primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:0;border-radius:13px;min-height:48px;background:#ec795c;color:#fff!important;font-weight:850;cursor:pointer;padding:12px 19px;text-decoration:none;box-shadow:0 4px 0 #c75a44;transition:transform .15s}
+.gcc-v104-primary:hover{background:#e96d50;transform:translateY(-1px)}.gcc-v104-primary:disabled{opacity:.5;cursor:wait}
+.gcc-v104-host{max-width:830px;margin:0 auto}.gcc-v104-host-intro{margin-bottom:22px}
+.gcc-v104-host-intro h3{font-size:1.1rem;margin:0 0 4px}.gcc-v104-host-intro p{line-height:1.5;color:#6c8187;margin:0}
+.gcc-v104-host-body{display:grid;gap:16px}.gcc-v104-host-card{padding:22px;border:1px solid var(--line);border-radius:21px;background:var(--paper)}
+.gcc-v104-card-title{display:flex;gap:12px;align-items:center;margin-bottom:13px}.gcc-v104-card-title h4{font-size:1.17rem;margin:0;color:#244957}
+.gcc-v104-number{display:grid;place-items:center;background:#e2f5ee;color:#147b77;font-weight:900;font-size:1rem;width:34px;height:34px;border-radius:11px}
+.gcc-v104-good{color:#176b57;font-weight:750}.gcc-v104-note{color:#755c34;background:#fff5e2;border:1px solid #f5e0bc;border-radius:12px;padding:12px 15px}.gcc-v104-meta,.gcc-v104-muted,.gcc-v104-loading{color:#73878e;font-size:.88rem;line-height:1.6}
+.gcc-v104-publish-form{display:grid;gap:12px;max-width:610px}.gcc-v104-publish-form input{width:100%;padding:11px 14px;border:1px solid #c7ded9;border-radius:11px;min-height:47px}.gcc-v104-publish-form button{justify-self:start}
+.gcc-v104-secondary-details{margin-top:12px;border-top:1px solid #e7efea;padding-top:13px}.gcc-v104-secondary-details summary{cursor:pointer;color:#54777c;font-size:.87rem;font-weight:650}.gcc-v104-secondary-details form,.gcc-v104-small-actions{margin-top:14px}.gcc-v104-small-actions{display:flex;flex-wrap:wrap;gap:8px}
+.gcc-v104-invitation{background:#e9f7f2;border:1px solid #bde5d7;border-radius:17px;padding:17px 18px;margin:18px 0 3px;display:grid;gap:12px;justify-items:start}
+.gcc-v104-bigcode{letter-spacing:.17em;font-size:clamp(2rem,5vw,2.7rem);line-height:1.1;font-variant-numeric:tabular-nums;color:#1c555b}
+.gcc-v104-guest{width:min(960px,calc(100% - 32px));margin:28px auto;border:1px solid #e5e9df;border-radius:28px;background:var(--paper);box-shadow:0 16px 43px #12455b20;padding:clamp(18px,4vw,38px);box-sizing:border-box}
+.gcc-v104-guest *{box-sizing:border-box}.gcc-v104-guest input,.gcc-v104-guest button{font:inherit}.gcc-v104-brand{display:flex;align-items:center;gap:12px;padding-bottom:18px;border-bottom:1px solid #e6ece5;margin-bottom:26px}
+.gcc-v104-brand>span{font-size:1.5rem;color:#df765b;display:grid;place-items:center;border-radius:14px;width:50px;height:50px;background:#fff0df}
+.gcc-v104-brand div{display:grid;gap:2px}.gcc-v104-brand strong{color:#315667}.gcc-v104-brand small{font-size:.78rem;color:#8a9b9e}
+.gcc-v104-eyebrow{font-size:.72rem;letter-spacing:.14em;font-weight:900;color:#198b88}.gcc-v104-hero h1{margin:10px 0 7px;font-size:clamp(1.75rem,4vw,2.45rem);line-height:1.14;letter-spacing:-.035em}.gcc-v104-hero p{font-size:.98rem;color:#65818b;margin:0 0 26px}
+.gcc-v104-unlock{display:grid;gap:10px;margin-bottom:10px}.gcc-v104-unlock label,.gcc-v104-filter-label{font-weight:850;font-size:.92rem}.gcc-v104-unlock-row{display:flex;gap:10px}.gcc-v104-unlock-row input,.gcc-v104-filter{min-width:0;flex:1;min-height:48px;border:1px solid #bcdcd6;border-radius:12px;background:#fff;padding:12px 16px;outline-color:#53adac;color:#284954}
+.gcc-v104-unlock-row input{max-width:245px;font-size:1.2rem;letter-spacing:.13em;font-variant-numeric:tabular-nums}
+.gcc-v104-message{font-weight:750;font-size:.88rem;color:#19745f;min-height:1.2em}.gcc-v104-message.error{color:#b44535}
+.gcc-v104-chart-head{border-top:1px solid var(--line);padding-top:20px;margin-top:21px;display:flex;align-items:center;justify-content:space-between;gap:10px}.gcc-v104-chart-head h2{font-size:1.38rem;margin:5px 0}.gcc-v104-chart-head p{color:#71858d;margin:0}.gcc-v104-zoom{white-space:nowrap}
+.gcc-v104-filter-label{display:block;margin:21px 0 8px}.gcc-v104-filter{width:100%;margin-bottom:4px;max-width:580px}.gcc-v104-filter-hint{font-size:.77rem;color:#8a999c}
+.gcc-v104-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:14px;margin-top:16px}.gcc-v104-room{min-width:0;background:#fff;border:1px solid #dbe9e5;border-radius:19px;padding:17px;box-shadow:0 3px 0 #dae8e350;transition:opacity .15s,box-shadow .15s}
+.gcc-v104-room-heading{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e9efeb;padding-bottom:10px;gap:8px}.gcc-v104-room-heading h3{font-size:1.35rem;color:#234958;margin:0}.gcc-v104-room-heading span{color:#2b7e78;background:#e7f6f0;padding:6px 10px;border-radius:99px;font-size:.76rem;font-weight:850}
+.gcc-v104-people{display:grid;gap:3px;margin-top:10px}.gcc-v104-person{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2ef}.gcc-v104-avatar{flex:0 0 32px;width:32px;height:32px;border-radius:50%;background:#fdefda;color:#e5a372;display:grid;place-items:center}.gcc-v104-identity{min-width:0;display:grid;gap:2px}.gcc-v104-identity strong{font-size:.93rem;overflow-wrap:anywhere}.gcc-v104-identity small{font-size:.76rem;color:#668089;overflow-wrap:anywhere}
+.gcc-v104-support{background:#f1f8f5;border-radius:12px;margin-top:14px;padding:12px}.gcc-v104-support-title{display:block;color:#237e77;font-size:.69rem;font-weight:900;letter-spacing:.09em;margin-bottom:6px}.gcc-v104-facilitator{color:#496c72;font-size:.81rem;padding:3px 0;overflow-wrap:anywhere}
+.gcc-v104-room.gcc-v104-nonmatch{opacity:.23}.gcc-v104-room.gcc-v104-match{border-color:#24ae9b;box-shadow:0 0 0 2px #24ae9b55}.gcc-v104-privacy{margin-top:30px;text-align:center;font-size:.75rem;color:#80949a}
+@media(max-width:670px){.gcc-v104-grid{grid-template-columns:1fr}.gcc-v104-unlock-row{flex-direction:column}.gcc-v104-unlock-row input{max-width:none}.gcc-v104-chart-head{align-items:flex-start;flex-direction:column}.gcc-v104-guest{width:100%;margin:0;border-radius:0;min-height:100vh}.gcc-v104-host-card{padding:16px}}
+@media(prefers-reduced-motion:reduce){.gcc-v104-primary,.gcc-v104-room{transition:none}}
+
+/* V10.4.3 — role illustrations, visible national flags and recognizable Zoom action.
+   Decorative only; room assignment and participant data are unchanged. */
+.gcc-v104-guest .gcc-v104-person {gap:12px;padding:11px 1px;align-items:center;min-width:0}
+.gcc-v104-guest .gcc-v104-avatar {flex:0 0 47px;width:47px;height:47px;border:1px solid #e5e4d8;border-radius:50%;background-color:#fffaf1;background-position:center;background-repeat:no-repeat;background-size:cover;box-shadow:0 3px 0 #e9eee8}
+.gcc-v104-guest .gcc-v104-avatar--student {background-image:url('../assets/room-avatars/student.svg')}
+.gcc-v104-guest .gcc-v104-avatar--teacher {background-image:url('../assets/room-avatars/teacher.svg')}
+.gcc-v104-guest .gcc-v104-person--teacher {padding:7px 0;border:0}
+.gcc-v104-guest .gcc-v104-person--teacher .gcc-v104-avatar{flex-basis:43px;width:43px;height:43px}
+.gcc-v104-guest .gcc-v104-identity{min-width:0;display:grid;gap:4px}
+.gcc-v104-guest .gcc-v104-identity strong{font-size:.95rem;color:#203f51;line-height:1.25}
+.gcc-v104-guest .gcc-v104-person-meta{font-size:.76rem;display:flex;align-items:center;gap:6px;color:#617e89;line-height:1.45;min-width:0}
+.gcc-v104-guest .gcc-v104-person-meta>span:last-child{min-width:0;overflow-wrap:anywhere}
+.gcc-v104-guest .gcc-v104-flag{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;min-width:26px;width:26px;height:18px;font-size:20px;line-height:1}
+.gcc-v104-guest .gcc-v104-flag-svg{display:block;width:26px;height:17px;object-fit:cover;border-radius:2px;border:1px solid #e6ebeb;box-shadow:0 1px 1px #21465312}
+.gcc-v104-guest .gcc-v104-flag-emoji{font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif}
+.gcc-v104-guest .gcc-v104-support{background:#edf7f3;padding:12px 14px;border-radius:15px}
+.gcc-v104-guest .gcc-v104-support-title{margin-bottom:8px}
+.gcc-v104-guest .gcc-v104-zoom{gap:10px;min-height:56px;font-size:1.03rem;padding:8px 18px 8px 8px;box-shadow:0 5px 0 #bf6049;white-space:nowrap}
+.gcc-v104-guest .gcc-v104-zoom-icon{flex:0 0 42px;width:42px;height:42px;border-radius:50%;background-image:url('../assets/room-icons/zoom-video.svg');background-size:contain;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 2px #fff}
+.gcc-v104-guest .gcc-v104-zoom-label{font-weight:850;letter-spacing:.01em}
+.gcc-v104-guest .gcc-v104-filter{background-color:#fff}
+.gcc-v104-guest .gcc-v104-room{border-color:#dcebe7;border-radius:20px;padding:18px}
+.gcc-v104-guest .gcc-v104-room-heading{padding-bottom:12px}
+@media(max-width:670px){.gcc-v104-guest .gcc-v104-zoom{align-self:flex-start}.gcc-v104-guest .gcc-v104-room{padding:14px}.gcc-v104-guest .gcc-v104-avatar{width:42px;height:42px;flex-basis:42px}}

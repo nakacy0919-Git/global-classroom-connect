@@ -1,0 +1,62 @@
+/* GCC V10.3: quiet and readable private student access workflow. */
+.gcc-v103-code-manager{background:#fffaf1;border:1px solid #ead9b8;border-radius:18px;padding:18px;margin:18px 0;box-shadow:0 5px 0 #ddcfae42}
+.gcc-v103-code-manager h3{margin:0 0 9px;color:#294b54;font-size:1.15rem}
+.gcc-v103-code-manager .gcc-v102-primary{margin:9px 0}
+.gcc-v103-codes{margin-top:17px;display:grid;gap:15px}
+.gcc-v103-one-time{background:#fff1d4;color:#6e4d25;padding:12px 14px;border-radius:12px;font-weight:700;line-height:1.5}
+.gcc-v103-school{background:#fff;border:1px solid #d9e8e3;border-radius:14px;padding:14px;display:grid;gap:10px}
+.gcc-v103-school h4{margin:0;font-size:1rem;color:#286c72}
+.gcc-v103-code-rows{max-height:260px;overflow:auto;display:grid;gap:5px}
+.gcc-v103-code-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:8px 11px;border-radius:8px;background:#f6faf8;flex-wrap:wrap}
+.gcc-v103-code-row code{color:#173f50;font-size:.9rem;font-weight:800;letter-spacing:.08em;overflow-wrap:anywhere}
+.gcc-v102-public #gcc-v103-access-code{text-transform:uppercase;letter-spacing:.09em;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:1rem}
+.gcc-v102-public #gcc-v103-access-code::placeholder{letter-spacing:0;font:inherit;text-transform:none}
+.gcc-v8-teacher [data-v8-stage='2'] textarea#gcc-v8-facilitators{min-height:90px}
+@media(max-width:580px){.gcc-v103-code-manager{padding:13px}.gcc-v103-code-row{align-items:start;flex-direction:column;gap:5px}}
+
+/* GCC_V103_TEACHER_FLOW_FIX_20261024
+   Teacher registration should never obscure editable fields with a sticky footer.
+   Limited to the public teacher registration form; no host layout changes. */
+.gcc-v8.gcc-v8-teacher .gcc-v8-footer {
+  position: static !important;
+  bottom: auto !important;
+  inset: auto !important;
+  z-index: auto;
+  background: transparent;
+  box-shadow: none;
+  margin-top: 22px;
+  padding-top: 18px;
+}
+.gcc-v8.gcc-v8-teacher [data-v8-stage="2"] {
+  gap: 14px;
+  min-height: 0;
+}
+.gcc-v8.gcc-v8-teacher [data-v8-stage="2"] textarea#gcc-v8-roster {
+  height: 152px;
+  min-height: 120px;
+  resize: vertical;
+}
+.gcc-v8.gcc-v8-teacher [data-v8-stage="2"] #gcc-v8-preview:empty {
+  display: none;
+}
+.gcc-v8.gcc-v8-teacher [data-v8-stage="2"] .gcc-v8-help {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.gcc-v8.gcc-v8-teacher [data-v8-stage="2"] .gcc-v8-roster-count {
+  padding: 11px 14px;
+}
+.gcc-v8.gcc-v8-teacher [data-v8-stage="2"] textarea#gcc-v8-facilitators {
+  height: 94px;
+  min-height: 88px;
+  resize: vertical;
+}
+@media (max-width: 540px) {
+  .gcc-v8.gcc-v8-teacher .gcc-v8-footer {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .gcc-v8.gcc-v8-teacher [data-v8-stage="2"] textarea#gcc-v8-roster {
+    height: 140px;
+  }
+}

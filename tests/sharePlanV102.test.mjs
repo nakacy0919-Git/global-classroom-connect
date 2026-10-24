@@ -1,43 +1,44 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-const page=readFileSync(new URL('../src/pages/public/RoomPlanLookupPage.js',import.meta.url),'utf8');
-const svc=readFileSync(new URL('../src/services/sharePlanV102.js',import.meta.url),'utf8');
-const css=readFileSync(new URL('../src/styles/sharePlanV102.css',import.meta.url),'utf8');
-const sql=readFileSync(new URL('../sql/gcc_v102_share_plan.sql',import.meta.url),'utf8');
-test('public page needs private token + exact student and school inputs',()=>{
- for(const s of ['gcc-v102-name','gcc-v102-school','gcc-v102-lookup','gcc_v102_find_my_room','p_student_name','p_school_name'])
-   assert.ok((page+svc).includes(s),s);
- assert.doesNotMatch(page,/listSessionSignups|fetchRoomDraft|gcc_v6_host_signups/);
+const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
+const page=read('src/pages/public/RoomPlanLookupPage.js');
+const host=read('src/pages/host/SimpleSessionsPage.js');
+const service=read('src/services/sharePlanV102.js');
+const sql=read('sql/gcc_v104_shared_code_rooms.sql');
+test('one 6-digit session code opens the complete read-only room chart',()=>{
+ assert.match(page,/gcc-v104-code/);
+ assert.match(page,/View all rooms/);
+ assert.match(page,/Find a student or school/);
+ assert.match(page,/room\.students/);
+ assert.doesNotMatch(page,/gcc-v103-access-code|gcc-v102-name|gcc-v102-school|listSessionSignups|fetchRoomDraft|\.innerHTML/);
+ assert.match(service,/gcc_v104_open_room_chart/);
+ assert.doesNotMatch(service,/runRpc\('gcc_v10[23]_find_my_room'/);
 });
-test('no roster appears before validated lookup; use safe DOM text not innerHTML',()=>{
- assert.match(page,/result.*hidden/i);
- assert.match(page,/output\.hidden=false/);
- assert.doesNotMatch(page,/innerHTML|document\.write|localStorage|sessionStorage/);
- assert.match(page,/\.textContent/);
- assert.match(page,/rel='noopener noreferrer'/);
+test('host has an intentional two-step invitation flow',()=>{
+ assert.match(host,/One session\. One code\. All rooms/);
+ assert.match(host,/Publish your rooms/);
+ assert.match(host,/Share one invitation/);
+ assert.match(host,/Create 6-digit session code/);
+ assert.match(host,/Copy invitation \(link \+ code\)/);
+ assert.doesNotMatch(host,/Generate private student codes|Regenerate ALL student codes|Copy codes for this school/);
 });
-test('Supabase anonymous access restricted to exact-match lookup, not raw tables',()=>{
- assert.match(sql,/ALTER TABLE public\.gcc_v102_shared_plans ENABLE ROW LEVEL SECURITY/i);
- assert.match(sql,/REVOKE ALL ON public\.gcc_v102_shared_plans FROM PUBLIC, anon, authenticated/i);
- assert.match(sql,/GRANT EXECUTE ON FUNCTION public\.gcc_v102_find_my_room\(text,text,text\) TO anon,authenticated/i);
+test('database locks down old read endpoints and V10.4 table',()=>{
+ assert.match(sql,/REVOKE EXECUTE ON FUNCTION public\.gcc_v102_find_my_room/);
+ assert.match(sql,/REVOKE EXECUTE ON FUNCTION public\.gcc_v103_find_my_room/);
+ assert.match(sql,/REVOKE EXECUTE ON FUNCTION public\.gcc_v103_issue_student_codes/);
+ assert.match(sql,/ALTER TABLE public\.gcc_v104_shared_access ENABLE ROW LEVEL SECURITY/);
+ assert.match(sql,/REVOKE ALL ON public\.gcc_v104_shared_access FROM PUBLIC, anon, authenticated/);
  assert.match(sql,/PERFORM public\.gcc_v6_require_host\(\)/);
- assert.match(sql,/v_matches<>1/);
- assert.match(sql,/lower\(btrim\(s\.school_name\)\)/);
+ assert.match(sql,/GRANT EXECUTE ON FUNCTION public\.gcc_v104_open_room_chart\(text,text\) TO anon,authenticated/);
+});
+test('rate limits wrong codes and expires credentials',()=>{
+ assert.match(sql,/failed_attempts/);
+ assert.match(sql,/FOR UPDATE/);
+ assert.match(sql,/v_attempts>=12/);
+ assert.match(sql,/interval '15 minutes'/);
+ assert.match(sql,/g\.expires_at<=now\(\)/);
+ assert.match(sql,/extensions\.gen_random_bytes\(4\)/);
  assert.match(sql,/sha256\(convert_to/);
-});
-test('host publication supports revision matching, secret rotation and revocation',()=>{
- assert.match(sql,/v_revision<>p_expected_revision/);
- assert.match(sql,/ON CONFLICT\(event_id\) DO UPDATE/);
- assert.match(sql,/is_active=false/);
- assert.match(svc,/gcc_v102_publish_room_plan/);
- assert.match(svc,/gcc_v102_revoke_room_plan/);
- assert.match(svc,/gcc_v102_host_share_status/);
- assert.doesNotMatch(sql,/CREATE POLICY.*TO anon/);
-});
-test('UI stylesheet is scoped and respects reduced motion',()=>{
- assert.match(css,/\.gcc-v102-public/);
- assert.match(css,/\.gcc-v8-share/);
- assert.match(css,/prefers-reduced-motion/);
- assert.doesNotMatch(css,/(^|\n)body\s*\{/);
+ assert.match(sql,/count\(DISTINCT entry\.id\)/);
 });
