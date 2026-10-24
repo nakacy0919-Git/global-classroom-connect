@@ -10,6 +10,8 @@ import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessi
 import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
 import {englishName} from '../../lib/simpleRoster.js';
+import {canRemoveSessionV105} from '../../lib/sessionDeletionV105.js';
+import {deleteFinishedSessionV105} from '../../services/sessionDeletionV105.js';
 const $=id=>document.getElementById(id);
 const el=(tag,cls='',text='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=String(text);return n;};
 const fmt=(iso,zone='Asia/Tokyo')=>{try{return new Intl.DateTimeFormat('en',{timeZone:zone,dateStyle:'medium',timeStyle:'short'}).format(new Date(iso));}catch{return 'Date not set';}};
@@ -49,20 +51,37 @@ export function SimpleSessionsPage(){return `
       <form id="gcc-v8-edit-form"><label>Teacher name <input id="gcc-v8-edit-teacher" maxlength="120" required /></label><div id="gcc-v8-edit-rows" class="gcc-v8-edit-rows"></div><p role="alert" id="gcc-v8-edit-error" class="gcc-v8-error"></p><div class="gcc-v8-actions"><button type="button" class="gcc-v8-secondary" id="gcc-v8-edit-cancel">Cancel</button><button type="submit" class="gcc-v8-primary">Save changes</button></div></form>
     </div>
   </div>
+  <!-- GCC_V105_SESSION_DELETE: host-only confirmed deletion of finished sessions -->
+  <div id="gcc-v105-delete-wrap" class="gcc-v8-modal-cover" hidden>
+    <div class="gcc-v8-modal gcc-v105-delete-modal" role="dialog" aria-modal="true" aria-labelledby="gcc-v105-delete-heading">
+      <h3 id="gcc-v105-delete-heading">Delete this session?</h3>
+      <p id="gcc-v105-delete-summary" class="gcc-v8-help"></p>
+      <p class="gcc-v105-delete-warning">The session, its signups, breakout room arrangements and sharing links will disappear. Global school and teacher profiles will remain. A private recovery snapshot will be kept by the administrator.</p>
+      <form id="gcc-v105-delete-form">
+        <label>Type the exact session title to confirm <input id="gcc-v105-delete-title" type="text" maxlength="140" autocomplete="off" required /></label>
+        <p id="gcc-v105-delete-error" class="gcc-v8-error" role="alert" aria-live="polite"></p>
+        <div class="gcc-v8-actions"><button type="button" class="gcc-v8-secondary" id="gcc-v105-delete-cancel">Cancel</button><button type="submit" class="gcc-v105-delete-confirm" id="gcc-v105-delete-confirm">Delete session permanently</button></div>
+      </form>
+    </div>
+  </div>
 </section>`;}
 export function bindSimpleSessionsPage(){
  const root=document.querySelector('.gcc-v8-host');if(!root)return;
  let events=[],settings=[],signups=[],edit=null;
  let shareToken='',shareEvent='';
+ let deletingSessionV105=null;
  const current=()=>events.find(x=>x.id===activeEventId);
  const conf=()=>settings.find(s=>s.event_id===activeEventId)||defaultSettings();
  const party=()=>signups.filter(s=>s.event_id===activeEventId);
  const notify=(text,bad=false)=>{$('gcc-v8-host-message').textContent=text;$('gcc-v8-host-message').classList.toggle('bad',bad);};
  const btn=(text,cls,fn)=>{const b=el('button',cls,text);b.type='button';b.addEventListener('click',fn);return b;};
  const link=()=>`${location.origin}${location.pathname}#/session-register`;
- function currentLabel(){const p=$('gcc-v8-host-select');p.replaceChildren();if(!events.length){const o=el('option','','No sessions yet');o.value='';p.append(o);p.disabled=true;return;}
+ function currentLabel(){const p=$('gcc-v8-host-select');p.replaceChildren();$('gcc-v8-current-title').replaceChildren();if(!events.length){const o=el('option','','No sessions yet');o.value='';p.append(o);p.disabled=true;return;}
    p.disabled=false;for(const e of events){const o=el('option','',`${e.title}${e.status==='published'?' · Open':''}`);o.value=e.id;p.append(o);}p.value=activeEventId;
-   const x=$('gcc-v8-current-title');x.replaceChildren();const e=current();if(e)x.append(el('strong','',e.title),el('span','',`${fmt(e.starts_at,e.timezone)} · ${e.status}`));
+   const x=$('gcc-v8-current-title');x.replaceChildren();const e=current();if(e){
+     x.append(el('strong','',e.title),el('span','',`${fmt(e.starts_at,e.timezone)} · ${e.status}`));
+     if(canRemoveSessionV105(e))x.append(btn('Delete finished session…','gcc-v105-delete-open',()=>openRemoveSessionV105(e)));
+   }
  }
  function formRow(label,value){const row=el('div','gcc-v8-information');row.append(el('span','',label),el('strong','',value));return row;}
  async function updateSettings(p){await saveSessionSettings({eventId:activeEventId,...p});await reload(false);notify('Session settings saved.');}
@@ -239,6 +258,34 @@ export function bindSimpleSessionsPage(){
    const submit=evt.currentTarget.querySelector('[type=submit]');submit.disabled=true;
    try{await updateRegistrationNames(edit.id,teacher,students);closeEdit();await reload(false);notify('Names saved.');}
    catch(err){$('gcc-v8-edit-error').textContent=err.message;}finally{submit.disabled=false;}
+ });
+ function openRemoveSessionV105(e){
+   if(!canRemoveSessionV105(e)){notify('Only drafts and finished sessions may be deleted.',true);return;}
+   deletingSessionV105={id:e.id,title:e.title};
+   $('gcc-v105-delete-summary').textContent=`Session: ${e.title}`;
+   $('gcc-v105-delete-title').value='';
+   $('gcc-v105-delete-error').textContent='';
+   $('gcc-v105-delete-wrap').hidden=false;
+   $('gcc-v105-delete-title').focus();
+ }
+ function closeRemoveSessionV105(){deletingSessionV105=null;$('gcc-v105-delete-wrap').hidden=true;}
+ $('gcc-v105-delete-cancel').addEventListener('click',closeRemoveSessionV105);
+ $('gcc-v105-delete-form').addEventListener('submit',async event=>{
+   event.preventDefault();
+   const selected=deletingSessionV105;
+   if(!selected)return;
+   const typed=$('gcc-v105-delete-title').value.trim();
+   if(typed!==selected.title){$('gcc-v105-delete-error').textContent='Type the exact session title to confirm.';return;}
+   const submit=$('gcc-v105-delete-confirm');submit.disabled=true;
+   $('gcc-v105-delete-error').textContent='Deleting session…';
+   try{
+     await deleteFinishedSessionV105(selected.id,selected.title);
+     closeRemoveSessionV105();
+     shareToken='';shareEvent='';activeEventId='';activeStage=0;
+     await reload(true);
+     notify('Session deleted. Its private recovery snapshot was saved.');
+   }catch(error){$('gcc-v105-delete-error').textContent=error.message||'Could not delete session.';}
+   finally{submit.disabled=false;}
  });
  $('gcc-v8-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=false;$('gcc-v8-create').querySelector('[name=title]').focus();});
  $('gcc-v8-cancel-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=true;});

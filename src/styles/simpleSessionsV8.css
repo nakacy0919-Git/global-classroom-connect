@@ -73,3 +73,14 @@ body:has(.gcc-v8-host) .main-shell,body:has(.gcc-v8-host) #page-content{min-widt
 @media(max-width:830px){body:has(.gcc-v8-host) .app-shell{grid-template-columns:1fr}.gcc-v8-current{grid-template-columns:1fr;gap:10px}.gcc-v8-focus{padding:22px}}
 @media(max-width:540px){.gcc-v8-teacher{margin:0;padding:20px 17px;border-radius:0;min-height:100vh}.gcc-v8-focus{padding:18px}.gcc-v8-fields,.gcc-v8-config-form{grid-template-columns:1fr}.gcc-v8-top{align-items:start}.gcc-v8-current{padding:16px}.gcc-v8-edit-row{grid-template-columns:20px 1fr 65px}.gcc-v8-review-row{font-size:.87rem}}
 @media(prefers-reduced-motion:reduce){.gcc-v8 *{animation:none!important;transition:none!important}}
+
+/* GCC_V105_SESSION_DELETE: destructive action stays visually separate from session flow. */
+.gcc-v8-host .gcc-v105-delete-open{background:transparent;border:1px solid #dfbdb9;color:#943c35;border-radius:11px;padding:7px 11px;cursor:pointer;text-align:left;justify-self:start;font:inherit;font-size:.8rem;font-weight:760;margin-top:6px}
+.gcc-v8-host .gcc-v105-delete-open:hover{background:#fff0ef;border-color:#d27d73}
+.gcc-v105-delete-modal{max-width:620px}
+.gcc-v105-delete-warning{border:1px solid #edc4bd;border-radius:13px;padding:13px 16px;background:#fff3f0;color:#85392f;font-size:.88rem;line-height:1.6}
+.gcc-v105-delete-modal form{display:grid;gap:12px}
+.gcc-v105-delete-confirm{border-radius:12px;min-height:47px;padding:10px 17px;border:1px solid #a84539;background:#b94135;color:#fff;font-weight:850;cursor:pointer}
+.gcc-v105-delete-confirm:hover{background:#a43129}
+.gcc-v105-delete-confirm:disabled{opacity:.6;cursor:wait}
+.gcc-v8-host .gcc-v105-delete-open:focus-visible,.gcc-v105-delete-modal :is(button,input):focus-visible{outline:3px solid #e28778;outline-offset:3px}
