@@ -1,3 +1,4 @@
+import globalClassroomLogo from '../assets/global-classroom-logo.png';
 // The host workflow is intentionally short. Existing tools remain accessible in Advanced tools.
 const primaryMenu = [
   {key:'sessions',label:'Sessions'},
@@ -24,7 +25,7 @@ const links=(items,activeRoute)=>items.map(item=>`
 
 export function Sidebar(activeRoute){
   return `<aside class="sidebar">
-    <div class="brand-block"><div class="brand-mark">GC</div><div><p class="brand-name">Global Classroom</p><h2 class="brand-title">Connect</h2></div></div>
+    <div class="brand-block"><div class="brand-mark"><img src="${globalClassroomLogo}" alt="" aria-hidden="true" /></div><div><p class="brand-name">Global Classroom</p><h2 class="brand-title">Connect</h2></div></div>
     <nav class="sidebar-nav" aria-label="Host navigation">
       ${links(primaryMenu,activeRoute)}
       <details class="sidebar-advanced" ${advancedMenu.some(item=>item.key===activeRoute)?'open':''}>
