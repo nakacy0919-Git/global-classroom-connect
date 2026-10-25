@@ -7,10 +7,11 @@ import {countryIsoCode,countryFlagEmoji} from '../../lib/roomCountryFlagsV104.js
 import jpFlag from '../../assets/room-flags/jp.svg';
 import bdFlag from '../../assets/room-flags/bd.svg';
 import phFlag from '../../assets/room-flags/ph.svg';
+import lkFlag from '../../assets/room-flags/lk.svg';
 
 const $=id=>document.getElementById(id);
 const make=(tag,cls='',value='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=String(value);return n;};
-const flags={JP:jpFlag,BD:bdFlag,PH:phFlag};
+const flags={JP:jpFlag,BD:bdFlag,PH:phFlag,LK:lkFlag};
 const countryKey=name=>String(name??'').trim().toLocaleLowerCase('en-US').replace(/\s+/g,' ');
 function countryFlag(country){
   const iso=countryIsoCode(country);

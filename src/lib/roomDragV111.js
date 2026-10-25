@@ -20,10 +20,10 @@ export function moveWarningsV111(data,memberIds,targetRoom){
  return roomCandidatesV110({roomStats:data.room_stats||[],students,ownTotal:data.students?.length||0})
   .find(c=>c.room===Number(targetRoom));
 }
-export function mountTeacherRoomBoardV111({editorData,onMove}){
+export function mountTeacherRoomBoardV111({editorData,onMove,host=false}){
  const section=make('section','gcc-v111-board');section.setAttribute('aria-label','Drag students between breakout rooms');
  section.append(make('h4','','Move students directly on the room map'),make('p','gcc-v111-help',
-   'PC: drag a student or fixed pair into another room. iPad: tap a name, then tap “Move here”. Only students from your school can move.'));
+   host?'Host: move students from any country or school. Drag a name/pair, or tap it and select Move here.':'PC: drag a student or fixed pair into another room. iPad: tap a name, then tap “Move here”. Only students from your school can move.'));
  const status=make('p','gcc-v111-feedback','Select a student or pair to move.');status.setAttribute('role','status');
  const grid=make('div','gcc-v111-grid');const all=boardRowsV111(editorData);
  let chosen=null,pending=false;const cards=[];const chips=[];
@@ -36,7 +36,7 @@ export function mountTeacherRoomBoardV111({editorData,onMove}){
   if(pending||!id)return;
   const record=all.find(a=>a.id===id);if(!record||record.room===target){select(null);return;}
   const involved=[id];const partner=pairsById.get(id);if(partner)involved.push(partner);
-  const check=moveWarningsV111(editorData,involved,target);
+  const check=host?null:moveWarningsV111(editorData,involved,target);
   if(check?.warning){
    const detail=`Room ${String(target).padStart(2,'0')} would contain ${check.newTotal} students, including ${check.newOwn} from your school. Move anyway?`;
    if(!window.confirm(detail)){status.textContent='Move cancelled. No changes saved.';return;}
@@ -50,10 +50,10 @@ export function mountTeacherRoomBoardV111({editorData,onMove}){
  for(const s of stats){
   const number=Number(s.room);
   const card=make('div','gcc-v111-room');card.dataset.room=String(number);
-  const title=make('div','gcc-v111-room-top');title.append(make('strong','',`Room ${String(number).padStart(2,'0')}`),make('span','',`${s.total} students · ${s.school_students} your school`));card.append(title);
+  const title=make('div','gcc-v111-room-top');title.append(make('strong','',`Room ${String(number).padStart(2,'0')}`),make('span','',host?`${s.total} students`:`${s.total} students · ${s.school_students} your school`));card.append(title);
   const names=make('div','gcc-v111-students');
   for(const entry of all.filter(x=>x.room===number)){
-   const chip=make('button','gcc-v111-chip',entry.name+(entry.count===2?' 🔗':''));chip.type='button';chip.draggable=true;
+   const chip=make('button','gcc-v111-chip',entry.name+(host?' · '+(editorData.students||[]).find(s=>String(s.id)===entry.id)?.school:'')+(entry.count===2?' 🔗':''));chip.type='button';chip.draggable=true;
    chip.dataset.studentId=entry.id;chip.setAttribute('aria-label',`Select ${entry.name} for room move`);
    chip.addEventListener('click',ev=>{ev.stopPropagation();select(entry.id);});
    chip.addEventListener('dragstart',ev=>{select(entry.id);ev.dataTransfer?.setData('text/plain',entry.id);if(ev.dataTransfer)ev.dataTransfer.effectAllowed='move';});
@@ -61,7 +61,7 @@ export function mountTeacherRoomBoardV111({editorData,onMove}){
    chips.push(chip);names.append(chip);
   }
   card.append(names);
-  if(Number(s.total)-Number(s.school_students)>0) card.append(make('small','gcc-v111-other',`${Number(s.total)-Number(s.school_students)} from other schools (view only)`));
+  if(!host&&Number(s.total)-Number(s.school_students)>0) card.append(make('small','gcc-v111-other',`${Number(s.total)-Number(s.school_students)} from other schools (view only)`));
   const dest=make('button','gcc-v111-dest','Move here');dest.type='button';dest.addEventListener('click',()=>commit(chosen,number));card.append(dest);
   card.addEventListener('dragover',ev=>{if(!chosen)return;ev.preventDefault();card.classList.add('gcc-v111-over');if(ev.dataTransfer)ev.dataTransfer.dropEffect='move';});
   card.addEventListener('dragleave',ev=>{if(!card.contains(ev.relatedTarget))card.classList.remove('gcc-v111-over');});

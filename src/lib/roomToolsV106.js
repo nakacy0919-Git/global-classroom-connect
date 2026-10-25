@@ -6,6 +6,7 @@ import {sortUnpairedV110,roomCandidatesV110,formatPlacementV110} from './roomPla
 import '../styles/teacherRoomsV110.css';
 import '../styles/teacherRoomsV111.css';
 import {mountTeacherRoomBoardV111} from './roomDragV111.js';
+import {mountHostRoomEditorV113} from './hostRoomToolsV113.js';
 const elt=(tag,cls='',label='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=String(label);return n;};
 const button=(label,fn,cls='gcc-v106-tool')=>{const b=elt('button',cls,label);b.type='button';b.addEventListener('click',fn);return b;};
 export function setupRoomToolsV106({root,token,getCode,onRefresh}){
@@ -13,8 +14,9 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
  const toolbar=elt('div','gcc-v106-toolbar');toolbar.setAttribute('role','group');toolbar.setAttribute('aria-label','Room chart tools');
  const compact=button('Compact overview',()=>{const on=root.classList.toggle('gcc-v106-compact');compact.setAttribute('aria-pressed',String(on));});compact.setAttribute('aria-pressed','false');
  const print=button('Print A4 landscape',()=>window.print());
- const teacher=button('Teacher Mode',()=>{panel.hidden=!panel.hidden;if(panel.hidden)clearEditor();});
- toolbar.append(compact,print,teacher);
+ const teacher=button('Teacher Mode',()=>{hostEditor.panel.hidden=true;hostEditor.reset();panel.hidden=!panel.hidden;if(panel.hidden)clearEditor();});
+ const hostMode=button('Host Mode',()=>{panel.hidden=true;clearEditor();hostEditor.panel.hidden=!hostEditor.panel.hidden;if(hostEditor.panel.hidden)hostEditor.reset();});
+ toolbar.append(compact,print,teacher,hostMode);
  const panel=elt('section','gcc-v106-mode gcc-v108-mode');panel.hidden=true;panel.setAttribute('aria-label','Teacher room editor');
  const intro=elt('div','gcc-v108-section-head');intro.append(elt('span','gcc-v108-eyebrow','SCHOOL-ONLY EDITING'),elt('h3','','Teacher Mode'));
  panel.append(intro);
@@ -24,7 +26,8 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
  panel.append(elt('p','gcc-v106-note','Ask the host for your personal code. It identifies your registered school and teacher — no email address is needed.'),auth);
  const editing=elt('div','gcc-v106-editor gcc-v108-editor');editing.hidden=true;panel.append(editing);
  const status=elt('p','gcc-v106-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');panel.append(status);
- list.before(toolbar,panel);
+ const hostEditor=mountHostRoomEditorV113({token,getCode,onRefresh,onDraw});
+ list.before(toolbar,panel,hostEditor.panel);
  let credentials=null,editorData=null,chartData=null,busy=false,timer=null,mode='pair';
  const setStatus=(text,error=false)=>{status.textContent=text;status.classList.toggle('error',error);};
  function clearEditor(){credentials=null;editorData=null;editing.hidden=true;auth.hidden=false;pin.value='';editing.replaceChildren();setStatus('');}
@@ -136,5 +139,5 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
  function onDraw(data){chartData=data;root.style.setProperty('--gcc-overview-cols',String(overviewColumnsV106(data.rooms?.length||0)));
   if(!timer)timer=setInterval(refresh,30000);
  }
- return {onDraw,reset:()=>{chartData=null;clearEditor();panel.hidden=true;}};
+ return {onDraw,reset:()=>{chartData=null;clearEditor();panel.hidden=true;hostEditor.reset();hostEditor.panel.hidden=true;}};
 }
