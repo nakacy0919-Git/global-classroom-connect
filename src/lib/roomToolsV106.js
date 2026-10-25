@@ -2,6 +2,8 @@ import '../styles/teacherRoomsV106.css';
 import '../styles/teacherRoomsV108.css';
 import {openTeacherEditorV106,applyTeacherRoomEditV106} from '../services/teacherRoomEditV106.js';
 import {overviewColumnsV106,roomChoiceLabelV106,buildEditorDiffV106} from './roomOverviewV106.js';
+import {sortUnpairedV110,roomCandidatesV110,formatPlacementV110} from './roomPlacementV110.js';
+import '../styles/teacherRoomsV110.css';
 const elt=(tag,cls='',label='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=String(label);return n;};
 const button=(label,fn,cls='gcc-v106-tool')=>{const b=elt('button',cls,label);b.type='button';b.addEventListener('click',fn);return b;};
 export function setupRoomToolsV106({root,token,getCode,onRefresh}){
@@ -37,33 +39,60 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   pairTab.setAttribute('aria-pressed',String(mode==='pair'));moveTab.setAttribute('aria-pressed',String(mode==='move'));tabs.append(pairTab,moveTab);editing.append(tabs);
   const form=elt('div','gcc-v108-edit-form');
   if(!students.length){form.append(elt('p','gcc-v106-note','No students in your approved school roster. Ask the host.'));editing.append(form);return;}
-  const makeSelect=()=>{const s=elt('select');for(const member of students){const o=elt('option','',roomChoiceLabelV106(member));o.value=String(member.id);s.append(o);}return s;};
-  const firstLabel=elt('label','',mode==='pair'?'Student 1 — keep in this room':'Select your student');const first=makeSelect();firstLabel.append(first);form.append(firstLabel);
-  let second=null,room=null;
-  if(mode==='pair'){
-    const secondLabel=elt('label','','Student 2 — bring into the same room');second=makeSelect();
-    if(students.length>1)second.selectedIndex=1;
-    secondLabel.append(second);form.append(secondLabel);
+  const lockedIds=new Set(pairs.flatMap(p=>[String(p.a),String(p.b)]));
+  const available=sortUnpairedV110(students,pairs);
+  if(mode==='pair'&&available.length<2){
+    form.append(elt('p','gcc-v106-note','All eligible students already have fixed pairs. Release a pair below to choose another pairing.'));
+    editing.append(form);
   }else{
-    const roomLabel=elt('label','','Destination room');room=elt('select');
-    for(let n=1;n<=Number(editorData.room_count||chartData?.rooms?.length||0);n++){
-      const opt=elt('option','',`Room ${String(n).padStart(2,'0')}`);opt.value=String(n);room.append(opt);
+    const makeSelect=entries=>{const s=elt('select');for(const member of entries){
+      const o=elt('option','',`${member.name} · Room ${String(member.room).padStart(2,'0')}`);
+      o.value=String(member.id);s.append(o);
+    }return s;};
+    const firstLabel=elt('label','',mode==='pair'?'1. Choose student A':'1. Select your student');
+    const first=makeSelect(mode==='pair'?available:sortUnpairedV110(students,[]));firstLabel.append(first);form.append(firstLabel);
+    let second=null;
+    if(mode==='pair'){
+      const secondLabel=elt('label','','2. Choose student B');second=makeSelect(available.filter(s=>String(s.id)!==first.value));
+      secondLabel.append(second);form.append(secondLabel);
     }
-    roomLabel.append(room);form.append(roomLabel);
+    const roomLabel=elt('label','',mode==='pair'?'3. Choose a breakout room for this pair':'2. Destination room');
+    const room=elt('select');roomLabel.append(room);form.append(roomLabel);
+    const explain=elt('div','gcc-v108-preview');const save=button(mode==='pair'?'Save pair and room':'Save room move',()=>{
+      if(!room.value)return;
+      saveEdit(mode,first.value,second?.value||null,Number(room.value));
+    },'gcc-v108-main gcc-v108-save');
+    function recalc(){
+      const a=byId.get(first.value),b=second?byId.get(second.value):null;
+      const moved=mode==='pair'?[a,b]:[a,...(pairs.filter(p=>String(p.a)===String(a?.id)||String(p.b)===String(a?.id)).map(p=>byId.get(String(p.a)===String(a.id)?String(p.b):String(p.a))))];
+      const unique=[...new Map(moved.filter(Boolean).map(s=>[String(s.id),s])).values()];
+      const options=roomCandidatesV110({roomStats:editorData.room_stats||[],students:unique,ownTotal:students.length});
+      const old=room.value;room.replaceChildren();
+      for(const item of options){const opt=elt('option','',formatPlacementV110(item));opt.value=String(item.room);
+        opt.disabled=!item.allowed;room.append(opt);}
+      const preferred=options.find(o=>o.allowed&&String(o.room)===old)||options.find(o=>o.allowed);
+      if(preferred)room.value=String(preferred.room);else room.selectedIndex=-1;
+      save.disabled=!preferred||unique.length<(mode==='pair'?2:1);
+      if(!preferred)explain.textContent='No suitable room is available. Ask the host to review the existing assignments.';
+      else explain.textContent=`${unique.map(s=>s.name).join(' + ')} → Room ${String(room.value).padStart(2,'0')}. ${preferred.other} students from other schools are already there. Maximum ${preferred.schoolCap} from your school and ${preferred.capacity} total students per room.`;
+    }
+    first.addEventListener('change',()=>{if(second){
+      const v=second.value;second.replaceChildren();for(const member of available.filter(s=>String(s.id)!==first.value)){
+        const o=elt('option','',`${member.name} · Room ${String(member.room).padStart(2,'0')}`);o.value=String(member.id);second.append(o);
+      }if([...second.options].some(o=>o.value===v))second.value=v;
+    }recalc();});
+    if(second)second.addEventListener('change',recalc);
+    room.addEventListener('change',()=>{const a=byId.get(first.value),b=second?byId.get(second.value):null;
+      const names=[a?.name,b?.name].filter(Boolean).join(' + ');
+      explain.textContent=`${names} → Room ${String(room.value).padStart(2,'0')}. The server checks room capacity and school balance before saving.`;
+    });
+    form.append(explain,save);editing.append(form);recalc();
   }
-  const explain=elt('div','gcc-v108-preview');
-  function updatePreview(){const a=byId.get(first.value),b=second?byId.get(second.value):null;
-    if(mode==='pair')explain.textContent=a&&b?`${b.name} will join ${a.name} in Room ${String(a.room).padStart(2,'0')}. They will remain a fixed pair.`:'Choose two students.';
-    else explain.textContent=a?`${a.name}${pairs.some(p=>p.a===a.id||p.b===a.id)?' and their paired student':''} will move from Room ${String(a.room).padStart(2,'0')} to Room ${String(room.value).padStart(2,'0')}.`:'Select a student.';
-  }
-  first.addEventListener('change',updatePreview);if(second)second.addEventListener('change',updatePreview);if(room)room.addEventListener('change',updatePreview);
-  const save=button(mode==='pair'?'Save this pair':'Save room move',()=>saveEdit(mode,first.value,second?.value||null,room?Number(room.value):null),'gcc-v108-main gcc-v108-save');
-  form.append(explain,save);editing.append(form);updatePreview();
-  const locked=elt('section','gcc-v108-locked');locked.append(elt('h4','','Already fixed pairs'));
-  if(!pairs.length)locked.append(elt('p','gcc-v106-note','No pairs registered for your school yet.'));
+  const locked=elt('details','gcc-v108-locked gcc-v110-locked');const heading=elt('summary','',`Already fixed pairs (${pairs.length}) · tap to manage`);locked.append(heading);const lockedList=elt('div','gcc-v110-pair-list');locked.append(lockedList);
+  if(!pairs.length)lockedList.append(elt('p','gcc-v106-note','No pairs registered for your school yet.'));
   for(const pair of pairs){const a=byId.get(String(pair.a)),b=byId.get(String(pair.b));if(!a||!b)continue;
    const line=elt('div','gcc-v108-pair-row');line.append(elt('span','',`${a.name} + ${b.name}`),button('Release',()=>saveEdit('unpair',String(pair.a),String(pair.b),null)));
-   locked.append(line);
+   lockedList.append(line);
   }
   editing.append(locked);
   editing.append(button('Exit Teacher Mode',()=>{panel.hidden=true;clearEditor();}));
@@ -73,6 +102,7 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   let payload;
   try{const lookup=new Map((editorData.students||[]).map(s=>[String(s.id),s]));
    payload=buildEditorDiffV106(action,lookup.get(aId),lookup.get(bId),room,Number(editorData.revision));
+   if(action==='pair')payload.room=room;
   }catch(e){setStatus(e.message,true);return;}
   busy=true;setStatus('Saving your changes…');
   try{const result=await applyTeacherRoomEditV106(credentials,payload);

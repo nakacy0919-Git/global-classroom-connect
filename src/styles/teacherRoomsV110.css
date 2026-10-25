@@ -1,0 +1,12 @@
+/* V10.10 - short, readable teacher panel. Keep existing print rules. */
+.gcc-v108-mode .gcc-v108-edit-form{grid-template-columns:repeat(3,minmax(0,1fr));align-items:end}
+.gcc-v108-mode .gcc-v108-edit-form select{min-width:0;width:100%;font-size:.84rem}
+.gcc-v110-locked{margin:14px 0;border:1px solid #d6e9e2;border-radius:13px;padding:10px 13px;background:#fbfefd}
+.gcc-v110-locked>summary{cursor:pointer;color:#245966;font-weight:800;padding:5px}
+.gcc-v110-pair-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 4px}
+.gcc-v110-pair-list .gcc-v108-pair-row{margin:0;padding:6px 9px;font-size:.79rem;min-width:0}
+.gcc-v110-pair-list .gcc-v108-pair-row span{min-width:0;overflow-wrap:anywhere}
+.gcc-v110-pair-list .gcc-v108-pair-row button{padding:6px 9px;white-space:nowrap}
+@media(max-width:1040px){.gcc-v108-mode .gcc-v108-edit-form{grid-template-columns:repeat(2,minmax(0,1fr))}.gcc-v110-pair-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:660px){.gcc-v108-mode .gcc-v108-edit-form,.gcc-v110-pair-list{grid-template-columns:1fr}}
+@media print{.gcc-v110-locked{display:none!important}}
