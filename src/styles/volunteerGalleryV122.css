@@ -1,0 +1,38 @@
+/* V12.2 — opt-in educator team cards. Scoped to the facilitator workflow. */
+.gcc122-team{display:grid;gap:20px;padding:clamp(17px,2.8vw,32px);border:1px solid #cae9ef;border-radius:24px;background:linear-gradient(145deg,#f1fbff,#fffefa 55%,#eaf9f4);box-shadow:0 13px 35px #1d6f8930}
+.gcc122-team-head{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.gcc122-team-head h2{font-size:clamp(1.85rem,3vw,2.55rem);letter-spacing:-.04em;line-height:1.1;margin:10px 0;color:#153c56}
+.gcc122-team-head p{max-width:680px;line-height:1.6;margin:0;color:#50798a}
+.gcc122-eyebrow{font-size:.72rem;font-weight:900;letter-spacing:.13em;color:#248c97}
+.gcc122-join-button,.gcc122-empty-action{appearance:none;border:0;display:inline-flex;justify-content:center;align-items:center;border-radius:999px;background:#167ba4;padding:12px 20px;color:#fff;text-decoration:none;font-weight:850;box-shadow:0 7px 0 #0e5879;cursor:pointer;transition:transform .16s,box-shadow .16s}
+.gcc122-join-button:hover,.gcc122-empty-action:hover{transform:translateY(-3px);box-shadow:0 10px 0 #0e5879;color:#fff}
+.gcc122-join-button:active,.gcc122-empty-action:active{transform:translateY(4px);box-shadow:0 2px 0 #0e5879}
+.gcc122-toolbar{display:grid;grid-template-columns:1fr 1fr minmax(190px,1.5fr);gap:12px}
+.gcc122-toolbar label{display:grid;gap:5px;font-size:.81rem;font-weight:750;color:#416b7a}
+.gcc122-toolbar :is(select,input){width:100%;font:inherit;color:#204b63;padding:11px 12px;background:white;border:1px solid #cde2e9;border-radius:12px;min-width:0}
+.gcc122-summary{color:#528397;font-size:.84rem;margin:0;font-weight:700}
+.gcc122-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.gcc122-person{display:flex;flex-direction:column;min-width:0;overflow:hidden;border-radius:20px;border:1px solid #d6e9ed;background:white;box-shadow:0 7px 24px #285b7420;transition:transform .25s,box-shadow .25s}
+.gcc122-person:hover{transform:translateY(-6px);box-shadow:0 16px 29px #285b7433}
+.gcc122-person-photo{height:195px;overflow:hidden;position:relative;background:radial-gradient(circle at 38% 35%,#fcfffd,#d2ecf3 67%,#c4e5d8);display:grid;place-items:center}
+.gcc122-person-placeholder{font-size:4rem;font-weight:900;color:#6e9fa6}
+.gcc122-person-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gcc122-person-body{display:grid;align-content:start;gap:8px;padding:16px;flex:1}
+.gcc122-person-location{display:flex;align-items:center;gap:6px;color:#358295;font-size:.78rem;font-weight:750}
+.gcc122-person-location img{width:24px;height:17px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px #aac3cf55}
+.gcc122-person-name{margin:0;font-size:1.23rem;line-height:1.2;color:#23485e;overflow-wrap:anywhere}
+.gcc122-person-school{margin:0;font-size:.81rem;line-height:1.45;color:#638395}
+.gcc122-person-roles{display:flex;gap:6px;flex-wrap:wrap}
+.gcc122-person-roles span{font-size:.71rem;border-radius:999px;padding:5px 10px;font-weight:850}
+.gcc122-role-facilitator{background:#def7ed;color:#14795f}.gcc122-role-host{background:#ede5ff;color:#7448a2}
+.gcc122-person-bio{font-size:.85rem;line-height:1.55;color:#476778;margin:2px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;overflow-wrap:anywhere}
+.gcc122-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.gcc122-links a{font-size:.78rem;font-weight:800;color:#137daa;text-decoration:underline;text-underline-offset:3px}
+.gcc122-empty{grid-column:1/-1;text-align:center;border:1px dashed #a5d4de;border-radius:22px;background:#ffffffc2;padding:clamp(26px,4vw,48px);display:grid;justify-items:center;gap:10px}
+.gcc122-empty-icon{font-size:3rem}.gcc122-empty h3{margin:0;color:#194f68;font-size:1.5rem}.gcc122-empty p{max-width:520px;margin:0;color:#5d7e90;line-height:1.6}.gcc122-empty-action{margin-top:9px}
+.gcc122-join-heading{scroll-margin-top:30px;margin:8px 0 -5px}
+.gcc122-join-heading h3{font-size:1.48rem;color:#21536d;margin:0 0 6px}.gcc122-join-heading p{color:#5d7f91;margin:0;line-height:1.5}
+.gcc122-opt-in-note{font-size:.82rem;line-height:1.6;color:#4b7589;margin:0}
+@media(max-width:930px){.gcc122-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:610px){.gcc122-toolbar{grid-template-columns:1fr}.gcc122-cards{grid-template-columns:1fr}.gcc122-person-photo{height:230px}.gcc122-team-head{align-items:start}}
+@media(prefers-reduced-motion:reduce){.gcc122-person,.gcc122-join-button,.gcc122-empty-action{transition:none!important}.gcc122-person:hover,.gcc122-join-button:hover,.gcc122-empty-action:hover{transform:none}}
