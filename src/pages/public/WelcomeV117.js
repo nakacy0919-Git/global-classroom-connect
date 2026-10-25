@@ -1,5 +1,9 @@
 import globalClassroomLogo from '../../assets/gcc-logo-256.webp';
 import '../../styles/welcomeV117.css';
+import hostIllustration from '../../assets/landing-v118/host-session.webp';
+import findIllustration from '../../assets/landing-v118/find-session.webp';
+import volunteerIllustration from '../../assets/landing-v118/facilitator-host.webp';
+import '../../styles/welcomeArtV118.css';
 
 const icon=(type)=>({
  calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 15h3M14 15h3"/>',
@@ -19,9 +23,9 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
    <p>Meet teachers around the globe, bring young people together, and make every exchange a new story.</p>
  </div>
  <div class="gcc117-choices" aria-label="Choose your next step">
-   <a class="gcc117-choice gcc117-choice-create" href="#/teacher-portal?view=create"><span class="gcc117-n">01 / SHARE</span><span class="gcc117-symbol">${svg('calendar')}</span><strong>Host a Session</strong><span class="gcc117-desc">Choose a date, introduce your class and invite the world to join.</span><span class="gcc117-go">Create a session ${svg('arrow')}</span></a>
-   <a class="gcc117-choice gcc117-choice-find" href="#/teacher-portal?view=find"><span class="gcc117-n">02 / DISCOVER</span><span class="gcc117-symbol">${svg('search')}</span><strong>Find a Session</strong><span class="gcc117-desc">Discover a partner classroom. All times appear in your local time zone.</span><span class="gcc117-go">Explore sessions ${svg('arrow')}</span></a>
-   <a class="gcc117-choice gcc117-choice-join" href="#/teacher-portal?view=volunteer"><span class="gcc117-n">03 / SUPPORT</span><span class="gcc117-symbol">${svg('people')}</span><strong>Be a Facilitator<br/>or GC Host</strong><span class="gcc117-desc">Offer to support Global Classroom-hosted exchanges. Your skills can bring students together.</span><span class="gcc117-go">Join the team ${svg('arrow')}</span></a>
+   <a class="gcc117-choice gcc117-choice-create" href="#/teacher-portal?view=create" aria-label="Host a Session — Create and share" title="Host a Session — Create and share"><img class="gcc118-choice-image" src="${hostIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
+   <a class="gcc117-choice gcc117-choice-find" href="#/teacher-portal?view=find" aria-label="Find a Session — Search and join" title="Find a Session — Search and join"><img class="gcc118-choice-image" src="${findIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
+   <a class="gcc117-choice gcc117-choice-join" href="#/teacher-portal?view=volunteer" aria-label="Be a Facilitator or GC Host — Support and connect" title="Be a Facilitator or GC Host — Support and connect"><img class="gcc118-choice-image" src="${volunteerIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
  </div>
  <div class="gcc117-bottom"><span>${svg('globe')} Made for educators, connected by curiosity.</span><a href="#/teacher-access">New here? Sign in or activate your invitation</a></div>
  <p class="gcc117-trust">Teacher access is available to approved schools. Offering to facilitate or host does not automatically grant administrator access.</p>

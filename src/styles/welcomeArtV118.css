@@ -1,0 +1,115 @@
+/* GCC V11.8 — ocean horizon & three original illustrated action buttons. */
+.gcc117-welcome{
+  min-height:calc(100vh - 44px);
+  background-image:
+    linear-gradient(180deg,rgba(244,252,255,.19) 0%,rgba(237,249,255,.03) 39%,rgba(4,33,70,.16) 100%),
+    url('../assets/landing-v118/ocean-islands.webp');
+  background-color:#5dbde8;
+  background-position:center center,center 56%;
+  background-size:cover,cover;
+  background-repeat:no-repeat;
+  gap:clamp(12px,1.65vh,22px);
+  padding:clamp(14px,2.5vw,30px) clamp(16px,4vw,64px);
+  border-color:rgba(255,255,255,.78);
+}
+.gcc117-world{display:none}
+.gcc117-topbar{
+  background:rgba(245,252,255,.85);
+  border:1px solid rgba(255,255,255,.95);
+  border-radius:19px;
+  padding:8px 14px;
+  box-shadow:0 5px 20px rgba(11,64,105,.1);
+  -webkit-backdrop-filter:blur(9px);
+  backdrop-filter:blur(9px);
+}
+.gcc117-intro{
+  width:min(100%,950px);
+  max-width:950px;
+  margin:clamp(4px,1.7vh,20px) auto 0;
+  padding:clamp(13px,2.5vw,25px) clamp(14px,2.8vw,32px);
+  border-radius:22px;
+  background:rgba(244,251,255,.82);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 14px 36px rgba(12,55,91,.12);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+.gcc117-intro h1{font-size:clamp(2.15rem,4.4vw,4.5rem);margin:9px 0 12px}
+.gcc117-intro p{color:#325773}
+.gcc117-intro h1 em{background:linear-gradient(110deg,#0066a9,#2166b4 52%,#5b529e);background-clip:text;-webkit-background-clip:text}
+.gcc117-choices{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  width:min(100%,1040px);
+  max-width:1040px;
+  gap:clamp(10px,2vw,25px);
+  align-items:center;
+  margin:clamp(6px,1.5vh,18px) auto 0;
+}
+.gcc117-choice,
+.gcc117-choice-join{
+  aspect-ratio:1/1;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  max-width:none;
+  grid-column:auto;
+  padding:0;
+  border:0;
+  border-radius:clamp(24px,4vw,52px);
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
+  display:block;
+  filter:drop-shadow(0 12px 14px rgba(9,38,74,.27));
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),filter .25s;
+}
+.gcc117-choice::after{display:none;content:none}
+.gcc117-choice:hover{
+  border:0;
+  transform:translateY(-8px) scale(1.025);
+  box-shadow:none;
+  filter:drop-shadow(0 20px 20px rgba(8,42,81,.34));
+}
+.gcc117-choice:focus-visible{
+  outline:4px solid white;
+  outline-offset:5px;
+  filter:drop-shadow(0 0 8px #0b549b);
+}
+.gcc118-choice-image{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+}
+.gcc117-bottom,
+.gcc117-trust{
+  background:rgba(243,252,255,.83);
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:12px;
+  padding:9px 14px;
+  -webkit-backdrop-filter:blur(9px);
+  backdrop-filter:blur(9px);
+  color:#254e69;
+}
+.gcc117-bottom{margin:3px auto 0}
+.gcc117-trust{max-width:900px}
+@media(max-width:920px){
+  .gcc117-choices{grid-template-columns:repeat(2,minmax(0,1fr));max-width:690px}
+  .gcc117-choice-join{grid-column:1/-1;width:min(100%,325px);margin:0 auto}
+  .gcc117-welcome{background-position:center center,center 56%}
+}
+@media(max-width:620px){
+  .gcc117-welcome{padding:14px 12px;background-position:center center,60% center;min-height:100vh}
+  .gcc117-topbar{padding:8px;gap:6px;flex-wrap:wrap}
+  .gcc117-intro{margin:0 auto;padding:16px 13px}
+  .gcc117-intro h1{font-size:clamp(2.1rem,9vw,3.25rem)}
+  .gcc117-choices{grid-template-columns:1fr;max-width:330px;gap:14px}
+  .gcc117-choice-join{grid-column:auto;width:100%;max-width:none;margin:0}
+  .gcc117-bottom{justify-content:center;text-align:center}
+  .gcc117-trust{font-size:.74rem;line-height:1.55}
+}
+@media(prefers-reduced-motion:reduce){
+ .gcc117-choice,.gcc117-choice:hover{animation:none!important;transition:none!important;transform:none!important}
+}
