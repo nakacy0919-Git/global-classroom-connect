@@ -100,3 +100,9 @@
 .gcc-v9 .gcc-v9-main-action:disabled{opacity:.7;cursor:default;background:#397e73}
 .gcc-v9 .gcc-v9-guide-copy{flex:1}
 @media(max-width:650px){.gcc-v9 .gcc-v91-resume button{width:100%}}
+
+/* GCC V11.5 — flags in the host room planner. */
+.gcc-v9 .gcc-v115-country-line{display:flex;align-items:flex-start;gap:6px;min-width:0;line-height:1.35}
+.gcc-v9 .gcc-v115-country-flag{display:inline-block;flex:0 0 23px;width:23px;height:16px;object-fit:contain;border:1px solid #e0e8e7;border-radius:2px;margin-top:1px;vertical-align:middle}
+.gcc-v9 .gcc-v115-country-fallback{display:inline-flex;flex:0 0 23px;width:23px;justify-content:center;line-height:17px;font-size:15px}
+.gcc-v9 .gcc-v115-country-description{min-width:0;overflow-wrap:anywhere}

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV} from '../src/lib/roomPlannerV9.js';
+import {countryIsoCode,countryFlagEmoji} from '../src/lib/roomCountryFlagsV104.js';
 
 class FakeElement {
   constructor(tag='div') {this.tagName=tag;this.className='';this.children=[];this.attributes={};this.listeners={};this._text='';this.value='';this.classList={toggle:(name,enabled)=>{const list=new Set(this.className.split(/\s+/).filter(Boolean));if(enabled)list.add(name);else list.delete(name);this.className=[...list].join(' ');}};}
@@ -18,8 +19,13 @@ class FakeElement {
 }
 const source=fs.readFileSync(new URL('../src/components/RoomPlannerV9.js',import.meta.url),'utf8');
 const transformed=source.replace(/^import .*?;\s*$/gm,'').replace('export function mountRoomPlannerV9','function mountRoomPlannerV9')+'\nmountRoomPlannerV9';
+const plannerFlagMockV115 = {
+  countryIsoCode, countryFlagEmoji,
+  jpPlannerFlag:'/test-assets/jp.svg', phPlannerFlag:'/test-assets/ph.svg',
+  lkPlannerFlag:'/test-assets/lk.svg', bdPlannerFlag:'/test-assets/bd.svg'
+};
 function mount(){
-  const context={document:{createElement:tag=>new FakeElement(tag)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console};
+  const context={document:{createElement:tag=>new FakeElement(tag)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console,...plannerFlagMockV115};
   const f=vm.runInNewContext(transformed,context);
   const root=new FakeElement();
   f({root,event:{title:'Test'},settings:{breakout_rooms:2,facilitators_per_room:1},signups:[
@@ -65,7 +71,7 @@ test('Move controls appear only on demand, destination excludes the current room
 });
 
 test('Demo preview guides to a single primary Try moving students action',()=>{
- const context={document:{createElement:tag=>new FakeElement(tag)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console};
+ const context={document:{createElement:tag=>new FakeElement(tag)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console,...plannerFlagMockV115};
  const f=vm.runInNewContext(transformed,context);const root=new FakeElement();
  f({root,event:{title:'Demo'},settings:{breakout_rooms:4,facilitators_per_room:1},signups:[]});
  const sampleButton=byClass(root,'gcc-v9-outline').find(b=>b.textContent==='Try with sample students');

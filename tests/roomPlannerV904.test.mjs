@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import vm from 'node:vm';
 import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV} from '../src/lib/roomPlannerV9.js';
+import {countryIsoCode,countryFlagEmoji} from '../src/lib/roomCountryFlagsV104.js';
 
 class E {
  constructor(tag='div'){
@@ -21,7 +22,12 @@ class E {
 }
 const source=readFileSync(new URL('../src/components/RoomPlannerV9.js',import.meta.url),'utf8');
 const modified=source.replace(/^import .*?;\s*$/gm,'').replace('export function mountRoomPlannerV9','function mountRoomPlannerV9')+'\nmountRoomPlannerV9';
-const mountFunction=vm.runInNewContext(modified,{document:{createElement:t=>new E(t)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console});
+const plannerFlagMockV115 = {
+  countryIsoCode, countryFlagEmoji,
+  jpPlannerFlag:'/test-assets/jp.svg', phPlannerFlag:'/test-assets/ph.svg',
+  lkPlannerFlag:'/test-assets/lk.svg', bdPlannerFlag:'/test-assets/bd.svg'
+};
+const mountFunction=vm.runInNewContext(modified,{document:{createElement:t=>new E(t)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console,...plannerFlagMockV115});
 const all=(root,cls)=>root.find(x=>x.className.split(/\s+/).includes(cls));
 function preview(facsPerRoom=2){
  const root=new E();mountFunction({root,event:{title:'Sample session'},settings:{breakout_rooms:2,facilitators_per_room:facsPerRoom},signups:[

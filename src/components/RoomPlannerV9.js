@@ -2,6 +2,11 @@ import '../styles/roomPlannerV9.css';
 import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV} from '../lib/roomPlannerV9.js';
 import {packRoomDraft,unpackRoomDraft} from '../lib/roomDraftV91.js';
 import {fetchRoomDraft,saveRoomDraft} from '../services/roomDraftV91.js';
+import {countryIsoCode,countryFlagEmoji} from '../lib/roomCountryFlagsV104.js';
+import jpPlannerFlag from '../assets/room-flags/jp.svg';
+import phPlannerFlag from '../assets/room-flags/ph.svg';
+import lkPlannerFlag from '../assets/room-flags/lk.svg';
+import bdPlannerFlag from '../assets/room-flags/bd.svg';
 
 const elem=(tag,cls='',label='')=>{
  const e=document.createElement(tag);if(cls)e.className=cls;
@@ -11,6 +16,22 @@ const elem=(tag,cls='',label='')=>{
 const option=(text,value)=>{const e=elem('option','',text);e.value=String(value);return e;};
 // Decorative illustrated avatars: role distinction without adding repeated text.
 // Artwork stays as local vector assets. Names and choices remain plain DOM text.
+// Use the same bundled SVG flags as the public room chart and world clocks.
+const plannerFlagAssetsV115=Object.freeze({JP:jpPlannerFlag,PH:phPlannerFlag,LK:lkPlannerFlag,BD:bdPlannerFlag});
+const plannerCountryFlagV115=(country,countryCode)=>{
+ const iso=String(countryCode||countryIsoCode(country)).trim().toUpperCase();
+ const source=plannerFlagAssetsV115[iso];
+ if(source){
+  const flag=elem('img','gcc-v115-country-flag');
+  flag.src=source;flag.alt='';flag.width=23;flag.height=16;
+  flag.setAttribute('aria-hidden','true');
+  return flag;
+ }
+ const fallback=elem('span','gcc-v115-country-fallback',countryFlagEmoji(country||iso));
+ fallback.setAttribute('aria-hidden','true');
+ return fallback;
+};
+
 const avatar=(role)=>{
  const person=elem('span',`gcc-v9-avatar gcc-v9-avatar-${role}`);
  person.setAttribute('aria-hidden','true');
@@ -181,7 +202,9 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
      for(const st of room.students){
        const row=elem('div','gcc-v9-student');
        const info=elem('div','gcc-v9-student-info');
-       info.append(elem('strong','',st.name),elem('small','',`${st.country} · ${st.school}`));
+       const metadata=elem('small','gcc-v115-country-line');
+       metadata.append(plannerCountryFlagV115(st.country,st.countryCode),elem('span','gcc-v115-country-description',`${st.country} · ${st.school}`));
+       info.append(elem('strong','',st.name),metadata);
        row.append(avatar('student'),info);
        // In normal view there is NO repeated Room 01 / Room 02 dropdown per student.
        if(moveMode){
