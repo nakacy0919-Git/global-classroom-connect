@@ -27,21 +27,28 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
  panel.append(elt('p','','Only authorized teachers can move students. Changes are saved immediately and visible to all participants.'));
  const authForm=elt('form','gcc-v106-login');
  const fields=elt('div','gcc-v106-fields');
- const nameLabel=elt('label','','Teacher name');const name=elt('input');name.placeholder='e.g. Teacher Mari';name.required=true;name.maxLength=80;name.autocomplete='off';nameLabel.append(name);
- const pinLabel=elt('label','','Your personal 4-digit edit code');const pin=elt('input');pin.type='password';pin.inputMode='numeric';pin.pattern='[0-9]{4}';pin.maxLength=4;pin.required=true;pin.autocomplete='off';pinLabel.append(pin);
- fields.append(nameLabel,pinLabel);authForm.append(fields);
+ const pinLabel=elt('label','','Shared 4-digit Teacher Mode code');const pin=elt('input');pin.type='password';pin.inputMode='numeric';pin.pattern='[0-9]{4}';pin.maxLength=4;pin.required=true;pin.autocomplete='off';pinLabel.append(pin);
+ fields.append(pinLabel);authForm.append(fields);
+ panel.append(elt('p','gcc-v106-note','Your host will share one 4-digit code with all participating teachers. No email address is needed.'));
+
  const unlock=elt('button','gcc-v106-tool','Unlock editing');unlock.type='submit';authForm.append(unlock);panel.append(authForm);
  const editing=elt('div','gcc-v106-editor');editing.hidden=true;panel.append(editing);
  const status=elt('p','gcc-v106-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');panel.append(status);
  const setStatus=(v,isError=false)=>{status.textContent=v;status.classList.toggle('error',isError)};
  list.before(toolbar,panel);
- let credentials=null,editorData=null,currentChart=null,busy=false;
+ let credentials=null,editorData=null,currentChart=null,busy=false,editorName='';
  let timer=null;
- function clearEditor(){credentials=null;editorData=null;editing.hidden=true;authForm.hidden=false;pin.value='';editing.replaceChildren();setStatus('');}
+ function clearEditor(){credentials=null;editorData=null;editorName='';editing.hidden=true;authForm.hidden=false;pin.value='';editing.replaceChildren();setStatus('');}
  function redrawEditor(){
   if(!editorData)return;
   editing.replaceChildren();editing.hidden=false;
-  const who=elt('p','',`Signed in as ${editorData.editor}. Each edit saves automatically.`);editing.append(who);
+  const who=elt('p','','Teacher Mode unlocked. Each change saves automatically.');editing.append(who);
+  const byline=elt('label','','Your name (recorded in the edit history)');
+  const editorInput=elt('input');editorInput.type='text';editorInput.placeholder='e.g. Teacher Mari';
+  editorInput.autocomplete='off';editorInput.name='gcc_room_change_editor_name';editorInput.maxLength=80;
+  editorInput.value=editorName;editorInput.addEventListener('input',()=>{editorName=editorInput.value;});
+  byline.append(editorInput);editing.append(byline);
+  editing.append(elt('p','gcc-v106-note','This name is self-reported: a shared code does not verify who you are.'));
   const members=editorData.students||[],pairs=editorData.pairs||[];
   const byId=new Map(members.map(s=>[String(s.id),s]));
   const chooses=()=>{const select=elt('select');
@@ -74,7 +81,10 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   let payload;
   try{
    const byId=new Map(editorData.students.map(x=>[String(x.id),x]));
+   const typedName=editorName.trim();
+   if(!/^[A-Za-z .'-]{3,80}$/.test(typedName))throw Error('Enter your name (English letters) before saving.');
    payload=buildEditorDiffV106(action,byId.get(firstId),byId.get(secondId),targetRoom,Number(editorData.revision));
+   payload.editorName=typedName;
   }catch(e){setStatus(e.message,true);return;}
   busy=true;setStatus('Saving room change…');
   try{
@@ -90,11 +100,11 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
  }
  authForm.addEventListener('submit',async e=>{
   e.preventDefault();if(busy)return;
-  const candidate={token,code:getCode(),name:name.value.trim(),pin:pin.value};
+  const candidate={token,code:getCode(),pin:pin.value};
   busy=true;unlock.disabled=true;setStatus('Checking teacher credentials…');
   try{
    editorData=await openTeacherEditorV106(candidate);credentials=candidate;
-   authForm.hidden=true;redrawEditor();setStatus('Teacher Mode unlocked. Your edits are logged.');
+   authForm.hidden=true;redrawEditor();setStatus('Unlocked. Enter your name before making changes.');
   }catch(error){setStatus(error.message,true);}finally{unlock.disabled=false;busy=false;}
  });
  async function refresh(){
