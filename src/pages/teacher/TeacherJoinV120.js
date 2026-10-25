@@ -42,7 +42,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page"><section cla
  <footer class="gcc120-foot">Already approved? <a href="#/teacher-access">Sign in</a> · <a href="#/registration">Legacy invitation registration</a></footer>
  </section></main>`;}
 export function bindTeacherJoinV120(){
- const root=document.querySelector('.gcc120-join');if(!root)return;
+ const root=document.querySelector('.gcc120-join[aria-label="Join Global Classroom"]');if(!root)return;
  const $=id=>root.querySelector('#'+id),notify=(v,error=false)=>{const m=$('gcc120-msg');m.textContent=v;m.classList.toggle('error',error);};
  let draft=null;
  function setStep(which){for(const s of ['account','profile','status'])$('gcc120-'+s+'-step').hidden=s!==which;}

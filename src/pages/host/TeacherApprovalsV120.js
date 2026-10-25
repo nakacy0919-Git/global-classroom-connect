@@ -44,5 +44,5 @@ export function bindTeacherApprovalsV120(){
      });actions.append(btn);}card.append(actions);list.append(card);
   }
  }
- refresh().catch(e=>notify(e.message||'Could not load applications.',true));
+ refresh().catch(e=>{list.replaceChildren(el('p','gcc120-panel','Could not load applications. Reload this page or contact your GCC administrator.'));notify(e.message||'Could not load applications.',true);});
 }
