@@ -29,3 +29,38 @@
 .gcc122-role-founder{background:linear-gradient(110deg,#fff2bd,#fbe3a7);color:#805000}
 @media(max-width:760px){.gcc123-header{padding:12px;flex-wrap:wrap;gap:9px}.gcc123-header>span{order:3;width:100%;font-size:.65rem}.gcc123-account button{padding:8px 10px}.gcc123-volunteer>.gcc122-team{padding:16px}.gcc123-dialog{padding:19px;border-radius:20px}}
 @media(prefers-reduced-motion:reduce){.gcc123-step{animation:none}.gcc123-buttons button{transition:none}}
+/* V12.7: the volunteer page has no sidebar, so the app shell must be one full-width track.
+   Academic Pop's body:has(.app-shell) .app-shell selector is more specific than
+   the original .app-shell.gcc123-volunteer-focus rule; explicitly outrank it. */
+body:has(.app-shell) .app-shell.gcc123-volunteer-focus{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:0;
+  width:100%;
+  min-width:0;
+  align-items:start;
+}
+body:has(.app-shell) .app-shell.gcc123-volunteer-focus > .main-shell,
+body:has(.app-shell) .app-shell.gcc123-volunteer-focus .page-content,
+body:has(.app-shell) .app-shell.gcc123-volunteer-focus .gct-portal,
+body:has(.app-shell) .app-shell.gcc123-volunteer-focus .gct-section[data-gct-view="volunteer"]{
+  width:100%;
+  min-width:0;
+  max-width:none;
+}
+.gcc123-volunteer-focus .gcc123-volunteer{
+  width:min(100%,1320px);
+  max-width:100%;
+  min-width:0;
+  margin:0 auto;
+}
+.gcc123-volunteer-focus .gcc123-volunteer > .gcc122-team{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+@media(max-width:760px){
+  .gcc123-volunteer-focus .gcc123-volunteer{width:100%}
+  .gcc123-volunteer-focus .gcc123-header{justify-content:flex-start}
+  .gcc123-volunteer-focus .gcc123-account{margin-left:auto}
+}
