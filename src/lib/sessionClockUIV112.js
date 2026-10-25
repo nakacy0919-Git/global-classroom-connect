@@ -1,6 +1,34 @@
 import '../styles/sessionTimeV112.css';
+import jpClockFlag from '../assets/room-flags/jp.svg';
+import phClockFlag from '../assets/room-flags/ph.svg';
+import lkClockFlag from '../assets/room-flags/lk.svg';
+import bdClockFlag from '../assets/room-flags/bd.svg';
 import {sessionClockZonesV112,dateTimeLabelV112,timePartsV112,clockAnglesV112,timeRangeV112,viewerZoneV112} from './sessionTimeV112.js';
 const create=(tag,cls='',content='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=content;return n;};
+const clockFlagAssetsV114 = Object.freeze({
+ 'japan':jpClockFlag,
+ 'philippines':phClockFlag,
+ 'sri lanka':lkClockFlag,
+ 'bangladesh':bdClockFlag
+});
+function clockCountryHeadingV114(item){
+ const heading=create('div','gcc-v112-country');
+ const country=String(item.country||'').trim();
+ const flagAsset=clockFlagAssetsV114[country.toLowerCase()];
+ if(flagAsset){
+  const img=document.createElement('img');
+  img.className='gcc-v114-clock-flag';
+  img.src=flagAsset;img.alt=country+' flag';
+  img.width=42;img.height=28;
+  heading.append(img);
+ }else{
+  const fallback=create('span','gcc-v114-clock-flag-fallback',item.flag||'🌐');
+  fallback.setAttribute('aria-hidden','true');
+  heading.append(fallback);
+ }
+ heading.append(create('span','gcc-v114-clock-country-name',country+(item.host?' · Host':'')));
+ return heading;
+}
 const svgNs='http://www.w3.org/2000/svg';
 function svgNode(tag,attributes={}){const x=document.createElementNS(svgNs,tag);for(const [key,value] of Object.entries(attributes))x.setAttribute(key,String(value));return x;}
 export function analogStartClockV112(instant,zone){
@@ -29,7 +57,7 @@ export function renderWorldSessionClocksV112(root,session){
  const cards=create('div','gcc-v112-cards');
  for(const item of zones.clocks){
   const card=create('article','gcc-v112-card');
-  const label=create('div','gcc-v112-country',`${item.flag} ${item.country}${item.host?' · Host':''}`);
+  const label=clockCountryHeadingV114(item);
   const body=create('div','gcc-v112-face-row');body.append(analogStartClockV112(session.starts_at,item.zone));
   const times=create('div','gcc-v112-times');
   const start=timePartsV112(session.starts_at,item.zone);

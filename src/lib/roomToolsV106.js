@@ -7,6 +7,26 @@ import '../styles/teacherRoomsV110.css';
 import '../styles/teacherRoomsV111.css';
 import {mountTeacherRoomBoardV111} from './roomDragV111.js';
 import {mountHostRoomEditorV113} from './hostRoomToolsV113.js';
+import '../styles/roomToolbarV114.css';
+const iconNsV114='http://www.w3.org/2000/svg';
+const toolbarIconV114=kind=>{
+ const svg=document.createElementNS(iconNsV114,'svg');
+ svg.setAttribute('viewBox','0 0 24 24');
+ svg.setAttribute('fill','none');
+ svg.setAttribute('stroke','currentColor');
+ svg.setAttribute('stroke-width','1.9');
+ svg.setAttribute('stroke-linecap','round');
+ svg.setAttribute('stroke-linejoin','round');
+ svg.setAttribute('aria-hidden','true');
+ svg.classList.add('gcc-v114-toolbar-icon');
+ const paths={
+  expand:['M8 3H5a2 2 0 0 0-2 2v3','M16 3h3a2 2 0 0 1 2 2v3','M3 16v3a2 2 0 0 0 2 2h3','M21 16v3a2 2 0 0 1-2 2h-3'],
+  print:['M6 9V3h12v6','M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2','M6 14h12v7H6z','M18 12h.01'],
+  settings:['M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z','M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.07-.06A1.7 1.7 0 0 0 16.06 18a1.7 1.7 0 0 0-1.3 1.55V21h-2.55v-.1a1.7 1.7 0 0 0-1.3-1.56 1.7 1.7 0 0 0-1.89.34l-.06.06-1.8-1.8.06-.07A1.7 1.7 0 0 0 7.56 16 1.7 1.7 0 0 0 6 14.7H5v-2.55h1a1.7 1.7 0 0 0 1.56-1.3A1.7 1.7 0 0 0 7.2 9l-.06-.07 1.8-1.8.07.06A1.7 1.7 0 0 0 10.9 7.5 1.7 1.7 0 0 0 12.2 6V5h2.55v1a1.7 1.7 0 0 0 1.3 1.55A1.7 1.7 0 0 0 17.94 7l.07-.06 1.8 1.8-.06.07A1.7 1.7 0 0 0 19.4 10.7a1.7 1.7 0 0 0 1.6 1.3h1v2.55h-1A1.7 1.7 0 0 0 19.4 15z']
+ };
+ for(const d of paths[kind]||[]){const p=document.createElementNS(iconNsV114,'path');p.setAttribute('d',d);svg.append(p);}
+ return svg;
+};
 const elt=(tag,cls='',label='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=String(label);return n;};
 const button=(label,fn,cls='gcc-v106-tool')=>{const b=elt('button',cls,label);b.type='button';b.addEventListener('click',fn);return b;};
 export function setupRoomToolsV106({root,token,getCode,onRefresh}){
@@ -16,7 +36,19 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
  const print=button('Print A4 landscape',()=>window.print());
  const teacher=button('Teacher Mode',()=>{hostEditor.panel.hidden=true;hostEditor.reset();panel.hidden=!panel.hidden;if(panel.hidden)clearEditor();});
  const hostMode=button('Host Mode',()=>{panel.hidden=true;clearEditor();hostEditor.panel.hidden=!hostEditor.panel.hidden;if(hostEditor.panel.hidden)hostEditor.reset();});
- toolbar.append(compact,print,teacher,hostMode);
+ compact.prepend(toolbarIconV114('expand'));
+ print.prepend(toolbarIconV114('print'));
+ teacher.prepend(toolbarIconV114('settings'));
+ hostMode.prepend(toolbarIconV114('settings'));
+ compact.title='Switch between normal and compact room chart';
+ print.title='Print all rooms on one A4 landscape page';
+ teacher.title='Edit students from your own school';
+ hostMode.title='Host: edit students from all schools';
+ const viewActions=elt('div','gcc-v114-toolbar-left');
+ const editActions=elt('div','gcc-v114-toolbar-right');
+ viewActions.append(compact,print);
+ editActions.append(teacher,hostMode);
+ toolbar.append(viewActions,editActions);
  const panel=elt('section','gcc-v106-mode gcc-v108-mode');panel.hidden=true;panel.setAttribute('aria-label','Teacher room editor');
  const intro=elt('div','gcc-v108-section-head');intro.append(elt('span','gcc-v108-eyebrow','SCHOOL-ONLY EDITING'),elt('h3','','Teacher Mode'));
  panel.append(intro);

@@ -1,0 +1,16 @@
+/* GCC V11.4: country flags, accessible icons, separated viewer/editor actions. */
+.gcc-v112-country{display:flex;align-items:center;gap:10px;min-height:34px;margin-bottom:9px}
+.gcc-v114-clock-flag{display:block;width:42px;height:28px;max-width:42px;flex:0 0 42px;object-fit:contain;border:1px solid #d7e8e4;border-radius:4px;background:#fff;box-shadow:0 1px 2px #204e6020}
+.gcc-v114-clock-country-name{font-size:.94rem;font-weight:850;color:#225769;line-height:1.25}
+.gcc-v114-clock-flag-fallback{display:inline-flex;align-items:center;justify-content:center;width:42px;min-height:28px;font-size:1.5rem}
+.gcc-v104-guest .gcc-v106-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:13px 0 11px}
+.gcc-v114-toolbar-left,.gcc-v114-toolbar-right{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.gcc-v114-toolbar-right{margin-left:auto}
+.gcc-v104-guest .gcc-v106-tool{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;white-space:nowrap}
+.gcc-v114-toolbar-icon{display:inline-block;width:19px;height:19px;flex:0 0 19px}
+.gcc-v114-toolbar-right .gcc-v106-tool{background:#f5fafb;border-color:#c7dce2}
+.gcc-v114-toolbar-right .gcc-v106-tool:hover{background:#e8f4f6}
+.gcc-v106-tool:focus-visible{outline:3px solid #efab66;outline-offset:2px}
+@media(max-width:840px){.gcc-v114-toolbar-right{width:100%;justify-content:flex-end}}
+@media(max-width:480px){.gcc-v114-toolbar-left,.gcc-v114-toolbar-right{width:100%;justify-content:center;gap:6px}.gcc-v104-guest .gcc-v106-tool{padding:9px 10px;font-size:.8rem;min-height:42px}}
+@media print{.gcc-v112-country{min-height:0;gap:1.5mm;margin-bottom:1mm}.gcc-v114-clock-flag{width:11mm;height:7mm;max-width:11mm;flex-basis:11mm;border-radius:1mm}.gcc-v114-clock-country-name{font-size:7pt}.gcc-v114-clock-flag-fallback{display:none}}
