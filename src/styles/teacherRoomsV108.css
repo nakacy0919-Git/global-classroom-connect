@@ -30,3 +30,134 @@
 .gcc-v108-pin{font-size:1.25rem;letter-spacing:.14em;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.gcc-v108-edit-form{grid-template-columns:1fr}.gcc-v108-school{grid-template-columns:1fr}.gcc-v108-issued-row{grid-template-columns:1fr auto auto}}
 @media print{.gcc-v108-mode,.gcc-v108-host{display:none!important}}
+/* GCC V10.9 RESPONSIVE ROOM BOARD */
+/* The previous room chart capped at 960px and always used two columns. */
+@media screen {
+  .gcc-v104-guest,
+  .gcc-v104-guest.gcc-v106-compact {
+    width: min(1760px, calc(100% - 28px));
+    max-width: none;
+    margin: 14px auto 28px;
+    padding: clamp(13px, 1.7vw, 27px);
+    border-radius: 20px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-room {
+    padding: 11px 12px;
+    border-radius: 14px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-room-heading {
+    padding-bottom: 6px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-room-heading h3 {
+    font-size: clamp(.98rem, 1.2vw, 1.18rem);
+    line-height: 1.2;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-room-heading span {
+    padding: 4px 6px;
+    font-size: .65rem;
+    white-space: nowrap;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-people {
+    gap: 1px;
+    margin-top: 5px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-person {
+    gap: 7px;
+    padding: 5px 0;
+    min-width: 0;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-avatar,
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-person--teacher .gcc-v104-avatar {
+    flex: 0 0 31px;
+    width: 31px;
+    height: 31px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-identity {
+    gap: 1px;
+    min-width: 0;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-identity strong {
+    font-size: .83rem;
+    line-height: 1.17;
+    overflow-wrap: anywhere;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-person-meta {
+    min-width: 0;
+    font-size: .64rem;
+    line-height: 1.2;
+    gap: 4px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-person-meta > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-flag {
+    flex: 0 0 19px;
+    min-width: 19px;
+    width: 19px;
+    height: 14px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-flag-svg {
+    width: 19px;
+    height: 13px;
+  }
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-support {
+    margin-top: 5px;
+    padding: 6px 8px;
+  }
+  .gcc-v104-guest .gcc-v104-chart-head { margin-top: 12px; padding-top: 12px; }
+  .gcc-v104-guest .gcc-v104-chart-head h2 { font-size: clamp(1.05rem, 1.5vw, 1.35rem); }
+  .gcc-v104-guest .gcc-v104-filter-label { margin: 10px 0 5px; }
+  .gcc-v104-guest .gcc-v104-filter { min-height: 38px; padding: 7px 11px; }
+  .gcc-v104-guest .gcc-v106-toolbar { margin: 10px 0 8px; }
+}
+@media screen and (max-width: 1379px) {
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media screen and (max-width: 1099px) {
+  .gcc-v104-guest.gcc-v106-compact .gcc-v104-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media screen and (max-width: 899px) {
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-grid,
+  .gcc-v104-guest.gcc-v106-compact .gcc-v104-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media screen and (max-width: 639px) {
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-grid,
+  .gcc-v104-guest.gcc-v106-compact .gcc-v104-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gcc-v104-guest,
+  .gcc-v104-guest.gcc-v106-compact {
+    width: 100%; margin: 0; padding: 12px; border-radius: 0;
+  }
+}
+@media screen and (max-width: 449px) {
+  .gcc-v104-guest:not(.gcc-v106-compact) .gcc-v104-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Preserve A4 landscape print columns (5 for 20 rooms, 7 for 27). */
+@media print {
+  .gcc-v104-guest, .gcc-v104-guest.gcc-v106-compact {
+    width: 100% !important; max-width: none !important;
+    padding: 0 !important; margin: 0 !important;
+  }
+  .gcc-v104-guest .gcc-v104-grid,
+  .gcc-v104-guest.gcc-v106-compact .gcc-v104-grid {
+    grid-template-columns: repeat(var(--gcc-overview-cols, 5), minmax(0, 1fr)) !important;
+    gap: 1.5mm !important;
+  }
+}
