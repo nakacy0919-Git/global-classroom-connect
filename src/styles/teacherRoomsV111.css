@@ -1,0 +1,18 @@
+/* GCC V10.11 — drag/tap teacher room board. No effect on printed charts. */
+.gcc-v111-board{margin:22px 0 18px;padding:14px;background:#f4faf8;border:1px solid #d5e7e2;border-radius:14px}
+.gcc-v111-board h4{font-size:1rem;margin:0 0 4px;color:#235460}
+.gcc-v111-help,.gcc-v111-feedback{font-size:.8rem;color:#54747d;line-height:1.5;margin:6px 0 10px}
+.gcc-v111-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;align-items:stretch}
+.gcc-v111-room{background:#fff;border:1px solid #cfdfda;border-radius:11px;padding:9px;min-width:0;min-height:110px;display:flex;flex-direction:column;gap:7px;transition:background-color .15s,border-color .15s}
+.gcc-v111-room.gcc-v111-drop-ready{border-style:dashed}.gcc-v111-room.gcc-v111-over{background:#e4f9ed;border:2px solid #2b8e80}
+.gcc-v111-room-top{display:grid;gap:3px}.gcc-v111-room-top strong{font-size:.9rem;color:#275769}.gcc-v111-room-top span,.gcc-v111-other{font-size:.67rem;color:#66828b}
+.gcc-v111-students{display:flex;gap:4px;flex-wrap:wrap;align-content:start}
+.gcc-v111-chip{appearance:none;background:#e6f4f1;border:1px solid #beded7;color:#204d58;padding:6px 8px;font-size:.73rem;font-weight:750;border-radius:8px;cursor:grab;max-width:100%;overflow-wrap:anywhere;line-height:1.25;touch-action:manipulation}
+.gcc-v111-chip.gcc-v111-picked{border-color:#147c76;background:#c3efe2;box-shadow:0 0 0 2px #2c9e8555}
+.gcc-v111-dest{margin-top:auto;background:#fff;border:1px solid #cae1d9;border-radius:8px;padding:7px 6px;cursor:pointer;font-size:.72rem;font-weight:750;color:#266778;touch-action:manipulation}
+.gcc-v111-dest:hover{background:#dcf5ec}.gcc-v111-chip:focus-visible,.gcc-v111-dest:focus-visible{outline:3px solid #e8a55b;outline-offset:2px}
+@media(max-width:1300px){.gcc-v111-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:900px){.gcc-v111-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.gcc-v111-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:400px){.gcc-v111-grid{grid-template-columns:1fr}}
+@media print{.gcc-v111-board{display:none!important}}

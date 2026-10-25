@@ -20,12 +20,13 @@ const roomStats=[
  {room:4,total:1,school_students:0},
  {room:5,total:5,school_students:4}
 ];
-test('recommends an international room and disables overcrowded rooms',()=>{
+test('recommends international rooms without disabling manual options',()=>{
  const result=roomCandidatesV110({roomStats,students:[{id:'k',room:1},{id:'m',room:5}],ownTotal:8});
  assert.equal(result[0].room,4);
- assert.equal(result.find(x=>x.room===3).allowed,false);
- assert.equal(result.find(x=>x.room===5).allowed,false);
- assert.ok(formatPlacementV110(result.find(x=>x.room===3)).includes('NOT ALLOWED'));
+ assert.equal(result.find(x=>x.room===3).allowed,true);
+ assert.equal(result.find(x=>x.room===5).allowed,true);
+ assert.equal(result.find(x=>x.room===3).warning,true);
+ assert.ok(formatPlacementV110(result.find(x=>x.room===3)).includes('manual move allowed'));
 });
 test('subtracts both moving students from original rooms by authoritative room counts',()=>{
  const result=roomCandidatesV110({roomStats,students:[{id:'k',room:1},{id:'s',room:1}],ownTotal:8});

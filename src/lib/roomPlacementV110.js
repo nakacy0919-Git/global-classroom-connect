@@ -16,11 +16,17 @@ export function roomCandidatesV110({roomStats,students,ownTotal}){
   const own=Number(r.school_students||0)-removed;
   const other=left-own;
   const moving=(students||[]).length;
-  const allowed=left+moving<=capacity&&own+moving<=schoolCap;
-  const score=(other?0:100)+own*25+left*4;
-  return {room:Number(r.room),total:left,own,other,capacity,schoolCap,allowed,score};
- }).sort((a,b)=>Number(b.allowed)-Number(a.allowed)||a.score-b.score||a.room-b.room);
+  const newTotal=left+moving;
+  const newOwn=own+moving;
+  const crowded=newTotal>capacity;
+  const schoolHeavy=newOwn>schoolCap;
+  const warning=crowded||schoolHeavy;
+  // Recommendations only: manual teacher placements are never blocked.
+  const score=(other?0:100)+own*25+left*4+(crowded?160:0)+(schoolHeavy?220:0);
+  return {room:Number(r.room),total:left,own,other,capacity,schoolCap,newTotal,newOwn,
+    allowed:true,crowded,schoolHeavy,warning,score};
+ }).sort((a,b)=>Number(a.warning)-Number(b.warning)||a.score-b.score||a.room-b.room);
 }
 export function formatPlacementV110(item){
- return `Room ${String(item.room).padStart(2,'0')} · ${item.total} there · ${item.own} your school${item.allowed?'':' · FULL / NOT ALLOWED'}`;
+ return `Room ${String(item.room).padStart(2,'0')} · ${item.total} currently · ${item.own} your school${item.warning?' · ⚠ crowded (manual move allowed)':''}`;
 }
