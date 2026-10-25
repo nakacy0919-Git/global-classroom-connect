@@ -1,21 +1,24 @@
 import '../../styles/teacherSelfService.css';
 import '../../styles/teacherJoinV120.css';
+import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
+import '../../styles/teacherLoginV126.css';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
 const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');return '#/teacher-portal?view='+(['home','create','find','volunteer','network','requests'].includes(next)?next:'home');};
-export function TeacherAccessPage(){return `<main class="gcc120-page"><section class="gcc120-join gcc120-signin-page">
- <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
- <div class="gcc120-title"><span>GLOBAL CLASSROOM CONNECT</span><h1>Welcome back, Teachers!</h1><p>Sign in with your email and password. Session access begins after your school and teacher profile have been approved.</p></div>
- <form id="gcta-login" class="gcc120-grid"><label>Email *<input type="email" id="gcta-email" autocomplete="email" required></label>
-  <label>Password *<input type="password" id="gcta-password" autocomplete="current-password" required></label>
-  <button class="gcc120-primary gcc120-span" type="submit">Sign in →</button></form>
- <p id="gcta-message" class="gcc120-message" role="status" aria-live="polite"></p>
- <a class="gcc120-secondary gcc120-inline" href="#/signup">New here? Sign up →</a>
- <details class="gct-auth-expand"><summary>Already approved under an older invitation? Activate access</summary>
+export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page"><section class="gcc120-join gcc120-signin-page gcc126-login" aria-label="Teacher sign in">
+ <a class="gcc120-back gcc126-back" href="#/welcome">← Back to Global Classroom Connect</a>
+ <header class="gcc126-heading"><img src="${gccOfficialBadgeV119}" width="82" height="82" alt="" aria-hidden="true"/>
+  <div class="gcc126-heading-text"><p class="gcc126-eyebrow">GLOBAL CLASSROOM CONNECT</p><h1>Teacher sign in</h1><p>Sign in with your approved GCC account.</p></div></header>
+ <form id="gcta-login" class="gcc120-grid gcc126-form">
+  <label>Email<input type="email" id="gcta-email" autocomplete="email" required></label>
+  <label>Password<input type="password" id="gcta-password" autocomplete="current-password" required></label>
+  <div class="gcc120-span gcc126-actions"><button class="gcc120-primary" type="submit">Sign in →</button><a href="#/signup" class="gcc120-secondary gcc126-signup">New here? Sign up</a></div>
+ </form>
+ <p id="gcta-message" class="gcc120-message gcc126-feedback" role="status" aria-live="polite"></p>
+ <details class="gct-auth-expand gcc126-invitation"><summary>Have an invitation code? Activate access</summary>
   <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
-  <button type="submit" class="gct-secondary">Activate teacher access</button></form></details>
- <details class="gct-auth-expand"><summary>Legacy school registration</summary><p>Register school &amp; teacher with a Registration invitation code. Existing approval applications remain available.</p><a href="#/registration">Open legacy registration</a></details>
- <footer class="gcc120-foot"><a href="#/login">Host sign in</a> · <a href="#/signup">Teacher sign up</a></footer>
+  <button type="submit" class="gct-secondary">Activate access</button></form></details>
+ <footer class="gcc126-footer"><a href="#/login">Host sign in</a></footer>
  </section></main>`;}
 export function bindTeacherAccessPage(){
  const root=document.querySelector('.gcc120-signin-page');if(!root)return;const $=id=>root.querySelector('#'+id),msg=$('gcta-message');

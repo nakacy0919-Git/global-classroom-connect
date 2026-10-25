@@ -1,0 +1,76 @@
+/* GCC V12.6: Teacher sign in styled to match host Sessions and Room Planner.
+   Scoped to the teacher authentication page: no changes to login handlers or routes. */
+.gcc126-page{
+  min-height:100vh;
+  place-items:center;
+  padding:clamp(18px,4vw,44px);
+  font-family:ui-rounded,'Segoe UI','Yu Gothic UI',system-ui,sans-serif;
+  color:#233745;
+  background:radial-gradient(circle at 88% 9%,rgba(191,234,238,.72),transparent 32%),
+             radial-gradient(circle at 8% 88%,rgba(255,226,192,.58),transparent 29%),#f8f6f0;
+}
+.gcc126-page .gcc126-login{
+  width:min(100%,770px);
+  padding:clamp(22px,3.5vw,38px);
+  border-radius:24px;
+  border:1px solid #e2eae5;
+  background:#fffefa;
+  box-shadow:0 7px 0 #e8ece5,0 18px 40px rgba(23,59,75,.10);
+  gap:19px;
+}
+.gcc126-page .gcc126-back{
+  width:max-content;max-width:100%;font-size:.82rem;color:#427b81;font-weight:750;
+  text-decoration:none;
+}
+.gcc126-page .gcc126-back:hover,.gcc126-page .gcc126-footer a:hover{text-decoration:underline}
+.gcc126-page .gcc126-heading{display:flex;align-items:center;gap:20px;
+  border-radius:18px;padding:17px 19px;
+  background:linear-gradient(105deg,#fff5e3,#e8f7f4);
+  border:1px solid #e6ece3;
+}
+.gcc126-page .gcc126-heading>img{width:82px;height:82px;object-fit:contain;flex:0 0 82px}
+.gcc126-page .gcc126-heading-text{min-width:0}
+.gcc126-page .gcc126-eyebrow{font-size:.70rem;letter-spacing:.13em;font-weight:850;color:#238c90;margin:0}
+.gcc126-page .gcc126-heading h1{font-size:clamp(1.55rem,3.1vw,2.25rem);letter-spacing:-.045em;line-height:1.15;margin:6px 0}
+.gcc126-page .gcc126-heading p:last-child{font-size:.88rem;line-height:1.5;color:#647e85;margin:4px 0 0}
+.gcc126-page .gcc126-form{gap:14px;align-items:end}
+.gcc126-page .gcc126-form label{font-size:.84rem;color:#375b66;font-weight:800}
+.gcc126-page .gcc126-form input{min-height:49px;border:1px solid #bedbd9;border-radius:12px;
+  background:#f9fcfa;color:#244455;padding:12px 14px;font-size:.95rem;box-shadow:inset 0 1px 1px #3b6a7b0a}
+.gcc126-page .gcc126-form input:focus-visible,
+.gcc126-page .gcc126-invitation input:focus-visible,
+.gcc126-page :is(a,button,summary):focus-visible{outline:3px solid #71c9cb;outline-offset:3px}
+.gcc126-page .gcc126-actions{display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-wrap:wrap;margin:5px 0 0}
+.gcc126-page .gcc126-actions .gcc120-primary,
+.gcc126-page .gcc126-actions .gcc120-secondary{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:auto;max-width:100%;grid-column:auto;
+  min-height:44px;padding:11px 24px;border-radius:12px;
+  font-size:.91rem;text-decoration:none;line-height:1.25;
+}
+.gcc126-page .gcc126-actions .gcc120-primary{
+  min-width:130px;background:#207a83;box-shadow:0 4px 0 #165c65,0 8px 19px #246f7822;
+}
+.gcc126-page .gcc126-actions .gcc120-secondary{background:#f4f9f6;color:#246c79;border:1px solid #c8e1dd}
+.gcc126-page .gcc126-actions .gcc120-primary:hover{background:#176a74}
+.gcc126-page .gcc126-actions :is(a,button):active{transform:translateY(2px) scale(.99)}
+.gcc126-page .gcc126-feedback{margin:0;min-height:0;font-size:.87rem;line-height:1.5}
+.gcc126-page .gcc126-feedback:empty{display:none}
+.gcc126-page .gcc126-invitation{border-top:1px solid #e3ebe6;padding:15px 0 0}
+.gcc126-page .gcc126-invitation summary{font-size:.84rem;color:#2a7980;font-weight:800;cursor:pointer;width:fit-content}
+.gcc126-page .gcc126-invitation .gct-auth-form{max-width:450px;margin:15px 0 0}
+.gcc126-page .gcc126-invitation input{background:#f9fcfa}
+.gcc126-page .gcc126-invitation .gct-secondary{width:fit-content;justify-self:start}
+.gcc126-page .gcc126-footer{margin:0;color:#607e83;font-size:.82rem}
+.gcc126-page .gcc126-footer a{color:#27767b;text-decoration:none;font-weight:750}
+@media(max-width:620px){
+  .gcc126-page{padding:13px}
+  .gcc126-page .gcc126-login{padding:19px 16px;gap:17px;border-radius:19px}
+  .gcc126-page .gcc126-heading{gap:13px;padding:13px}
+  .gcc126-page .gcc126-heading>img{width:58px;height:58px;flex-basis:58px}
+  .gcc126-page .gcc126-form{grid-template-columns:1fr}
+  .gcc126-page .gcc126-actions{gap:9px}
+  .gcc126-page .gcc126-actions .gcc120-primary,
+  .gcc126-page .gcc126-actions .gcc120-secondary{padding:11px 15px;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.gcc126-page .gcc126-actions :is(a,button){transition:none}.gcc126-page .gcc126-actions :is(a,button):active{transform:none}}

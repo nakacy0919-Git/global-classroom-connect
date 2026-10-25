@@ -15,7 +15,7 @@ function rfile(x){return fs.readFileSync(new URL('../'+x,import.meta.url),'utf8'
 test('legacy registration still available without mandatory student list',()=>{
  const app=r('src/app.js'),wizard=r('src/controllers/registrationWizard.js');const access=r('src/pages/teacher/TeacherAccessPage.js');
  assert.doesNotMatch(app,/Please add at least one student/);assert.doesNotMatch(wizard,/Add at least one student display name/);
- assert.match(access,/Registration invitation code/);assert.match(access,/#\/registration/);
+ assert.doesNotMatch(access,/Legacy school registration/);assert.match(app,/registration:\s*RegistrationPage/);
 });
 test('optimized official GCC WebP remains bundled',()=>{
  const data=fs.readFileSync(new URL('../src/assets/gcc-v119-official.webp',import.meta.url));
