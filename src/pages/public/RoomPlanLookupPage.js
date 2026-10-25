@@ -1,6 +1,7 @@
 import '../../styles/sharePlanV102.css';
 import '../../styles/sharePlanV104.css';
 import {openSharedRoomChart} from '../../services/sharePlanV102.js';
+import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {countryIsoCode,countryFlagEmoji} from '../../lib/roomCountryFlagsV104.js';
 import jpFlag from '../../assets/room-flags/jp.svg';
 import bdFlag from '../../assets/room-flags/bd.svg';
@@ -114,14 +115,22 @@ export function bindRoomPlanLookupPage(){
    }
    $('gcc-v104-count').setAttribute('aria-label',v?`${found} matching rooms`: 'All breakout rooms');
  }
+ const roomToolsV106=setupRoomToolsV106({root,token,
+   getCode:()=>$('gcc-v104-code').value.trim(),
+   onRefresh:async code=>{
+     const fresh=await openSharedRoomChart(token,code);
+     if(!fresh?.rooms){result.hidden=true;throw Error('The chart access has expired or was revoked.');}
+     draw(fresh);applyFilter();return fresh;
+   }
+ });
  filter.addEventListener('input',applyFilter);
  form.addEventListener('submit',async event=>{
-   event.preventDefault();result.hidden=true;list.replaceChildren();submit.disabled=true;message('Opening the session chart…');
+   event.preventDefault();roomToolsV106.reset();result.hidden=true;list.replaceChildren();submit.disabled=true;message('Opening the session chart…');
    const code=$('gcc-v104-code').value.trim();
    if(!/^[0-9]{6}$/.test(code)){message('Please enter the 6-digit code.',true);submit.disabled=false;return;}
    try{const data=await openSharedRoomChart(token,code);
      if(!data||!Array.isArray(data.rooms)){message('Code not accepted or invitation expired. Check with your teacher.',true);return;}
-     message('✓ Room chart is ready');draw(data);filter.value='';
+     message('✓ Room chart is ready');draw(data);filter.value='';roomToolsV106.onDraw(data);
    }catch(_){message('Could not open the room chart. Please try again or contact the host.',true);}
    finally{submit.disabled=false;}
  });

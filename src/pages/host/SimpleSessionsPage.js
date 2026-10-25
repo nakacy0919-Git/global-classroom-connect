@@ -10,6 +10,7 @@ import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessi
 import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
 import {englishName} from '../../lib/simpleRoster.js';
+import {mountHostRoomAuditV106} from '../../lib/hostRoomAuditV106.js';
 import {canRemoveSessionV105} from '../../lib/sessionDeletionV105.js';
 import {deleteFinishedSessionV105} from '../../services/sessionDeletionV105.js';
 const $=id=>document.getElementById(id);
@@ -127,6 +128,7 @@ export function bindSimpleSessionsPage(){
  function stageShare(panel){
    const session=current();const eventId=session?.id;
    const wrap=el('section','gcc-v104-host');panel.append(wrap);
+   mountHostRoomAuditV106(panel,eventId);
    const heading=el('div','gcc-v104-host-intro');heading.append(el('h3','','One session. One code. All rooms.'));
    heading.append(el('p','','Publish once, then give everyone the same link and 6-digit code. Participants can view the complete room chart.'));
    wrap.append(heading);
