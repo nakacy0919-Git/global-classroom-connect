@@ -1,7 +1,10 @@
 import globalClassroomLogo from '../assets/global-classroom-logo.png';
 // The host workflow is intentionally short. Existing tools remain accessible in Advanced tools.
 const primaryMenu = [
+  {key:'welcome',label:'🌍 Home'},
   {key:'sessions',label:'Sessions'},
+  {key:'teacher-invites',label:'Teacher Invitations'},
+  {key:'host-volunteers',label:'Volunteer Team'},
   {key:'schools',label:'School Library'},
   {key:'teachers',label:'Teacher Database'},
 ];
@@ -28,10 +31,7 @@ export function Sidebar(activeRoute){
     <div class="brand-block"><div class="brand-mark"><img src="${globalClassroomLogo}" alt="" aria-hidden="true" /></div><div><p class="brand-name">Global Classroom</p><h2 class="brand-title">Connect</h2></div></div>
     <nav class="sidebar-nav" aria-label="Host navigation">
       ${links(primaryMenu,activeRoute)}
-      <details class="sidebar-advanced" ${advancedMenu.some(item=>item.key===activeRoute)?'open':''}>
-        <summary>Advanced tools</summary>
-        <div class="sidebar-advanced-links">${links(advancedMenu,activeRoute)}</div>
-      </details>
+      <!-- Advanced host tools remain accessible by direct URL, but hidden from navigation. -->
     </nav>
   </aside>`;
 }

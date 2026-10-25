@@ -9,6 +9,8 @@ import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAc
 import {TeacherPortalPage,bindTeacherPortalPage} from './pages/teacher/TeacherPortalPage.js';
 import {TeacherInvitesPage,bindTeacherInvitesPage} from './pages/host/TeacherInvitesPage.js';
 import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
+import {WelcomeV117} from './pages/public/WelcomeV117.js';
+import {HostVolunteersPageV117,bindHostVolunteersV117} from './pages/host/HostVolunteersV117.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
 import { SchedulingPage, bindSchedulePlanner } from './pages/host/SchedulingPage.js';
 import { MatchingPage, bindMatchingPage } from './pages/host/MatchingPage.js'; // GCC_EXCHANGE_MATCHING_V1
@@ -102,6 +104,7 @@ import {
 
 
 const routes = {
+  welcome: WelcomeV117,
   dashboard: DashboardPage,
   sessions: SimpleSessionsPage,
   events: EventsPage,
@@ -127,11 +130,13 @@ const routes = {
   'teacher-access': TeacherAccessPage,
   'teacher-portal': TeacherPortalPage,
   'teacher-invites': TeacherInvitesPage,
+  'host-volunteers': HostVolunteersPageV117,
 };
 
 const publicRoutes =
   new Set([
     'login',
+    'welcome',
     'registration',
     'teacher-access',
     'session-join',
@@ -156,7 +161,7 @@ function getCurrentRoute() {
   const name=raw.split('?')[0];
     return routes[name]
     ? name
-    : 'sessions';
+    : 'welcome';
 
 }
 
@@ -265,6 +270,7 @@ function bindUiEvents() {
   bindTeacherAccessPage(); // GCC_TEACHER_SELF_V5
   bindTeacherPortalPage();
   bindTeacherInvitesPage();
+  bindHostVolunteersV117();
   bindSessionSignupPage(); // GCC_SESSION_ROSTER_V6
   bindSessionControlPage();
   bindSessionsPage();
@@ -3500,8 +3506,9 @@ export async function renderApp() {
       (route === 'teacher-portal' ? profile.role !== 'teacher' : profile.role !== 'host')
     ) {
 
-      window.location.hash =
-        route === 'teacher-portal' ? '#/teacher-access' : '#/login';
+      const requested=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
+      const next=['create','find','volunteer','network','requests'].includes(requested)?requested:'home';
+      window.location.hash = route === 'teacher-portal' ? '#/teacher-access?next='+next : '#/login';
 
 
       return;
@@ -3516,6 +3523,7 @@ export async function renderApp() {
   // =========================================================
 
   if (
+    route === 'welcome' ||
     route === 'login' ||
     route === 'registration' ||
     route === 'teacher-access' ||

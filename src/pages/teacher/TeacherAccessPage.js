@@ -1,4 +1,5 @@
 import '../../styles/teacherSelfService.css';
+const teacherDestinationV117=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');return '#/teacher-portal?view='+(['home','create','find','volunteer','network','requests'].includes(next)?next:'home');};
 import {teacherSignIn,teacherSignUp,claimTeacherInvite,teacherIdentity,teacherSignOut} from '../../services/teacherSelfService.js';
 
 export function TeacherAccessPage(){return `<main class="gct-auth-shell"><section class="gct-auth-card">
@@ -28,7 +29,7 @@ export function bindTeacherAccessPage(){
  async function busy(form,action){const button=form.querySelector('button[type="submit"]');button.disabled=true;try{await action();}catch(e){inform(e.message||'Unable to continue.',true);}finally{button.disabled=false;}}
  $('gcta-login').addEventListener('submit',e=>{e.preventDefault();busy(e.currentTarget,async()=>{
    await teacherSignIn($('gcta-email').value.trim(),$('gcta-password').value);
-   try{await teacherIdentity();window.location.hash='#/teacher-portal';}
+   try{await teacherIdentity();window.location.hash=teacherDestinationV117();}
    catch{inform('Signed in. If this is your first visit, expand “Activate access” and enter the code from your host.');}
  });});
  $('gcta-signup').addEventListener('submit',e=>{e.preventDefault();busy(e.currentTarget,async()=>{
@@ -37,6 +38,6 @@ export function bindTeacherAccessPage(){
  });});
  $('gcta-claim').addEventListener('submit',e=>{e.preventDefault();busy(e.currentTarget,async()=>{
    await claimTeacherInvite($('gcta-token').value);
-   inform('Access activated. Opening your workspace…');window.location.hash='#/teacher-portal';
+   inform('Access activated. Opening your workspace…');window.location.hash=teacherDestinationV117();
  });});
 }

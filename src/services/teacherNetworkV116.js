@@ -3,7 +3,7 @@ import {compressTeacherPhotoV116,webpPhotoPathV116} from '../lib/teacherWebpV116
 const client=()=>{if(!supabase)throw Error('Supabase is not configured.');return supabase;};
 async function rpc(name,args={}){const {data,error}=await client().rpc(name,args);if(error)throw error;return data;}
 export const myTeacherProfileV116=()=>rpc('gcc_v116_my_profile');
-export const teacherDirectoryV116=()=>rpc('gcc_v116_teacher_directory');
+export const teacherDirectoryV116=()=>rpc('gcc_v117_teacher_directory');
 export const saveTeacherProfileV116=profile=>rpc('gcc_v116_save_my_profile',{
   p_name:profile.name,p_job_title:profile.jobTitle,p_bio:profile.bio,
   p_languages:profile.languages,p_visible:profile.visible

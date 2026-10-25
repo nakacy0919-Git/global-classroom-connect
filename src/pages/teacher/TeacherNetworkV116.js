@@ -1,4 +1,5 @@
 import '../../styles/teacherNetworkV116.css';
+import {myDetailsV117,saveSocialV117} from '../../services/teacherExtrasV117.js';
 import {myTeacherProfileV116,teacherDirectoryV116,saveTeacherProfileV116,signedTeacherPhotoV116,uploadMyTeacherPhotoV116} from '../../services/teacherNetworkV116.js';
 const node=(tag,cls='',value='')=>{const e=document.createElement(tag);if(cls)e.className=cls;e.textContent=value;return e;};
 export function teacherNetworkMarkupV116(){return `<div class="gcn116-network">
@@ -11,8 +12,13 @@ export function teacherNetworkMarkupV116(){return `<div class="gcn116-network">
    <label>Job title<input id="gcn116-title" maxlength="120" placeholder="English teacher"></label>
    <label>Languages (comma-separated)<input id="gcn116-languages" placeholder="English, Japanese"></label>
    <label>Introduction<textarea id="gcn116-bio" maxlength="1000" rows="3" placeholder="About your teaching and your classroom"></textarea></label>
+   <p class="gcn116-help">Your links help teachers stay in touch after the exchange. Use complete https:// links.</p>
+   <label>My website<input type="url" id="gcc117-site" placeholder="https://my-school.example.org" maxlength="240"></label>
+   <label>Instagram<input type="url" id="gcc117-ig" placeholder="https://www.instagram.com/youraccount/" maxlength="240"></label>
+   <label>Facebook<input type="url" id="gcc117-fb" placeholder="https://www.facebook.com/yourpage" maxlength="240"></label>
+   <label>Other social media<input type="url" id="gcc117-other" placeholder="https://..." maxlength="240"></label>
    <div id="gcn116-school" class="gcn116-school"></div>
-   <label class="gcn116-check"><input id="gcn116-visible" type="checkbox"><span>Show my name, school, photo and introduction to other approved GCC teachers.</span></label>
+   <label class="gcn116-check"><input id="gcn116-visible" type="checkbox"><span>Show my name, school, photo, introduction and social links to other approved GCC teachers.</span></label>
    <button type="submit" class="gct-primary" id="gcn116-save">Save profile</button><p id="gcn116-message" role="status" aria-live="polite"></p>
  </form><div class="gct-panel"><h3>Teachers around the world</h3>
    <p class="gcn116-help">Only teachers who have opted in are listed. Email addresses are never shown.</p>
@@ -32,6 +38,8 @@ export async function mountTeacherNetworkV116(root){
  async function loadProfile(){profile=await myTeacherProfileV116();$('gcn116-name').value=profile.name||'';
   $('gcn116-title').value=profile.job_title||'';$('gcn116-bio').value=profile.bio||'';
   $('gcn116-languages').value=(profile.languages||[]).join(', ');$('gcn116-visible').checked=!!profile.directory_visible;
+  const extra=await myDetailsV117();
+  for(const [id,key] of [['gcc117-site','website_url'],['gcc117-ig','instagram_url'],['gcc117-fb','facebook_url'],['gcc117-other','other_social_url']])$(id).value=extra?.[key]||'';
   $('gcn116-school').textContent=`School: ${profile.school||'Not linked'} · ${profile.country_name||''} · ${profile.school_level||'Level not specified'} · ${profile.timezone||''}. Ask the host to correct your school details.`;
   await preview(profile.photo_path);}
  const render=async()=>{
@@ -44,7 +52,11 @@ export async function mountTeacherNetworkV116(root){
    const card=node('article','gcn116-card');const imgWrap=node('div','gcn116-card-photo');imgWrap.textContent=(person.name||'?').slice(0,1).toUpperCase();
    if(person.photo_path){try{const url=await signedTeacherPhotoV116(person.photo_path);if(url){imgWrap.replaceChildren();const img=node('img');img.src=url;img.alt='';img.loading='lazy';imgWrap.append(img);}}catch{}}
    const body=node('div');body.append(node('strong','',person.name),node('div','gcn116-school-label',`${person.school} · ${person.school_level||'Level not specified'}`));
-   if(person.job_title)body.append(node('div','gcn116-help',person.job_title));if(person.bio)body.append(node('p','gcn116-help',person.bio));card.append(imgWrap,body);list.append(card);
+   if(person.job_title)body.append(node('div','gcn116-help',person.job_title));if(person.bio)body.append(node('p','gcn116-help',person.bio));
+   const links=node('div','gcc117-social-links');for(const [key,label] of [['website_url','Website'],['instagram_url','Instagram'],['facebook_url','Facebook'],['other_social_url','Social']]){
+    const href=person[key];if(!href)continue;try{const u=new URL(href);if(u.protocol!=='https:')continue;
+     const a=node('a','',label);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';links.append(a);}catch{}}
+   if(links.childElementCount)body.append(links);card.append(imgWrap,body);list.append(card);
   }
  };
  async function loadDirectory(){people=await teacherDirectoryV116();const countries=new Map(),levels=new Set();for(const p of people){if(p.country_code)countries.set(p.country_code,p.country_name);if(p.school_level)levels.add(p.school_level);}
@@ -54,7 +66,8 @@ export async function mountTeacherNetworkV116(root){
  $('gcn116-profile').addEventListener('submit',async event=>{event.preventDefault();const btn=$('gcn116-save');btn.disabled=true;
   try{const langs=$('gcn116-languages').value.split(',').map(x=>x.trim()).filter(Boolean);
    profile=await saveTeacherProfileV116({name:$('gcn116-name').value.trim(),jobTitle:$('gcn116-title').value.trim(),bio:$('gcn116-bio').value.trim(),languages:langs,visible:$('gcn116-visible').checked});
-   message('Profile saved.');await loadDirectory();}catch(e){message(e.message||'Could not save profile.',true);}finally{btn.disabled=false;}});
+   await saveSocialV117({website:$('gcc117-site').value.trim(),instagram:$('gcc117-ig').value.trim(),facebook:$('gcc117-fb').value.trim(),other:$('gcc117-other').value.trim()});
+   message('Profile and links saved.');await loadDirectory();}catch(e){message(e.message||'Could not save profile.',true);}finally{btn.disabled=false;}});
  $('gcn116-photo').addEventListener('change',async()=>{const file=$('gcn116-photo').files?.[0];if(!file||!profile)return;
   message('Compressing and uploading photo…');try{const result=await uploadMyTeacherPhotoV116(profile.id,file);profile.photo_path=result.path;await preview(result.path);message(`Photo saved (${Math.round(result.bytes/1024)} KB WebP).`);await loadDirectory();}
   catch(e){message(e.message||'Photo upload failed.',true);}finally{$('gcn116-photo').value='';}});
