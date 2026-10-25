@@ -4,7 +4,15 @@ import {teacherSignIn,teacherSignUp,claimTeacherInvite,teacherIdentity,teacherSi
 
 export function TeacherAccessPage(){return `<main class="gct-auth-shell"><section class="gct-auth-card">
  <div class="gct-auth-icon">🌍</div><p class="gct-eyebrow">GLOBAL CLASSROOM CONNECT</p>
- <h1>Welcome, Teachers!</h1><p class="gct-subtitle">Sign in with your approved school email. To activate a new account, ask the host for your private teacher invitation code.</p>
+ <h1>Welcome, Teachers!</h1><p class="gct-subtitle">Register your school and teacher information first. Once Global Classroom approves your registration, create your account and activate it with a private teacher access code.</p>
+ <div class="gct-onboarding" aria-label="First-time teacher registration steps">
+  <h2>First time? Start with your school.</h2>
+  <div class="gct-onboarding-steps"><div class="gct-onboarding-step"><strong>1 · Register school &amp; teacher</strong>Use the Registration invitation code provided by Global Classroom. Student names are optional.</div>
+  <div class="gct-onboarding-step"><strong>2 · Wait for approval</strong>The Global Classroom administrator reviews your school and teacher application.</div>
+  <div class="gct-onboarding-step"><strong>3 · Create &amp; activate account</strong>Once approved, create an account using your approved email, then enter your separate teacher activation code.</div></div>
+  <a class="gct-onboarding-start" href="#/registration">Register school &amp; teacher →</a>
+  <p class="gct-onboarding-note">Two different codes are used: a registration invitation code for the application, and a teacher activation code issued after approval. Neither code is public.</p>
+ </div>
  <form id="gcta-login" class="gct-auth-form"><h2>Teacher sign in</h2>
   <label>Email <input type="email" id="gcta-email" autocomplete="email" required></label>
   <label>Password <input type="password" id="gcta-password" autocomplete="current-password" minlength="8" required></label>

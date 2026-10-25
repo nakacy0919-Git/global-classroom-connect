@@ -28,7 +28,7 @@ export function initRegistrationWizard() {
     { title: 'School verification', short: 'Verification', section: 1, group: 2 },
     { title: 'School time zone', short: 'Time zone', section: 1, group: 3 },
     { title: 'Teacher information', short: 'Teacher', section: 2 },
-    { title: 'Participating students', short: 'Students', section: 3 },
+    { title: 'Participating students (optional)', short: 'Students', section: 3 },
     { title: 'Review and submit', short: 'Submit', section: 4 },
   ];
 
@@ -126,12 +126,7 @@ export function initRegistrationWizard() {
       }
       return true;
     }
-    if (step.section === 3) {
-      const names = Array.from(form.querySelectorAll('.registration-student-name'));
-      if (!names.some(el => el.value.trim())) {
-        return invalid('Add at least one student display name.', names[0] || undefined);
-      }
-    }
+    // Student names are optional during initial school / teacher approval.
     return check(sections[step.section]);
   }
 

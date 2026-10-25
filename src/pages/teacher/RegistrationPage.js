@@ -891,8 +891,7 @@ export async function RegistrationPage() {
                 </h2>
 
                 <p class="muted">
-                  Add the students who may participate
-                  in Global Classroom sessions.
+                  Optional: Add student display names if you already know who may participate. You can register your school and teacher first without students.
                 </p>
 
               </div>
@@ -992,9 +991,7 @@ export async function RegistrationPage() {
           <div class="registration-submit-area">
 
             <p class="muted">
-              Your registration will be reviewed
-              by the Global Classroom host before
-              being added to the network.
+              Your school and teacher registration will remain pending until reviewed by a Global Classroom administrator. Approval does not automatically create a login account.
             </p>
 
 

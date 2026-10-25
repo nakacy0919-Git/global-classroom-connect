@@ -1,0 +1,59 @@
+/* V11.9 — user-supplied official GCC badge, calm transparent header, concise footer. */
+.gcc117-welcome .gcc117-topbar{
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  padding:0 clamp(1px,.7vw,11px);
+}
+.gcc117-topbar .gcc119-brand{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:0;min-width:0;
+  color:#103c68;
+  filter:drop-shadow(0 2px 8px rgba(255,255,255,.72));
+}
+.gcc117-logo .gcc119-logo-image{
+  width:clamp(69px,7.8vw,110px);height:clamp(69px,7.8vw,110px);
+  object-fit:contain;display:block;filter:drop-shadow(0 5px 10px rgba(0,39,82,.17));
+}
+.gcc119-brand-words{display:grid;line-height:1.03;text-shadow:0 1px 7px rgba(255,255,255,.86)}
+.gcc117-logo .gcc119-brand-words small{font-size:clamp(.57rem,.95vw,.73rem);letter-spacing:.11em;font-weight:850;color:#0a4772}
+.gcc117-logo .gcc119-brand-words strong{font-size:clamp(1.13rem,2.2vw,2.15rem);letter-spacing:-.035em;color:#0b335e}
+.gcc117-topbar nav{margin-left:auto;display:flex;justify-content:flex-end;align-items:center;gap:9px}
+.gcc117-topbar nav a{background:rgba(245,251,255,.88);border:1px solid rgba(255,255,255,.97);box-shadow:0 3px 12px rgba(9,45,73,.13)}
+.gcc117-topbar nav .gcc117-host-link{background:#154d76;color:#fff}
+.gcc117-welcome .gcc119-footer{
+  width:max-content;max-width:100%;padding:7px 13px;
+  margin:5px auto 0;display:flex;justify-content:center;align-items:center;
+  flex-wrap:wrap;gap:9px 13px;border-radius:999px;
+  background:rgba(246,252,255,.86);box-shadow:0 5px 15px rgba(0,46,86,.12);
+  border:1px solid rgba(255,255,255,.92);
+  color:#244e72;font-size:clamp(.75rem,.95vw,.86rem);
+}
+.gcc119-hosted{display:inline-flex;align-items:center;gap:6px;font-weight:700;white-space:nowrap}
+.gcc119-hosted img{width:26px;height:26px;object-fit:contain;filter:none}
+.gcc119-divider{width:1px;height:18px;background:rgba(34,94,133,.32)}
+.gcc119-footer a{color:#075b94;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+.gcc119-footer a:hover{color:#003c67}
+/* Maintain both account actions on small screens — old 11.7 CSS hides Host sign in. */
+@media(max-width:620px){
+ .gcc117-topbar{flex-wrap:wrap;gap:5px}
+ .gcc117-logo .gcc119-logo-image{width:67px;height:67px}
+ .gcc117-logo .gcc119-brand-words strong{font-size:1.15rem}
+ .gcc117-topbar nav .gcc117-host-link{display:inline-flex!important}
+ .gcc117-topbar nav a{font-size:.7rem;padding:8px 10px}
+ .gcc119-divider{display:none}
+ .gcc117-welcome .gcc119-footer{border-radius:16px;text-align:center}
+}
+/* Clearly describe review before account activation. */
+.gct-onboarding{display:grid;gap:10px;border:1px solid #cde4ec;border-radius:16px;padding:14px;background:#f7fcff;margin:14px 0}
+.gct-onboarding h2{margin:0;font-size:1.06rem;color:#164665}
+.gct-onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gct-onboarding-step{padding:11px;background:white;border:1px solid #e0edf2;border-radius:12px;line-height:1.4;font-size:.8rem;color:#315c71}
+.gct-onboarding-step strong{display:block;color:#126e98;margin-bottom:4px}
+.gct-onboarding-start{display:inline-flex;justify-content:center;border-radius:10px;background:#147fa9;padding:12px 16px;color:#fff;font-size:.88rem;font-weight:780;text-decoration:none}
+.gct-onboarding-start:hover{background:#0b648a}
+.gct-onboarding-note{margin:0;color:#567a87;font-size:.77rem;line-height:1.5}
+@media(max-width:620px){.gct-onboarding-steps{grid-template-columns:1fr}}

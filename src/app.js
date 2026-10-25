@@ -2800,25 +2800,8 @@ const newSchoolCountryInput =
 
 
 
-          if (
-            students.length ===
-            0
-          ) {
+          // V11.9: school/teacher applicants may submit an empty student list.
 
-
-            if (
-              message
-            ) {
-
-              message.textContent =
-                'Please add at least one student.';
-
-            }
-
-
-            return;
-
-          }
 
 
 
@@ -3331,7 +3314,7 @@ teacher_job_title:
 
 
     <h2>
-      Registration Complete!
+      Registration Submitted!
     </h2>
 
 
