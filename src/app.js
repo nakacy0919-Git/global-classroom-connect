@@ -5,7 +5,9 @@ import {SharedRegistrationPage,bindSharedRegistrationPage} from './pages/public/
 import {RoomPlanLookupPage,bindRoomPlanLookupPage} from './pages/public/RoomPlanLookupPage.js';
 import {SessionSignupPage,bindSessionSignupPage} from './pages/public/SessionSignupPage.js'; // GCC_SESSION_ROSTER_V6
 import {SessionControlPage,bindSessionControlPage} from './pages/host/SessionControlPage.js';
-import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAccessPage.js'; // GCC_TEACHER_SELF_V5
+import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAccessPage.js';
+import {TeacherJoinV120,bindTeacherJoinV120} from './pages/teacher/TeacherJoinV120.js';
+import {TeacherApprovalsV120,bindTeacherApprovalsV120} from './pages/host/TeacherApprovalsV120.js'; // GCC_TEACHER_SELF_V5
 import {TeacherPortalPage,bindTeacherPortalPage} from './pages/teacher/TeacherPortalPage.js';
 import {TeacherInvitesPage,bindTeacherInvitesPage} from './pages/host/TeacherInvitesPage.js';
 import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
@@ -128,6 +130,8 @@ const routes = {
   'room-plan': RoomPlanLookupPage,
   'session-control': SessionControlPage,
   'teacher-access': TeacherAccessPage,
+  signup: TeacherJoinV120,
+  'teacher-approvals': TeacherApprovalsV120,
   'teacher-portal': TeacherPortalPage,
   'teacher-invites': TeacherInvitesPage,
   'host-volunteers': HostVolunteersPageV117,
@@ -139,6 +143,7 @@ const publicRoutes =
     'welcome',
     'registration',
     'teacher-access',
+    'signup',
     'session-join',
     'session-register',
     'room-plan',
@@ -268,6 +273,8 @@ function bindUiEvents() {
   bindFindSessionPage();
   bindJoinRequestsPage(); // GCC_JOIN_V4
   bindTeacherAccessPage(); // GCC_TEACHER_SELF_V5
+  bindTeacherJoinV120();
+  bindTeacherApprovalsV120();
   bindTeacherPortalPage();
   bindTeacherInvitesPage();
   bindHostVolunteersV117();
@@ -3480,22 +3487,19 @@ export async function renderApp() {
     !isPublicRoute
   ) {
 
-    const profile =
-      await getCurrentProfile();
-
-
-    if (
-      !profile ||
-      (route === 'teacher-portal' ? profile.role !== 'teacher' : profile.role !== 'host')
-    ) {
-
+    const profile = await getCurrentProfile();
+    let allowed = Boolean(profile && profile.role === 'host');
+    // A Host Admin can also enter Teacher Space after their own teacher profile
+    // is approved. An unapproved signup NEVER unlocks any teacher feature.
+    if(route === 'teacher-portal'){
+      if(!supabase){allowed=false;}
+      else{const {error}=await supabase.rpc('gcc_teacher_identity');allowed=!error;}
+    }
+    if(!allowed){
       const requested=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
       const next=['create','find','volunteer','network','requests'].includes(requested)?requested:'home';
       window.location.hash = route === 'teacher-portal' ? '#/teacher-access?next='+next : '#/login';
-
-
       return;
-
     }
 
   }
@@ -3510,6 +3514,7 @@ export async function renderApp() {
     route === 'login' ||
     route === 'registration' ||
     route === 'teacher-access' ||
+    route === 'signup' ||
     route === 'session-join' ||
     route === 'session-register' ||
     route === 'room-plan'

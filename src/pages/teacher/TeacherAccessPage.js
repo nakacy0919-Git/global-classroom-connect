@@ -1,51 +1,33 @@
 import '../../styles/teacherSelfService.css';
-const teacherDestinationV117=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');return '#/teacher-portal?view='+(['home','create','find','volunteer','network','requests'].includes(next)?next:'home');};
-import {teacherSignIn,teacherSignUp,claimTeacherInvite,teacherIdentity,teacherSignOut} from '../../services/teacherSelfService.js';
-
-export function TeacherAccessPage(){return `<main class="gct-auth-shell"><section class="gct-auth-card">
- <div class="gct-auth-icon">🌍</div><p class="gct-eyebrow">GLOBAL CLASSROOM CONNECT</p>
- <h1>Welcome, Teachers!</h1><p class="gct-subtitle">Register your school and teacher information first. Once Global Classroom approves your registration, create your account and activate it with a private teacher access code.</p>
- <div class="gct-onboarding" aria-label="First-time teacher registration steps">
-  <h2>First time? Start with your school.</h2>
-  <div class="gct-onboarding-steps"><div class="gct-onboarding-step"><strong>1 · Register school &amp; teacher</strong>Use the Registration invitation code provided by Global Classroom. Student names are optional.</div>
-  <div class="gct-onboarding-step"><strong>2 · Wait for approval</strong>The Global Classroom administrator reviews your school and teacher application.</div>
-  <div class="gct-onboarding-step"><strong>3 · Create &amp; activate account</strong>Once approved, create an account using your approved email, then enter your separate teacher activation code.</div></div>
-  <a class="gct-onboarding-start" href="#/registration">Register school &amp; teacher →</a>
-  <p class="gct-onboarding-note">Two different codes are used: a registration invitation code for the application, and a teacher activation code issued after approval. Neither code is public.</p>
- </div>
- <form id="gcta-login" class="gct-auth-form"><h2>Teacher sign in</h2>
-  <label>Email <input type="email" id="gcta-email" autocomplete="email" required></label>
-  <label>Password <input type="password" id="gcta-password" autocomplete="current-password" minlength="8" required></label>
-  <button type="submit" class="gct-primary">Sign in →</button>
- </form>
- <details class="gct-auth-expand"><summary>First time? Create your account</summary>
-   <form id="gcta-signup" class="gct-auth-form">
-   <label>Approved school email<input type="email" id="gcta-new-email" autocomplete="email" required></label>
-   <label>Create password (8+ characters)<input type="password" id="gcta-new-password" minlength="8" autocomplete="new-password" required></label>
-   <button type="submit" class="gct-secondary">Create account</button></form></details>
- <details class="gct-auth-expand"><summary>Have a teacher invitation code? Activate access</summary>
-   <form id="gcta-claim" class="gct-auth-form"><p class="gct-hint">Sign in first. Your code is valid for 7 days and can be used once.</p>
-   <label>Private invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32" placeholder="32-character code"></label>
-   <button type="submit" class="gct-secondary">Activate teacher access →</button></form></details>
- <p id="gcta-message" role="status" aria-live="polite" class="gct-feedback"></p>
- <footer class="gct-auth-footer"><a href="#/login">Host sign in</a><span>·</span><a href="#/registration">School registration</a></footer>
+import '../../styles/teacherJoinV120.css';
+import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
+import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
+const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');return '#/teacher-portal?view='+(['home','create','find','volunteer','network','requests'].includes(next)?next:'home');};
+export function TeacherAccessPage(){return `<main class="gcc120-page"><section class="gcc120-join gcc120-signin-page">
+ <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
+ <div class="gcc120-title"><span>GLOBAL CLASSROOM CONNECT</span><h1>Welcome back, Teachers!</h1><p>Sign in with your email and password. Session access begins after your school and teacher profile have been approved.</p></div>
+ <form id="gcta-login" class="gcc120-grid"><label>Email *<input type="email" id="gcta-email" autocomplete="email" required></label>
+  <label>Password *<input type="password" id="gcta-password" autocomplete="current-password" required></label>
+  <button class="gcc120-primary gcc120-span" type="submit">Sign in →</button></form>
+ <p id="gcta-message" class="gcc120-message" role="status" aria-live="polite"></p>
+ <a class="gcc120-secondary gcc120-inline" href="#/signup">New here? Sign up →</a>
+ <details class="gct-auth-expand"><summary>Already approved under an older invitation? Activate access</summary>
+  <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
+  <button type="submit" class="gct-secondary">Activate teacher access</button></form></details>
+ <details class="gct-auth-expand"><summary>Legacy school registration</summary><p>Register school &amp; teacher with a Registration invitation code. Existing approval applications remain available.</p><a href="#/registration">Open legacy registration</a></details>
+ <footer class="gcc120-foot"><a href="#/login">Host sign in</a> · <a href="#/signup">Teacher sign up</a></footer>
  </section></main>`;}
 export function bindTeacherAccessPage(){
- const root=document.querySelector('.gct-auth-card');if(!root)return;
- const $=id=>root.querySelector('#'+id),msg=$('gcta-message');
- const inform=(s,error=false)=>{msg.textContent=s;msg.classList.toggle('error',error);};
- async function busy(form,action){const button=form.querySelector('button[type="submit"]');button.disabled=true;try{await action();}catch(e){inform(e.message||'Unable to continue.',true);}finally{button.disabled=false;}}
- $('gcta-login').addEventListener('submit',e=>{e.preventDefault();busy(e.currentTarget,async()=>{
-   await teacherSignIn($('gcta-email').value.trim(),$('gcta-password').value);
-   try{await teacherIdentity();window.location.hash=teacherDestinationV117();}
-   catch{inform('Signed in. If this is your first visit, expand “Activate access” and enter the code from your host.');}
- });});
- $('gcta-signup').addEventListener('submit',e=>{e.preventDefault();busy(e.currentTarget,async()=>{
-   const result=await teacherSignUp($('gcta-new-email').value.trim(),$('gcta-new-password').value);
-   inform(result.session?'Account created. Open “Activate access” to enter your invite code.':'Check your email to confirm your account. Then sign in and activate with your invite code.');
- });});
- $('gcta-claim').addEventListener('submit',e=>{e.preventDefault();busy(e.currentTarget,async()=>{
-   await claimTeacherInvite($('gcta-token').value);
-   inform('Access activated. Opening your workspace…');window.location.hash=teacherDestinationV117();
- });});
+ const root=document.querySelector('.gcc120-signin-page');if(!root)return;const $=id=>root.querySelector('#'+id),msg=$('gcta-message');
+ const inform=(text,error=false)=>{msg.textContent=text;msg.classList.toggle('error',error);};
+ $('gcta-login').addEventListener('submit',async event=>{event.preventDefault();const btn=event.currentTarget.querySelector('button');btn.disabled=true;
+  try{await teacherSignIn($('gcta-email').value.trim(),$('gcta-password').value);$('gcta-password').value='';
+   try{await teacherIdentity();window.location.hash=destination();return;}catch{}
+   try{const draft=await beginApplicationV120();if(draft.status==='pending'){inform('Signed in. Your registration is waiting for administrator approval. Session features remain locked.');return;}
+     if(draft.status==='rejected'){inform('The application was not approved. Contact the Global Classroom team.',true);return;}
+     window.location.hash='#/signup';}
+   catch(e){inform('Signed in, but teacher access is not active. Complete your application under Sign up, or use your existing invitation code.',true);}
+  }catch(e){inform(e.message||'Sign in failed.',true);}finally{btn.disabled=false;}});
+ $('gcta-claim').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{await claimTeacherInvite($('gcta-token').value);inform('Access activated.');window.location.hash=destination();}
+  catch(err){inform(err.message||'Invitation code was not accepted.',true);}finally{btn.disabled=false;}});
 }

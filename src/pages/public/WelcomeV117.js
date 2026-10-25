@@ -6,6 +6,7 @@ import volunteerIllustration from '../../assets/landing-v118/facilitator-host.we
 import '../../styles/welcomeArtV118.css';
 import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
 import '../../styles/welcomeBrandV119.css';
+import '../../styles/welcomeSignupV120.css';
 
 const icon=(type)=>({
  calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 15h3M14 15h3"/>',
@@ -19,7 +20,7 @@ const svg=(name,cls='')=>`<svg class="${cls}" width="24" height="24" viewBox="0 
 
 export function WelcomeV117(){return `<section class="gcc117-welcome" aria-labelledby="gcc117-heading">
  <div class="gcc117-world" aria-hidden="true"><div class="gcc117-globe"></div><i class="gcc117-orbit gcc117-orbit-a"></i><i class="gcc117-orbit gcc117-orbit-b"></i><i class="gcc117-dot gcc117-dot-a"></i><i class="gcc117-dot gcc117-dot-b"></i><i class="gcc117-dot gcc117-dot-c"></i></div>
- <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management"><a href="#/teacher-portal?view=network">${svg('profile')} My profile</a><a href="#/login" class="gcc117-host-link">Host sign in</a></nav></header>
+ <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management"><a href="#/teacher-portal?view=network">${svg('profile')} My profile</a><a href="#/signup" class="gcc120-signup-top">Sign up</a><a href="#/teacher-access" class="gcc120-signin-top">Sign in</a><a href="#/login" class="gcc117-host-link">Host sign in</a></nav></header>
  <div class="gcc117-intro"><span class="gcc117-kicker"><span class="gcc117-live-dot"></span> YOUR NEXT GLOBAL CLASSROOM STARTS HERE</span>
    <h1 id="gcc117-heading">One classroom.<br/><em>A world of connections.</em></h1>
    <p>Meet teachers around the globe, bring young people together, and make every exchange a new story.</p>
@@ -29,5 +30,5 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
    <a class="gcc117-choice gcc117-choice-find" href="#/teacher-portal?view=find" aria-label="Find a Session — Search and join" title="Find a Session — Search and join"><img class="gcc118-choice-image" src="${findIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
    <a class="gcc117-choice gcc117-choice-join" href="#/teacher-portal?view=volunteer" aria-label="Be a Facilitator or GC Host — Support and connect" title="Be a Facilitator or GC Host — Support and connect"><img class="gcc118-choice-image" src="${volunteerIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
  </div>
- <div class="gcc117-bottom gcc119-footer"><span class="gcc119-hosted"><img src="${globalClassroomLogo}" alt="" width="26" height="26"/>Hosted by Global Classroom</span><span class="gcc119-divider" aria-hidden="true"></span><a href="#/teacher-access">New here? Sign in or activate your invitation</a></div>
+ <div class="gcc117-bottom gcc119-footer"><span class="gcc119-hosted"><img src="${globalClassroomLogo}" alt="" width="26" height="26"/>Hosted by Global Classroom</span><span class="gcc119-divider" aria-hidden="true"></span><a href="#/teacher-access">New here? Sign up and join our network</a></div>
  </section>`;}

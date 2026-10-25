@@ -1,0 +1,14 @@
+/* GCC V12.0 signup & sign-in in the welcome header; gentle tactile affordances. */
+.gcc117-topbar .gcc120-signup-top{background:linear-gradient(110deg,#11ab9e,#117fc1);color:#fff;border:1px solid #ffffff9e;box-shadow:0 5px 16px #053c6d54;font-weight:850}
+.gcc117-topbar .gcc120-signup-top:hover{background:linear-gradient(110deg,#12bfb0,#196ec5);color:#fff;transform:translateY(-2px)}
+.gcc117-topbar .gcc120-signin-top{background:#fffffff0;color:#16496b}
+.gcc117-topbar nav a{transition:transform .18s,background .18s,box-shadow .18s}
+.gcc117-choice{cursor:pointer!important;will-change:transform}
+@media(prefers-reduced-motion:no-preference){
+ .gcc117-choice:hover{animation:gcc120-bouncy-hover .46s cubic-bezier(.2,.8,.3,1) both}
+ .gcc117-choice:active{transform:translateY(3px) scale(.93)!important;filter:drop-shadow(0 4px 6px #0a335c4a)!important}
+ @keyframes gcc120-bouncy-hover{0%{transform:translateY(0) scale(1)}45%{transform:translateY(-13px) scale(1.045)}75%{transform:translateY(-5px) scale(1.015)}100%{transform:translateY(-8px) scale(1.026)}}
+}
+.gcc117-topbar .gcc120-host-admin-link{font-size:.75rem;text-decoration:underline;background:rgba(243,250,255,.68)}
+@media(max-width:620px){.gcc117-topbar nav{gap:5px}.gcc117-topbar nav a{padding:7px 9px;font-size:.69rem}.gcc117-topbar .gcc117-host-link{display:inline-flex!important}}
+@media(prefers-reduced-motion:reduce){.gcc117-choice{will-change:auto}.gcc117-choice:hover{animation:none!important}}
