@@ -50,7 +50,7 @@ export function bindTeacherPortalPage(){
  let identity=null,offers=[],requests=[],mode='home',formStep=0;
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
-   for(const tab of root.querySelectorAll('[data-gct-tab]')){const active=tab.dataset.gctTab===id;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));}mode=id;};
+   for(const tab of root.querySelectorAll('[data-gct-tab]')){const active=tab.dataset.gctTab===id;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));}root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');mode=id;};
  function showFormStep(index){
   formStep=index;
   for(const section of root.querySelectorAll('[data-gctp-form-section]'))section.hidden=Number(section.dataset.gctpFormSection)!==index;

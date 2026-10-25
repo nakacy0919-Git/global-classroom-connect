@@ -41,7 +41,7 @@ export function mountVolunteerGalleryV122(root,openTab){
   const visible=people.filter(p=>(!country.value||p.country_code===country.value)&&
    (!role.value||(role.value==='host'?p.gc_host:p.facilitator))&&
    (!term||[p.name,p.school,p.country,p.city,p.title].join(' ').toLocaleLowerCase().includes(term)));
-  summary.textContent=`${visible.length} volunteer${visible.length===1?'':'s'} · ${new Set(visible.map(p=>p.country_code).filter(Boolean)).size} countr${new Set(visible.map(p=>p.country_code).filter(Boolean)).size===1?'y':'ies'}`;
+  summary.textContent=`${visible.length} educator${visible.length===1?'':'s'} · ${new Set(visible.map(p=>p.country_code).filter(Boolean)).size} countr${new Set(visible.map(p=>p.country_code).filter(Boolean)).size===1?'y':'ies'}`;
   if(!people.length){empty('Your name could be here!','Our volunteer gallery is just beginning. Be among the first approved Global Classroom educators to join the team.',true);return;}
   if(!visible.length){empty('No matches yet','Try another country, role or name.');return;}
   const list=document.createDocumentFragment();
@@ -55,6 +55,7 @@ export function mountVolunteerGalleryV122(root,openTab){
    if(flags[iso]){const img=el('img');img.src=flags[iso];img.alt='';img.width=24;img.height=17;location.append(img);}else location.append(el('span','gcc122-country-icon','🌐'));
    location.append(el('span','',person.country||iso||'Global Classroom'));
    const badges=el('div','gcc122-person-roles');
+   if(person.founder)badges.append(el('span','gcc122-role-founder','Founder · Global Classroom'));
    if(person.facilitator)badges.append(el('span','gcc122-role-facilitator','Facilitator'));
    if(person.gc_host)badges.append(el('span','gcc122-role-host','GC Session Host'));
    const name=el('h3','gcc122-person-name',person.name||'Global Classroom Educator');

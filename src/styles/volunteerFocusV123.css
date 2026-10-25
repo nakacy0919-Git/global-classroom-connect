@@ -1,0 +1,31 @@
+/* V12.3: dedicated volunteer experience, no distracting workspace chrome */
+.app-shell.gcc123-volunteer-focus{grid-template-columns:minmax(0,1fr);gap:0;min-height:100vh}
+.gcc123-volunteer-focus>.sidebar,.gcc123-volunteer-focus .main-shell>.topbar{display:none!important}
+.gcc123-volunteer-focus .main-shell{min-width:0;display:block}
+.gcc123-volunteer-focus .page-content{gap:0}
+.gcc123-volunteer-focus .gct-portal{padding:0;border:0;background:transparent;box-shadow:none}
+.gcc123-volunteer-focus .gct-portal>.gct-banner,.gcc123-volunteer-focus .gct-portal>.gct-tabs,.gcc123-volunteer-focus #gctp-message{display:none!important}
+.gcc123-volunteer-focus .gct-section[data-gct-view="volunteer"]{padding:0;margin:0}
+.gcc123-volunteer{gap:16px}.gcc123-header{display:flex;align-items:center;gap:18px;justify-content:space-between;border:1px solid #d5eaf0;border-radius:20px;background:#ffffffef;padding:15px 22px;box-shadow:0 8px 30px #1e64841a}
+.gcc123-header>span{font-size:.77rem;letter-spacing:.1em;font-weight:850;color:#30849a}
+.gcc123-home{color:#1e6a91;font-weight:800;text-decoration:none}.gcc123-home:hover{text-decoration:underline}
+.gcc123-account{display:flex;gap:9px}.gcc123-account button{border:1px solid #cde6ed;background:#f3fbfe;border-radius:12px;padding:9px 15px;font-weight:750;color:#1e6989;cursor:pointer}
+.gcc123-volunteer>.gcc122-team{width:min(100%,1320px);margin:auto}
+.gcc123-volunteer .gcc122-team-head h2{font-size:clamp(2rem,4vw,3rem)}
+/* The registration form is an in-place 3-step overlay, never a long page. */
+.gcc123-modal[hidden],.gcc123-step[hidden],.gcc123-buttons button[hidden],.gcc123-edit-profile[hidden]{display:none!important}
+.gcc123-modal{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:12px}
+.gcc123-backdrop{position:absolute;inset:0;background:#09364ac4;backdrop-filter:blur(8px)}
+.gcc123-dialog{position:relative;max-height:min(94dvh,780px);overflow-y:auto;width:min(100%,650px);border-radius:28px;background:linear-gradient(155deg,#fff,#ecfbff);border:1px solid #e1f7ff;box-shadow:0 25px 80px #061f3580;padding:clamp(20px,3.5vw,36px);color:#183f57}
+.gcc123-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.gcc123-dialog-head span{font-size:.74rem;letter-spacing:.12em;color:#238998;font-weight:850}.gcc123-dialog-head button{background:#e6f4fa;border:0;border-radius:50%;width:37px;height:37px;cursor:pointer;color:#305e75;font-size:1.05rem}
+.gcc123-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:20px 0}.gcc123-progress span{height:7px;background:#dcebf1;border-radius:999px;transition:background .18s}.gcc123-progress span.active{background:linear-gradient(100deg,#15b6aa,#1386ce)}
+.gcc123-step{display:grid;gap:15px;animation:gcc123-enter .25s ease-out}.gcc123-step-icon{font-size:2.4rem}.gcc123-step-num{color:#008c9d!important;font-weight:900;font-size:.76rem!important;letter-spacing:.13em;margin:0}.gcc123-step h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-.04em;margin:0;color:#144563}.gcc123-step>p:not(.gcc123-step-num){margin:0;color:#5b7c8e;line-height:1.55}
+.gcc123-step .gcc117-volunteer-choice{padding:15px;background:#fff;gap:15px;box-shadow:0 3px 12px #2e8aab12}.gcc123-step .gcc117-volunteer-choice:has(input:checked){background:#e0f7f6;box-shadow:0 0 0 2px #2aaab055}.gcc123-step .gcc117-volunteer-label{margin-top:8px}.gcc123-step .gcc117-volunteer-label textarea{resize:vertical;min-height:125px}
+.gcc123-private-note{background:#edf7fc;padding:11px 13px;border-radius:12px;font-size:.8rem;line-height:1.55;color:#5b7b8f}.gcc123-profile-summary{display:grid;gap:4px;border:1px solid #d1e6ed;border-radius:15px;background:#fff;padding:17px}.gcc123-profile-summary strong{font-size:1.18rem}.gcc123-profile-summary span{font-size:.86rem;color:#5a8393}.gcc123-warning{color:#a34124!important;font-size:.85rem;line-height:1.4}
+.gcc123-consent{display:flex;align-items:flex-start;gap:10px;border-radius:14px;padding:15px;background:#f0faf8;border:1px solid #bcded8;font-size:.88rem;line-height:1.5;font-weight:650;cursor:pointer}.gcc123-consent input{width:20px;height:20px;accent-color:#168e94;flex:0 0 20px;margin-top:1px}.gcc123-edit-profile{border:1px solid #79bed2;color:#09648b;background:white;font-weight:800;border-radius:12px;padding:11px;cursor:pointer}
+.gcc123-message{min-height:1.3em;color:#0e7582;font-weight:750;margin:12px 0 4px}.gcc123-message.error{color:#af302c}.gcc123-buttons{display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-top:12px}
+.gcc123-buttons button{cursor:pointer;border:0;border-radius:15px;font-weight:850;font-size:1rem;padding:13px 22px;transition:transform .17s,box-shadow .17s}.gcc123-primary{background:linear-gradient(110deg,#0898a9,#2179bb);color:white;box-shadow:0 6px 0 #155a7e}.gcc123-secondary{color:#28718d;background:#e2f3f8}.gcc123-primary:hover{transform:translateY(-2px);box-shadow:0 9px 0 #155a7e}.gcc123-primary:active{transform:translateY(3px);box-shadow:0 2px 0 #155a7e}.gcc123-buttons button:disabled{opacity:.55;cursor:wait}
+@keyframes gcc123-enter{from{opacity:.65;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.gcc122-role-founder{background:linear-gradient(110deg,#fff2bd,#fbe3a7);color:#805000}
+@media(max-width:760px){.gcc123-header{padding:12px;flex-wrap:wrap;gap:9px}.gcc123-header>span{order:3;width:100%;font-size:.65rem}.gcc123-account button{padding:8px 10px}.gcc123-volunteer>.gcc122-team{padding:16px}.gcc123-dialog{padding:19px;border-radius:20px}}
+@media(prefers-reduced-motion:reduce){.gcc123-step{animation:none}.gcc123-buttons button{transition:none}}
