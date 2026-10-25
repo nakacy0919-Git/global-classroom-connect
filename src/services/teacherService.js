@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import {compressTeacherPhotoV116} from '../lib/teacherWebpV116.js';
 
 
 export async function getTeachers() {
@@ -23,7 +24,8 @@ export async function getTeachers() {
           name,
           country_code,
           country_name,
-          city
+          city,
+          school_level
         )
       `)
       .eq('is_active', true)
@@ -98,8 +100,9 @@ export async function uploadTeacherPhoto(
   }
 
 
+  const compressedFile = await compressTeacherPhotoV116(file);
   const extension =
-    file.name
+    compressedFile.name
       .split('.')
       .pop()
       ?.toLowerCase() || 'jpg';
@@ -118,8 +121,9 @@ export async function uploadTeacherPhoto(
       .from('teacher-photos')
       .upload(
         path,
-        file,
+        compressedFile,
         {
+          contentType: 'image/webp',
           cacheControl: '3600',
           upsert: false,
         }

@@ -195,6 +195,7 @@ export async function SchoolsPage() {
                     </label>
 
 
+                    <label class="field"><span>School level</span><select id="school-level" class="input" required><option value="">Not specified</option><option value="Primary">Primary / Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
                     <label class="field full">
                       <span>
                         School Introduction
@@ -303,6 +304,7 @@ export async function SchoolsPage() {
                         </div>
 
 
+                        <p class="muted">${escapeHtml(school.school_level || 'School level not set')}</p>
                         <h3 class="school-name">
                           ${escapeHtml(
                             school.name
@@ -497,6 +499,7 @@ export async function SchoolsPage() {
         </label>
 
 
+        <label class="field"><span>School level</span><select id="edit-school-level" class="input"><option value="">Not specified</option><option value="Primary">Primary / Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
         <label class="field full">
           <span>
             Introduction

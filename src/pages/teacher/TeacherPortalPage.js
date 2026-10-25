@@ -1,4 +1,5 @@
 import '../../styles/teacherSelfService.css';
+import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
 import {makeSlot} from '../../lib/matching.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
@@ -10,7 +11,7 @@ function fmt(iso,zone){try{return new Intl.DateTimeFormat('en-GB',{timeZone:zone
 function tomorrow(zone){const x=new Date(Date.now()+86400000);try{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(x).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`;}catch{return x.toISOString().slice(0,10);}}
 export function TeacherPortalPage(){return `<section class="gct-workspace gct-portal">
  <header class="gct-banner"><div class="gct-banner-icon">🌍</div><div><p class="gct-eyebrow">GLOBAL CLASSROOM · TEACHER SPACE</p><h2>Connect your classroom</h2><p id="gctp-greeting">Loading your school…</p></div><button id="gctp-logout" type="button" class="gct-secondary gct-logout">Sign out</button></header>
- <nav class="gct-tabs" aria-label="Teacher actions"><button class="active" type="button" data-gct-tab="create">＋ Register a Session</button><button type="button" data-gct-tab="find">⌕ Find a Session <span id="gctp-open-count"></span></button><button type="button" data-gct-tab="requests">✉ My Requests <span id="gctp-request-count"></span></button></nav>
+ <nav class="gct-tabs" aria-label="Teacher actions"><button class="active" type="button" data-gct-tab="create">＋ Register a Session</button><button type="button" data-gct-tab="find">⌕ Find a Session <span id="gctp-open-count"></span></button><button type="button" data-gct-tab="requests">✉ My Requests <span id="gctp-request-count"></span></button><button type="button" data-gct-tab="network">🌍 Teacher Network</button></nav>
  <p id="gctp-message" class="gct-feedback" role="status" aria-live="polite"></p>
  <div class="gct-section" data-gct-view="create"><div class="gct-two-col"><form id="gctp-create" class="gct-panel gct-form" novalidate>
    <div class="gct-section-head"><span>01</span><div><h3>Share your available time</h3><p>Choose when your class can welcome a partner.</p></div></div>
@@ -28,12 +29,13 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
      <button class="gct-primary" id="gctp-publish" type="submit" hidden>Publish session ✓</button></div>
  </form><aside class="gct-panel"><div class="gct-section-head"><span>02</span><div><h3>Your upcoming sessions</h3><p>Only you can close sessions you created.</p></div></div><div id="gctp-mine" class="gct-card-list"></div></aside></div></div>
  <div class="gct-section" data-gct-view="find" hidden><div class="gct-section-head"><span>⌕</span><div><h3>Find an international exchange</h3><p>Session times are shown in your own time zone.</p></div></div>
-   <div class="gct-filterbar"><label>Available date (optional)<input id="gctp-find-date" type="date"></label><label>From<input id="gctp-find-from" type="time" value="09:00"></label><label>Until<input id="gctp-find-to" type="time" value="12:00"></label><label>Country<select id="gctp-find-country"><option value="">Any country</option></select></label><label>Topic<input id="gctp-find-topic" placeholder="Any topic"></label><button id="gctp-find-button" type="button" class="gct-primary">Search sessions →</button></div>
+   <div class="gct-filterbar"><label>Available date (optional)<input id="gctp-find-date" type="date"></label><label>From<input id="gctp-find-from" type="time" value="09:00"></label><label>Until<input id="gctp-find-to" type="time" value="12:00"></label><label>Country<select id="gctp-find-country"><option value="">Any country</option></select></label><label>School level<select id="gctp-find-band"><option value="">Any level</option><option value="Primary">Primary / Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label><label>Topic<input id="gctp-find-topic" placeholder="Any topic"></label><button id="gctp-find-button" type="button" class="gct-primary">Search sessions →</button></div>
    <div class="gct-section-subhead"><h3>Available sessions</h3><span id="gctp-search-count"></span></div><div id="gctp-results" class="gct-results"></div>
  </div>
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
  <p class="gct-hint">Approval records interest only. Agree on the final arrangements separately; no notification, Zoom link, or event is automatically sent.</p></div>
+ <section class="gct-section" data-gct-view="network" hidden>${teacherNetworkMarkupV116()}</section>
  </section>`;}
 
 export function bindTeacherPortalPage(){
@@ -84,11 +86,11 @@ export function bindTeacherPortalPage(){
      if(!confirm('Close this session to new applicants?'))return;close.disabled=true;try{await teacherCloseSession(o.id);await refresh();inform('Session closed.');}catch(e){inform(e.message,true);close.disabled=false;}
     });card.append(close);}list.append(card);}
  }
- function searchFiltered(){const code=$('gctp-find-country').value,topic=$('gctp-find-topic').value.trim().toLowerCase();
+ function searchFiltered(){const code=$('gctp-find-country').value,band=$('gctp-find-band').value,topic=$('gctp-find-topic').value.trim().toLowerCase();
    const date=$('gctp-find-date').value;let window=null;
    if(date){window=makeSlot({date,startTime:$('gctp-find-from').value,endTime:$('gctp-find-to').value,timezone:identity.timezone});
     if(window.error){inform(window.error,true);return null;}}
-   return upcoming().filter(o=>!o.is_mine&&o.status==='open'&&(!code||o.country_code===code)&&
+   return upcoming().filter(o=>!o.is_mine&&o.status==='open'&&(!code||o.country_code===code)&&(!band||o.age_band===band)&&
      (!topic||`${o.topic} ${o.school_name} ${o.country_name}`.toLowerCase().includes(topic))&&
      (!window||(new Date(o.starts_at)<new Date(window.endsAt)&&new Date(o.ends_at)>new Date(window.startsAt))));
  }
@@ -130,7 +132,7 @@ export function bindTeacherPortalPage(){
  }
  async function init(){try{identity=await teacherIdentity();$('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
   $('gctp-zone').value=identity.timezone;$('gctp-date').value=tomorrow(identity.timezone);
-  await refresh();inform('');}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
+  await refresh();inform('');const networkProfile=await mountTeacherNetworkV116(root);if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
  for(const tab of root.querySelectorAll('[data-gct-tab]'))tab.addEventListener('click',()=>display(tab.dataset.gctTab));
  $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
@@ -142,7 +144,7 @@ export function bindTeacherPortalPage(){
    catch(err){inform(err.message||'Could not publish the session.',true);}finally{btn.disabled=false;}
  });
  $('gctp-find-button').addEventListener('click',()=>{inform('');renderResults();});
- $('gctp-find-country').addEventListener('change',renderResults);
+ $('gctp-find-country').addEventListener('change',renderResults);$('gctp-find-band').addEventListener('change',renderResults);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  showFormStep(0);init().then(()=>{if(!identity)return;const select=$('gctp-find-country');const codes=new Map(upcoming().filter(o=>!o.is_mine).map(o=>[o.country_code,o.country_name]));
   for(const [code,label] of [...codes].sort((a,b)=>a[1].localeCompare(b[1]))){const opt=element('option','',label);opt.value=code;select.append(opt);}

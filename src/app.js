@@ -672,10 +672,7 @@ function bindUiEvents() {
                 )
                 .value
                 .trim(),
-
-
-
-
+            school_level: document.querySelector('#school-level').value || null,
             languages,
 
 
@@ -937,6 +934,7 @@ function bindUiEvents() {
             ).value =
               school.timezone ||
               '';
+            document.querySelector('#edit-school-level').value = school.school_level || '';
 
 
 
@@ -1143,10 +1141,7 @@ function bindUiEvents() {
                 )
                 .value
                 .trim(),
-
-
-
-
+            school_level: document.querySelector('#edit-school-level').value || null,
             languages,
 
 

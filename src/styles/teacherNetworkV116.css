@@ -1,0 +1,14 @@
+.gcn116-network{display:grid;gap:18px}.gcn116-layout{display:grid;grid-template-columns:minmax(270px,.88fr) minmax(340px,1.12fr);gap:18px;align-items:start}
+.gcn116-network .gct-panel{display:grid;gap:13px;min-width:0}.gcn116-network label{display:grid;gap:7px;font-weight:650;color:#3f6972}
+.gcn116-network input,.gcn116-network textarea,.gcn116-network select{width:100%;min-width:0;border:1px solid #c6dbd7;border-radius:10px;padding:10px 12px;font:inherit;background:white}
+.gcn116-network input[type="file"]{font-size:.82rem}.gcn116-photo-preview{width:114px;height:114px;border-radius:22px;background:#e9f4ef;border:1px solid #cae1dc;display:grid;place-items:center;overflow:hidden;color:#52777b}
+.gcn116-photo-preview img,.gcn116-card-photo img{width:100%;height:100%;object-fit:cover}.gcn116-help{font-size:.83rem!important;line-height:1.55;color:#61818d;margin:0}
+.gcn116-check{display:flex!important;flex-direction:row;align-items:flex-start;gap:10px}.gcn116-check input{width:20px;flex:0 0 20px;margin-top:3px}
+.gcn116-school{padding:12px;border-radius:10px;background:#f2f8f6;font-size:.86rem;line-height:1.5}
+.gcn116-filters{display:grid;grid-template-columns:1fr 1fr;gap:9px}.gcn116-filters label:last-child{grid-column:1/-1}
+.gcn116-list{display:grid;gap:11px}.gcn116-country-head{margin:10px 0 0;color:#2e6870;font-size:1.1rem}
+.gcn116-card{display:flex;gap:13px;border:1px solid #dbe7e3;border-radius:13px;padding:11px;min-width:0}.gcn116-card>div:last-child{min-width:0}.gcn116-card-photo{width:65px;height:65px;border-radius:13px;background:#e4f2ed;display:grid;place-items:center;overflow:hidden;flex:0 0 65px;font-weight:750}
+.gcn116-school-label{color:#47787d;font-size:.85rem;margin:3px 0}.gcn116-card p{margin-top:5px}.gcn116-network #gcn116-message.error{color:#a03e38}
+@media(max-width:900px){.gcn116-layout{grid-template-columns:1fr}}
+
+.teacher-country-heading{grid-column:1/-1;color:#275d68;font-size:1.08rem;border-bottom:1px solid #d9e8e5;padding-bottom:6px;margin:16px 0 2px}

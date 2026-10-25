@@ -1,3 +1,4 @@
+import '../../styles/teacherNetworkV116.css';
 import {
   getTeachers,
   getTeacherPhotoUrl,
@@ -91,7 +92,7 @@ export async function TeachersPage() {
     const teachersWithPhotos =
       await Promise.all(
 
-        teachers.map(
+        teachers.sort((a,b)=>((a.schools?.country_name||'').localeCompare(b.schools?.country_name||'') || a.display_name.localeCompare(b.display_name))).map(
           async (teacher) => {
 
             const photoUrl =
@@ -527,7 +528,7 @@ export async function TeachersPage() {
 
                 ${teachersWithPhotos
                   .map(
-                    (teacher) => {
+                    (teacher,index,all) => {
 
                       const school =
                         teacher.schools;
@@ -556,7 +557,10 @@ export async function TeachersPage() {
                         .toLowerCase();
 
 
+                      const countryHeading=index===0 || all[index-1].schools?.country_name!==school?.country_name
+                        ? '<h3 class="teacher-country-heading">'+escapeHtml(school?.country_name||'Other countries')+'</h3>' : '';
                       return `
+                        ${countryHeading}
                         <article
                           class="teacher-card"
                           data-teacher-search="${escapeHtml(
@@ -627,7 +631,8 @@ export async function TeachersPage() {
                             </h3>
 
 
-                            <p class="teacher-school-name">
+                              <p class="muted">${escapeHtml(school?.school_level||'School level not set')}</p>
+                              <p class="teacher-school-name">
                               ${escapeHtml(
                                 school?.name ||
                                 'No school'
