@@ -6,6 +6,7 @@ import {loadSessionJoinRequests,requestSessionJoin} from '../../services/session
 import {eligibleRequesters,requestForPair} from '../../lib/joinRequestRules.js';
 import {loadMatchData} from '../../services/matchingService.js';
 import {buildSearchWindow,filterSessionOffers} from '../../lib/sessionSearch.js';
+import {timeRangeV112} from '../../lib/sessionTimeV112.js';
 
 const el=(tag,className='',text='')=>{
   const e=document.createElement(tag);e.className=className;e.textContent=text;return e;
@@ -155,7 +156,7 @@ export function bindFindSessionPage() {
     info.append(item('School',teacher?.schools?.name||'School not specified'));
     info.append(item('School level',offer.age_band));
     info.append(item('Participants',`${offer.student_count} students · ${offer.room_count} breakout rooms`));
-    info.append(item('Host local time',`${local(offer.starts_at,offer.timezone)} – ${clock(offer.ends_at,offer.timezone)} (${offer.timezone})`));
+    info.append(item('Host local time',`${timeRangeV112(offer.starts_at,offer.ends_at,offer.timezone)} (${offer.timezone})`));
     if(offer.topic)info.append(item('Topic',offer.topic));
     if(offer.notes)info.append(item('Notes',offer.notes));
     const received=joinRequests.filter(r=>r.offer_id===offer.id);
@@ -174,7 +175,7 @@ export function bindFindSessionPage() {
     title.append(el('span','gcf-country',countryName(offer.country_code)),
       el('h4','',offer.topic?.trim()||'Open classroom exchange'));
     header.append(flagBox,title,el('span','gcf-open','Open'));
-    const when=el('div','gcf-big-time',`${local(offer.starts_at,zone.value)} – ${clock(offer.ends_at,zone.value)}`);
+    const when=el('div','gcf-big-time',timeRangeV112(offer.starts_at,offer.ends_at,zone.value));
     const sub=el('p','gcf-local-context',`Your local time · ${zone.value}`);
     const facts=el('div','gcf-facts');
     facts.append(el('span','',`👨‍🏫 ${teacher?.display_name||'Registered teacher'}`),

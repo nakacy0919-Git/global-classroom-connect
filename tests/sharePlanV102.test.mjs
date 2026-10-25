@@ -12,7 +12,10 @@ test('one 6-digit session code opens the complete read-only room chart',()=>{
  assert.match(page,/Find a student or school/);
  assert.match(page,/room\.students/);
  assert.doesNotMatch(page,/gcc-v103-access-code|gcc-v102-name|gcc-v102-school|listSessionSignups|fetchRoomDraft|\.innerHTML/);
- assert.match(service,/gcc_v104_open_room_chart/);
+ assert.match(service,/gcc_v112_open_room_chart/);
+ const timeSql=read('sql/gcc_v112_world_session_time.sql');
+ assert.match(timeSql,/v_chart:=public\.gcc_v104_open_room_chart\(p_token,p_access_code\)/);
+ assert.match(timeSql,/IF v_chart IS NULL THEN RETURN NULL/);
  assert.doesNotMatch(service,/runRpc\('gcc_v10[23]_find_my_room'/);
 });
 test('host has an intentional two-step invitation flow',()=>{

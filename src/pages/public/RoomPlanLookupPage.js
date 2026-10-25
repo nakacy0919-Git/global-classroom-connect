@@ -2,6 +2,7 @@ import '../../styles/sharePlanV102.css';
 import '../../styles/sharePlanV104.css';
 import {openSharedRoomChart} from '../../services/sharePlanV102.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
+import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
 import {countryIsoCode,countryFlagEmoji} from '../../lib/roomCountryFlagsV104.js';
 import jpFlag from '../../assets/room-flags/jp.svg';
 import bdFlag from '../../assets/room-flags/bd.svg';
@@ -48,6 +49,7 @@ export function RoomPlanLookupPage(){return `
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
   <div id="gcc-v104-chart" hidden>
     <div class="gcc-v104-chart-head"><div><span class="gcc-v104-eyebrow">YOUR SESSION</span><h2 id="gcc-v104-session-name">Breakout rooms</h2><p id="gcc-v104-count"></p></div><div id="gcc-v104-zoom"></div></div>
+    <section class="gcc-v112-world" id="gcc-v112-world" aria-label="Session start times around the world" hidden></section>
     <label class="gcc-v104-filter-label" for="gcc-v104-filter">Find a student or school</label>
     <input id="gcc-v104-filter" type="search" placeholder="Search names or school" autocomplete="off" />
     <p class="gcc-v104-filter-hint">All rooms are shown below. Search to highlight your room.</p>
@@ -71,6 +73,7 @@ export function bindRoomPlanLookupPage(){
    const rooms=Array.isArray(data.rooms)?data.rooms:[];
    const total=rooms.reduce((count,room)=>count+(room.students||[]).length,0);
    $('gcc-v104-count').textContent=`${rooms.length} rooms · ${total} students`;
+   renderWorldSessionClocksV112($('gcc-v112-world'),data);
    const zoom=$('gcc-v104-zoom');zoom.replaceChildren();const url=safeZoom(data.zoom_url);
    if(url){
      const a=make('a','gcc-v104-primary gcc-v104-zoom');

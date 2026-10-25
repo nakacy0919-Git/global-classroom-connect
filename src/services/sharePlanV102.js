@@ -16,6 +16,6 @@ export const revokeRoomShare=(eventId)=>runRpc('gcc_v102_revoke_room_plan',{p_ev
 export const getSharedCodeStatus=eventId=>runRpc('gcc_v104_code_status',{p_event_id:eventId});
 export const issueSharedCode=eventId=>runRpc('gcc_v104_issue_shared_code',{p_event_id:eventId});
 export const disableSharedCode=eventId=>runRpc('gcc_v104_disable_shared_code',{p_event_id:eventId});
-export const openSharedRoomChart=(token,code)=>runRpc('gcc_v104_open_room_chart',{
+export const openSharedRoomChart=(token,code)=>runRpc('gcc_v112_open_room_chart',{
  p_token:token,p_access_code:code,
 });

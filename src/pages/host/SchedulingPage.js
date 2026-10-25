@@ -1,6 +1,7 @@
 import { organizerZones, createWorldClockPanel } from '../../components/WorldClockPanel.js';
 import { createTimezoneMap } from '../../components/WorldTimezoneMap.js';
 import { addEvent } from '../../services/eventService.js';
+import { makeSlot } from '../../lib/matching.js';
 
 const zones = organizerZones;
 
@@ -203,6 +204,7 @@ export function SchedulingPage() {
               Start time *
               <input id="gcp-time" type="time">
             </label>
+            <label>End time *<input id="gcp-end-time" type="time" required></label>
           </div>
           <div class="gc-map-switch">
             <button type="button" id="gcp-view-map">🗺 Map</button>
@@ -278,6 +280,7 @@ export function bindSchedulePlanner() {
   const zone = el('gcp-zone');
   const date = el('gcp-date');
   const time = el('gcp-time');
+  const endTime = el('gcp-end-time');
   const back = el('gcp-back');
   const next = el('gcp-next');
   const save = el('gcp-save');
@@ -352,7 +355,7 @@ export function bindSchedulePlanner() {
       el('gcp-summary-title').textContent =
         title.value.trim();
       el('gcp-summary-local').textContent =
-        `${date.value} ${time.value} (${zone.value})`;
+        `${date.value} ${time.value}–${endTime.value} (${zone.value})`;
       el('gcp-summary-utc').textContent =
         result.iso || result.error;
     }
@@ -371,6 +374,8 @@ export function bindSchedulePlanner() {
         message(result.error);
         return false;
       }
+      const duration=makeSlot({date:date.value,startTime:time.value,endTime:endTime.value,timezone:zone.value});
+      if(duration.error){message(duration.error);return false;}
       if (Date.parse(result.iso) <= Date.now()) {
         message('Choose a future date and time.');
         return false;
@@ -415,6 +420,7 @@ export function bindSchedulePlanner() {
       const event = await addEvent({
         title: title.value.trim(),
         startsAt: result.iso,
+        endsAt: makeSlot({date:date.value,startTime:time.value,endTime:endTime.value,timezone:zone.value}).endsAt,
         timezone: zone.value,
         status: 'draft'
       });

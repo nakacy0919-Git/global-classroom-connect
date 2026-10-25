@@ -26,6 +26,7 @@ export async function getEvents() {
         id,
         title,
         starts_at,
+        ends_at,
         timezone,
         status,
         created_by,
@@ -74,6 +75,7 @@ export async function getEventById(
         id,
         title,
         starts_at,
+        ends_at,
         timezone,
         status,
         created_by,
@@ -102,6 +104,7 @@ export async function getEventById(
 export async function addEvent({
   title,
   startsAt = null,
+  endsAt = null,
   timezone = 'Asia/Tokyo',
   status = 'draft',
 }) {
@@ -153,6 +156,7 @@ export async function addEvent({
         starts_at:
           startsAt ||
           null,
+        ends_at: endsAt || null,
 
         timezone:
           timezone ||
@@ -168,6 +172,7 @@ export async function addEvent({
         id,
         title,
         starts_at,
+        ends_at,
         timezone,
         status,
         created_by,
@@ -229,6 +234,8 @@ export async function updateEvent(
   }
 
 
+  if (updates.endsAt !== undefined) payload.ends_at = updates.endsAt || null;
+
   if (
     updates.timezone !==
     undefined
@@ -269,6 +276,7 @@ export async function updateEvent(
         id,
         title,
         starts_at,
+        ends_at,
         timezone,
         status,
         created_by,

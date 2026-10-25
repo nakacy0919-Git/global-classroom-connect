@@ -5,7 +5,9 @@ import {mountRoomPlannerV9} from '../../components/RoomPlannerV9.js';
 import {getEvents,addEvent,updateEvent} from '../../services/eventService.js';
 import {fetchRoomDraft} from '../../services/roomDraftV91.js';
 import {getRoomShareStatus,publishRoomShare,getSharedCodeStatus,issueSharedCode,disableSharedCode} from '../../services/sharePlanV102.js';
-import {toUtc} from '../../lib/matching.js';
+import {makeSlot} from '../../lib/matching.js';
+import {timePartsV112,timeRangeV112} from '../../lib/sessionTimeV112.js';
+import '../../styles/sessionTimeV112.css';
 import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessionService.js';
 import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
@@ -28,6 +30,7 @@ export function SimpleSessionsPage(){return `
         <label>Session title * <input name="title" required maxlength="140" placeholder="e.g. Global Friends — Food & Culture" /></label>
         <label>Date * <input name="date" required type="date" /></label>
         <label>Start time * <input name="time" required type="time" /></label>
+        <label>End time * <input name="endTime" required type="time" /></label>
         <label>Time zone <select name="timezone"><option value="Asia/Tokyo">Japan (JST)</option><option value="Asia/Manila">Philippines</option><option value="Asia/Ho_Chi_Minh">Vietnam</option><option value="Asia/Jakarta">Indonesia</option><option value="Asia/Kuala_Lumpur">Malaysia</option><option value="Asia/Colombo">Sri Lanka</option><option value="Europe/London">United Kingdom</option><option value="America/New_York">USA Eastern</option></select></label>
         <label>Breakout rooms <input type="number" name="rooms" min="1" max="60" value="10" required /></label>
         <label>Maximum students <input type="number" name="capacity" min="1" max="2000" value="150" required /></label>
@@ -80,13 +83,34 @@ export function bindSimpleSessionsPage(){
  function currentLabel(){const p=$('gcc-v8-host-select');p.replaceChildren();$('gcc-v8-current-title').replaceChildren();if(!events.length){const o=el('option','','No sessions yet');o.value='';p.append(o);p.disabled=true;return;}
    p.disabled=false;for(const e of events){const o=el('option','',`${e.title}${e.status==='published'?' · Open':''}`);o.value=e.id;p.append(o);}p.value=activeEventId;
    const x=$('gcc-v8-current-title');x.replaceChildren();const e=current();if(e){
-     x.append(el('strong','',e.title),el('span','',`${fmt(e.starts_at,e.timezone)} · ${e.status}`));
+     x.append(el('strong','',e.title),el('span','',`${timeRangeV112(e.starts_at,e.ends_at,e.timezone||'Asia/Tokyo')} · ${e.status}`));
      if(canRemoveSessionV105(e))x.append(btn('Delete finished session…','gcc-v105-delete-open',()=>openRemoveSessionV105(e)));
    }
  }
  function formRow(label,value){const row=el('div','gcc-v8-information');row.append(el('span','',label),el('strong','',value));return row;}
  async function updateSettings(p){await saveSessionSettings({eventId:activeEventId,...p});await reload(false);notify('Session settings saved.');}
+  function scheduleEditorV112(panel,e){
+   const box=el('section','gcc-v112-schedule-editor');box.append(el('h3','','Session schedule · start and end'));
+   const f=el('form');const fields=el('div','gcc-v112-schedule-fields');
+   let local=null;try{local=timePartsV112(e.starts_at,e.timezone||'Asia/Tokyo');}catch{}
+   const inputs={};
+   for(const [name,label,type,value] of [['date','Date','date',local?.date||''],['start','Start time','time',local?.time||''],['end','End time','time',e.ends_at?timePartsV112(e.ends_at,e.timezone||'Asia/Tokyo').time:'']]){
+     const wrap=el('label','',label),inp=el('input');inp.type=type;inp.name=name;inp.value=value;inp.required=true;
+     wrap.append(inp);fields.append(wrap);inputs[name]=inp;
+   }
+   f.append(fields);f.append(el('small','','Times use the session host’s time zone ('+(e.timezone||'Asia/Tokyo')+'). End time can be after midnight.'));
+   const save=el('button','gcc-v8-secondary','Save session schedule');save.type='submit';f.append(save);
+   f.addEventListener('submit',async event=>{event.preventDefault();
+     const result=makeSlot({date:inputs.date.value,startTime:inputs.start.value,endTime:inputs.end.value,timezone:e.timezone||'Asia/Tokyo'});
+     if(result.error){notify(result.error,true);return;}
+     save.disabled=true;
+     try{await updateEvent(e.id,{startsAt:result.startsAt,endsAt:result.endsAt});await reload(false);notify('Start and end times saved. Every country clock uses the updated schedule.');}
+     catch(error){notify(error.message||'Could not save times',true);}finally{save.disabled=false;}
+   });
+   box.append(f);panel.append(box);
+ }
  function stagePrepare(panel,e){
+    scheduleEditorV112(panel,e);
    if(e.status==='draft'){
      panel.append(el('p','gcc-v8-info-box','This session is a draft. Publish it when the details are ready.'));
      panel.append(btn('Publish session →','gcc-v8-primary',async()=>{if(Date.parse(e.starts_at)<=Date.now()){notify('Choose a future date first.',true);return;}
@@ -292,10 +316,10 @@ export function bindSimpleSessionsPage(){
  $('gcc-v8-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=false;$('gcc-v8-create').querySelector('[name=title]').focus();});
  $('gcc-v8-cancel-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=true;});
  $('gcc-v8-create').addEventListener('submit',async evt=>{evt.preventDefault();const f=evt.currentTarget;const d=new FormData(f);
-   const date=String(d.get('date')||''),time=String(d.get('time')||''),timezone=String(d.get('timezone')||'Asia/Tokyo'),title=String(d.get('title')||'').trim();
-   const stamp=toUtc(date,time,timezone);if(stamp.error){notify(stamp.error,true);return;}if(Date.parse(stamp.iso)<=Date.now()){notify('Choose a future time.',true);return;}
+   const date=String(d.get('date')||''),time=String(d.get('time')||''),endTime=String(d.get('endTime')||''),timezone=String(d.get('timezone')||'Asia/Tokyo'),title=String(d.get('title')||'').trim();
+   const stamp=makeSlot({date,startTime:time,endTime,timezone});if(stamp.error){notify(stamp.error,true);return;}if(Date.parse(stamp.startsAt)<=Date.now()){notify('Choose a future time.',true);return;}
    const button=f.querySelector('[type=submit]');button.disabled=true;
-   try{const created=await addEvent({title,startsAt:stamp.iso,timezone,status:'draft'});activeEventId=created.id;activeStage=0;
+   try{const created=await addEvent({title,startsAt:stamp.startsAt,endsAt:stamp.endsAt,timezone,status:'draft'});activeEventId=created.id;activeStage=0;
      await saveSessionSettings({eventId:created.id,rooms:Number(d.get('rooms')),maxStudents:Number(d.get('capacity')),facilitatorsPerRoom:Number(d.get('facs'))});
      $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');}
    catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}

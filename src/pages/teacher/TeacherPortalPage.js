@@ -1,5 +1,6 @@
 import '../../styles/teacherSelfService.css';
 import {makeSlot} from '../../lib/matching.js';
+import {timeRangeV112} from '../../lib/sessionTimeV112.js';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut} from '../../services/teacherSelfService.js';
 
@@ -77,7 +78,7 @@ export function bindTeacherPortalPage(){
  function renderMine(){const list=$('gctp-mine');list.replaceChildren();
   const mine=upcoming().filter(o=>o.is_mine);if(!mine.length){list.append(element('p','gct-empty','No sessions yet. Choose a date and publish your first session.'));return;}
   for(const o of mine){const card=element('article','gct-session-card');card.append(element('strong','',o.topic||'Open classroom exchange'),
-    element('p','',`${fmt(o.starts_at,identity.timezone)} – ${fmt(o.ends_at,identity.timezone).split(' ').slice(-1)[0]} (${identity.timezone})`),
+    element('p','',`${timeRangeV112(o.starts_at,o.ends_at,identity.timezone)} (${identity.timezone})`),
     element('small','',`${o.student_count} students · ${o.room_count} rooms · ${o.status}`));
     if(o.status==='open'){const close=element('button','gct-secondary','Close session');close.type='button';close.addEventListener('click',async()=>{
      if(!confirm('Close this session to new applicants?'))return;close.disabled=true;try{await teacherCloseSession(o.id);await refresh();inform('Session closed.');}catch(e){inform(e.message,true);close.disabled=false;}
@@ -98,7 +99,7 @@ export function bindTeacherPortalPage(){
   const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
   for(const o of results){const card=element('article','gct-session-card');card.append(element('span','gct-eyebrow',`${flag(o.country_code)} ${o.country_name}`),
    element('h3','',o.topic||'Open classroom exchange'),element('p','',`${o.school_name} · ${o.teacher_name}`),
-   element('strong','gct-session-time',`${fmt(o.starts_at,identity.timezone)} – ${fmt(o.ends_at,identity.timezone).split(' ').slice(-1)[0]} (your local time)`),
+   element('strong','gct-session-time',`${timeRangeV112(o.starts_at,o.ends_at,identity.timezone)} (your local time)`),
    element('small','',`${o.student_count} students · ${o.room_count} rooms · ${o.age_band}`));
    if(previously.has(o.id)){card.append(element('span','gct-status approved','✓ Request already submitted'));}
    else {const detail=element('details','gct-request-form');const summary=element('summary','','Request to Join →');detail.append(summary);

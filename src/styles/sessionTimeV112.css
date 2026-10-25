@@ -1,0 +1,24 @@
+/* GCC V11.2: clocks are planned start times. Digital time remains accessible. */
+.gcc-v112-world{margin:15px 0 17px;padding:16px;background:linear-gradient(135deg,#f4faf9,#fffdf6);border:1px solid #cde4dd;border-radius:17px;color:#264f5d}
+.gcc-v112-world[hidden]{display:none!important}
+.gcc-v112-heading{display:flex;gap:8px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;margin-bottom:13px}
+.gcc-v112-heading strong{font-size:1.09rem;color:#21576b}.gcc-v112-heading span{font-size:.74rem;color:#6c8990}
+.gcc-v112-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px}
+.gcc-v112-card{border-radius:14px;border:1px solid #deebe5;padding:10px 13px;background:#fff;min-width:0}
+.gcc-v112-country{font-size:.87rem;font-weight:850;margin-bottom:7px;color:#275668}
+.gcc-v112-face-row{display:flex;align-items:center;gap:12px}.gcc-v112-clock{width:80px;height:80px;flex:0 0 80px}
+.gcc-v112-times{display:flex;flex-direction:column;min-width:0;gap:2px}
+.gcc-v112-start-label{font-size:.59rem;color:#67868b;font-weight:850;letter-spacing:.1em}
+.gcc-v112-start{font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums;color:#15556b}
+.gcc-v112-date,.gcc-v112-end{font-size:.73rem;color:#50727c;line-height:1.25}
+.gcc-v112-your-time,.gcc-v112-warning{font-size:.83rem;margin:10px 0 0;color:#426f78}
+.gcc-v112-warning{color:#946138}
+.gcc-v112-schedule-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;align-items:end}
+.gcc-v112-schedule-editor{margin:14px 0 23px;border:1px solid #d9e9e3;border-radius:14px;padding:15px;background:#f7fbfa}
+.gcc-v112-schedule-editor h3{margin:0 0 10px!important}
+.gcc-v112-schedule-editor small{display:block;color:#647d87;margin-top:8px}
+.gcc-v112-schedule-editor .gcc-v8-secondary{margin-top:10px}
+.gcc-v112-host-range{font-size:1rem;font-weight:850;color:#1b7082}
+@media(max-width:760px){.gcc-v112-schedule-fields{grid-template-columns:1fr 1fr}.gcc-v112-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:490px){.gcc-v112-schedule-fields,.gcc-v112-cards{grid-template-columns:1fr}}
+@media print{.gcc-v112-world{break-inside:avoid;page-break-inside:avoid;margin:1.5mm 0;padding:2mm}.gcc-v112-heading{margin-bottom:2mm}.gcc-v112-heading strong{font-size:11pt}.gcc-v112-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:1mm}.gcc-v112-card{padding:1.5mm}.gcc-v112-country{font-size:7pt;margin-bottom:1mm}.gcc-v112-clock{width:18mm;height:18mm;flex-basis:18mm}.gcc-v112-start{font-size:12pt}.gcc-v112-face-row{gap:1.5mm}.gcc-v112-end,.gcc-v112-date{font-size:6pt}.gcc-v112-heading span,.gcc-v112-your-time,.gcc-v112-warning{display:none}}
