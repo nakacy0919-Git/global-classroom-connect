@@ -7,6 +7,7 @@ import '../../styles/welcomeArtV118.css';
 import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
 import '../../styles/welcomeBrandV119.css';
 import '../../styles/welcomeSignupV120.css';
+import '../../styles/welcomeControlsV124.css';
 
 const icon=(type)=>({
  calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 15h3M14 15h3"/>',
@@ -20,7 +21,19 @@ const svg=(name,cls='')=>`<svg class="${cls}" width="24" height="24" viewBox="0 
 
 export function WelcomeV117(){return `<section class="gcc117-welcome" aria-labelledby="gcc117-heading">
  <div class="gcc117-world" aria-hidden="true"><div class="gcc117-globe"></div><i class="gcc117-orbit gcc117-orbit-a"></i><i class="gcc117-orbit gcc117-orbit-b"></i><i class="gcc117-dot gcc117-dot-a"></i><i class="gcc117-dot gcc117-dot-b"></i><i class="gcc117-dot gcc117-dot-c"></i></div>
- <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management"><a href="#/teacher-portal?view=network">${svg('profile')} My profile</a><a href="#/signup" class="gcc120-signup-top">Sign up</a><a href="#/teacher-access" class="gcc120-signin-top">Sign in</a><a href="#/login" class="gcc117-host-link">Host sign in</a></nav></header>
+ <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management" class="gcc124-actions">
+    <a href="#/signup" class="gcc120-signup-top">Sign up</a>
+    <a href="#/teacher-access" class="gcc120-signin-top">Sign in</a>
+    <details class="gcc124-account-menu">
+      <summary aria-label="More account options" title="More account options">
+        ${svg('profile')}<span class="gcc124-menu-label">Account</span>
+      </summary>
+      <div class="gcc124-account-popup">
+        <a href="#/teacher-portal?view=network">${svg('profile')} My profile</a>
+        <a href="#/login">Host sign in</a>
+      </div>
+    </details>
+  </nav></header>
  <div class="gcc117-intro"><span class="gcc117-kicker"><span class="gcc117-live-dot"></span> YOUR NEXT GLOBAL CLASSROOM STARTS HERE</span>
    <h1 id="gcc117-heading">One classroom.<br/><em>A world of connections.</em></h1>
    <p>Meet teachers around the globe, bring young people together, and make every exchange a new story.</p>

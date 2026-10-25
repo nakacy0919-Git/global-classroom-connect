@@ -1,0 +1,84 @@
+/* GCC V12.4: compact account actions and tactile, non-interfering buttons.
+   Imported last to override older sequential and hover animations. */
+.gcc117-welcome .gcc117-topbar nav.gcc124-actions{
+  display:flex; align-items:center;justify-content:flex-end;gap:8px;
+  margin-left:auto;flex-wrap:nowrap;position:relative;z-index:5;
+}
+.gcc117-topbar .gcc124-actions>a{
+  white-space:nowrap;justify-content:center;min-height:41px;
+  padding:9px 15px;font-size:.83rem;
+}
+.gcc117-topbar .gcc124-account-menu{
+  display:block;position:relative;flex:0 0 auto;color:#174b70;
+}
+.gcc117-topbar .gcc124-account-menu>summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:6px;border-radius:999px;border:1px solid rgba(255,255,255,.95);
+  background:rgba(243,250,255,.88);color:#174b70;
+  padding:9px 12px;min-height:41px;font-size:.81rem;font-weight:750;
+  box-shadow:0 3px 12px rgba(9,45,73,.14);
+  transition:background-color .15s,box-shadow .15s;
+}
+.gcc117-topbar .gcc124-account-menu>summary::-webkit-details-marker{display:none}
+.gcc117-topbar .gcc124-account-menu>summary::marker{content:''}
+.gcc117-topbar .gcc124-account-menu>summary:hover,
+.gcc117-topbar .gcc124-account-menu[open]>summary{background:#fff;box-shadow:0 5px 18px rgba(9,45,73,.2)}
+.gcc117-topbar .gcc124-account-menu>summary:focus-visible{
+  outline:3px solid #075fa0;outline-offset:3px;
+}
+.gcc124-account-menu svg{width:18px;height:18px;flex:0 0 18px}
+.gcc117-topbar .gcc124-account-popup{
+  position:absolute;right:0;top:calc(100% + 9px);z-index:20;
+  min-width:220px;display:grid;gap:4px;padding:8px;
+  border-radius:15px;border:1px solid rgba(199,223,236,.95);
+  box-shadow:0 15px 35px rgba(7,42,78,.27);
+  background:rgba(250,254,255,.98);backdrop-filter:blur(10px);
+}
+.gcc117-topbar .gcc124-account-popup>a{
+  display:flex;align-items:center;gap:9px;justify-content:flex-start;
+  font-size:.83rem;font-weight:740;white-space:nowrap;
+  background:transparent;border:0;box-shadow:none;
+  border-radius:10px;padding:11px 12px;color:#164965;text-decoration:none;
+}
+.gcc117-topbar .gcc124-account-popup>a:hover{background:#e9f6fb;color:#075f8a}
+.gcc117-topbar .gcc124-account-popup>a:focus-visible{outline:2px solid #0878a2;outline-offset:1px}
+/* Older V11.7 entrance and V12.0 bouncy-hover keyframes competed for transform.
+   No hover scale or restart of animation. Only the pressed card moves. */
+.gcc117-welcome .gcc117-choice,
+.gcc117-welcome .gcc117-choice:nth-child(1),
+.gcc117-welcome .gcc117-choice:nth-child(2),
+.gcc117-welcome .gcc117-choice:nth-child(3){
+  animation:none!important;opacity:1!important;visibility:visible!important;
+  transform:none!important;
+  transition:transform .12s ease-out,filter .12s ease-out!important;
+  will-change:auto;cursor:pointer;
+}
+.gcc117-welcome .gcc117-choice:hover{
+  animation:none!important;transform:none!important;
+  filter:drop-shadow(0 13px 15px rgba(9,38,74,.31));
+}
+.gcc117-welcome .gcc117-choice:active{
+  animation:none!important;
+  transform:translateY(3px) scale(.98)!important;
+  filter:drop-shadow(0 5px 6px rgba(9,38,74,.25))!important;
+}
+.gcc117-welcome .gcc117-choice:focus-visible{
+  outline:4px solid #fff;outline-offset:5px;
+}
+@media(max-width:680px){
+  .gcc117-topbar .gcc124-actions{gap:6px}
+  .gcc117-topbar .gcc124-actions>a{font-size:.73rem;padding:8px 10px;min-height:37px}
+  .gcc117-topbar .gcc124-account-menu>summary{font-size:.73rem;padding:8px 10px;min-height:37px}
+}
+@media(max-width:485px){
+  .gcc117-topbar .gcc124-actions{gap:5px}
+  .gcc117-topbar .gcc124-actions>a{padding:8px 9px}
+  .gcc117-topbar .gcc124-menu-label{display:none}
+  .gcc117-topbar .gcc124-account-menu>summary{width:39px;padding:8px}
+  .gcc117-topbar .gcc124-account-popup{min-width:195px}
+}
+@media(prefers-reduced-motion:reduce){
+  .gcc117-welcome .gcc117-choice,
+  .gcc117-welcome .gcc117-choice:hover,
+  .gcc117-welcome .gcc117-choice:active{animation:none!important;transition:none!important;transform:none!important}
+}
