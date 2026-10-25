@@ -1,30 +1,33 @@
+// V10.7 regression: the old shared-code migration is preserved for history,
+// but a V10.8 school-specific PIN must now be the only editing route.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-test('teacher unlock requires one shared code, not an email or identity',()=>{
- const file=read('src/lib/roomToolsV106.js');
- assert.match(file,/Shared 4-digit Teacher Mode code/);
- assert.doesNotMatch(file,/const nameLabel=/);
- assert.match(file,/const candidate=\{token,code:getCode\(\),pin:pin.value\}/);
- assert.match(file,/Your name \(recorded in the edit history\)/);
+test('historical V10.7 migration remains intact and documents previous shared-code behavior',()=>{
+ const sql=read('sql/gcc_v107_shared_teacher_pin.sql');
+ assert.match(sql,/CREATE TABLE IF NOT EXISTS public\.gcc_v107_shared_teacher_codes/);
+ assert.match(sql,/gcc_v107_edit_room/);
+ assert.match(sql,/extensions\.crypt/);
 });
-test('server saves edited name only for the audit, not for unlocking',()=>{
- const file=read('src/services/teacherRoomEditV106.js');
- assert.match(file,/gcc_v107_open_editor/);
- assert.match(file,/p_editor_name:change.editorName/);
- assert.doesNotMatch(file,/p_name:credentials.name/);
+test('V10.8 no longer exposes the shared PIN editing flow',()=>{
+ const sql=read('sql/gcc_v108_school_scoped_teacher_codes.sql');
+ assert.match(sql,/REVOKE ALL ON FUNCTION public\.gcc_v107_edit_room/);
+ assert.match(sql,/REVOKE ALL ON FUNCTION public\.gcc_v107_open_editor/);
+ const ui=read('src/lib/roomToolsV106.js');
+ assert.match(ui,/Your own 4-digit code/);
+ assert.doesNotMatch(ui,/Shared 4-digit Teacher Mode code/);
+ assert.doesNotMatch(ui,/Your name \(recorded in the edit history\)/);
 });
-test('SQL hashes the session code and revokes old editing functions',()=>{
- const file=read('sql/gcc_v107_shared_teacher_pin.sql');
- assert.match(file,/extensions\.crypt\(p_pin,extensions\.gen_salt\('bf',10\)\)/);
- assert.match(file,/REVOKE ALL ON FUNCTION public\.gcc_v106_edit_room/);
- assert.match(file,/gcc_v106_editor_attempts/);
- assert.match(file,/gcc_v107_host_set_shared_pin/);
+test('V10.8 server derives editor identity from approved signup, not user input',()=>{
+ const service=read('src/services/teacherRoomEditV106.js');
+ assert.match(service,/gcc_v108_open_editor/);
+ assert.match(service,/gcc_v108_edit_room/);
+ assert.doesNotMatch(service,/p_editor_name/);
 });
-test('host can configure or disable code and sees self-reported audit attribution',()=>{
- const file=read('src/lib/hostRoomAuditV106.js');
- assert.match(file,/Save shared code/);
- assert.match(file,/Disable teacher edits/);
- assert.match(file,/Self-reported name/);
+test('V10.8 host issues distinct codes and can revoke school editing access',()=>{
+ const host=read('src/lib/hostRoomAuditV106.js');
+ assert.match(host,/Generate missing teacher codes/);
+ assert.match(host,/Regenerate code/);
+ assert.match(host,/Disable/);
 });
