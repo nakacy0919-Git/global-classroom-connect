@@ -1,12 +1,7 @@
 import '../../styles/volunteerGalleryV122.css';
 import {volunteerGalleryV122} from '../../services/volunteerGalleryV122.js';
 import {signedTeacherPhotoV116} from '../../services/teacherNetworkV116.js';
-import jpFlag from '../../assets/room-flags/jp.svg';
-import phFlag from '../../assets/room-flags/ph.svg';
-import lkFlag from '../../assets/room-flags/lk.svg';
-import bdFlag from '../../assets/room-flags/bd.svg';
-
-const flags={JP:jpFlag,PH:phFlag,LK:lkFlag,BD:bdFlag};
+import {countryFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
 const el=(tag,cls='',content='')=>{const node=document.createElement(tag);if(cls)node.className=cls;node.textContent=content;return node;};
 const validHttps=(value)=>{try{const u=new URL(value);return u.protocol==='https:'&&u.hostname?u.href:null;}catch{return null;}};
 
@@ -19,6 +14,13 @@ export function volunteerGalleryMarkupV122(){return `<section class="gcc122-team
  <label>Find a teacher <input id="gcc122-query" type="search" placeholder="Name, school or country" autocomplete="off"></label></div>
  <p id="gcc122-summary" class="gcc122-summary" aria-live="polite">Loading our team…</p>
  <div id="gcc122-cards" class="gcc122-cards" aria-live="polite"></div>
+ <div id="gcc133-profile-modal" class="gcc133-profile-modal" role="dialog" aria-modal="true" aria-label="Teacher profile" aria-labelledby="gcc133-profile-title" hidden>
+  <div class="gcc133-profile-backdrop" data-gcc133-close></div>
+  <section class="gcc133-profile-dialog">
+   <button type="button" class="gcc133-profile-close" data-gcc133-close aria-label="Close teacher profile">✕</button>
+   <div id="gcc133-profile-content" class="gcc133-profile-content"></div>
+  </section>
+ </div>
  </section>`;}
 
 export function mountVolunteerGalleryV122(root,openTab){
@@ -27,7 +29,74 @@ export function mountVolunteerGalleryV122(root,openTab){
  const role=root.querySelector('#gcc122-role');
  const query=root.querySelector('#gcc122-query');
  const summary=root.querySelector('#gcc122-summary');
- let people=[];let generation=0;
+ let people=[];let generation=0,activePerson=null,returnFocus=null;
+ const modal=root.querySelector('#gcc133-profile-modal');
+ const modalContent=root.querySelector('#gcc133-profile-content');
+ const photoCache=new Map();
+ const photoUrl=(path)=>{
+  if(!path)return Promise.resolve(null);
+  if(!photoCache.has(path))photoCache.set(path,signedTeacherPhotoV116(path).catch(()=>null));
+  return photoCache.get(path);
+ };
+ const placeFlag=(person)=>{
+  const row=el('div','gcc122-person-location');
+  const img=el('img');img.src=countryFlagAssetV131(person.country,person.country_code);
+  img.alt='';img.width=24;img.height=17;row.append(img);
+  row.append(el('span','',person.country||person.country_code||'Global Classroom'));
+  return row;
+ };
+ const roleBadges=(person)=>{
+  const badges=el('div','gcc122-person-roles');
+  if(person.founder)badges.append(el('span','gcc122-role-founder','Founder · Global Classroom'));
+  if(person.facilitator)badges.append(el('span','gcc122-role-facilitator','Facilitator'));
+  if(person.gc_host)badges.append(el('span','gcc122-role-host','GC Session Host'));
+  return badges;
+ };
+ const closeProfile=()=>{
+  if(modal.hidden)return;
+  modal.hidden=true;activePerson=null;modalContent.replaceChildren();
+  document.body.classList.remove('gcc133-profile-open');
+  if(returnFocus?.isConnected)returnFocus.focus();
+  returnFocus=null;
+ };
+ const openProfile=(person,trigger)=>{
+  if(!modal.hidden)closeProfile();
+  activePerson=person;returnFocus=trigger;
+  modalContent.replaceChildren();
+  const photo=el('div','gcc133-detail-photo');
+  photo.append(el('span','gcc122-person-placeholder',(person.name||'G').slice(0,1).toUpperCase()));
+  const body=el('div','gcc133-detail-body');
+  const headline=el('h2','gcc133-detail-name',person.name||'Global Classroom Educator');
+  headline.id='gcc133-profile-title';
+  body.append(placeFlag(person),headline,el('p','gcc133-detail-school',[person.school,person.school_level].filter(Boolean).join(' · ')),roleBadges(person));
+  if(person.title)body.append(el('p','gcc133-detail-title',person.title));
+  if(person.city)body.append(el('p','gcc133-detail-city',person.city));
+  if(person.bio){body.append(el('h3','gcc133-detail-section','About this educator'),el('p','gcc133-detail-bio',person.bio));}
+  const links=el('div','gcc122-links gcc133-detail-links');
+  for(const [key,label] of [['website','Website'],['instagram','Instagram'],['facebook','Facebook']]){
+   const href=validHttps(person[key]);if(!href)continue;
+   const a=el('a','',label+' ↗');a.href=href;a.target='_blank';a.rel='noopener noreferrer';links.append(a);
+  }
+  if(links.childElementCount)body.append(links);
+  modalContent.append(photo,body);
+  modal.hidden=false;document.body.classList.add('gcc133-profile-open');
+  modal.querySelector('.gcc133-profile-close').focus();
+  if(person.photo_path)photoUrl(person.photo_path).then(url=>{
+   if(!url||modal.hidden||activePerson!==person)return;
+   const img=el('img');img.src=url;img.alt=(person.name||'Educator')+' profile photograph';
+   img.addEventListener('error',()=>img.remove());photo.append(img);
+  });
+ };
+ for(const dismiss of modal.querySelectorAll('[data-gcc133-close]'))dismiss.addEventListener('click',closeProfile);
+ modal.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeProfile();return;}
+  if(event.key!=='Tab')return;
+  const focusable=[...modal.querySelectorAll('button:not([disabled]),a[href]')].filter(node=>node.getClientRects().length);
+  if(!focusable.length){event.preventDefault();return;}
+  const first=focusable[0],last=focusable[focusable.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+ });
  const empty=(headline,message,action=false)=>{
   const panel=el('div','gcc122-empty');
   const mark=el('div','gcc122-empty-icon','🌍');mark.setAttribute('aria-hidden','true');
@@ -36,6 +105,7 @@ export function mountVolunteerGalleryV122(root,openTab){
   cards.replaceChildren(panel);
  };
  async function render(){
+  if(!modal.hidden)closeProfile();
   const id=++generation;
   const term=query.value.trim().toLocaleLowerCase();
   const visible=people.filter(p=>(!country.value||p.country_code===country.value)&&
@@ -47,33 +117,22 @@ export function mountVolunteerGalleryV122(root,openTab){
   const list=document.createDocumentFragment();
   for(const person of visible){
    const card=el('article','gcc122-person');
+   const open=el('button','gcc133-person-open');open.type='button';
+   open.setAttribute('aria-haspopup','dialog');
+   open.setAttribute('aria-label','View profile of '+(person.name||'Global Classroom Educator'));
    const frame=el('div','gcc122-person-photo');
-   const placeholder=el('span','gcc122-person-placeholder',(person.name||'G').slice(0,1).toLocaleUpperCase());
-   frame.append(placeholder);
+   frame.append(el('span','gcc122-person-placeholder',(person.name||'G').slice(0,1).toUpperCase()));
    const body=el('div','gcc122-person-body');
-   const location=el('div','gcc122-person-location');const iso=(person.country_code||'').toUpperCase();
-   if(flags[iso]){const img=el('img');img.src=flags[iso];img.alt='';img.width=24;img.height=17;location.append(img);}else location.append(el('span','gcc122-country-icon','🌐'));
-   location.append(el('span','',person.country||iso||'Global Classroom'));
-   const badges=el('div','gcc122-person-roles');
-   if(person.founder)badges.append(el('span','gcc122-role-founder','Founder · Global Classroom'));
-   if(person.facilitator)badges.append(el('span','gcc122-role-facilitator','Facilitator'));
-   if(person.gc_host)badges.append(el('span','gcc122-role-host','GC Session Host'));
-   const name=el('h3','gcc122-person-name',person.name||'Global Classroom Educator');
-   const school=el('p','gcc122-person-school',[person.school,person.school_level].filter(Boolean).join(' · '));
-   body.append(location,name,school,badges);
-   if(person.bio)body.append(el('p','gcc122-person-bio',person.bio));
-   const links=el('div','gcc122-links');
-   for(const [key,label] of [['website','Website'],['instagram','Instagram'],['facebook','Facebook']]){
-    const href=validHttps(person[key]);if(!href)continue;
-    const a=el('a','',label+' ↗');a.href=href;a.target='_blank';a.rel='noopener noreferrer';links.append(a);
-   }
-   if(links.childElementCount)body.append(links);
-   card.append(frame,body);list.append(card);
-   if(person.photo_path){signedTeacherPhotoV116(person.photo_path).then(url=>{
-     if(!url||id!==generation)return;
-     const img=el('img');img.src=url;img.alt=`${person.name||'Teacher'} profile photograph`;img.loading='lazy';img.decoding='async';
-     img.addEventListener('error',()=>img.remove());frame.append(img);
-    }).catch(()=>{});}
+   body.append(placeFlag(person),el('h3','gcc122-person-name',person.name||'Global Classroom Educator'),
+    el('p','gcc122-person-school',[person.school,person.school_level].filter(Boolean).join(' · ')),roleBadges(person),
+    el('span','gcc133-open-hint','View profile ↗'));
+   open.append(frame,body);card.append(open);list.append(card);
+   open.addEventListener('click',()=>openProfile(person,open));
+   if(person.photo_path)photoUrl(person.photo_path).then(url=>{
+    if(!url||id!==generation||!frame.isConnected)return;
+    const img=el('img');img.src=url;img.alt=(person.name||'Teacher')+' profile photograph';
+    img.loading='lazy';img.decoding='async';img.addEventListener('error',()=>img.remove());frame.append(img);
+   });
   }
   cards.replaceChildren(list);
  }

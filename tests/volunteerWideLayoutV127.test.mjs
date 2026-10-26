@@ -23,10 +23,10 @@ test('the layout override is active only for the volunteer route',()=>{
  // Only reject unscoped rules; rules scoped under .gcc123-volunteer-focus are intentional.
  assert.doesNotMatch(css,/^\s*\.(?:gct-portal|app-shell)\s*\{/m);
 });
-test('the photo gallery still supports three responsive columns and mobile stacking',()=>{
- assert.match(gallery,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
- assert.match(gallery,/@media\(max-width:930px\)/);
- assert.match(gallery,/@media\(max-width:610px\)/);
+test('the compact photo gallery supports four responsive columns and mobile stacking',()=>{
+ assert.match(gallery,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(gallery,/@media\(max-width:1080px\)/);
+ assert.match(gallery,/@media\(max-width:420px\)/);
 });
 test('the original 3-step facilitator registration and security boundaries are untouched',()=>{
  const form=read('src/pages/teacher/VolunteerV117.js');
