@@ -1,4 +1,5 @@
 import '../../styles/teacherJoinV120.css';
+import '../../styles/teacherOnboardingV132.css';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
 import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
@@ -6,7 +7,7 @@ import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120
 const safe=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 export function TeacherJoinV120(){return `<main class="gcc120-page"><section class="gcc120-join" aria-label="Join Global Classroom">
  <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
- <div class="gcc120-title"><span>🌎 JOIN OUR GLOBAL TEACHER COMMUNITY</span><h1>Create your GCC account</h1><p>Start with your email, then add your teacher and school details. Your access starts after Global Classroom approves your application.</p></div>
+ <div class="gcc120-title"><span>🌎 JOIN OUR GLOBAL TEACHER COMMUNITY</span><h1>Create your GCC account</h1><p>Start with your email, then add your teacher and school details. Your access starts after Global Classroom approves your application.</p><p class="gcc132-onboarding-note">Joining the Global Classroom core team? Sign up, complete your teacher profile, then register as a Facilitator or GC Host after approval. Facilitator registration does not grant Host Admin access.</p></div>
  <p class="gcc120-message" id="gcc120-msg" role="status" aria-live="polite"></p>
  <section id="gcc120-account-step" class="gcc120-panel"><h2><span class="gcc120-step">1</span> Your account</h2>
   <form id="gcc120-signup-form" class="gcc120-grid"><label>Email address *<input type="email" id="gcc120-email" autocomplete="email" required></label>
@@ -38,7 +39,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page"><section cla
   <p class="gcc120-span gcc120-hint">Independent or individual schools are welcome. Please enter the school or organization name, location and a website that reviewers can verify. No student names are required.</p>
   <button type="submit" id="gcc120-submit" class="gcc120-primary gcc120-span">Submit for approval →</button>
   </form></section>
- <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
+ <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-primary gcc120-inline" hidden>Continue to Facilitator registration →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
  <footer class="gcc120-foot">Already approved? <a href="#/teacher-access">Sign in</a> · <a href="#/registration">Legacy invitation registration</a></footer>
  </section></main>`;}
 export function bindTeacherJoinV120(){
@@ -52,8 +53,8 @@ export function bindTeacherJoinV120(){
   const zones=$('gcc120-zones');try{for(const name of Intl.supportedValuesOf('timeZone'))zones.append(new Option(name,name));}catch{zones.append(new Option('Asia/Tokyo','Asia/Tokyo'));}
   $('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
  }
- function status(kind){setStep('status');$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
-  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will verify your school, websites, introduction and face photograph. You can sign in now, but hosting, finding sessions and volunteering unlock only after approval.':kind==='approved'?'You can now sign in and use GCC teacher features.':'Contact Global Classroom if you need assistance.';}
+ function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
+  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will verify your application. After approval, return to register as a Facilitator or GC Host; volunteer features stay locked until then.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
  async function ready(){const user=await currentUserV120();if(!user){setStep('account');return;}try{
    if(await hasApprovedTeacherV120()){status('approved');return;}
    draft=await beginApplicationV120();if(draft.status!=='draft'){status(draft.status);return;}

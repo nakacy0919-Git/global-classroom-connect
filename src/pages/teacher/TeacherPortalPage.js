@@ -12,12 +12,7 @@ function fmt(iso,zone){try{return new Intl.DateTimeFormat('en-GB',{timeZone:zone
 function tomorrow(zone){const x=new Date(Date.now()+86400000);try{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(x).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`;}catch{return x.toISOString().slice(0,10);}}
 export function TeacherPortalPage(){return `<section class="gct-workspace gct-portal">
  <header class="gct-banner"><div class="gct-banner-icon">🌍</div><div><p class="gct-eyebrow">GLOBAL CLASSROOM · TEACHER SPACE</p><h2>Connect your classroom</h2><p id="gctp-greeting">Loading your school…</p></div><button id="gctp-logout" type="button" class="gct-secondary gct-logout">Sign out</button></header>
- <nav class="gct-tabs" aria-label="Teacher actions"><button class="active" type="button" data-gct-tab="home">✦ Home</button><button type="button" data-gct-tab="create">＋ Register a Session</button><button type="button" data-gct-tab="find">⌕ Find a Session <span id="gctp-open-count"></span></button><button type="button" data-gct-tab="requests">✉ My Requests <span id="gctp-request-count"></span></button><button type="button" data-gct-tab="network">🌍 Teacher Network</button><button type="button" data-gct-tab="volunteer">🤝 Volunteer for GC</button></nav>
  <p id="gctp-message" class="gct-feedback" role="status" aria-live="polite"></p>
- <section class="gct-section gcc117-teacher-home" data-gct-view="home"><h3>What would you like to do today?</h3><p>Choose your next Global Classroom adventure.</p><div class="gcc117-home-cards">
- <button type="button" class="gcc117-home-card" data-gct-open="create"><span>📅</span><strong>Host a Session</strong><small>Choose your local date and time, introduce your students and publish an exchange.</small></button>
- <button type="button" class="gcc117-home-card" data-gct-open="find"><span>🌐</span><strong>Find a Session</strong><small>Discover partner schools, with meeting times shown in your time zone.</small></button>
- <button type="button" class="gcc117-home-card" data-gct-open="volunteer"><span>🎙️</span><strong>Be a Facilitator or GC Host</strong><small>Offer to help with Global Classroom-hosted events.</small></button></div></section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gct-two-col"><form id="gctp-create" class="gct-panel gct-form" novalidate>
    <div class="gct-section-head"><span>01</span><div><h3>Share your available time</h3><p>Choose when your class can welcome a partner.</p></div></div>
    <div class="gct-wizard-progress"><span id="gctp-form-step">Step 1 of 3</span><div><span id="gctp-form-progress"></span></div></div>
@@ -47,10 +42,10 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
 export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
- let identity=null,offers=[],requests=[],mode='home',formStep=0;
+ let identity=null,offers=[],requests=[],formStep=0;
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
-   for(const tab of root.querySelectorAll('[data-gct-tab]')){const active=tab.dataset.gctTab===id;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));}root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');mode=id;};
+   root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
  function showFormStep(index){
   formStep=index;
   for(const section of root.querySelectorAll('[data-gctp-form-section]'))section.hidden=Number(section.dataset.gctpFormSection)!==index;
@@ -79,8 +74,6 @@ export function bindTeacherPortalPage(){
  async function refresh(){
   const [mine,applications]=await Promise.all([teacherSessions(),teacherRequests()]);
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  $('gctp-open-count').textContent=String(upcoming().filter(o=>o.status==='open'&&!o.is_mine).length);
-  $('gctp-request-count').textContent=String(requests.filter(r=>r.direction==='incoming'&&r.status==='pending').length);
   renderMine();renderResults();renderRequests();
  }
  function renderMine(){const list=$('gctp-mine');list.replaceChildren();
@@ -113,7 +106,7 @@ export function bindTeacherPortalPage(){
    else {const detail=element('details','gct-request-form');const summary=element('summary','','Request to Join →');detail.append(summary);
     const input=element('textarea');input.rows=2;input.maxLength=500;input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
     const submit=element('button','gct-primary','Send join request →');submit.type='button';submit.addEventListener('click',async()=>{
-     submit.disabled=true;try{await teacherApply(o.id,input.value.trim());await refresh();inform('Request sent! Track it in My Requests. No email was sent.');display('requests');}
+     submit.disabled=true;try{await teacherApply(o.id,input.value.trim());await refresh();inform('Request sent! Track it in My Requests from the GCC Home Account menu. No email was sent.');}
      catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
     });detail.append(input,submit);card.append(detail);}list.append(card);
   }
@@ -139,8 +132,6 @@ export function bindTeacherPortalPage(){
  async function init(){try{identity=await teacherIdentity();$('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
   $('gctp-zone').value=identity.timezone;$('gctp-date').value=tomorrow(identity.timezone);
   await refresh();inform('');await mountVolunteerV117(root,display);const networkProfile=await mountTeacherNetworkV116(root);if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
- for(const tab of root.querySelectorAll('[data-gct-tab]'))tab.addEventListener('click',()=>display(tab.dataset.gctTab));
- for(const card of root.querySelectorAll('[data-gct-open]'))card.addEventListener('click',()=>display(card.dataset.gctOpen));
  $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
    if(slot.error){inform(slot.error,true);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);return;}
@@ -154,7 +145,8 @@ export function bindTeacherPortalPage(){
  $('gctp-find-country').addEventListener('change',renderResults);$('gctp-find-band').addEventListener('change',renderResults);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
- showFormStep(0);display(['home','create','find','volunteer','network','requests'].includes(view)?view:'home');init().then(()=>{if(!identity)return;const select=$('gctp-find-country');const codes=new Map(upcoming().filter(o=>!o.is_mine).map(o=>[o.country_code,o.country_name]));
+ if(!['create','find','volunteer','network','requests'].includes(view)){window.location.hash='#/welcome';return;}
+ showFormStep(0);display(view);init().then(()=>{if(!identity)return;const select=$('gctp-find-country');const codes=new Map(upcoming().filter(o=>!o.is_mine).map(o=>[o.country_code,o.country_name]));
   for(const [code,label] of [...codes].sort((a,b)=>a[1].localeCompare(b[1]))){const opt=element('option','',label);opt.value=code;select.append(opt);}
  }).catch(e=>inform(e.message,true));
 }

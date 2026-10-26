@@ -1,0 +1,4 @@
+/* GCC V13.2: guide the core team through existing approval then volunteering. */
+.gcc132-onboarding-note{margin:10px 0 0!important;font-size:.84rem;line-height:1.5;color:#436c7b;background:#eef7f8;border:1px solid #d1e7e9;border-radius:12px;padding:12px 14px}
+#gcc132-facilitator-next[hidden]{display:none!important}
+#gcc132-facilitator-next{margin:10px 10px 10px 0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
