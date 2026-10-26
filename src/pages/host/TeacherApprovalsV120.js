@@ -1,17 +1,74 @@
 import '../../styles/teacherJoinV120.css';
-import {pendingApprovalsV120,reviewApplicationV120,previewApplicationPhotoV120} from '../../services/teacherOnboardingV120.js';
+import '../../styles/teacherApprovalStatusV134.css';
+import {pendingApprovalsV120,signupOverviewV134,reviewApplicationV120,previewApplicationPhotoV120} from '../../services/teacherOnboardingV120.js';
 import {supabase} from '../../services/supabase.js';
 const el=(tag,cls='',str='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=str;return n;};
 export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-admin-page"><section class="gcc120-join gcc120-admin">
  <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Verify the teacher's face, introduction, websites, and school details. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
+ <section class="gcc134-tracker" aria-label="Teacher registration status">
+  <div class="gcc134-tracker-head">
+   <div><h2>Teacher registration status</h2><p>New sign-ups appear here before email confirmation or profile submission.</p></div>
+   <button id="gcc134-refresh" type="button" class="gcc120-secondary">↻ Refresh now</button>
+  </div>
+  <p id="gcc134-refresh-time" class="gcc134-time" role="status" aria-live="polite">Checking registered accounts…</p>
+  <div id="gcc134-counts" class="gcc134-counts"></div>
+  <div id="gcc134-accounts" class="gcc134-accounts">Loading registration status…</div>
+ </section>
+ <h2 class="gcc134-queue-title">Applications awaiting approval</h2>
  <p id="gcc120-review-msg" role="status" aria-live="polite" class="gcc120-message"></p><div id="gcc120-review-list" class="gcc120-review-list">Loading…</div>
  </section></main>`;}
 export function bindTeacherApprovalsV120(){
  const root=document.querySelector('.gcc120-admin');if(!root)return;
  const message=root.querySelector('#gcc120-review-msg'),list=root.querySelector('#gcc120-review-list');
+ const accountsBox=root.querySelector('#gcc134-accounts'),countBox=root.querySelector('#gcc134-counts');
+ const lastCheck=root.querySelector('#gcc134-refresh-time'),refreshButton=root.querySelector('#gcc134-refresh');
+ let loading=false,lastAccountKey=null,lastQueueKey=null;
+ const stages={
+  email_unconfirmed:['Email confirmation needed','Ask the teacher to confirm their email.'],
+  profile_incomplete:['Profile not submitted','The teacher needs to sign in and submit their school profile.'],
+  pending:['Awaiting review','Ready for administrator review.'],
+  approved:['Approved','Teacher access is approved.'],
+  rejected:['Rejected','The application was not approved.']
+ };
+ function renderAccounts(data){
+  const accounts=Array.isArray(data)?data:[];
+  const counts=Object.fromEntries(Object.keys(stages).map(key=>[key,accounts.filter(a=>a.status===key).length]));
+  countBox.replaceChildren();
+  for(const code of ['email_unconfirmed','profile_incomplete','pending','approved']){
+   const card=el('div','gcc134-stat');
+   card.append(el('strong','',String(counts[code])),el('span','',stages[code][0]));
+   countBox.append(card);
+  }
+  accountsBox.replaceChildren();
+  if(!accounts.length){accountsBox.append(el('p','gcc134-no-accounts','No registered accounts have been found.'));return;}
+  accountsBox.append(el('p','gcc134-account-caption',`Latest ${accounts.length} registered account${accounts.length===1?'':'s'} (up to 200)`));
+  for(const account of accounts){
+   const row=el('article','gcc134-account-row');
+   const main=el('div','gcc134-account-main');
+   main.append(el('strong','gcc134-account-name',account.name||account.email||'Registered teacher'));
+   if(account.name&&account.email)main.append(el('span','gcc134-account-email',account.email));
+   if(account.school)main.append(el('span','gcc134-account-school',account.school));
+   const detail=el('div','gcc134-account-detail'),code=stages[account.status]?account.status:'profile_incomplete';
+   detail.append(el('span','gcc134-status gcc134-status-'+code,stages[code][0]));
+   detail.append(el('span','gcc134-created',account.created_at?new Date(account.created_at).toLocaleString():''));
+   row.append(main,detail);accountsBox.append(row);
+  }
+ }
  const notify=(s,error=false)=>{message.textContent=s;message.classList.toggle('error',error);};
- async function refresh(){list.replaceChildren();const applications=await pendingApprovalsV120();
-  if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));return;}
+ async function refresh(){
+  if(loading||!root.isConnected)return;
+  loading=true;refreshButton.disabled=true;
+  try{
+   const [applications,accounts]=await Promise.all([pendingApprovalsV120(),signupOverviewV134()]);
+   if(!root.isConnected)return;
+   lastCheck.textContent='Last checked: '+new Date().toLocaleTimeString()+' · Refreshes every 15 seconds';
+   const aKey=JSON.stringify(accounts);
+   if(aKey!==lastAccountKey){renderAccounts(accounts);lastAccountKey=aKey;}
+   const qKey=JSON.stringify(applications);
+   if(qKey===lastQueueKey)return;
+   lastQueueKey=qKey;
+   list.replaceChildren();
+   if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));return;}
   const {data:schools,error:schoolErr}=await supabase.from('schools').select('id,name,country_name').eq('is_active',true).order('name');
   if(schoolErr)throw schoolErr;
   for(const a of applications){const card=el('article','gcc120-panel gcc120-review-card');
@@ -43,6 +100,21 @@ export function bindTeacherApprovalsV120(){
       catch(e){notify(e.message||'Review failed.',true);btn.disabled=false;}
      });actions.append(btn);}card.append(actions);list.append(card);
   }
+  }catch(e){
+   lastCheck.textContent='Unable to refresh registration status.';
+   if(lastQueueKey===null)list.replaceChildren(el('p','gcc120-panel','Could not load applications. Reload this page or contact your GCC administrator.'));
+   if(lastAccountKey===null)accountsBox.replaceChildren(el('p','gcc134-no-accounts','Could not load registered accounts.'));
+   notify(e.message||'Could not load applications.',true);
+  }finally{loading=false;refreshButton.disabled=false;}
  }
- refresh().catch(e=>{list.replaceChildren(el('p','gcc120-panel','Could not load applications. Reload this page or contact your GCC administrator.'));notify(e.message||'Could not load applications.',true);});
+ refreshButton.addEventListener('click',refresh);
+ const onActive=()=>{if(root.isConnected&&document.visibilityState==='visible')refresh();};
+ window.addEventListener('focus',onActive);
+ document.addEventListener('visibilitychange',onActive);
+ const timer=window.setInterval(()=>{
+  if(!root.isConnected){window.clearInterval(timer);window.removeEventListener('focus',onActive);
+   document.removeEventListener('visibilitychange',onActive);return;}
+  if(document.visibilityState==='visible')refresh();
+ },15000);
+ refresh();
 }
