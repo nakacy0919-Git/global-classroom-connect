@@ -1,24 +1,31 @@
 import '../../styles/teacherJoinV120.css';
 import '../../styles/teacherOnboardingV132.css';
+import '../../styles/teacherSignupRecoveryV135.css';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
 import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
- submitApplicationV120,uploadApplicationPhotoV120,previewApplicationPhotoV120,hasApprovedTeacherV120} from '../../services/teacherOnboardingV120.js';
+ submitApplicationV120,uploadApplicationPhotoV120,resendConfirmationV135,hasApprovedTeacherV120} from '../../services/teacherOnboardingV120.js';
+import {teacherSignupErrorV135,teacherPhotoErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 const safe=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 export function TeacherJoinV120(){return `<main class="gcc120-page"><section class="gcc120-join" aria-label="Join Global Classroom">
  <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
  <div class="gcc120-title"><span>🌎 JOIN OUR GLOBAL TEACHER COMMUNITY</span><h1>Create your GCC account</h1><p>Start with your email, then add your teacher and school details. Your access starts after Global Classroom approves your application.</p><p class="gcc132-onboarding-note">Joining the Global Classroom core team? Sign up, complete your teacher profile, then register as a Facilitator or GC Host after approval. Facilitator registration does not grant Host Admin access.</p></div>
  <p class="gcc120-message" id="gcc120-msg" role="status" aria-live="polite"></p>
  <section id="gcc120-account-step" class="gcc120-panel"><h2><span class="gcc120-step">1</span> Your account</h2>
+  <p class="gcc135-step-hint">Create your account once → confirm the link sent to your email → sign in below to complete your profile. If you have already signed up, do not create a second account.</p>
   <form id="gcc120-signup-form" class="gcc120-grid"><label>Email address *<input type="email" id="gcc120-email" autocomplete="email" required></label>
   <label>Password (at least 8 characters) *<input type="password" id="gcc120-password" autocomplete="new-password" minlength="8" required></label>
   <button class="gcc120-primary gcc120-span" type="submit">Create account →</button></form>
   <div class="gcc120-signin"><p>Already have an account, or confirmed your email? Sign in to continue.</p>
     <form id="gcc120-signin-form" class="gcc120-grid"><label>Email<input id="gcc120-old-email" type="email" autocomplete="email" required></label>
     <label>Password<input id="gcc120-old-password" type="password" autocomplete="current-password" required></label>
-    <button type="submit" class="gcc120-secondary gcc120-span">Sign in and continue</button></form></div>
+    <button type="submit" class="gcc120-secondary gcc120-span">Sign in and continue → Teacher &amp; School Profile</button></form>
+    <button type="button" id="gcc135-resend" class="gcc135-link">Didn't receive the confirmation link? Resend once</button>
+    <p class="gcc135-email-note">Confirmation delivery may be limited by GCC's email provider. If you see an email limit error, please contact the GCC administrator rather than repeatedly creating accounts.</p>
+   </div>
  </section>
  <section id="gcc120-profile-step" class="gcc120-panel" hidden><h2><span class="gcc120-step">2</span> Teacher &amp; school information</h2>
+  <p class="gcc135-step-hint">Your account already exists. Finish this application to join the administrator's review queue. If the photo upload fails, keep this tab open and submit again; do not sign up again.</p>
   <p class="gcc120-hint">Your profile photo, introduction, and website are required. Please use a clear, recognizable photo of your face. A GCC reviewer will check your application.</p>
   <form id="gcc120-application" class="gcc120-grid">
   <h3 class="gcc120-span">About you</h3>
@@ -38,6 +45,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page"><section cla
   <datalist id="gcc120-zones"></datalist>
   <p class="gcc120-span gcc120-hint">Independent or individual schools are welcome. Please enter the school or organization name, location and a website that reviewers can verify. No student names are required.</p>
   <button type="submit" id="gcc120-submit" class="gcc120-primary gcc120-span">Submit for approval →</button>
+  <p class="gcc120-span gcc135-email-note">A successful submission displays “Application received”. Only then will the administrator see your application for approval.</p>
   </form></section>
  <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-primary gcc120-inline" hidden>Continue to Facilitator registration →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
  <footer class="gcc120-foot">Already approved? <a href="#/teacher-access">Sign in</a> · <a href="#/registration">Legacy invitation registration</a></footer>
@@ -46,6 +54,8 @@ export function bindTeacherJoinV120(){
  const root=document.querySelector('.gcc120-join[aria-label="Join Global Classroom"]');if(!root)return;
  const $=id=>root.querySelector('#'+id),notify=(v,error=false)=>{const m=$('gcc120-msg');m.textContent=v;m.classList.toggle('error',error);};
  let draft=null;
+ let resendAt=0;
+ const resend=$('gcc135-resend');
  function setStep(which){for(const s of ['account','profile','status'])$('gcc120-'+s+'-step').hidden=s!==which;}
  function fillChoices(){
   const sel=$('gcc120-country');for(const c of countries){const name=c.name||c.label||c.country||'',code=c.code||c.iso2||c.iso||'';
@@ -63,12 +73,16 @@ export function bindTeacherJoinV120(){
   }catch(e){notify(e.message||'Unable to load your application.',true);setStep('account');}}
  $('gcc120-signup-form').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{
    const result=await signupAccountV120($('gcc120-email').value,$('gcc120-password').value);$('gcc120-password').value='';
-   if(result.session){notify('Account created. Complete your teacher profile below.');await ready();}
-   else notify('Account created. Check your email to confirm it, then return here and sign in to complete the application.');
-  }catch(err){notify(err.message||'Could not create account',true);}finally{btn.disabled=false;}});
+   if(result.session){notify('Account created. Complete your teacher and school profile below.');await ready();}
+   else {
+     $('gcc120-old-email').value=$('gcc120-email').value.trim();
+     notify('Account created. Check your inbox and spam folder for a confirmation link. Once confirmed, use Sign in and continue below; then submit your teacher profile for approval.');
+     $('gcc120-old-password').focus();
+   }
+  }catch(err){notify(teacherSignupErrorV135(err),true);}finally{btn.disabled=false;}});
  $('gcc120-signin-form').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{
    await signinAccountV120($('gcc120-old-email').value,$('gcc120-old-password').value);$('gcc120-old-password').value='';notify('Signed in.');await ready();
-  }catch(err){notify(err.message||'Sign in failed.',true);}finally{btn.disabled=false;}});
+  }catch(err){notify(teacherSignupErrorV135(err),true);}finally{btn.disabled=false;}});
  $('gcc120-application').addEventListener('submit',async e=>{e.preventDefault();if(!draft)return notify('Sign in first.',true);
   const file=$('gcc120-photo').files?.[0];if(!file)return notify('Please choose a clear photograph of your face.',true);
   const button=$('gcc120-submit');button.disabled=true;try{
@@ -81,6 +95,18 @@ export function bindTeacherJoinV120(){
     school_type:$('gcc120-type').value,school_level:$('gcc120-level').value,country:country.dataset.name,country_code:country.value,
     city:$('gcc120-city').value.trim(),region:$('gcc120-region').value.trim(),timezone:$('gcc120-timezone').value.trim()};
    const res=await submitApplicationV120(payload,photo.path);notify('');status(res.status);
-  }catch(err){notify(err.message||'Unable to submit application.',true);}finally{button.disabled=false;}});
- fillChoices();ready().catch(e=>notify(e.message,true));
+  }catch(err){notify(teacherPhotoErrorV135(err),true);}finally{button.disabled=false;}});
+ resend.addEventListener('click',async()=>{
+   const email=($('gcc120-old-email').value||$('gcc120-email').value).trim();
+   if(!email||!/^\S+@\S+\.\S+$/.test(email)){notify('Enter your registered email address before resending.',true);return;}
+   if(Date.now()-resendAt<60000){notify('Please wait at least one minute before resending.',true);return;}
+   resend.disabled=true;
+   try{
+     await resendConfirmationV135(email);
+     resendAt=Date.now();
+     notify('If the email address is registered and sending is available, a new confirmation email has been requested. Check your inbox and spam folder.');
+   }catch(e){notify(teacherSignupErrorV135(e),true);}
+   finally{resend.disabled=false;}
+ });
+ fillChoices();ready().catch(e=>notify(teacherSignupErrorV135(e),true));
 }

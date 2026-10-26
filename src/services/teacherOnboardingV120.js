@@ -5,6 +5,10 @@ const rpc=async(name,args={})=>{const {data,error}=await api().rpc(name,args);if
 export async function signupAccountV120(email,password){
  const {data,error}=await api().auth.signUp({email:email.trim().toLowerCase(),password});if(error)throw error;return data;
 }
+export async function resendConfirmationV135(email){
+ const {data,error}=await api().auth.resend({type:'signup',email:email.trim().toLowerCase()});
+ if(error)throw error;return data;
+}
 export async function signinAccountV120(email,password){
  const {data,error}=await api().auth.signInWithPassword({email:email.trim().toLowerCase(),password});if(error)throw error;return data;
 }
