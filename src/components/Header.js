@@ -8,7 +8,8 @@ const titles = {
   'register-session': 'Register a Session', // GCC_SESSION_SPLIT_V3
   'find-session': 'Find a Session',
   'join-requests': 'Join Requests', // GCC_JOIN_V4
-  'teacher-invites': 'Teacher Invitations', // GCC_TEACHER_SELF_V5
+  'teacher-invites': 'Teacher Invitations',
+  'teacher-approvals': 'Teacher Applications', // GCC_TEACHER_SELF_V5
   'teacher-portal': 'Teacher Workspace',
   schools: 'School Library',
   teachers: 'Teacher Database',

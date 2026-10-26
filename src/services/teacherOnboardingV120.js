@@ -12,6 +12,7 @@ export async function currentUserV120(){const {data,error}=await api().auth.getU
 export const beginApplicationV120=()=>rpc('gcc_v120_begin_application');
 export const submitApplicationV120=(form,path)=>rpc('gcc_v120_submit_application',{p_data:form,p_photo_path:path});
 export const pendingApprovalsV120=()=>rpc('gcc_v120_admin_applications');
+export const signupOverviewV134=()=>rpc('gcc_v134_signup_overview');
 export const reviewApplicationV120=(id,decision,grantHost,schoolId=null)=>rpc('gcc_v120_review_application',{
  p_id:id,p_decision:decision,p_grant_host:grantHost,p_existing_school_id:schoolId
 });

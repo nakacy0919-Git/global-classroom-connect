@@ -1,0 +1,28 @@
+/* GCC V13.4: host-only account lifecycle overview */
+.gcc120-admin .gcc134-tracker{display:grid;gap:12px;padding:clamp(15px,2.5vw,24px);background:#f7fcfb;border:1px solid #d0e5e7;border-radius:18px;margin:14px 0 24px}
+.gcc134-tracker-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.gcc134-tracker-head h2,.gcc134-queue-title{font-size:clamp(1.2rem,2vw,1.6rem);color:#1d566a;margin:0}
+.gcc134-tracker-head p{font-size:.87rem;color:#5c7d87;margin:5px 0 0;line-height:1.45}
+.gcc134-tracker-head button{font-size:.85rem;padding:9px 14px;cursor:pointer}
+.gcc134-time{font-size:.8rem;color:#547c88;margin:0}
+.gcc134-counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.gcc134-stat{display:flex;flex-direction:column;gap:4px;border-radius:13px;padding:13px;background:#fff;border:1px solid #dbe9ec}
+.gcc134-stat strong{font-variant-numeric:tabular-nums;font-size:1.6rem;line-height:1;color:#236f85}
+.gcc134-stat span{font-size:.77rem;color:#597988;font-weight:750}
+.gcc134-accounts{display:grid;gap:9px}
+.gcc134-account-caption{font-size:.78rem;color:#597b8a;margin:6px 0 1px}
+.gcc134-account-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;background:#fff;border:1px solid #dbe9ea;padding:13px 14px;border-radius:12px}
+.gcc134-account-main,.gcc134-account-detail{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gcc134-account-name{font-size:.94rem;overflow-wrap:anywhere;color:#1c4b62}
+.gcc134-account-email,.gcc134-account-school,.gcc134-created{font-size:.76rem;color:#688495;overflow-wrap:anywhere}
+.gcc134-account-detail{align-items:flex-end}
+.gcc134-status{border-radius:999px;background:#eaf3f6;color:#426c80;padding:6px 10px;font-size:.73rem;font-weight:850}
+.gcc134-status-email_unconfirmed{background:#fff0d6;color:#8b5b17}
+.gcc134-status-profile_incomplete{background:#e9f1fb;color:#396a9b}
+.gcc134-status-pending{background:#fae8cb;color:#8c5b21}
+.gcc134-status-approved{background:#dcf4e8;color:#277250}
+.gcc134-status-rejected{background:#f9e5e4;color:#a8443a}
+.gcc134-no-accounts{border:1px dashed #bfdce3;border-radius:12px;padding:16px;background:#fff;margin:0}
+.gcc134-queue-title{margin:14px 0}
+@media(max-width:720px){.gcc134-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:470px){.gcc134-account-detail{align-items:flex-start}.gcc134-account-row{align-items:flex-start}}
