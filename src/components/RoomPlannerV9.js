@@ -1,6 +1,7 @@
 import '../styles/roomPlannerV9.css';
 import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV} from '../lib/roomPlannerV9.js';
-import {packRoomDraft,unpackRoomDraft} from '../lib/roomDraftV91.js';
+import {packRoomDraft} from '../lib/roomDraftV91.js';
+import {mergeSavedRoomDraftV129} from '../lib/roomIncrementalV129.js';
 import {fetchRoomDraft,saveRoomDraft} from '../services/roomDraftV91.js';
 import {countryIsoCode,countryFlagEmoji} from '../lib/roomCountryFlagsV104.js';
 import jpPlannerFlag from '../assets/room-flags/jp.svg';
@@ -55,6 +56,7 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
  let {students,facilitators}=collectApproved(signups);
  let sample=false,plan=null,screen='settings',moveMode=false,moveTarget=null;
  let savedMeta=null,revision=0,dirty=true,busy=false,loadError='';
+ let checkingSaved=Boolean(event?.id);
  const configured=Number(settings?.breakout_rooms||10),initialFac=Number(settings?.facilitators_per_room??1);
  const prefs={rooms:Math.max(1,Math.min(60,configured)),facilitatorsPerRoom:initialFac,countryMode:'prefer',schoolMode:'prefer'};
  const message=(text,error=false)=>{const n=root.querySelector('[data-v9-message]');if(n){n.textContent=text;n.classList.toggle('error',error);}};
@@ -74,19 +76,24 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
  function renderSettings() {
    root.replaceChildren();const shell=elem('section','gcc-v9');root.append(shell);
    const heading=elem('div','gcc-v9-head');heading.append(elem('span','gcc-v9-step','STEP 1 OF 2 · SETUP'),elem('h3','','Set up your breakout rooms'),elem('p','','Choose your room settings. The next screen will show your student groups.'));shell.append(heading);
+ if(checkingSaved){shell.append(elem('p','gcc-v9-message','Checking for a saved arrangement before enabling room generation…'));return;}
+ if(loadError){shell.append(elem('p','gcc-v9-warning',`Room generation is paused because the saved arrangement could not be checked: ${loadError}. Reload the session and try again.`));return;}
    if(sample){shell.append(demoNotice());}
    if(!students.length){const empty=elem('div','gcc-v9-empty');empty.append(elem('strong','','No approved students yet'),elem('p','','Approve the school registrations to use actual student names. You can explore the planner with sample names now.'));
      const reviewBtn=elem('button','gcc-v9-primary','← Review registrations');reviewBtn.type='button';reviewBtn.addEventListener('click',()=>document.getElementById('gcc-v8-host-back')?.click());empty.append(reviewBtn);
      const sampleBtn=elem('button','gcc-v9-outline','Try with sample students');sampleBtn.type='button';sampleBtn.addEventListener('click',()=>{const x=collectApproved(demoSignups());students=x.students;facilitators=x.facilitators;sample=true;prefs.rooms=4;renderSettings();});empty.append(sampleBtn);shell.append(empty);return;}
    if(!sample && savedMeta){
      const resume=elem('section','gcc-v91-resume');
-     const info=elem('div');info.append(elem('strong','','Saved room arrangement found'),elem('p','',`Last saved ${new Date(savedMeta.updated_at).toLocaleString()}. Continue editing or create a fresh shuffle.`));
+     const info=elem('div');info.append(elem('strong','','Saved room arrangement found'),elem('p','',`Last saved ${new Date(savedMeta.updated_at).toLocaleString()}. Keep every existing room and fixed pair; only new participants will be added.`));
      const open=elem('button','gcc-v9-primary','Continue saved plan →');open.type='button';
      open.addEventListener('click',()=>{try{
-       const restored=unpackRoomDraft(savedMeta.draft,students,facilitators);
-       plan=restored.rooms;Object.assign(prefs,restored.prefs);revision=savedMeta.revision;dirty=false;screen='preview';moveMode=false;renderPreview();
+       const restored=mergeSavedRoomDraftV129(savedMeta.draft,students,facilitators);
+       plan=restored.rooms;Object.assign(prefs,restored.prefs);revision=savedMeta.revision;dirty=restored.addedStudents>0||restored.addedFacilitators>0;screen='preview';moveMode=false;renderPreview();
+       if(restored.addedStudents||restored.addedFacilitators)message(`${restored.addedStudents} new student(s) and ${restored.addedFacilitators} facilitator(s) added; saved placements were preserved. Save this updated arrangement.`);
      }catch(err){message(err.message,true);}});
      resume.append(info,open);shell.append(resume);
+     shell.append(elem('p','gcc-v9-foot','Existing room assignments are protected. Whole-group Generate / Shuffle is disabled for this saved session.'));
+     return;
    }
    if(loadError) shell.append(elem('p','gcc-v9-warning',`Saved plan could not be loaded: ${loadError}`));
    const summary=elem('div','gcc-v9-intro');summary.append(elem('strong','',`${students.length} students`),elem('span','',`${new Set(students.map(s=>s.schoolKey)).size} schools`),elem('span','',`${facilitators.length} facilitators available`));shell.append(summary);
@@ -99,7 +106,7 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
    const actions=elem('div','gcc-v9-generate-area');actions.append(elem('strong','','Ready to make groups?'));actions.append(elem('span','','Next, review the students in each room.'));const generate=elem('button','gcc-v9-primary gcc-v9-main-action','Generate rooms →');generate.type='submit';actions.append(generate);form.append(actions);shell.append(form);
    const foot=elem('p','gcc-v9-foot','“Avoid” is best-effort. When schools or countries have too many students, perfect separation may be impossible.');shell.append(foot);
    const status=elem('p','gcc-v9-message','');status.setAttribute('data-v9-message','');shell.append(status);
-   form.addEventListener('submit',e=>{e.preventDefault();prefs.rooms=Number(rooms.value);prefs.facilitatorsPerRoom=Number(fac.value);prefs.countryMode=country.value;prefs.schoolMode=school.value;
+   form.addEventListener('submit',e=>{e.preventDefault();if(savedMeta||checkingSaved||loadError){message('Saved arrangements must be continued, not shuffled.',true);return;}prefs.rooms=Number(rooms.value);prefs.facilitatorsPerRoom=Number(fac.value);prefs.countryMode=country.value;prefs.schoolMode=school.value;
      try{plan=buildRoomDraft(students,facilitators,prefs);dirty=true;screen='preview';moveMode=false;moveTarget=null;renderPreview();}
      catch(err){message(err.message,true);}
    });
@@ -119,7 +126,7 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
    try{
      const payload=packRoomDraft(plan,prefs);
      const saved=await saveRoomDraft(event.id,payload,revision);
-     revision=Number(saved.revision);savedMeta=saved;dirty=false;
+     revision=Number(saved.revision);savedMeta={...saved,draft:payload,revision,updated_at:saved.updated_at||new Date().toISOString()};dirty=false;
      renderPreview();message('✓ Room arrangement safely saved. You can reopen this session later.');
    }catch(err){message(`Could not save: ${err.message}. Your draft is still on this screen; download CSV as a backup.`,true);if(primary)primary.disabled=false;}
    finally{busy=false;}
@@ -169,7 +176,7 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
 
    const tools=elem('div','gcc-v9-tools');
    const back=elem('button','gcc-v9-outline','← Change settings');back.type='button';back.addEventListener('click',()=>{screen='settings';moveMode=false;moveTarget=null;renderSettings();});tools.append(back);
-   const remix=elem('button','gcc-v9-outline','↻ Shuffle again');remix.type='button';remix.addEventListener('click',()=>{plan=buildRoomDraft(students,facilitators,prefs);dirty=true;moveMode=false;moveTarget=null;renderPreview();message('A new room mix is ready. Save it to keep these changes.');});tools.append(remix);
+   if(!savedMeta){const remix=elem('button','gcc-v9-outline','↻ Shuffle again');remix.type='button';remix.addEventListener('click',()=>{plan=buildRoomDraft(students,facilitators,prefs);dirty=true;moveMode=false;moveTarget=null;renderPreview();message('A new room mix is ready. Save it to keep these changes.');});tools.append(remix);}
    if(!sample){
      const edit=elem('button','gcc-v9-outline gcc-v9-edit-toggle',moveMode?'✓ Done moving':'⇄ Move students');edit.type='button';edit.setAttribute('aria-pressed',String(moveMode));
      edit.addEventListener('click',()=>{moveMode=!moveMode;moveTarget=null;renderPreview();});tools.append(edit);
@@ -238,9 +245,10 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
  // Tests and the sample planner have no event ID; only real host sessions query the DB.
  if(!sample && event?.id && typeof fetchRoomDraft === 'function'){
    fetchRoomDraft(event.id).then(saved=>{
-     if(!saved)return;
+     checkingSaved=false;
+     if(!saved){if(screen==='settings')renderSettings();return;}
      savedMeta=saved;revision=Number(saved.revision)||0;
      if(screen==='settings')renderSettings();
-   }).catch(err=>{loadError=err.message||'Connection error';if(screen==='settings')renderSettings();});
+   }).catch(err=>{checkingSaved=false;loadError=err.message||'Connection error';if(screen==='settings')renderSettings();});
  }
 }
