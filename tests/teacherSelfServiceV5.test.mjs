@@ -34,9 +34,10 @@ test('teacher browse feed excludes email and private notes',()=>{
  assert.match(q,/a\.status='open' or a\.teacher_id=tid/);
 });
 test('teacher workflow links own sessions, finding and inbound approval without direct table mutations',()=>{
- assert.match(portal,/data-gct-tab="create"/);
- assert.match(portal,/data-gct-tab="find"/);
- assert.match(portal,/data-gct-tab="requests"/);
+ assert.match(portal,/data-gct-view="create"/);
+ assert.match(portal,/data-gct-view="find"/);
+ assert.match(portal,/data-gct-view="requests"/);
+ assert.doesNotMatch(portal,/data-gct-tab=/);
  assert.match(portal,/teacherReview\(r\.id,decision\)/);
  assert.match(portal,/teacherApply\(o\.id,input\.value\.trim\(\)\)/);
  assert.match(access,/claimTeacherInvite/);

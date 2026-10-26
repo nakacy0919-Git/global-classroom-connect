@@ -4,7 +4,7 @@ import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
 import '../../styles/teacherLoginV126.css';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
-const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');return '#/teacher-portal?view='+(['home','create','find','volunteer','network','requests'].includes(next)?next:'home');};
+const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');return ['create','find','volunteer','network','requests'].includes(next)?'#/teacher-portal?view='+next:'#/welcome';};
 export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page"><section class="gcc120-join gcc120-signin-page gcc126-login" aria-label="Teacher sign in">
  <a class="gcc120-back gcc126-back" href="#/welcome">← Back to Global Classroom Connect</a>
  <header class="gcc126-heading"><img src="${gccOfficialBadgeV119}" width="82" height="82" alt="" aria-hidden="true"/>

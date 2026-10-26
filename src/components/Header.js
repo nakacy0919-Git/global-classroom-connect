@@ -22,11 +22,14 @@ const titles = {
 };
 
 export function Header(route) {
+  const view=route==='teacher-portal'?new URLSearchParams(window.location.hash.split('?')[1]||'').get('view'):null;
+  const teacherTitles={create:'Host a Session',find:'Find a Session',requests:'My Requests',network:'Teacher Network',volunteer:'Be a Facilitator / GC Host'};
+  const pageTitle=route==='teacher-portal'?(teacherTitles[view]||'Global Classroom Connect'):titles[route];
   return `
     <header class="topbar">
       <div>
         <p class="eyebrow">Global Classroom Connect</p>
-        <h1 class="page-title">${titles[route]}</h1>
+        <h1 class="page-title">${pageTitle}</h1>
       </div>
 
       <div class="topbar-actions">
