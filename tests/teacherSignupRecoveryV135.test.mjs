@@ -21,7 +21,7 @@ test('photo policy recovery does not wipe the form and lets the same account ret
  assert.match(teacherPhotoErrorV135({message:'new row violates row-level security policy'}),/profile entries are still/);
  assert.match(ui,/teacherPhotoErrorV135\(err\)/);
  assert.match(ui,/finally\{button\.disabled=false;\}/);
- assert.match(ui,/Submit for approval again/);
+ assert.match(ui,/keep this tab open and submit again/);
 });
 test('photo INSERT RLS restriction retains draft owner and WebP checks',()=>{
  assert.match(sql,/DROP POLICY IF EXISTS "GCC V120 applicant upload"/);
