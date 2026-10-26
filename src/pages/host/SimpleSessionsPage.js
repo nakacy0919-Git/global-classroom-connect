@@ -1,4 +1,5 @@
 import '../../styles/simpleSessionsV8.css';
+import '../../styles/hostBentoV130.css';
 import '../../styles/privacyV103.css';
 import '../../styles/sharePlanV104.css';
 import {mountRoomPlannerV9} from '../../components/RoomPlannerV9.js';
@@ -12,6 +13,7 @@ import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessi
 import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
 import {englishName} from '../../lib/simpleRoster.js';
+import {flagForCountryV130,rosterOverviewV130,sessionScheduleV130,planFreshnessV130} from '../../lib/hostOverviewV130.js';
 import {mountHostRoomAuditV106} from '../../lib/hostRoomAuditV106.js';
 import {canRemoveSessionV105} from '../../lib/sessionDeletionV105.js';
 import {deleteFinishedSessionV105} from '../../services/sessionDeletionV105.js';
@@ -81,9 +83,21 @@ export function bindSimpleSessionsPage(){
  const btn=(text,cls,fn)=>{const b=el('button',cls,text);b.type='button';b.addEventListener('click',fn);return b;};
  const link=()=>`${location.origin}${location.pathname}#/session-register`;
  function currentLabel(){const p=$('gcc-v8-host-select');p.replaceChildren();$('gcc-v8-current-title').replaceChildren();if(!events.length){const o=el('option','','No sessions yet');o.value='';p.append(o);p.disabled=true;return;}
-   p.disabled=false;for(const e of events){const o=el('option','',`${e.title}${e.status==='published'?' · Open':''}`);o.value=e.id;p.append(o);}p.value=activeEventId;
+   p.disabled=false;for(const e of events){const o=el('option','',e.title);o.value=e.id;p.append(o);}p.value=activeEventId;
    const x=$('gcc-v8-current-title');x.replaceChildren();const e=current();if(e){
-     x.append(el('strong','',e.title),el('span','',`${timeRangeV112(e.starts_at,e.ends_at,e.timezone||'Asia/Tokyo')} · ${e.status}`));
+     const schedule=sessionScheduleV130(e);
+     const display=el('div','gcc-v130-session-date');
+     const clock=el('div','gcc-v130-clock');clock.setAttribute('aria-hidden','true');
+     for(const [txt,cls] of [['12','top'],['3','right'],['6','bottom'],['9','left']])clock.append(el('span','gcc-v130-clock-number gcc-v130-clock-'+cls,txt));
+     const hour=el('span','gcc-v130-clock-hand gcc-v130-clock-hour');hour.style.transform=`translateX(-50%) rotate(${schedule.hourAngle}deg)`;
+     const minute=el('span','gcc-v130-clock-hand gcc-v130-clock-minute');minute.style.transform=`translateX(-50%) rotate(${schedule.minuteAngle}deg)`;
+     clock.append(hour,minute,el('span','gcc-v130-clock-pin'));
+     const info=el('div','gcc-v130-session-when');info.append(el('span','gcc-v130-session-day',schedule.date));
+     const range=el('strong','gcc-v130-session-range',`${schedule.start}–${schedule.end}`);
+     const timezone=el('span','gcc-v130-session-zone',schedule.zone);
+     info.append(range,timezone);
+     display.append(clock,info);
+     x.append(display,el('span','gcc-v130-session-status gcc-v130-status-'+String(e.status||'draft').replace(/[^a-z]/gi,''),e.status||'draft'));
      if(canRemoveSessionV105(e))x.append(btn('Delete finished session…','gcc-v105-delete-open',()=>openRemoveSessionV105(e)));
    }
  }
@@ -131,19 +145,57 @@ export function bindSimpleSessionsPage(){
    f.addEventListener('submit',async evt=>{evt.preventDefault();const data=new FormData(f);save.disabled=true;try{await updateSettings({rooms:Number(data.get('rooms')),maxStudents:Number(data.get('capacity')),facilitatorsPerRoom:Number(data.get('facs'))});}catch(err){notify(err.message,true);}finally{save.disabled=false;}});
    section.append(f);panel.append(section);
  }
- function stageRosters(panel,e){const list=party();const pending=list.filter(s=>s.status==='pending');
-   panel.append(el('div','gcc-v8-summary',`${pending.length} waiting · ${list.filter(s=>s.status==='approved').length} approved`));
-   if(!list.length){panel.append(el('p','gcc-v8-info-box','No schools have registered yet. Share the link from the previous step.'));return;}
-   for(const s of list){const card=el('article','gcc-v8-school-card');const n=(s.students||[]).length;
-     card.append(el('h3','',`${s.school_name} · ${s.country_name}`),el('p','gcc-v8-help',`${s.teacher_name} · ${n} students · ${s.status}`));
-     const details=el('details');details.append(el('summary','','View student names'));
-     for(const st of s.students||[])details.append(el('div','gcc-v8-name',`${st.name}${st.grade?' · '+st.grade:''}`));
-     details.append(el('p','gcc-v8-help',`Facilitators: ${(s.facilitators||[]).join(', ')||'None'}`));card.append(details);
-     const actions=el('div','gcc-v8-actions');if(s.status!=='declined')actions.append(btn('Edit names','gcc-v8-secondary',()=>openEdit(s)));
-     if(s.status==='pending'){
-       actions.append(btn('Decline','gcc-v8-secondary',()=>review(s,false)),btn('Approve','gcc-v8-primary',()=>review(s,true)));
-     }card.append(actions);panel.append(card);
+ function stageRosters(panel,e){
+   const list=party();const overview=rosterOverviewV130(list);
+   const summary=el('div','gcc-v130-roster-summary');
+   for(const [number,label] of [[overview.approved,'approved schools'],[overview.waiting,'waiting'],[overview.countries,'countries'],[overview.students,'students']]){
+     const stat=el('div','gcc-v130-roster-stat');stat.append(el('strong','',number),el('span','',label));summary.append(stat);
    }
+   panel.append(summary);
+   const refresh=btn('↻ Refresh registrations','gcc-v8-secondary gcc-v130-refresh',async()=>{refresh.disabled=true;try{await reload(false);}finally{refresh.disabled=false;}});
+   panel.append(refresh);
+   const sync=el('div','gcc-v130-plan-sync','Checking saved room plan…');sync.setAttribute('role','status');panel.append(sync);
+   Promise.all([fetchRoomDraft(e.id),getRoomShareStatus(e.id)]).then(([draft,pub])=>{
+     if(!sync.isConnected||activeEventId!==e.id)return;
+     const state=planFreshnessV130({signups:list,savedDraft:draft,publication:pub});
+     sync.replaceChildren();
+     if(!state.revision)sync.append(el('span','','No saved room plan yet. Arrange rooms in Step 3.'));
+     else {
+       sync.append(el('strong','',`Saved rooms: ${state.savedStudents}/${state.approvedStudents} approved students`));
+       if(state.allIncluded)sync.append(el('span','','✓ All approved students are in the saved room plan.'));
+       else sync.append(el('span','',`⚠ ${state.missing} approved student(s) are not yet placed. Continue the saved arrangement in Step 3.`));
+       if(state.publicationBehind){
+         sync.classList.add('gcc-v130-sync-warning');
+         sync.append(el('span','',`⚠ Published chart is older (revision ${state.published}; saved revision ${state.revision}). Participants cannot see the newest arrangement until you publish it again.`));
+         sync.append(btn('Go to Share final plan →','gcc-v8-secondary',()=>{activeStage=3;paint();}));
+       }
+     }
+   }).catch(err=>{if(sync.isConnected)sync.textContent='Could not check saved room status: '+err.message;});
+   if(!list.length){panel.append(el('p','gcc-v8-info-box','No schools have registered yet. Share the link from the previous step.'));return;}
+   const grid=el('div','gcc-v130-school-grid');
+   for(const s of list){
+     const card=el('article','gcc-v8-school-card gcc-v130-school-card');const n=(s.students||[]).length;
+     const top=el('div','gcc-v130-school-top');
+     const flag=el('span','gcc-v130-school-flag',flagForCountryV130(s.country_code));flag.setAttribute('role','img');flag.setAttribute('aria-label',s.country_name||'Country');
+     const names=el('div','gcc-v130-school-titles');
+     names.append(el('span','gcc-v130-country',s.country_name||s.country_code||'Country'),el('h3','',s.school_name));
+     top.append(flag,names);
+     card.append(top);
+     const meta=el('div','gcc-v130-school-meta');
+     meta.append(el('span','gcc-v130-school-count',`${n} students`),el('span','gcc-v130-school-state gcc-v130-school-'+String(s.status||'pending').replace(/[^a-z]/gi,''),s.status||'pending'));
+     card.append(meta);
+     card.append(el('p','gcc-v130-teacher',`Teacher: ${s.teacher_name}`));
+     const details=el('details','gcc-v130-roster-details');details.append(el('summary','',`View student names (${n})`));
+     const roster=el('div','gcc-v130-student-list');
+     for(const [i,st] of (s.students||[]).entries())roster.append(el('div','gcc-v8-name',`${i+1}. ${st.name}${st.grade?' · '+st.grade:''}`));
+     roster.append(el('p','gcc-v8-help',`Facilitators: ${(s.facilitators||[]).join(', ')||'None'}`));
+     details.append(roster);card.append(details);
+     const actions=el('div','gcc-v8-actions gcc-v130-school-actions');
+     if(s.status!=='declined')actions.append(btn('Edit names','gcc-v8-secondary',()=>openEdit(s)));
+     if(s.status==='pending')actions.append(btn('Decline','gcc-v8-secondary',()=>review(s,false)),btn('Approve','gcc-v8-primary',()=>review(s,true)));
+     card.append(actions);grid.append(card);
+   }
+   panel.append(grid);
  }
  function stageRooms(panel,e){
    const mount=el('div','gcc-v9-mount');panel.append(mount);
@@ -185,6 +237,7 @@ export function bindSimpleSessionsPage(){
          sectionOne.append(el('p','gcc-v104-note','The private invitation link was not kept on this device. Create a fresh link to share it again.'));
          addPublishForm(sectionOne,pub,revision);
        }else{
+         if(pub?.is_active) sectionOne.append(el('p','gcc-v130-publish-warning',`⚠ Your saved room plan is revision ${revision}, but the published version is ${pub?.revision||'older'}. New participants will not appear in the shared chart until the current plan is published again. The new private invitation link and access code must be shared again.`));
          sectionOne.append(el('p','gcc-v104-note',pub?.is_active?'Rooms have changed. Publish the current arrangement.':'A saved room chart is ready to publish.'));
          addPublishForm(sectionOne,pub,revision);
        }
@@ -326,6 +379,6 @@ export function bindSimpleSessionsPage(){
  });
  $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();notify('');});
  $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();notify('');});
- $('gcc-v8-host-next').addEventListener('click',()=>{activeStage=Math.min(3,activeStage+1);paint();notify('');});
+ $('gcc-v8-host-next').addEventListener('click',async()=>{const next=Math.min(3,activeStage+1);activeStage=next;if(next===2){$('gcc-v8-host-next').disabled=true;try{await reload(false);}finally{$('gcc-v8-host-next').disabled=false;}}else paint();notify('');});
  reload(true);
 }

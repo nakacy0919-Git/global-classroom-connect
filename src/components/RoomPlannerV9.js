@@ -89,7 +89,7 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
      open.addEventListener('click',()=>{try{
        const restored=mergeSavedRoomDraftV129(savedMeta.draft,students,facilitators);
        plan=restored.rooms;Object.assign(prefs,restored.prefs);revision=savedMeta.revision;dirty=restored.addedStudents>0||restored.addedFacilitators>0;screen='preview';moveMode=false;renderPreview();
-       if(restored.addedStudents||restored.addedFacilitators)message(`${restored.addedStudents} new student(s) and ${restored.addedFacilitators} facilitator(s) added; saved placements were preserved. Save this updated arrangement.`);
+       if(restored.addedStudents||restored.addedFacilitators)message(`${restored.addedStudents} new student(s) and ${restored.addedFacilitators} facilitator(s) added; saved placements were preserved. Save this updated arrangement, then publish the new chart in Step 4.`);
      }catch(err){message(err.message,true);}});
      resume.append(info,open);shell.append(resume);
      shell.append(elem('p','gcc-v9-foot','Existing room assignments are protected. Whole-group Generate / Shuffle is disabled for this saved session.'));

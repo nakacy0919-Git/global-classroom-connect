@@ -1,0 +1,48 @@
+/* GCC V13.0 — Registration bento cards and readable, timezone-aware host session header */
+.gcc-v8-host .gcc-v8-current{grid-template-columns:minmax(245px,1.1fr) minmax(285px,1fr);gap:24px;max-width:1150px;margin-left:auto;margin-right:auto;align-items:center}
+.gcc-v8-host .gcc-v8-current label{min-width:0}
+.gcc-v8-host #gcc-v8-host-select{font-weight:750;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.gcc-v8-host #gcc-v8-current-title{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;min-width:0}
+.gcc-v130-session-date{display:flex;align-items:center;gap:12px;min-width:0}
+.gcc-v130-session-when{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px;row-gap:3px;min-width:0}
+.gcc-v130-session-day{font-size:.86rem;color:#527988;flex-basis:100%;font-weight:730}
+.gcc-v130-session-range{font-size:1.28rem;letter-spacing:-.015em;color:#184f65;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gcc-v130-session-zone{font-size:.75rem;color:#557d85;font-weight:750}
+.gcc-v130-session-status{border-radius:999px;background:#e9f6ee;color:#267256;font-size:.71rem;font-weight:850;padding:6px 10px;text-transform:capitalize}
+.gcc-v130-status-draft{background:#fff3de;color:#815d28}
+.gcc-v130-clock{position:relative;width:58px;height:58px;border:2px solid #8cc5bd;border-radius:50%;background:#fff;box-shadow:0 2px 8px #245c6b12;flex:0 0 58px;color:#67969c}
+.gcc-v130-clock-number{position:absolute;font-size:8px;line-height:1;font-weight:800}
+.gcc-v130-clock-top{top:3px;left:50%;transform:translateX(-50%)}.gcc-v130-clock-bottom{bottom:3px;left:50%;transform:translateX(-50%)}
+.gcc-v130-clock-left{left:4px;top:50%;transform:translateY(-50%)}.gcc-v130-clock-right{right:4px;top:50%;transform:translateY(-50%)}
+.gcc-v130-clock-hand{position:absolute;bottom:50%;left:50%;transform-origin:50% 100%;background:#215b6e;border-radius:6px}
+.gcc-v130-clock-hour{width:3px;height:16px}.gcc-v130-clock-minute{width:2px;height:22px;background:#2c969c}
+.gcc-v130-clock-pin{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#20596f;transform:translate(-50%,-50%)}
+.gcc-v130-roster-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 13px}
+.gcc-v130-roster-stat{display:flex;align-items:baseline;gap:9px;border-radius:12px;padding:10px 13px;background:#edf7f3;color:#2d6f70;min-width:0}
+.gcc-v130-roster-stat strong{font-size:1.2rem;font-variant-numeric:tabular-nums}
+.gcc-v130-roster-stat span{font-size:.78rem;font-weight:700}
+.gcc-v130-refresh{min-height:35px!important;padding:7px 12px!important;font-size:.8rem!important;margin-bottom:12px}
+.gcc-v130-plan-sync{display:flex;flex-wrap:wrap;align-items:center;gap:7px 13px;border-radius:12px;background:#f3f8f6;border:1px solid #d8e8e2;padding:12px 14px;color:#376f70;font-size:.84rem;margin-bottom:18px}
+.gcc-v130-plan-sync strong{font-size:.86rem}
+.gcc-v130-sync-warning,.gcc-v130-publish-warning{background:#fff6e7!important;border:1px solid #edce91!important;color:#805828!important}
+.gcc-v130-publish-warning{font-size:.9rem;line-height:1.5;border-radius:12px;padding:14px;margin:12px 0}
+.gcc-v130-plan-sync button{min-height:35px;padding:7px 11px;font-size:.78rem}
+.gcc-v130-school-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;align-items:stretch}
+.gcc-v8-host .gcc-v130-school-card{margin:0;display:flex;flex-direction:column;min-width:0;min-height:234px;padding:19px 20px;background:#fff;border:1px solid #d9e8e5;box-shadow:0 5px 0 #ecf0e9,0 12px 26px #3059680a}
+.gcc-v130-school-top{display:flex;align-items:flex-start;gap:13px;min-width:0}
+.gcc-v130-school-flag{font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;font-size:2.15rem;line-height:1;flex:0 0 48px;text-align:center}
+.gcc-v130-school-titles{min-width:0;flex:1}
+.gcc-v130-country{font-size:.73rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:#49868c;display:block;margin:1px 0 6px}
+.gcc-v8-host .gcc-v130-school-card h3{font-size:1.02rem;line-height:1.4;overflow-wrap:anywhere;margin:0}
+.gcc-v130-school-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:13px 0 3px}
+.gcc-v130-school-count,.gcc-v130-school-state{font-size:.76rem;font-weight:790;border-radius:999px;padding:5px 10px;background:#edf5f7;color:#3d7080}
+.gcc-v130-school-approved{background:#e7f5ee;color:#317553}.gcc-v130-school-pending{background:#fff1d8;color:#946321}
+.gcc-v130-teacher{font-size:.86rem;color:#667f88;line-height:1.4;margin:10px 0 0;overflow-wrap:anywhere}
+.gcc-v130-roster-details{margin-top:13px;border-top:1px solid #e4eeea}
+.gcc-v8-host .gcc-v130-roster-details{padding:10px 0}
+.gcc-v130-student-list{max-height:220px;overflow:auto;padding-top:10px}
+.gcc-v130-school-actions{margin-top:auto;padding-top:8px;gap:8px}
+.gcc-v130-school-actions button{min-height:36px!important;padding:6px 13px!important;font-size:.83rem}
+@media(max-width:1000px){.gcc-v130-roster-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){.gcc-v8-host .gcc-v8-current{grid-template-columns:1fr;gap:14px}.gcc-v130-school-grid{grid-template-columns:1fr}}
+@media(max-width:530px){.gcc-v130-roster-summary{gap:7px}.gcc-v130-roster-stat{padding:9px}.gcc-v130-roster-stat strong{font-size:1rem}.gcc-v130-roster-stat span{font-size:.69rem}.gcc-v8-host .gcc-v130-school-card{padding:15px}}
