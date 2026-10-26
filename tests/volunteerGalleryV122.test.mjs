@@ -43,8 +43,8 @@ test('volunteer team is filterable by role, country and school and has an honest
  assert.match(gallery,/Your name could be here!/);
  assert.match(gallery,/Facilitator/);
  assert.match(gallery,/GC Session Host/);
- assert.match(gallery,/jp\.svg/);
- assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(gallery,/countryFlagAssetV131/);
+ assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/@media\(max-width:610px\)/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
