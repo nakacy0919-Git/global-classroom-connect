@@ -23,9 +23,8 @@ class E {
 const source=readFileSync(new URL('../src/components/RoomPlannerV9.js',import.meta.url),'utf8');
 const modified=source.replace(/^import .*?;\s*$/gm,'').replace('export function mountRoomPlannerV9','function mountRoomPlannerV9')+'\nmountRoomPlannerV9';
 const plannerFlagMockV115 = {
-  countryIsoCode, countryFlagEmoji,
-  jpPlannerFlag:'/test-assets/jp.svg', phPlannerFlag:'/test-assets/ph.svg',
-  lkPlannerFlag:'/test-assets/lk.svg', bdPlannerFlag:'/test-assets/bd.svg'
+  // The VM intentionally strips Vite imports; supply a mock local flag URL resolver.
+  countryFlagAssetV131: (_country,code) => '/test-assets/'+String(code||'unknown').toLowerCase()+'.svg'
 };
 const mountFunction=vm.runInNewContext(modified,{document:{createElement:t=>new E(t)},collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV,console,...plannerFlagMockV115});
 const all=(root,cls)=>root.find(x=>x.className.split(/\s+/).includes(cls));

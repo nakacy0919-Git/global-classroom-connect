@@ -1,4 +1,5 @@
 import '../styles/worldClockPanel.css';
+import {countryFlagAssetV131} from '../lib/countryFlagAssetsV131.js';
 
 const COUNTRIES = `
 Asia|JP|Japan|Asia/Tokyo
@@ -404,16 +405,11 @@ export function createWorldClockPanel(grid, getResult) {
         pill.className = 'gc-world-country';
 
         const flag = document.createElement('img');
-        flag.src =
-          `https://flagcdn.com/24x18/${country.code.toLowerCase()}.png`;
+        flag.src=countryFlagAssetV131(country.name,country.code);
         flag.alt = `${country.name} flag`;
         flag.width = 24;
         flag.height = 18;
         flag.loading = 'lazy';
-
-        flag.onerror = () => {
-          flag.style.display = 'none';
-        };
 
         pill.append(
           flag,

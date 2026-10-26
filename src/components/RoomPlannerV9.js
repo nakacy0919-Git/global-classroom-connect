@@ -3,11 +3,7 @@ import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics
 import {packRoomDraft} from '../lib/roomDraftV91.js';
 import {mergeSavedRoomDraftV129} from '../lib/roomIncrementalV129.js';
 import {fetchRoomDraft,saveRoomDraft} from '../services/roomDraftV91.js';
-import {countryIsoCode,countryFlagEmoji} from '../lib/roomCountryFlagsV104.js';
-import jpPlannerFlag from '../assets/room-flags/jp.svg';
-import phPlannerFlag from '../assets/room-flags/ph.svg';
-import lkPlannerFlag from '../assets/room-flags/lk.svg';
-import bdPlannerFlag from '../assets/room-flags/bd.svg';
+import {countryFlagAssetV131} from '../lib/countryFlagAssetsV131.js';
 
 const elem=(tag,cls='',label='')=>{
  const e=document.createElement(tag);if(cls)e.className=cls;
@@ -18,19 +14,12 @@ const option=(text,value)=>{const e=elem('option','',text);e.value=String(value)
 // Decorative illustrated avatars: role distinction without adding repeated text.
 // Artwork stays as local vector assets. Names and choices remain plain DOM text.
 // Use the same bundled SVG flags as the public room chart and world clocks.
-const plannerFlagAssetsV115=Object.freeze({JP:jpPlannerFlag,PH:phPlannerFlag,LK:lkPlannerFlag,BD:bdPlannerFlag});
 const plannerCountryFlagV115=(country,countryCode)=>{
- const iso=String(countryCode||countryIsoCode(country)).trim().toUpperCase();
- const source=plannerFlagAssetsV115[iso];
- if(source){
-  const flag=elem('img','gcc-v115-country-flag');
-  flag.src=source;flag.alt='';flag.width=23;flag.height=16;
-  flag.setAttribute('aria-hidden','true');
-  return flag;
- }
- const fallback=elem('span','gcc-v115-country-fallback',countryFlagEmoji(country||iso));
- fallback.setAttribute('aria-hidden','true');
- return fallback;
+ const flag=elem('img','gcc-v115-country-flag');
+ flag.src=countryFlagAssetV131(country,countryCode);
+ flag.alt='';flag.width=23;flag.height=16;
+ flag.setAttribute('aria-hidden','true');
+ return flag;
 };
 
 const avatar=(role)=>{

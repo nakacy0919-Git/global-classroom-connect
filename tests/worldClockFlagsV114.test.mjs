@@ -5,7 +5,7 @@ const clock=readFileSync(new URL('../src/lib/sessionClockUIV112.js',import.meta.
 const toolbar=readFileSync(new URL('../src/lib/roomToolsV106.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../src/styles/roomToolbarV114.css',import.meta.url),'utf8');
 test('world clocks use local SVG flags for Japan Philippines Sri Lanka Bangladesh',()=>{
- for(const flag of ['jp.svg','ph.svg','lk.svg','bd.svg'])assert.ok(clock.includes(flag),flag);
+ assert.ok(clock.includes('countryFlagAssetV131(country)'));
  assert.ok(clock.includes('clockCountryHeadingV114(item)'));
  assert.ok(clock.includes("img.alt=country+' flag'"));
 });

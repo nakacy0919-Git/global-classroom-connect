@@ -21,6 +21,6 @@ test('room board maintains pairs and allows all schools in host mode',()=>{
 });
 test('Sri Lanka flag is bundled, not an unreliable flag emoji',()=>{
  const s=read('src/pages/public/RoomPlanLookupPage.js');
- assert.match(s,/lkFlag/);assert.match(s,/LK:lkFlag/);
+ assert.match(s,/countryFlagAssetV131\(country\)/);
  const svg=read('src/assets/room-flags/lk.svg');assert.match(svg,/<svg/);
 });

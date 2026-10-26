@@ -4,8 +4,9 @@ import fs from 'node:fs';
 const source=fs.readFileSync(new URL('../src/components/RoomPlannerV9.js',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('../src/styles/roomPlannerV9.css',import.meta.url),'utf8');
 test('host planner uses bundled local country flag assets',()=>{
- for(const code of ['jp','ph','lk','bd'])assert.ok(source.includes(`room-flags/${code}.svg`),code);
- assert.ok(source.includes('plannerFlagAssetsV115'));
+ assert.ok(source.includes('countryFlagAssetV131(country,countryCode)'));
+ const helper=fs.readFileSync(new URL('../src/lib/countryFlagAssetsV131.js',import.meta.url),'utf8');
+ assert.ok(helper.includes('world-flags-v131/*.svg'));
 });
 test('flag and country text are both shown for student',()=>{
  assert.ok(source.includes('metadata.append(plannerCountryFlagV115(st.country,st.countryCode)'));

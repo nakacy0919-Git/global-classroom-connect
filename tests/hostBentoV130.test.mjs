@@ -36,7 +36,7 @@ test('duplicate or removed roster IDs are not reported as successfully synced',(
 test('host has bento cards, flags, refresh before room planning and clear stale publication warning',()=>{
  const src=read('src/pages/host/SimpleSessionsPage.js');
  const css=read('src/styles/hostBentoV130.css');
- assert.match(src,/gcc-v130-school-grid/);assert.match(src,/flagForCountryV130/);
+ assert.match(src,/gcc-v130-school-grid/);assert.match(src,/schoolFlagImageV131/);
  assert.match(src,/sessionScheduleV130/);assert.match(src,/clock-hour/);
  assert.match(src,/if\(next===2\)/);assert.match(src,/await reload\(false\)/);
  assert.match(src,/getRoomShareStatus\(e.id\)/);assert.match(src,/gcc-v130-publish-warning/);
