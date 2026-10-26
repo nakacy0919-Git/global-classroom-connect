@@ -1,0 +1,6 @@
+/* GCC V13.5: recovery guidance for signup and teacher photo upload. */
+.gcc120-join .gcc135-step-hint{margin:0;padding:11px 13px;background:#eaf7fa;color:#295d74;border-radius:11px;font-size:.86rem;line-height:1.55}
+.gcc120-join .gcc135-email-note{margin:3px 0 0;color:#557c91;font-size:.8rem;line-height:1.45}
+.gcc120-join .gcc135-link{border:0;background:transparent;color:#176c96;text-decoration:underline;cursor:pointer;text-align:left;margin-top:10px;padding:6px 0;font:inherit;font-size:.84rem;font-weight:800}
+.gcc120-join .gcc135-link:focus-visible{outline:3px solid #7bc9e0;outline-offset:3px}
+.gcc120-join .gcc135-link:disabled{opacity:.6;cursor:wait}
