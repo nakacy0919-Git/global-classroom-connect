@@ -14,18 +14,10 @@ import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRost
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
 import {englishName} from '../../lib/simpleRoster.js';
 import {rosterOverviewV130,sessionScheduleV130,planFreshnessV130} from '../../lib/hostOverviewV130.js';
-import jpFlagV131 from '../../assets/room-flags/jp.svg';
-import phFlagV131 from '../../assets/room-flags/ph.svg';
-import lkFlagV131 from '../../assets/room-flags/lk.svg';
-import idFlagV131 from '../../assets/room-flags/id.svg';
-import bdFlagV131 from '../../assets/room-flags/bd.svg';
-import unknownFlagV131 from '../../assets/room-flags/unknown.svg';
-
-const localFlagsV131=Object.freeze({JP:jpFlagV131,PH:phFlagV131,LK:lkFlagV131,ID:idFlagV131,BD:bdFlagV131});
+import {countryFlagAssetV131,unknownFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
 function schoolFlagImageV131(signup){
  const countryCode=String(signup.country_code||'').trim().toUpperCase();
  const countryName=String(signup.country_name||countryCode||'Unknown country');
- const valid=/^[A-Z]{2}$/.test(countryCode);
  const container=el('span','gcc-v130-school-flag');
  const image=document.createElement('img');
  image.className='gcc-v131-flag-img';
@@ -35,10 +27,8 @@ function schoolFlagImageV131(signup){
  image.loading='lazy';
  image.decoding='async';
  image.referrerPolicy='no-referrer';
- image.onerror=()=>{image.onerror=null;image.src=unknownFlagV131;};
- // Locally bundled SVGs cover existing schools, even when offline or on Windows.
- // Other valid ISO 3166-1 alpha-2 codes use image assets rather than flag emoji glyphs.
- image.src=localFlagsV131[countryCode]||(valid?'https://flagcdn.com/w80/'+countryCode.toLowerCase()+'.png':unknownFlagV131);
+ image.onerror=()=>{image.onerror=null;image.src=unknownFlagAssetV131;};
+ image.src=countryFlagAssetV131(countryName,countryCode);
  container.append(image);
  return container;
 }

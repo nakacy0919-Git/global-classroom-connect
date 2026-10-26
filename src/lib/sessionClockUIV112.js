@@ -1,31 +1,15 @@
 import '../styles/sessionTimeV112.css';
-import jpClockFlag from '../assets/room-flags/jp.svg';
-import phClockFlag from '../assets/room-flags/ph.svg';
-import lkClockFlag from '../assets/room-flags/lk.svg';
-import bdClockFlag from '../assets/room-flags/bd.svg';
+import {countryFlagAssetV131} from './countryFlagAssetsV131.js';
 import {sessionClockZonesV112,dateTimeLabelV112,timePartsV112,clockAnglesV112,timeRangeV112,viewerZoneV112} from './sessionTimeV112.js';
 const create=(tag,cls='',content='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=content;return n;};
-const clockFlagAssetsV114 = Object.freeze({
- 'japan':jpClockFlag,
- 'philippines':phClockFlag,
- 'sri lanka':lkClockFlag,
- 'bangladesh':bdClockFlag
-});
 function clockCountryHeadingV114(item){
  const heading=create('div','gcc-v112-country');
  const country=String(item.country||'').trim();
- const flagAsset=clockFlagAssetsV114[country.toLowerCase()];
- if(flagAsset){
-  const img=document.createElement('img');
-  img.className='gcc-v114-clock-flag';
-  img.src=flagAsset;img.alt=country+' flag';
-  img.width=42;img.height=28;
-  heading.append(img);
- }else{
-  const fallback=create('span','gcc-v114-clock-flag-fallback',item.flag||'🌐');
-  fallback.setAttribute('aria-hidden','true');
-  heading.append(fallback);
- }
+ const img=document.createElement('img');
+ img.className='gcc-v114-clock-flag';
+ img.src=countryFlagAssetV131(country);img.alt=country+' flag';
+ img.width=42;img.height=28;
+ heading.append(img);
  heading.append(create('span','gcc-v114-clock-country-name',country+(item.host?' · Host':'')));
  return heading;
 }

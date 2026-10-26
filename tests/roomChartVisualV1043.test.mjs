@@ -20,7 +20,7 @@ test('students and facilitators both use role-specific decorated rows',()=>{
   assert.match(page,/support\.append\(identityRow\(f,'teacher'/);
   assert.match(page,/countriesBySchool/);
   assert.match(page,/countryFlag\(country\)/);
-  assert.match(page,/countryIsoCode\(country\)/);
+  assert.match(page,/countryFlagAssetV131\(country\)/);
   assert.match(css,/room-avatars\/student\.svg/);
   assert.match(css,/room-avatars\/teacher\.svg/);
   assert.doesNotMatch(page,/avatar\.textContent='●'/);

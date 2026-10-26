@@ -3,24 +3,17 @@ import '../../styles/sharePlanV104.css';
 import {openSharedRoomChart} from '../../services/sharePlanV102.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
-import {countryIsoCode,countryFlagEmoji} from '../../lib/roomCountryFlagsV104.js';
-import jpFlag from '../../assets/room-flags/jp.svg';
-import bdFlag from '../../assets/room-flags/bd.svg';
-import phFlag from '../../assets/room-flags/ph.svg';
-import lkFlag from '../../assets/room-flags/lk.svg';
+import {countryFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
 
 const $=id=>document.getElementById(id);
 const make=(tag,cls='',value='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=String(value);return n;};
-const flags={JP:jpFlag,BD:bdFlag,PH:phFlag,LK:lkFlag};
 const countryKey=name=>String(name??'').trim().toLocaleLowerCase('en-US').replace(/\s+/g,' ');
 function countryFlag(country){
-  const iso=countryIsoCode(country);
   const span=make('span','gcc-v104-flag');
   span.setAttribute('aria-hidden','true');
-  if(flags[iso]){
-    const img=make('img','gcc-v104-flag-svg');img.src=flags[iso];img.alt='';img.width=27;img.height=18;
-    span.append(img);
-  }else{span.textContent=countryFlagEmoji(country);span.classList.add('gcc-v104-flag-emoji');}
+  const img=make('img','gcc-v104-flag-svg');
+  img.src=countryFlagAssetV131(country);img.alt='';img.width=27;img.height=18;
+  span.append(img);
   return span;
 }
 function avatar(role){
