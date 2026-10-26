@@ -30,7 +30,8 @@
 .gcc-v130-school-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;align-items:stretch}
 .gcc-v8-host .gcc-v130-school-card{margin:0;display:flex;flex-direction:column;min-width:0;min-height:234px;padding:19px 20px;background:#fff;border:1px solid #d9e8e5;box-shadow:0 5px 0 #ecf0e9,0 12px 26px #3059680a}
 .gcc-v130-school-top{display:flex;align-items:flex-start;gap:13px;min-width:0}
-.gcc-v130-school-flag{font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;font-size:2.15rem;line-height:1;flex:0 0 48px;text-align:center}
+.gcc-v130-school-flag{display:grid;place-items:center;flex:0 0 62px;width:62px;height:44px;overflow:hidden;border-radius:7px;border:1px solid #d8e3e4;background:#fff;box-shadow:0 2px 6px rgba(20,65,70,.08)}
+.gcc-v131-flag-img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
 .gcc-v130-school-titles{min-width:0;flex:1}
 .gcc-v130-country{font-size:.73rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:#49868c;display:block;margin:1px 0 6px}
 .gcc-v8-host .gcc-v130-school-card h3{font-size:1.02rem;line-height:1.4;overflow-wrap:anywhere;margin:0}

@@ -13,7 +13,35 @@ import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessi
 import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
 import {englishName} from '../../lib/simpleRoster.js';
-import {flagForCountryV130,rosterOverviewV130,sessionScheduleV130,planFreshnessV130} from '../../lib/hostOverviewV130.js';
+import {rosterOverviewV130,sessionScheduleV130,planFreshnessV130} from '../../lib/hostOverviewV130.js';
+import jpFlagV131 from '../../assets/room-flags/jp.svg';
+import phFlagV131 from '../../assets/room-flags/ph.svg';
+import lkFlagV131 from '../../assets/room-flags/lk.svg';
+import idFlagV131 from '../../assets/room-flags/id.svg';
+import bdFlagV131 from '../../assets/room-flags/bd.svg';
+import unknownFlagV131 from '../../assets/room-flags/unknown.svg';
+
+const localFlagsV131=Object.freeze({JP:jpFlagV131,PH:phFlagV131,LK:lkFlagV131,ID:idFlagV131,BD:bdFlagV131});
+function schoolFlagImageV131(signup){
+ const countryCode=String(signup.country_code||'').trim().toUpperCase();
+ const countryName=String(signup.country_name||countryCode||'Unknown country');
+ const valid=/^[A-Z]{2}$/.test(countryCode);
+ const container=el('span','gcc-v130-school-flag');
+ const image=document.createElement('img');
+ image.className='gcc-v131-flag-img';
+ image.alt='Flag of '+countryName;
+ image.width=60;
+ image.height=40;
+ image.loading='lazy';
+ image.decoding='async';
+ image.referrerPolicy='no-referrer';
+ image.onerror=()=>{image.onerror=null;image.src=unknownFlagV131;};
+ // Locally bundled SVGs cover existing schools, even when offline or on Windows.
+ // Other valid ISO 3166-1 alpha-2 codes use image assets rather than flag emoji glyphs.
+ image.src=localFlagsV131[countryCode]||(valid?'https://flagcdn.com/w80/'+countryCode.toLowerCase()+'.png':unknownFlagV131);
+ container.append(image);
+ return container;
+}
 import {mountHostRoomAuditV106} from '../../lib/hostRoomAuditV106.js';
 import {canRemoveSessionV105} from '../../lib/sessionDeletionV105.js';
 import {deleteFinishedSessionV105} from '../../services/sessionDeletionV105.js';
@@ -176,7 +204,7 @@ export function bindSimpleSessionsPage(){
    for(const s of list){
      const card=el('article','gcc-v8-school-card gcc-v130-school-card');const n=(s.students||[]).length;
      const top=el('div','gcc-v130-school-top');
-     const flag=el('span','gcc-v130-school-flag',flagForCountryV130(s.country_code));flag.setAttribute('role','img');flag.setAttribute('aria-label',s.country_name||'Country');
+     const flag=schoolFlagImageV131(s);
      const names=el('div','gcc-v130-school-titles');
      names.append(el('span','gcc-v130-country',s.country_name||s.country_code||'Country'),el('h3','',s.school_name));
      top.append(flag,names);
