@@ -1,3 +1,4 @@
+import {playSuccessChime,successSoundOn,setSuccessSoundOn} from './successCelebrationV142.js';
 /* GCC V14.5 – session netiquette gate; no security decisions stored in the browser.
    The 6-digit code and revocable invitation token still control room data access. */
 const GUIDE_KEY='gcc-netiquette-v145-confirmed';
@@ -24,6 +25,7 @@ export function netiquetteGuideMarkupV145(){
   <div class="gcc-v145-progress" aria-label="Guide progress">
     <span id="gcc-v145-count">1 of 5</span>
     <div id="gcc-v145-bars" class="gcc-v145-bars" aria-hidden="true"></div>
+    <button id="gcc-v147-sound" class="gcc-v147-sound" type="button" aria-label="Turn off confirmation sound" aria-pressed="true">♪ Sound on</button>
   </div>
   <div id="gcc-v145-illustration" class="gcc-v145-illustration">
     <picture id="gcc-v145-picture">
@@ -70,6 +72,18 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorag
  const previous=gate.querySelector('#gcc-v145-prev');
  const skip=gate.querySelector('#gcc-v145-skip');
  const completedBadge=gate.querySelector('#gcc-v146-complete');
+ const soundButton=gate.querySelector('#gcc-v147-sound');
+ const updateSoundButton=()=>{
+   const on=successSoundOn();
+   soundButton.textContent=on?'♪ Sound on':'♪ Sound off';
+   soundButton.setAttribute('aria-pressed',String(on));
+   soundButton.setAttribute('aria-label',on?'Turn off confirmation sound':'Turn on confirmation sound');
+ };
+ soundButton.addEventListener('click',()=>{
+   setSuccessSoundOn(!successSoundOn());
+   updateSoundButton();
+ });
+ updateSoundButton();
  const reducedMotion=()=>Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
  const moveToTop=()=>gate.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'start'});
  const finish=()=>{
@@ -118,6 +132,8 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorag
    skip.disabled=true;
    completedBadge.hidden=false;
    completedBadge.classList.add('gcc-v146-pop');
+   // Directly inside the tap gesture: required for iOS Safari and Android audio unlock.
+   playSuccessChime();
    pendingTimer=setTimeout(()=>{
      pendingTimer=null;
      if(!root.isConnected)return;
@@ -149,6 +165,7 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorag
      access.hidden=true;
      gate.hidden=false;
      skip.hidden=!isGuideConfirmedV145(storage);
+     updateSoundButton();
      draw();
      gate.querySelector('#gcc-v145-guide-title').focus({preventScroll:true});
      moveToTop();

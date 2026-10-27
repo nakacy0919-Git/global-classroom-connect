@@ -59,3 +59,30 @@ test('all ten optimized source images are bundled and have valid WEBP headers',(
    assert.equal(file.toString('ascii',8,12),'WEBP');
  }
 });
+
+
+test('fitted guide retains actions inside phone, Android, tablet, and short landscape viewports',()=>{
+ assert.match(css,/#app:has\(#gcc-v145-guide:not\(\[hidden\]\)\)/);
+ assert.match(css,/height:100dvh/);
+ assert.match(css,/flex:1 1 0;min-height:0/);
+ assert.match(css,/object-fit:contain/);
+ assert.match(css,/grid-column:1\/-1;grid-row:1/);
+ assert.match(css,/@media \(max-height:640px\)/);
+ assert.match(css,/@media \(max-height:430px\)/);
+ assert.match(css,/env\(safe-area-inset-bottom\)/);
+ assert.match(css,/\.gcc-v145-actions button/);
+});
+test('larger central confirmation is animated and has a user-controlled pleasant sound',()=>{
+ const audio=read('src/lib/successCelebrationV142.js');
+ assert.match(guide,/playSuccessChime\(\)/);
+ assert.match(guide,/id="gcc-v147-sound"/);
+ assert.match(guide,/setSuccessSoundOn\(!successSoundOn\(\)\)/);
+ assert.match(audio,/export function playSuccessChime/);
+ assert.match(audio,/audio\.resume\(\)\.then/);
+ assert.match(audio,/export function setSuccessSoundOn/);
+ assert.match(audio,/getItem\(KEY\)/);
+ assert.match(audio,/\.045/);
+ assert.match(css,/@keyframes gcc-v147-center-pop/);
+ assert.match(css,/left:50%;top:50%;right:auto;bottom:auto/);
+ assert.match(css,/@media \(prefers-reduced-motion:reduce\)/);
+});
