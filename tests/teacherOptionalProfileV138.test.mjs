@@ -21,8 +21,11 @@ test('teacher and school websites plus region are optional, not marked required 
 });
 
 test('mandatory identity, biography, photograph and school fields remain required',()=>{
- for(const id of ['gcc120-name','gcc120-photo','gcc120-school','gcc120-city','gcc120-country','gcc120-type','gcc120-level','gcc120-timezone']){
+ for(const id of ['gcc120-name','gcc120-photo','gcc120-school','gcc120-city','gcc120-timezone']){
   assert.match(input(id),/\srequired(?:\s|>)/,'Required must remain: '+id);
+ }
+ for(const id of ['gcc120-country','gcc120-type','gcc120-level']){
+  assert.match(form,new RegExp('<select id="'+id+'"[^>]*\\srequired'),id+' must remain required');
  }
  assert.match(form,/<textarea id="gcc120-bio"[^>]*\srequired/);
 });
