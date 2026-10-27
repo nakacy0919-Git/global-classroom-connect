@@ -4,6 +4,9 @@ const KEY='gcc_success_sound_v142';
 let ctx=null,active=null,timer=null;
 function soundOn(){try{return window.localStorage.getItem(KEY)!=='off';}catch{return true;}}
 function setSound(on){try{window.localStorage.setItem(KEY,on?'on':'off');}catch{}}
+// Shared audio preference across GCC completion confirmations and room guidance.
+export function successSoundOn(){return soundOn();}
+export function setSuccessSoundOn(on){setSound(Boolean(on));}
 function getAudio(){
  if(typeof window==='undefined')return null;
  const Type=window.AudioContext||window.webkitAudioContext;
@@ -14,6 +17,17 @@ function getAudio(){
 export function prepareSuccessChime(){
  if(!soundOn())return;
  const audio=getAudio();if(audio?.state==='suspended')audio.resume().catch(()=>{});
+}
+// Invoke synchronously from a real user tap/click (not inside a timeout).
+// A suspended AudioContext resumes under the gesture before playback on iOS.
+export function playSuccessChime(){
+ if(!soundOn())return;
+ const audio=getAudio();
+ if(!audio)return;
+ if(audio.state==='running'){playChime();return;}
+ if(audio.state==='suspended'){
+   try{audio.resume().then(()=>playChime()).catch(()=>{});}catch{/* Visual completion still works. */}
+ }
 }
 function playChime(){
  if(!soundOn())return;
