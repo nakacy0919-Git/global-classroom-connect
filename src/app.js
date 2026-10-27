@@ -6,6 +6,7 @@ import {RoomPlanLookupPage,bindRoomPlanLookupPage} from './pages/public/RoomPlan
 import {SessionSignupPage,bindSessionSignupPage} from './pages/public/SessionSignupPage.js'; // GCC_SESSION_ROSTER_V6
 import {SessionControlPage,bindSessionControlPage} from './pages/host/SessionControlPage.js';
 import {TeacherAccessPage,bindTeacherAccessPage} from './pages/teacher/TeacherAccessPage.js';
+import {TeacherPasswordPageV136,bindTeacherPasswordPageV136} from './pages/teacher/TeacherPasswordPageV136.js';
 import {TeacherJoinV120,bindTeacherJoinV120} from './pages/teacher/TeacherJoinV120.js';
 import {TeacherApprovalsV120,bindTeacherApprovalsV120} from './pages/host/TeacherApprovalsV120.js'; // GCC_TEACHER_SELF_V5
 import {TeacherPortalPage,bindTeacherPortalPage} from './pages/teacher/TeacherPortalPage.js';
@@ -130,6 +131,7 @@ const routes = {
   'room-plan': RoomPlanLookupPage,
   'session-control': SessionControlPage,
   'teacher-access': TeacherAccessPage,
+  'teacher-password': TeacherPasswordPageV136,
   signup: TeacherJoinV120,
   'teacher-approvals': TeacherApprovalsV120,
   'teacher-portal': TeacherPortalPage,
@@ -143,6 +145,7 @@ const publicRoutes =
     'welcome',
     'registration',
     'teacher-access',
+    'teacher-password',
     'signup',
     'session-join',
     'session-register',
@@ -151,7 +154,7 @@ const publicRoutes =
 
 
 function getCurrentRoute() {
-
+  if(new URLSearchParams(window.location.search).get('gcc_recovery')==='1')return 'teacher-password';
   const raw =
     window
       .location
@@ -273,6 +276,7 @@ function bindUiEvents() {
   bindFindSessionPage();
   bindJoinRequestsPage(); // GCC_JOIN_V4
   bindTeacherAccessPage(); // GCC_TEACHER_SELF_V5
+  bindTeacherPasswordPageV136();
   bindTeacherJoinV120();
   bindTeacherApprovalsV120();
   bindTeacherPortalPage();
@@ -3514,6 +3518,7 @@ export async function renderApp() {
     route === 'login' ||
     route === 'registration' ||
     route === 'teacher-access' ||
+    route === 'teacher-password' ||
     route === 'signup' ||
     route === 'session-join' ||
     route === 'session-register' ||
