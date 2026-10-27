@@ -16,8 +16,8 @@ test('guide is a compulsory first-run gate before the six-digit room chart form'
 test('five slides match the overview and four topic graphics',()=>{
  assert.equal((guide.match(/\{title:/g)||[]).length,5);
  for(const title of ['Zoom Netiquette','Camera & Sound','Your Zoom Name','Good Online Manners','How to Join a Breakout Room'])assert.ok(guide.includes(title));
- assert.match(css,/netiquette-desktop\.avif/);
- assert.match(css,/netiquette-mobile\.avif/);
+ assert.match(guide,/desktop-\$\{number\}\.webp/);
+ assert.match(guide,/mobile-\$\{number\}\.webp/);
  assert.match(css,/aspect-ratio:16\/9/);
  assert.match(css,/aspect-ratio:9\/16/);
 });
