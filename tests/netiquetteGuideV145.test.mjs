@@ -34,3 +34,11 @@ test('invalid links fail immediately and original revocable code gate remains',(
  assert.match(page,/\^\[0-9\]\{6\}\$/);
  assert.match(page,/openSharedRoomChart\(token,code\)/);
 });
+
+test('all ten optimized source images are bundled and have valid WEBP headers',()=>{
+ for(const kind of ['mobile','desktop'])for(let i=1;i<=5;i++){
+   const file=fs.readFileSync(new URL('../public/assets/netiquette/'+kind+'-'+String(i).padStart(2,'0')+'.webp',import.meta.url));
+   assert.equal(file.toString('ascii',0,4),'RIFF');
+   assert.equal(file.toString('ascii',8,12),'WEBP');
+ }
+});
