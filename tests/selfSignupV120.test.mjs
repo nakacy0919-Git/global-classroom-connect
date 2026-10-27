@@ -4,9 +4,11 @@ const sql=read('sql/gcc_v120_self_signup_review.sql');
 const join=read('src/pages/teacher/TeacherJoinV120.js');
 const admin=read('src/pages/host/TeacherApprovalsV120.js');
 const app=read('src/app.js');
-test('signup requires photograph, introduction, personal and school websites, and region',()=>{
- for(const field of ['gcc120-photo','gcc120-bio','gcc120-website','gcc120-school-web','gcc120-city','gcc120-region','gcc120-country','gcc120-timezone'])
+test('signup requires photograph, introduction, city, country and timezone; links/region are optional',()=>{
+ for(const field of ['gcc120-photo','gcc120-bio','gcc120-city','gcc120-country','gcc120-timezone'])
  assert.match(join,new RegExp('id="'+field+'"[^>]*required'));
+ for(const field of ['gcc120-website','gcc120-school-web','gcc120-region'])
+ assert.doesNotMatch(join.match(new RegExp('id="'+field+'"[^>]*>'))?.[0]||'',/\srequired(?:\s|>)/);
  assert.match(join,/compressTeacherPhotoV116|uploadApplicationPhotoV120/);
  assert.match(sql,/char_length\(bio\) NOT BETWEEN 20 AND 1000/);
  assert.match(sql,/Photo must be a valid WebP under 300 KB/);
