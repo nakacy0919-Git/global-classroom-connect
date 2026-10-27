@@ -58,3 +58,11 @@ test('database still verifies identity, teacher draft, photo and status while pr
  assert.match(sql,/GRANT EXECUTE ON FUNCTION public\.gcc_v120_submit_application\(jsonb,text\) TO authenticated/);
  assert.doesNotMatch(sql,/DROP TABLE|TRUNCATE|DELETE FROM|ALTER TABLE/i);
 });
+
+test('reviewers may approve verified schools that lack personal and school websites',()=>{
+ const admin=read('src/pages/host/TeacherApprovalsV120.js');
+ assert.match(admin,/school details, and any websites provided/);
+ assert.match(admin,/school details and any website provided \(if available\)/);
+ assert.match(admin,/\[a\.city,a\.region,a\.country\]\.filter\(Boolean\)\.join\(', '\)/);
+ assert.match(admin,/!faceBox\.checked\|\|!schoolBox\.checked/);
+});
