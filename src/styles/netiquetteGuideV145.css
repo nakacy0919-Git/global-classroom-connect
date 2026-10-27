@@ -37,3 +37,32 @@
 @media(prefers-reduced-motion:reduce){.gcc-v145-actions button{transition:none}}
 
 @media(max-width:800px) and (orientation:portrait){.gcc-v145-illustration{aspect-ratio:9/16}}
+
+/* GCC V14.6: six-digit validation comes BEFORE the slide deck and chart. */
+.gcc-v104-guest .gcc-v104-unlock[hidden],
+.gcc-v104-guest .gcc-v104-hero[hidden] {display:none!important}
+.gcc-v145-illustration .gcc-v146-complete[hidden] {display:none!important}
+.gcc-v145-illustration .gcc-v146-complete {
+ position:absolute;z-index:3;right:clamp(10px,2vw,20px);bottom:clamp(10px,2vw,20px);
+ display:inline-flex;align-items:center;justify-content:center;gap:9px;
+ min-height:45px;padding:8px 16px 8px 9px;
+ border:1px solid #bfeacb;border-radius:100px;
+ background:rgba(249,255,250,.96);color:#11743e;
+ font-size:.85rem;font-weight:850;box-shadow:0 10px 26px #092f3b30;
+ -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+}
+.gcc-v146-complete>span {
+ display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;
+ border-radius:50%;color:#fff;background:#1cad5f;
+ font-size:1.15rem;line-height:1;
+}
+.gcc-v146-complete.gcc-v146-pop{animation:gcc-v146-confirm-pop .49s cubic-bezier(.18,.78,.25,1) both}
+@keyframes gcc-v146-confirm-pop{
+ 0%{opacity:0;transform:translateY(12px) scale(.75)}
+ 52%{opacity:1;transform:translateY(-2px) scale(1.055)}
+ 100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.gcc-v145-primary:disabled{opacity:.84;cursor:default}
+@media (prefers-reduced-motion:reduce){
+ .gcc-v146-complete.gcc-v146-pop{animation:none}
+}
