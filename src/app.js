@@ -276,7 +276,6 @@ function bindUiEvents() {
   bindFindSessionPage();
   bindJoinRequestsPage(); // GCC_JOIN_V4
   bindTeacherAccessPage(); // GCC_TEACHER_SELF_V5
-  bindTeacherPasswordPageV136();
   bindTeacherJoinV120();
   bindTeacherApprovalsV120();
   bindTeacherPortalPage();
@@ -3579,6 +3578,12 @@ export async function renderApp() {
     route
   );
 
+  // V13.7: mount password recovery before any generic host/teacher binders.
+  // Shared sign-in styling must never disable its submit listener.
+  if(route === 'teacher-password'){
+    bindTeacherPasswordPageV136();
+    return;
+  }
 
   bindUiEvents();
   if (route === 'registration') initRegistrationWizard();

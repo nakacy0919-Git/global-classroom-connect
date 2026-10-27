@@ -24,7 +24,10 @@ export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page
  <footer class="gcc126-footer"><a href="#/login">Host sign in</a></footer>
  </section></main>`;}
 export function bindTeacherAccessPage(){
- const root=document.querySelector('.gcc120-signin-page');if(!root)return;const $=id=>root.querySelector('#'+id),msg=$('gcta-message');
+ // The password-recovery screen shares the sign-in styling, but not its form.
+ // Bind only when the real Teacher sign-in form exists.
+ const root=document.querySelector('#gcta-login')?.closest('.gcc120-signin-page');if(!root)return;
+ const $=id=>root.querySelector('#'+id),msg=$('gcta-message');
  const inform=(text,error=false)=>{msg.textContent=text;msg.classList.toggle('error',error);};
  $('gcta-login').addEventListener('submit',async event=>{event.preventDefault();const btn=event.currentTarget.querySelector('button');btn.disabled=true;
   try{await teacherSignIn($('gcta-email').value.trim(),$('gcta-password').value);$('gcta-password').value='';
