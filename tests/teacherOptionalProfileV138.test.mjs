@@ -24,8 +24,8 @@ test('frontend ignores blank links and validates submitted website URLs',()=>{
 });
 
 test('backend accepts empty links or region, still validates submitted links and stores absent fields as null',()=>{
- assert.equal((sql.match(/END \\$fn\\$;/g)||[]).length,1,'function body must have one terminator');
- assert.equal((sql.match(/UPDATE public\\.gcc_v120_applications SET/g)||[]).length,1,'one application update');
+ assert.equal(sql.split('END $fn$;').length-1,1,'function body must have one terminator');
+ assert.equal(sql.split('UPDATE public.gcc_v120_applications SET').length-1,1,'one application update');
  assert.match(sql,/website<>'' AND \(/);
  assert.match(sql,/site<>'' AND \(/);
  assert.match(sql,/website !~\* '\^https:\/\//);
