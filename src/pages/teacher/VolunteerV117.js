@@ -2,6 +2,7 @@ import '../../styles/volunteerV117.css';
 import '../../styles/volunteerFocusV123.css';
 import {volunteerGalleryMarkupV122,mountVolunteerGalleryV122} from './VolunteerGalleryV122.js';
 import {myDetailsV117,saveVolunteerV117} from '../../services/teacherExtrasV117.js';
+import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {myTeacherProfileV116,saveTeacherProfileV116} from '../../services/teacherNetworkV116.js';
 
 export function volunteerMarkupV117(){return `<div class="gcc117-volunteer gcc123-volunteer">
@@ -74,7 +75,7 @@ export async function mountVolunteerV117(root,openTab){
   if(step===0&&!$('gcc117-want-facilitator').checked&&!$('gcc117-want-host').checked)return say('Please choose at least one role.',true);
   setStep(Math.min(2,step+1));
  });
- form.addEventListener('submit',async event=>{event.preventDefault();if(step!==2)return;
+ form.addEventListener('submit',async event=>{event.preventDefault();if(step!==2)return;prepareSuccessChime();
   if(!$('gcc123-visible').checked)return say('Please agree to show your team profile before joining.',true);
   const button=$('gcc117-volunteer-save');button.disabled=true;
   try{
@@ -85,7 +86,7 @@ export async function mountVolunteerV117(root,openTab){
    await saveVolunteerV117({facilitator:$('gcc117-want-facilitator').checked,host:$('gcc117-want-host').checked,note:$('gcc117-volunteer-note').value.trim()});
    root.querySelector('#gcc122-country').value='';root.querySelector('#gcc122-role').value='';root.querySelector('#gcc122-query').value='';
    await refreshGallery();closeWizard();
-   const summary=root.querySelector('#gcc122-summary');summary.textContent+=' · Thank you for joining!';
+   const summary=root.querySelector('#gcc122-summary');summary.textContent+=' · Thank you for joining!';showSuccessCelebration({title:'Welcome to the Global Team!',detail:'Your volunteer information has been saved.'});
    root.querySelector('#gcc122-heading')?.focus?.();
   }catch(error){say(error.message||'Could not complete your registration.',true);}finally{button.disabled=false;}
  });

@@ -4,6 +4,7 @@ import '../../styles/teacherSignupRecoveryV135.css';
 import '../../styles/teacherSignupIdentityV139.css';
 import '../../styles/teacherSignupSimplifiedV140.css';
 import '../../styles/teacherBioLimitV141.css';
+import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
 import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
@@ -130,7 +131,7 @@ export function bindTeacherJoinV120(){
  $('gcc120-signin-form').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{
    await signinAccountV120($('gcc120-old-email').value,$('gcc120-old-password').value);$('gcc120-old-password').value='';notify('Signed in.');await ready();
   }catch(err){notify(teacherSignupErrorV135(err),true);}finally{btn.disabled=false;}});
- $('gcc120-application').addEventListener('submit',async e=>{e.preventDefault();if(!draft)return notify('Sign in first.',true);
+ $('gcc120-application').addEventListener('submit',async e=>{e.preventDefault();if(!draft)return notify('Sign in first.',true);prepareSuccessChime();
   updateBioCounter();
   if(Array.from(bio.value.trim()).length>3000){bio.focus();return notify('Your introduction is over 3000 characters. Please shorten it before submitting.',true);}
   const file=$('gcc120-photo').files?.[0];if(!file)return notify('Please choose a clear photograph of your face.',true);
@@ -151,6 +152,7 @@ export function bindTeacherJoinV120(){
     school_type:$('gcc120-type').value,school_level:$('gcc120-level').value,country:country.dataset.name,country_code:country.value,
     city:$('gcc120-city').value.trim(),region:$('gcc120-region').value.trim(),timezone:$('gcc120-timezone').value.trim()};
    const res=await submitApplicationV120(payload,photo.path);notify('');status(res.status);
+   if(res.status==='pending')showSuccessCelebration({title:'Application received!',detail:'Your profile was submitted. GCC will review your application before approval.'});
   }catch(err){notify(teacherPhotoErrorV135(err),true);}finally{button.disabled=false;}});
  $('gcc139-switch-account').addEventListener('click',async()=>{const button=$('gcc139-switch-account');button.disabled=true;try{
   const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;
