@@ -3,6 +3,7 @@ import '../../styles/teacherOnboardingV132.css';
 import '../../styles/teacherSignupRecoveryV135.css';
 import '../../styles/teacherSignupIdentityV139.css';
 import '../../styles/teacherSignupSimplifiedV140.css';
+import '../../styles/teacherBioLimitV141.css';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
 import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
@@ -44,7 +45,9 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
   <h3 class="gcc120-span">About you</h3>
   <label>Full name *<input id="gcc120-name" autocomplete="name" minlength="2" maxlength="120" required></label>
   <label>Personal website (HTTPS, optional)<input id="gcc120-website" type="url" placeholder="https://... (optional)" maxlength="240"></label>
-  <label class="gcc120-span">Short self-introduction (20–1000 characters) *<textarea id="gcc120-bio" rows="3" minlength="20" maxlength="1000" required placeholder="Tell other teachers about your teaching and interests"></textarea></label>
+  <label class="gcc120-span">Short self-introduction (20–3000 characters) *
+    <textarea id="gcc120-bio" rows="5" minlength="20" required aria-describedby="gcc141-bio-count" placeholder="Tell other teachers about your teaching and interests"></textarea>
+    <small id="gcc141-bio-count" class="gcc141-bio-count" role="status" aria-live="polite">0 / 3000 characters</small></label>
   <label class="gcc120-span">Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) *<input id="gcc120-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small>Processed privately in your browser into a WebP image, maximum 512 pixels.</small></label>
   <h3 class="gcc120-span">Your school</h3>
   <label>School / organization name *<input id="gcc120-school" minlength="2" maxlength="160" required></label>
@@ -67,6 +70,15 @@ export function bindTeacherJoinV120(){
  let resendAt=0;
  function displayActiveAccount(user){$('gcc139-account-banner').hidden=!user;$('gcc139-account-email').textContent=user?'Signed in as '+(user.email||'your teacher account'):'';}
 
+ const bio=$('gcc120-bio'),bioCounter=$('gcc141-bio-count');
+ function updateBioCounter(){
+  const length=Array.from(bio.value.trim()).length;
+  const over=length>3000;
+  bioCounter.textContent=length+' / 3000 characters'+(over?' — Too long. Please shorten your introduction.':'');
+  bioCounter.classList.toggle('gcc141-bio-count-error',over);
+  bio.setCustomValidity(over?'Please shorten your introduction to 3000 characters or fewer.':'');
+ }
+ bio.addEventListener('input',updateBioCounter);
  const resend=$('gcc135-resend');
  function setAuthMode(mode){
   const signin=mode!=='signup';
@@ -90,7 +102,7 @@ export function bindTeacherJoinV120(){
   const serial=++readySequence,user=await currentUserV120();if(serial!==readySequence)return;
   draft=null;activeDraftUserId=null;displayActiveAccount(user);
   if(!user){displayedUserId=null;setStep('account');return;}
-  if(displayedUserId!==user.id){$('gcc120-application').reset();$('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';displayedUserId=user.id;}
+  if(displayedUserId!==user.id){$('gcc120-application').reset();updateBioCounter();$('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';displayedUserId=user.id;}
   try{
    if(await hasApprovedTeacherV120()){if(serial!==readySequence)return;status('approved');return;}
    const application=await beginApplicationV120();if(serial!==readySequence)return;
@@ -100,6 +112,7 @@ export function bindTeacherJoinV120(){
    draft=application;activeDraftUserId=user.id;setStep('profile');
    const fields=[['gcc120-name','name'],['gcc120-website','website'],['gcc120-bio','bio'],['gcc120-school','school_name'],['gcc120-school-web','school_website'],['gcc120-city','city'],['gcc120-region','region'],['gcc120-level','school_level'],['gcc120-type','school_type'],['gcc120-timezone','timezone']];
    for(const [id,k] of fields)if(application[k])$(id).value=application[k];
+   updateBioCounter();
   }catch(error){notify(error.message||'Unable to load your application.',true);setStep('account');}
  }
  $('gcc120-signup-form').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{
@@ -118,6 +131,8 @@ export function bindTeacherJoinV120(){
    await signinAccountV120($('gcc120-old-email').value,$('gcc120-old-password').value);$('gcc120-old-password').value='';notify('Signed in.');await ready();
   }catch(err){notify(teacherSignupErrorV135(err),true);}finally{btn.disabled=false;}});
  $('gcc120-application').addEventListener('submit',async e=>{e.preventDefault();if(!draft)return notify('Sign in first.',true);
+  updateBioCounter();
+  if(Array.from(bio.value.trim()).length>3000){bio.focus();return notify('Your introduction is over 3000 characters. Please shorten it before submitting.',true);}
   const file=$('gcc120-photo').files?.[0];if(!file)return notify('Please choose a clear photograph of your face.',true);
   const button=$('gcc120-submit');button.disabled=true;try{
    for(const id of ['gcc120-website','gcc120-school-web']){const value=$(id).value.trim();if(!value)continue;
@@ -154,5 +169,5 @@ export function bindTeacherJoinV120(){
    }catch(e){notify(teacherSignupErrorV135(e),true);}
    finally{resend.disabled=false;}
  });
- fillChoices();ready().catch(e=>notify(teacherSignupErrorV135(e),true));
+ fillChoices();updateBioCounter();ready().catch(e=>notify(teacherSignupErrorV135(e),true));
 }
