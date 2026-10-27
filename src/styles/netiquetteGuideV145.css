@@ -67,3 +67,123 @@
 @media (prefers-reduced-motion:reduce){
  .gcc-v146-complete.gcc-v146-pop{animation:none}
 }
+
+
+/* GCC V14.7 — fitted single-screen guide on iPhone, Android, and tablets.
+   Scope every layout rule to the visible guide so the chart remains scrollable. */
+html:has(#gcc-v145-guide:not([hidden])),
+body:has(#gcc-v145-guide:not([hidden])) {overflow:hidden}
+#app:has(#gcc-v145-guide:not([hidden])){
+  height:100svh;height:100dvh;min-height:0;
+  overflow:hidden;padding:0;
+}
+#page-content.public-page-content:has(#gcc-v145-guide:not([hidden])){
+  display:block;width:100%;height:100%;min-height:0;
+  padding:0;margin:0;overflow:hidden;
+}
+.gcc-v104-guest:has(> #gcc-v145-guide:not([hidden])){
+  width:100%;max-width:none;height:100%;
+  min-height:0;margin:0;padding:clamp(8px,1.7vh,16px) max(8px,env(safe-area-inset-right)) calc(clamp(8px,1.7vh,16px) + env(safe-area-inset-bottom));
+  border:0;border-radius:0;box-shadow:none;
+  overflow:hidden;
+}
+.gcc-v104-guest #gcc-v145-guide:not([hidden]){
+  display:flex;flex-direction:column;
+  width:min(100%,1060px);height:100%;min-height:0;
+  gap:clamp(4px,1vh,10px);
+  margin:0 auto;overflow:hidden;
+}
+.gcc-v145-guide .gcc-v145-header{flex:0 0 auto;gap:2px}
+.gcc-v145-guide .gcc-v145-header h2{font-size:clamp(1.05rem,2.5vh,1.65rem);line-height:1.15}
+.gcc-v145-guide .gcc-v145-intro{font-size:clamp(.7rem,1.5vh,.87rem);margin:0;line-height:1.25}
+.gcc-v145-guide .gcc-v145-eyebrow{font-size:clamp(.55rem,1.15vh,.7rem)}
+.gcc-v145-guide .gcc-v145-progress{flex:0 0 auto;min-height:26px;gap:9px}
+.gcc-v145-guide .gcc-v145-bars>span{height:6px}
+.gcc-v145-guide .gcc-v145-illustration{
+  flex:1 1 0;min-height:0;min-width:0;
+  width:100%;height:auto;aspect-ratio:auto;
+  align-self:center;border-radius:13px;
+}
+.gcc-v145-guide .gcc-v145-illustration picture{height:100%;width:100%}
+.gcc-v145-guide .gcc-v145-illustration img{
+  display:block;width:100%;height:100%;
+  object-fit:contain;object-position:center;
+}
+.gcc-v145-guide .gcc-v145-description{
+  flex:0 0 auto;max-height:2.5em;overflow:hidden;
+  font-size:clamp(.7rem,1.5vh,.88rem);line-height:1.24;
+}
+.gcc-v145-guide .gcc-v145-actions{flex:0 0 auto;min-height:44px;gap:7px}
+.gcc-v145-guide .gcc-v145-actions button{
+  min-height:44px;padding:8px 13px;font-size:clamp(.74rem,1.6vh,.9rem);
+  touch-action:manipulation;
+}
+.gcc-v145-guide .gcc-v145-storage-note{
+  flex:0 0 auto;font-size:.68rem;line-height:1.25;margin:0;
+}
+.gcc-v145-guide .gcc-v147-sound{
+  flex:0 0 auto;border:1px solid #bfd4e0;border-radius:999px;
+  background:#f0f8fc;color:#235979;min-height:30px;
+  padding:4px 9px;font:inherit;font-weight:780;font-size:.69rem;
+  white-space:nowrap;cursor:pointer;touch-action:manipulation;
+}
+.gcc-v145-guide .gcc-v147-sound[aria-pressed="false"]{background:#f5f7f8;color:#69818b}
+.gcc-v145-guide .gcc-v147-sound:focus-visible{outline:3px solid #19a2d7;outline-offset:2px}
+/* Larger, centered checkmark — visible even when the slide is scaled down. */
+.gcc-v145-illustration .gcc-v146-complete{
+  left:50%;top:50%;right:auto;bottom:auto;
+  width:max-content;max-width:calc(100% - 22px);
+  min-height:clamp(66px,12vh,102px);
+  padding:clamp(10px,2.2vh,17px) clamp(14px,2.9vw,28px);
+  font-size:clamp(1.08rem,3vw,1.65rem);
+  font-weight:900;
+  border:2px solid #bbf1d1;border-radius:23px;
+  box-shadow:0 16px 42px #062c3b50;
+  text-align:center;
+}
+.gcc-v145-illustration .gcc-v146-complete>span{
+  width:clamp(40px,7vh,61px);height:clamp(40px,7vh,61px);
+  flex-basis:clamp(40px,7vh,61px);
+  font-size:clamp(1.55rem,4vh,2.45rem);
+}
+.gcc-v145-illustration .gcc-v146-complete.gcc-v146-pop{
+  animation:gcc-v147-center-pop .49s cubic-bezier(.18,.78,.25,1) both;
+}
+@keyframes gcc-v147-center-pop{
+  0%{opacity:0;transform:translate(-50%,-35%) scale(.7)}
+  55%{opacity:1;transform:translate(-50%,-54%) scale(1.07)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@media (max-width:800px){
+ .gcc-v145-guide .gcc-v145-actions{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;
+ }
+ .gcc-v145-guide #gcc-v145-confirm{
+   grid-column:1/-1;grid-row:1;min-width:0;width:100%;
+ }
+ .gcc-v145-guide #gcc-v145-prev,
+ .gcc-v145-guide #gcc-v145-skip{
+   width:100%;min-height:36px;padding:6px 10px;
+ }
+ .gcc-v145-guide #gcc-v145-prev{grid-row:2;grid-column:1}
+ .gcc-v145-guide #gcc-v145-skip{grid-row:2;grid-column:2}
+}
+@media (max-height:640px){
+ .gcc-v145-guide .gcc-v145-intro,
+ .gcc-v145-guide .gcc-v145-storage-note{display:none}
+ .gcc-v145-guide .gcc-v145-header{gap:1px}
+ .gcc-v145-guide .gcc-v145-header h2{font-size:1.03rem}
+ .gcc-v145-guide .gcc-v145-actions button{min-height:40px}
+ .gcc-v145-guide .gcc-v145-progress{min-height:23px}
+}
+@media (max-height:430px){
+ .gcc-v145-guide .gcc-v145-description{display:none}
+ .gcc-v145-guide .gcc-v145-eyebrow{display:none}
+ .gcc-v145-guide .gcc-v145-header h2{font-size:1rem}
+ .gcc-v104-guest #gcc-v145-guide:not([hidden]){gap:3px}
+}
+@media (prefers-reduced-motion:reduce){
+ .gcc-v145-illustration .gcc-v146-complete.gcc-v146-pop{
+   animation:none;transform:translate(-50%,-50%);
+ }
+}
