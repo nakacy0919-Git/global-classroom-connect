@@ -1,0 +1,4 @@
+.gcc139-account-banner{margin:14px 0 18px;padding:12px 16px;border:1px solid #c6e1e2;background:#f0fafa;border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#225867;font-weight:700;overflow-wrap:anywhere}
+.gcc139-account-banner[hidden]{display:none}
+.gcc139-account-banner button{padding:9px 14px;font-size:.86rem}
+@media(max-width:650px){.gcc139-account-banner button{width:100%}}

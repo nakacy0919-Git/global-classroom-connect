@@ -1,16 +1,19 @@
 import '../../styles/teacherJoinV120.css';
 import '../../styles/teacherOnboardingV132.css';
 import '../../styles/teacherSignupRecoveryV135.css';
+import '../../styles/teacherSignupIdentityV139.css';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
 import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
  submitApplicationV120,uploadApplicationPhotoV120,resendConfirmationV135,hasApprovedTeacherV120} from '../../services/teacherOnboardingV120.js';
 import {teacherSignupErrorV135,teacherPhotoErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
+import {assertApplicantIdentityV139,assertEditableDraftV139} from '../../lib/teacherSignupIdentityV139.js';
 const safe=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 export function TeacherJoinV120(){return `<main class="gcc120-page"><section class="gcc120-join" aria-label="Join Global Classroom">
  <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
  <div class="gcc120-title"><span>🌎 JOIN OUR GLOBAL TEACHER COMMUNITY</span><h1>Create your GCC account</h1><p>Start with your email, then add your teacher and school details. Your access starts after Global Classroom approves your application.</p><p class="gcc132-onboarding-note">Joining the Global Classroom core team? Sign up, complete your teacher profile, then register as a Facilitator or GC Host after approval. Facilitator registration does not grant Host Admin access.</p></div>
  <p class="gcc120-message" id="gcc120-msg" role="status" aria-live="polite"></p>
+ <div id="gcc139-account-banner" class="gcc139-account-banner" role="status" aria-live="polite" hidden><span id="gcc139-account-email"></span><button type="button" id="gcc139-switch-account" class="gcc120-secondary">Sign out / switch account</button></div>
  <section id="gcc120-account-step" class="gcc120-panel"><h2><span class="gcc120-step">1</span> Your account</h2>
   <p class="gcc135-step-hint">Create your account once → confirm the link sent to your email → sign in below to complete your profile. If you have already signed up, do not create a second account.</p>
   <form id="gcc120-signup-form" class="gcc120-grid"><label>Email address *<input type="email" id="gcc120-email" autocomplete="email" required></label>
@@ -53,8 +56,10 @@ export function TeacherJoinV120(){return `<main class="gcc120-page"><section cla
 export function bindTeacherJoinV120(){
  const root=document.querySelector('.gcc120-join[aria-label="Join Global Classroom"]');if(!root)return;
  const $=id=>root.querySelector('#'+id),notify=(v,error=false)=>{const m=$('gcc120-msg');m.textContent=v;m.classList.toggle('error',error);};
- let draft=null;
+ let draft=null,activeDraftUserId=null,displayedUserId=null,readySequence=0;
  let resendAt=0;
+ function displayActiveAccount(user){$('gcc139-account-banner').hidden=!user;$('gcc139-account-email').textContent=user?'Signed in as '+(user.email||'your teacher account')+'. This account will be submitted.':'';}
+
  const resend=$('gcc135-resend');
  function setStep(which){for(const s of ['account','profile','status'])$('gcc120-'+s+'-step').hidden=s!==which;}
  function fillChoices(){
@@ -65,13 +70,25 @@ export function bindTeacherJoinV120(){
  }
  function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
   $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will verify your application. After approval, return to register as a Facilitator or GC Host; volunteer features stay locked until then.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
- async function ready(){const user=await currentUserV120();if(!user){setStep('account');return;}try{
-   if(await hasApprovedTeacherV120()){status('approved');return;}
-   draft=await beginApplicationV120();if(draft.status!=='draft'){status(draft.status);return;}
-   setStep('profile');const fields=[['gcc120-name','name'],['gcc120-website','website'],['gcc120-bio','bio'],['gcc120-school','school_name'],['gcc120-school-web','school_website'],['gcc120-city','city'],['gcc120-region','region'],['gcc120-level','school_level'],['gcc120-type','school_type'],['gcc120-timezone','timezone']];
-   for(const [id,k] of fields)if(draft[k])$(id).value=draft[k];
-  }catch(e){notify(e.message||'Unable to load your application.',true);setStep('account');}}
+ async function ready(){
+  const serial=++readySequence,user=await currentUserV120();if(serial!==readySequence)return;
+  draft=null;activeDraftUserId=null;displayActiveAccount(user);
+  if(!user){displayedUserId=null;setStep('account');return;}
+  if(displayedUserId!==user.id){$('gcc120-application').reset();$('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';displayedUserId=user.id;}
+  try{
+   if(await hasApprovedTeacherV120()){if(serial!==readySequence)return;status('approved');return;}
+   const application=await beginApplicationV120();if(serial!==readySequence)return;
+   const verified=await currentUserV120();if(serial!==readySequence)return;
+   assertApplicantIdentityV139(verified,user.id);
+   if(application.status!=='draft'){status(application.status);return;}
+   draft=application;activeDraftUserId=user.id;setStep('profile');
+   const fields=[['gcc120-name','name'],['gcc120-website','website'],['gcc120-bio','bio'],['gcc120-school','school_name'],['gcc120-school-web','school_website'],['gcc120-city','city'],['gcc120-region','region'],['gcc120-level','school_level'],['gcc120-type','school_type'],['gcc120-timezone','timezone']];
+   for(const [id,k] of fields)if(application[k])$(id).value=application[k];
+  }catch(error){notify(error.message||'Unable to load your application.',true);setStep('account');}
+ }
  $('gcc120-signup-form').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{
+   const existing=await currentUserV120();
+   if(existing){displayActiveAccount(existing);throw Error('Already signed in as '+existing.email+'. Please sign out / switch account before creating another account.');}
    const result=await signupAccountV120($('gcc120-email').value,$('gcc120-password').value);$('gcc120-password').value='';
    if(result.session){notify('Account created. Complete your teacher and school profile below.');await ready();}
    else {
@@ -91,14 +108,22 @@ export function bindTeacherJoinV120(){
     catch{throw Error('If provided, personal or school websites must be valid HTTPS URLs (https://...).');}
    }
    const country=$('gcc120-country').selectedOptions[0];if(!country?.dataset.name)throw Error('Choose a country');
+   assertApplicantIdentityV139(await currentUserV120(),activeDraftUserId);
+   const latestDraft=await beginApplicationV120();
+   assertEditableDraftV139(latestDraft,draft);
    notify('Compressing your photograph and submitting your application…');
    const photo=await uploadApplicationPhotoV120(draft.teacher_id,file);
+   assertApplicantIdentityV139(await currentUserV120(),activeDraftUserId);
    const payload={name:$('gcc120-name').value.trim(),website:$('gcc120-website').value.trim(),bio:$('gcc120-bio').value.trim(),
     school_name:$('gcc120-school').value.trim(),school_website:$('gcc120-school-web').value.trim(),
     school_type:$('gcc120-type').value,school_level:$('gcc120-level').value,country:country.dataset.name,country_code:country.value,
     city:$('gcc120-city').value.trim(),region:$('gcc120-region').value.trim(),timezone:$('gcc120-timezone').value.trim()};
    const res=await submitApplicationV120(payload,photo.path);notify('');status(res.status);
   }catch(err){notify(teacherPhotoErrorV135(err),true);}finally{button.disabled=false;}});
+ $('gcc139-switch-account').addEventListener('click',async()=>{const button=$('gcc139-switch-account');button.disabled=true;try{
+  const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;
+  await ready();notify('Signed out. Sign in with the email you want to register, or create a new account.');
+ }catch(error){notify(teacherSignupErrorV135(error),true);}finally{button.disabled=false;}});
  resend.addEventListener('click',async()=>{
    const email=($('gcc120-old-email').value||$('gcc120-email').value).trim();
    if(!email||!/^\S+@\S+\.\S+$/.test(email)){notify('Enter your registered email address before resending.',true);return;}
