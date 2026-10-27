@@ -2,6 +2,8 @@ import '../../styles/teacherSelfService.css';
 import '../../styles/teacherJoinV120.css';
 import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
 import '../../styles/teacherLoginV126.css';
+import '../../styles/teacherPasswordV136.css';
+import {teacherSignupErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
 const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');if(['create','find','volunteer','network','requests'].includes(next))return '#/teacher-portal?view='+next;return '#/welcome';};
@@ -15,6 +17,7 @@ export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page
   <div class="gcc120-span gcc126-actions"><button class="gcc120-primary" type="submit">Sign in →</button><a href="#/signup" class="gcc120-secondary gcc126-signup">New here? Sign up</a></div>
  </form>
  <p id="gcta-message" class="gcc120-message gcc126-feedback" role="status" aria-live="polite"></p>
+ <p class="gcc126-password-help"><a href="#/teacher-password">Forgot your password? Reset it by email</a></p>
  <details class="gct-auth-expand gcc126-invitation"><summary>Have an invitation code? Activate access</summary>
   <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
   <button type="submit" class="gct-secondary">Activate access</button></form></details>
@@ -30,7 +33,7 @@ export function bindTeacherAccessPage(){
      if(draft.status==='rejected'){inform('The application was not approved. Contact the Global Classroom team.',true);return;}
      window.location.hash='#/signup';}
    catch(e){inform('Signed in, but teacher access is not active. Complete your application under Sign up, or use your existing invitation code.',true);}
-  }catch(e){inform(e.message||'Sign in failed.',true);}finally{btn.disabled=false;}});
+  }catch(e){const message=teacherSignupErrorV135(e);inform(message+(String(e?.message||'').toLowerCase().includes('invalid login credentials')?' Use Forgot your password? if needed.':''),true);}finally{btn.disabled=false;}});
  $('gcta-claim').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{await claimTeacherInvite($('gcta-token').value);inform('Access activated.');window.location.hash=destination();}
   catch(err){inform(err.message||'Invitation code was not accepted.',true);}finally{btn.disabled=false;}});
 }
