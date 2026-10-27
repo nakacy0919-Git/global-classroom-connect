@@ -22,6 +22,7 @@ export function bindTeacherPasswordPageV136(){
    e.preventDefault();
    if(Date.now()-lastRequest<60000){inform('Please wait at least one minute before requesting another email.',true);return;}
    const btn=e.currentTarget.querySelector('button');btn.disabled=true;
+   inform('Requesting a recovery email… Please keep this page open.');
    try{
     const redirectTo=window.location.origin+window.location.pathname+'?gcc_recovery=1';
     const {error}=await supabase.auth.resetPasswordForEmail($('gcc136-email').value.trim().toLowerCase(),{redirectTo});
