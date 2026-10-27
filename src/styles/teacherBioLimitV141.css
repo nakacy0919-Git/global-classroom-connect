@@ -1,0 +1,4 @@
+/* GCC V14.1 — bio length feedback; never silently truncate pasted introductions. */
+.gcc140-page .gcc141-bio-count{display:block;text-align:right;color:#647f87;font-size:.78rem;font-weight:650;line-height:1.45;padding-top:2px}
+.gcc140-page .gcc141-bio-count-error{color:#ab4040;font-weight:800}
+.gcc140-page #gcc120-bio{resize:vertical;min-height:132px}
