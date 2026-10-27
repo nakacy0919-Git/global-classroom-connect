@@ -65,3 +65,11 @@ test('Find Session makes local time prominent and adds concise optional filters'
  assert.match(css,/@media\(max-width:720px\)/);
  assert.match(css,/gcs150-mode-grid/);
 });
+
+test('device-choice illustrations are local SVGs with readable labels',()=>{
+ for(const mode of ['device','classroom','hybrid']){
+  assert.match(portal,new RegExp('/assets/session-formats/'+mode+'\\.svg'));
+  const svg=read('public/assets/session-formats/'+mode+'.svg');
+  assert.match(svg,/<svg /);assert.match(svg,/aria-label=/);
+ }
+});
