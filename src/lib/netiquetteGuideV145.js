@@ -25,8 +25,12 @@ export function netiquetteGuideMarkupV145(){
     <span id="gcc-v145-count">1 of 5</span>
     <div id="gcc-v145-bars" class="gcc-v145-bars" aria-hidden="true"></div>
   </div>
-  <div id="gcc-v145-illustration" class="gcc-v145-illustration" role="img" aria-label="Global Classroom Zoom Netiquette: Overview" style="--gcc-v145-frame:0">
-    <div id="gcc-v145-fallback" class="gcc-v145-fallback"><strong id="gcc-v145-slide-title">Zoom Netiquette</strong><span id="gcc-v145-slide-details">Keep your camera on. Mute while listening.</span></div>
+  <div id="gcc-v145-illustration" class="gcc-v145-illustration">
+    <picture id="gcc-v145-picture">
+      <source id="gcc-v145-mobile-source" media="(max-width: 800px) and (orientation: portrait)" type="image/webp" srcset="/assets/netiquette/mobile-01.webp">
+      <img id="gcc-v145-slide-image" src="/assets/netiquette/desktop-01.webp" alt="Global Classroom Zoom Netiquette overview" width="960" height="540" decoding="async">
+    </picture>
+    <div id="gcc-v145-fallback" class="gcc-v145-fallback" hidden><strong id="gcc-v145-slide-title">Zoom Netiquette</strong><span id="gcc-v145-slide-details">Keep your camera on. Mute while listening.</span></div>
   </div>
   <p id="gcc-v145-description" class="gcc-v145-description"></p>
   <div class="gcc-v145-actions">
@@ -37,7 +41,8 @@ export function netiquetteGuideMarkupV145(){
   <p class="gcc-v145-storage-note">Your confirmation is remembered on this browser. You still need the 6-digit session code to see rooms.</p>
  </section>`;
 }
-export function bindNetiquetteGuideV145(root,validInvitation,{storage=globalThis.localStorage}={}){
+const safeStorageV145=()=>{try{return globalThis.localStorage;}catch{return null;}};
+export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorageV145()}={}){
  const gate=root.querySelector('#gcc-v145-guide'),access=root.querySelector('#gcc-v145-room-access');
  if(!gate||!access)return;
  // Malformed links should show the existing invitation error, not force a guide.
@@ -49,6 +54,10 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=globalThis
  const count=gate.querySelector('#gcc-v145-count');
  const progress=gate.querySelector('#gcc-v145-bars');
  const illustration=gate.querySelector('#gcc-v145-illustration');
+ const picture=gate.querySelector('#gcc-v145-picture');
+ const image=gate.querySelector('#gcc-v145-slide-image');
+ const mobileSource=gate.querySelector('#gcc-v145-mobile-source');
+ const fallback=gate.querySelector('#gcc-v145-fallback');
  const description=gate.querySelector('#gcc-v145-description');
  const confirm=gate.querySelector('#gcc-v145-confirm');
  const previous=gate.querySelector('#gcc-v145-prev');
@@ -65,8 +74,12 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=globalThis
    details.textContent=slide.details;
    description.textContent=slide.description;
    count.textContent=`${index+1} of ${NETIQUETTE_SLIDES_V145.length}`;
-   illustration.style.setProperty('--gcc-v145-frame',String(index));
-   illustration.setAttribute('aria-label',`${slide.title}. ${slide.details}`);
+   const number=String(index+1).padStart(2,'0');
+   picture.hidden=false;
+   fallback.hidden=true;
+   mobileSource.srcset=`/assets/netiquette/mobile-${number}.webp`;
+   image.src=`/assets/netiquette/desktop-${number}.webp`;
+   image.alt=`${slide.title}. ${slide.details}`;
    progress.replaceChildren();
    for(let i=0;i<NETIQUETTE_SLIDES_V145.length;i++){
      const bar=document.createElement('span');
@@ -80,6 +93,8 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=globalThis
  access.hidden=true;
  gate.hidden=false;
  skip.hidden=!completed;
+ image.addEventListener('error',()=>{picture.hidden=true;fallback.hidden=false;});
+ image.addEventListener('load',()=>{picture.hidden=false;fallback.hidden=true;});
  confirm.addEventListener('click',()=>{
    if(index<NETIQUETTE_SLIDES_V145.length-1){index++;draw();return;}
    markGuideConfirmedV145(storage);
