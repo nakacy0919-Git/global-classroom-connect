@@ -1,4 +1,5 @@
 import '../../styles/teacherSelfService.css';
+import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot} from '../../lib/matching.js';
@@ -106,7 +107,7 @@ export function bindTeacherPortalPage(){
    else {const detail=element('details','gct-request-form');const summary=element('summary','','Request to Join →');detail.append(summary);
     const input=element('textarea');input.rows=2;input.maxLength=500;input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
     const submit=element('button','gct-primary','Send join request →');submit.type='button';submit.addEventListener('click',async()=>{
-     submit.disabled=true;try{await teacherApply(o.id,input.value.trim());await refresh();inform('Request sent! Track it in My Requests from the GCC Home Account menu. No email was sent.');}
+     submit.disabled=true;prepareSuccessChime();try{await teacherApply(o.id,input.value.trim());await refresh();inform('Request sent! Track it in My Requests from the GCC Home Account menu. No email was sent.');showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});}
      catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
     });detail.append(input,submit);card.append(detail);}list.append(card);
   }
@@ -138,7 +139,7 @@ export function bindTeacherPortalPage(){
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:$('gctp-topic').value.trim(),notes:$('gctp-notes').value.trim()};
    if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){inform('Check student and room counts.',true);return;}
    const btn=$('gctp-publish');btn.disabled=true;
-   try{await teacherCreateSession(slot,data);await refresh();inform('Session published to approved teachers. No email sent.');showFormStep(0);display('create');}
+   try{prepareSuccessChime();await teacherCreateSession(slot,data);await refresh();inform('Session published to approved teachers. No email sent.');showFormStep(0);display('create');showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});}
    catch(err){inform(err.message||'Could not publish the session.',true);}finally{btn.disabled=false;}
  });
  $('gctp-find-button').addEventListener('click',()=>{inform('');renderResults();});

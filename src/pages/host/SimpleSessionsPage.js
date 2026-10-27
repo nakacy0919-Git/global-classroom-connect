@@ -2,6 +2,7 @@ import '../../styles/simpleSessionsV8.css';
 import '../../styles/hostBentoV130.css';
 import '../../styles/privacyV103.css';
 import '../../styles/sharePlanV104.css';
+import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {mountRoomPlannerV9} from '../../components/RoomPlannerV9.js';
 import {getEvents,addEvent,updateEvent} from '../../services/eventService.js';
 import {fetchRoomDraft} from '../../services/roomDraftV91.js';
@@ -146,7 +147,7 @@ export function bindSimpleSessionsPage(){
    if(e.status==='draft'){
      panel.append(el('p','gcc-v8-info-box','This session is a draft. Publish it when the details are ready.'));
      panel.append(btn('Publish session →','gcc-v8-primary',async()=>{if(Date.parse(e.starts_at)<=Date.now()){notify('Choose a future date first.',true);return;}
-       try{await updateEvent(e.id,{status:'published'});await reload(false);notify('Published. You can now share the registration link.');}catch(err){notify(err.message,true);}}));
+       try{prepareSuccessChime();await updateEvent(e.id,{status:'published'});await reload(false);notify('Published. You can now share the registration link.');showSuccessCelebration({title:'Session published!',detail:'Teachers can now use the registration link.'});}catch(err){notify(err.message,true);}}));
    }else if(e.status==='published'){
      panel.append(el('h3','','Share one link with all teachers'));
      const url=el('input','gcc-v8-url');url.value=link();url.readOnly=true;url.setAttribute('aria-label','Teacher registration link');panel.append(url);
@@ -303,8 +304,8 @@ export function bindSimpleSessionsPage(){
            if(u.protocol!=='https:' || !(u.hostname==='zoom.us'||u.hostname.endsWith('.zoom.us'))){alertMsg('Only HTTPS zoom.us links are accepted.',true);return;}
            if(!confirm(upToDate?'Replace the private link? The existing invitation will stop working.':'Publish the current room chart?'))return;
            busy=true;action.disabled=true;
-           try{const saved=await publishRoomShare(eventId,rev,input.value.trim());shareToken=saved.token;shareEvent=eventId;liveToken=saved.token;liveCode='';
-             alertMsg('Published. Next, create the shared 6-digit code.');await refresh();}
+           try{prepareSuccessChime();const saved=await publishRoomShare(eventId,rev,input.value.trim());shareToken=saved.token;shareEvent=eventId;liveToken=saved.token;liveCode='';
+             alertMsg('Published. Next, create the shared 6-digit code.');await refresh();showSuccessCelebration({title:'Room chart published!',detail:'Next, create the 6-digit session code.'});}
            catch(err){alertMsg(`Could not publish: ${err.message}`,true);action.disabled=false;}
            finally{busy=false;}
          });parent.append(form);
@@ -341,7 +342,7 @@ export function bindSimpleSessionsPage(){
    if(resetStage)activeStage=0;paint();
  }catch(err){notify('Could not load sessions: '+err.message,true);}}
  async function review(s,yes){if(!confirm(`${yes?'Approve':'Decline'} the registration from ${s.school_name}?`))return;
-   try{await reviewSessionSignup(s.id,yes);await reload(false);notify(yes?'Approved. Students added to this session.':'Registration declined.');}catch(err){notify(err.message,true);}}
+   try{if(yes)prepareSuccessChime();await reviewSessionSignup(s.id,yes);await reload(false);notify(yes?'Approved. Students added to this session.':'Registration declined.');if(yes)showSuccessCelebration({title:'Registration approved!',detail:'The students were added to this session.'});}catch(err){notify(err.message,true);}}
  function openEdit(s){edit=s;$('gcc-v8-edit-teacher').value=s.teacher_name;$('gcc-v8-edit-error').textContent='';const rows=$('gcc-v8-edit-rows');rows.replaceChildren();
    for(const [i,student] of (s.students||[]).entries()){const row=el('div','gcc-v8-edit-row');row.dataset.studentId=student.id;row.append(el('span','',`${i+1}.`));
      const input=el('input');input.value=student.name;input.maxLength=120;input.required=true;input.setAttribute('aria-label',`Student ${i+1} name`);input.name='student_name';row.append(input);
@@ -386,13 +387,13 @@ export function bindSimpleSessionsPage(){
  });
  $('gcc-v8-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=false;$('gcc-v8-create').querySelector('[name=title]').focus();});
  $('gcc-v8-cancel-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=true;});
- $('gcc-v8-create').addEventListener('submit',async evt=>{evt.preventDefault();const f=evt.currentTarget;const d=new FormData(f);
+ $('gcc-v8-create').addEventListener('submit',async evt=>{evt.preventDefault();prepareSuccessChime();const f=evt.currentTarget;const d=new FormData(f);
    const date=String(d.get('date')||''),time=String(d.get('time')||''),endTime=String(d.get('endTime')||''),timezone=String(d.get('timezone')||'Asia/Tokyo'),title=String(d.get('title')||'').trim();
    const stamp=makeSlot({date,startTime:time,endTime,timezone});if(stamp.error){notify(stamp.error,true);return;}if(Date.parse(stamp.startsAt)<=Date.now()){notify('Choose a future time.',true);return;}
    const button=f.querySelector('[type=submit]');button.disabled=true;
    try{const created=await addEvent({title,startsAt:stamp.startsAt,endsAt:stamp.endsAt,timezone,status:'draft'});activeEventId=created.id;activeStage=0;
      await saveSessionSettings({eventId:created.id,rooms:Number(d.get('rooms')),maxStudents:Number(d.get('capacity')),facilitatorsPerRoom:Number(d.get('facs'))});
-     $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');}
+     $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');showSuccessCelebration({title:'Session created!',detail:'Your session is saved as a draft. Publish it when ready.'});}
    catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}
  });
  $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();notify('');});

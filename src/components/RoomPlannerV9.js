@@ -3,6 +3,7 @@ import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics
 import {packRoomDraft} from '../lib/roomDraftV91.js';
 import {mergeSavedRoomDraftV129} from '../lib/roomIncrementalV129.js';
 import {fetchRoomDraft,saveRoomDraft} from '../services/roomDraftV91.js';
+import {prepareSuccessChime,showSuccessCelebration} from '../lib/successCelebrationV142.js';
 import {countryFlagAssetV131} from '../lib/countryFlagAssetsV131.js';
 
 const elem=(tag,cls='',label='')=>{
@@ -111,12 +112,13 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
  async function persistDraft() {
    if(sample||!event?.id||!plan||busy)return;
    busy=true;
+   prepareSuccessChime();
    const primary=root.querySelector('[data-v91-save]');if(primary)primary.disabled=true;
    try{
      const payload=packRoomDraft(plan,prefs);
      const saved=await saveRoomDraft(event.id,payload,revision);
      revision=Number(saved.revision);savedMeta={...saved,draft:payload,revision,updated_at:saved.updated_at||new Date().toISOString()};dirty=false;
-     renderPreview();message('✓ Room arrangement safely saved. You can reopen this session later.');
+     renderPreview();message('✓ Room arrangement safely saved. You can reopen this session later.');showSuccessCelebration({title:'Breakout rooms saved!',detail:'Your room plan and fixed pairs have been saved.'});
    }catch(err){message(`Could not save: ${err.message}. Your draft is still on this screen; download CSV as a backup.`,true);if(primary)primary.disabled=false;}
    finally{busy=false;}
  }
