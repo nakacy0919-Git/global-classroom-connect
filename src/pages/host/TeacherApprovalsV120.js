@@ -4,7 +4,7 @@ import {pendingApprovalsV120,signupOverviewV134,reviewApplicationV120,previewApp
 import {supabase} from '../../services/supabase.js';
 const el=(tag,cls='',str='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=str;return n;};
 export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-admin-page"><section class="gcc120-join gcc120-admin">
- <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Verify the teacher's face, introduction, websites, and school details. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
+ <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Verify the teacher's face, introduction, school details and any websites provided. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
  <section class="gcc134-tracker" aria-label="Teacher registration status">
   <div class="gcc134-tracker-head">
    <div><h2>Teacher registration status</h2><p>New sign-ups appear here before email confirmation or profile submission.</p></div>
@@ -76,7 +76,7 @@ export function bindTeacherApprovalsV120(){
     if(a.photo_path){try{const src=await previewApplicationPhotoV120(a.photo_path);if(src){const pic=el('img');pic.src=src;pic.alt='Applicant face photograph (verify manually)';image.replaceChildren(pic);}}catch{}}
     const detail=el('div');detail.append(el('h2','',a.name||''),el('p','',a.email||''));const facts=[
      ['Teacher website',a.website],['Introduction',a.bio],['School',a.school],['School type / level',`${a.school_type} · ${a.school_level}`],
-     ['Location',`${a.city}, ${a.region}, ${a.country}`],['School website',a.school_website],['Time zone',a.timezone]
+     ['Location',[a.city,a.region,a.country].filter(Boolean).join(', ')],['School website',a.school_website],['Time zone',a.timezone]
     ];for(const [title,value] of facts){const p=el('p');p.append(el('strong','',title+': '));
       if(['Teacher website','School website'].includes(title)&&value){try{const u=new URL(value);if(u.protocol==='https:'){const link=el('a','',u.hostname);link.href=u.href;link.rel='noopener noreferrer';link.target='_blank';p.append(link);}else p.append(document.createTextNode(value));}catch{p.append(document.createTextNode(value));}}
       else p.append(document.createTextNode(value||'—'));detail.append(p);}
@@ -88,7 +88,7 @@ export function bindTeacherApprovalsV120(){
     const admin=el('label');const elevated=el('input');elevated.type='radio';elevated.name=`role-${a.id}`;elevated.value='host';admin.append(elevated,document.createTextNode(' Teacher + Host Admin (can approve others and manage GCC)'));
     roles.append(teacher,admin);card.append(roles);
     const checks=el('div','gcc120-review-checks');const checkedFace=el('label');const faceBox=el('input');faceBox.type='checkbox';checkedFace.append(faceBox,document.createTextNode(' I checked that the photograph shows a recognizable face'));
-    const checkedSchool=el('label');const schoolBox=el('input');schoolBox.type='checkbox';checkedSchool.append(schoolBox,document.createTextNode(' I verified the school website and application details'));checks.append(checkedFace,checkedSchool);card.append(checks);
+    const checkedSchool=el('label');const schoolBox=el('input');schoolBox.type='checkbox';checkedSchool.append(schoolBox,document.createTextNode(' I verified school information and any website provided (if available)'));checks.append(checkedFace,checkedSchool);card.append(checks);
     const actions=el('div','gcc120-review-actions');for(const [decision,label] of [['approved','Approve application'],['rejected','Reject application']]){
      const btn=el('button',decision==='approved'?'gcc120-primary':'gcc120-secondary',label);btn.type='button';btn.addEventListener('click',async()=>{
       const grantHost=elevated.checked,school=select.value||null;

@@ -26,24 +26,24 @@ export function TeacherJoinV120(){return `<main class="gcc120-page"><section cla
  </section>
  <section id="gcc120-profile-step" class="gcc120-panel" hidden><h2><span class="gcc120-step">2</span> Teacher &amp; school information</h2>
   <p class="gcc135-step-hint">Your account already exists. Finish this application to join the administrator's review queue. If the photo upload fails, keep this tab open and submit again; do not sign up again.</p>
-  <p class="gcc120-hint">Your profile photo, introduction, and website are required. Please use a clear, recognizable photo of your face. A GCC reviewer will check your application.</p>
+  <p class="gcc120-hint">Your photo and introduction are required. Personal and school websites, as well as region or state, are optional. A GCC reviewer will check your application.</p>
   <form id="gcc120-application" class="gcc120-grid">
   <h3 class="gcc120-span">About you</h3>
   <label>Full name *<input id="gcc120-name" autocomplete="name" minlength="2" maxlength="120" required></label>
-  <label>Personal website (HTTPS) *<input id="gcc120-website" type="url" placeholder="https://..." maxlength="240" required></label>
+  <label>Personal website (optional, HTTPS)<input id="gcc120-website" type="url" placeholder="https://... (if available)" maxlength="240"></label>
   <label class="gcc120-span">Short self-introduction (20–1000 characters) *<textarea id="gcc120-bio" rows="3" minlength="20" maxlength="1000" required placeholder="Tell other teachers about your teaching and interests"></textarea></label>
   <label class="gcc120-span">Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) *<input id="gcc120-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small>Processed privately in your browser into a WebP image, maximum 512 pixels.</small></label>
   <h3 class="gcc120-span">Your school</h3>
   <label>School / organization name *<input id="gcc120-school" minlength="2" maxlength="160" required></label>
-  <label>School website (HTTPS) *<input id="gcc120-school-web" type="url" placeholder="https://..." maxlength="240" required></label>
+  <label>School website (optional, HTTPS)<input id="gcc120-school-web" type="url" placeholder="https://... (if available)" maxlength="240"></label>
   <label>School type *<select id="gcc120-type" required><option value="">Choose one</option><option>Public</option><option>Private</option><option>Independent / individual</option><option>Other</option></select></label>
   <label>School level *<select id="gcc120-level" required><option value="">Choose one</option><option>Elementary</option><option>Junior high</option><option>High school</option><option>University</option><option>Other</option></select></label>
   <label>Country *<select id="gcc120-country" required><option value="">Choose country</option></select></label>
   <label>City *<input id="gcc120-city" required minlength="2" maxlength="120"></label>
-  <label>Region / prefecture / state *<input id="gcc120-region" required minlength="2" maxlength="120"></label>
+  <label>Region / prefecture / state (optional)<input id="gcc120-region" minlength="2" maxlength="120"></label>
   <label>School time zone (IANA) *<input id="gcc120-timezone" required placeholder="Asia/Tokyo" list="gcc120-zones"></label>
   <datalist id="gcc120-zones"></datalist>
-  <p class="gcc120-span gcc120-hint">Independent or individual schools are welcome. Please enter the school or organization name, location and a website that reviewers can verify. No student names are required.</p>
+  <p class="gcc120-span gcc120-hint">Independent educators and schools without websites are welcome. Enter your real organization and city; links help reviewers but are not required. No student names are required.</p>
   <button type="submit" id="gcc120-submit" class="gcc120-primary gcc120-span">Submit for approval →</button>
   <p class="gcc120-span gcc135-email-note">A successful submission displays “Application received”. Only then will the administrator see your application for approval.</p>
   </form></section>
@@ -86,7 +86,12 @@ export function bindTeacherJoinV120(){
  $('gcc120-application').addEventListener('submit',async e=>{e.preventDefault();if(!draft)return notify('Sign in first.',true);
   const file=$('gcc120-photo').files?.[0];if(!file)return notify('Please choose a clear photograph of your face.',true);
   const button=$('gcc120-submit');button.disabled=true;try{
-   const site=(id)=>new URL($(id).value.trim());for(const id of ['gcc120-website','gcc120-school-web'])if(site(id).protocol!=='https:')throw Error('Both website links must start with https://');
+   for(const id of ['gcc120-website','gcc120-school-web']){
+    const value=$(id).value.trim();
+    if(!value)continue;
+    let url;try{url=new URL(value);}catch{throw Error('If provided, websites must be valid HTTPS URLs.');}
+    if(url.protocol!=='https:')throw Error('If provided, websites must start with https://');
+   }
    const country=$('gcc120-country').selectedOptions[0];if(!country?.dataset.name)throw Error('Choose a country');
    notify('Compressing your photograph and submitting your application…');
    const photo=await uploadApplicationPhotoV120(draft.teacher_id,file);
