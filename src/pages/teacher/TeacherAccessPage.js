@@ -3,26 +3,41 @@ import '../../styles/teacherJoinV120.css';
 import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
 import '../../styles/teacherLoginV126.css';
 import '../../styles/teacherPasswordV136.css';
+import '../../styles/teacherLoginOceanV144.css';
 import {teacherSignupErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
 const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');if(['create','find','volunteer','network','requests'].includes(next))return '#/teacher-portal?view='+next;return '#/welcome';};
-export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page"><section class="gcc120-join gcc120-signin-page gcc126-login" aria-label="Teacher sign in">
- <a class="gcc120-back gcc126-back" href="#/welcome">← Back to Global Classroom Connect</a>
- <header class="gcc126-heading"><img src="${gccOfficialBadgeV119}" width="82" height="82" alt="" aria-hidden="true"/>
-  <div class="gcc126-heading-text"><p class="gcc126-eyebrow">GLOBAL CLASSROOM CONNECT</p><h1>Teacher sign in</h1><p>Sign in with your approved GCC account.</p></div></header>
- <form id="gcta-login" class="gcc120-grid gcc126-form">
-  <label>Email<input type="email" id="gcta-email" autocomplete="email" required></label>
-  <label>Password<input type="password" id="gcta-password" autocomplete="current-password" required></label>
-  <div class="gcc120-span gcc126-actions"><button class="gcc120-primary" type="submit">Sign in →</button><a href="#/signup" class="gcc120-secondary gcc126-signup">New here? Sign up</a></div>
- </form>
- <p id="gcta-message" class="gcc120-message gcc126-feedback" role="status" aria-live="polite"></p>
- <p class="gcc126-password-help"><a href="#/teacher-password">Forgot your password? Reset it by email</a></p>
- <details class="gct-auth-expand gcc126-invitation"><summary>Have an invitation code? Activate access</summary>
-  <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
-  <button type="submit" class="gct-secondary">Activate access</button></form></details>
- <footer class="gcc126-footer"><a href="#/login">Host sign in</a></footer>
- </section></main>`;}
+export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page gcc144-page">
+ <div class="gcc144-scene">
+  <div class="gcc144-scenic-copy" aria-hidden="true">
+   <span class="gcc144-scene-kicker">GLOBAL CLASSROOM CONNECT · TEACHER SPACE</span>
+   <h2>Teach locally.<br/>Connect globally.</h2>
+   <p>Every classroom is a doorway to the world.</p>
+  </div>
+  <section class="gcc120-join gcc120-signin-page gcc126-login gcc144-card" aria-labelledby="gcc144-teacher-heading">
+   <a class="gcc120-back gcc126-back gcc144-back" href="#/welcome"><span aria-hidden="true">←</span> Back to GCC</a>
+   <header class="gcc126-heading gcc144-heading"><img src="${gccOfficialBadgeV119}" width="64" height="64" alt="" aria-hidden="true"/>
+    <div class="gcc126-heading-text"><p class="gcc126-eyebrow">GLOBAL CLASSROOM CONNECT</p><h1 id="gcc144-teacher-heading">Teacher sign in</h1><p>Welcome back. Connect your classroom to the world.</p></div>
+   </header>
+   <form id="gcta-login" class="gcc120-grid gcc126-form gcc144-form">
+    <label>Email address<input type="email" id="gcta-email" autocomplete="email" required></label>
+    <label>Password<input type="password" id="gcta-password" autocomplete="current-password" required></label>
+    <div class="gcc120-span gcc126-actions gcc144-actions">
+     <button class="gcc120-primary" type="submit">Sign in <span aria-hidden="true">→</span></button>
+     <a href="#/signup" class="gcc120-secondary gcc126-signup">Create an account</a>
+    </div>
+   </form>
+   <p id="gcta-message" class="gcc120-message gcc126-feedback" role="status" aria-live="polite"></p>
+   <p class="gcc126-password-help gcc144-password-help"><a href="#/teacher-password">Forgot your password? Reset it by email</a></p>
+   <details class="gct-auth-expand gcc126-invitation gcc144-invitation"><summary>Have an invitation code? Activate access</summary>
+    <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
+    <button type="submit" class="gct-secondary">Activate access</button></form>
+   </details>
+   <footer class="gcc126-footer gcc144-footer"><a href="#/login">Host sign in</a></footer>
+  </section>
+ </div>
+</main>`;}
 export function bindTeacherAccessPage(){
  // The password-recovery screen shares the sign-in styling, but not its form.
  // Bind only when the real Teacher sign-in form exists.
