@@ -2,6 +2,7 @@ import '../../styles/teacherJoinV120.css';
 import '../../styles/teacherOnboardingV132.css';
 import '../../styles/teacherSignupRecoveryV135.css';
 import '../../styles/teacherSignupIdentityV139.css';
+import '../../styles/teacherSignupSimplifiedV140.css';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
 import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
@@ -9,27 +10,36 @@ import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120
 import {teacherSignupErrorV135,teacherPhotoErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 import {assertApplicantIdentityV139,assertEditableDraftV139} from '../../lib/teacherSignupIdentityV139.js';
 const safe=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-export function TeacherJoinV120(){return `<main class="gcc120-page"><section class="gcc120-join" aria-label="Join Global Classroom">
+export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page"><section class="gcc120-join gcc140-join" aria-label="Join Global Classroom">
  <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
- <div class="gcc120-title"><span>🌎 JOIN OUR GLOBAL TEACHER COMMUNITY</span><h1>Create your GCC account</h1><p>Start with your email, then add your teacher and school details. Your access starts after Global Classroom approves your application.</p><p class="gcc132-onboarding-note">Joining the Global Classroom core team? Sign up, complete your teacher profile, then register as a Facilitator or GC Host after approval. Facilitator registration does not grant Host Admin access.</p></div>
+ <div class="gcc120-title gcc140-title"><span>GLOBAL CLASSROOM CONNECT · TEACHER REGISTRATION</span><h1>Join Global Classroom</h1><p>Bring your classroom closer to the world.</p></div>
  <p class="gcc120-message" id="gcc120-msg" role="status" aria-live="polite"></p>
- <div id="gcc139-account-banner" class="gcc139-account-banner" role="status" aria-live="polite" hidden><span id="gcc139-account-email"></span><button type="button" id="gcc139-switch-account" class="gcc120-secondary">Sign out / switch account</button></div>
- <section id="gcc120-account-step" class="gcc120-panel"><h2><span class="gcc120-step">1</span> Your account</h2>
-  <p class="gcc135-step-hint">Create your account once → confirm the link sent to your email → sign in below to complete your profile. If you have already signed up, do not create a second account.</p>
-  <form id="gcc120-signup-form" class="gcc120-grid"><label>Email address *<input type="email" id="gcc120-email" autocomplete="email" required></label>
-  <label>Password (at least 8 characters) *<input type="password" id="gcc120-password" autocomplete="new-password" minlength="8" required></label>
-  <button class="gcc120-primary gcc120-span" type="submit">Create account →</button></form>
-  <div class="gcc120-signin"><p>Already have an account, or confirmed your email? Sign in to continue.</p>
-    <form id="gcc120-signin-form" class="gcc120-grid"><label>Email<input id="gcc120-old-email" type="email" autocomplete="email" required></label>
-    <label>Password<input id="gcc120-old-password" type="password" autocomplete="current-password" required></label>
-    <button type="submit" class="gcc120-secondary gcc120-span">Sign in and continue → Teacher &amp; School Profile</button></form>
-    <button type="button" id="gcc135-resend" class="gcc135-link">Didn't receive the confirmation link? Resend once</button>
-    <p class="gcc135-email-note">Confirmation delivery may be limited by GCC's email provider. If you see an email limit error, please contact the GCC administrator rather than repeatedly creating accounts.</p>
-   </div>
+ <div id="gcc139-account-banner" class="gcc139-account-banner" role="status" aria-live="polite" hidden><span id="gcc139-account-email"></span><button type="button" id="gcc139-switch-account" class="gcc120-secondary">Switch account</button></div>
+ <section id="gcc120-account-step" class="gcc120-panel gcc140-account-panel">
+  <h2 class="gcc140-visually-hidden">Your account</h2>
+  <div class="gcc140-auth-tabs" role="tablist" aria-label="Choose how to access GCC">
+   <button type="button" id="gcc140-tab-signin" role="tab" aria-selected="true" aria-controls="gcc140-signin-pane">Sign in</button>
+   <button type="button" id="gcc140-tab-signup" role="tab" aria-selected="false" aria-controls="gcc140-signup-pane">Create account</button>
+  </div>
+  <div id="gcc140-signin-pane" class="gcc120-signin gcc140-auth-pane" role="tabpanel" aria-labelledby="gcc140-tab-signin">
+   <form id="gcc120-signin-form" class="gcc120-grid">
+    <label>Email address <input id="gcc120-old-email" type="email" autocomplete="email" required></label>
+    <label>Password <input id="gcc120-old-password" type="password" autocomplete="current-password" required></label>
+    <button type="submit" class="gcc120-primary gcc140-action">Sign in and continue →</button>
+   </form>
+   <div class="gcc140-auth-links"><a href="#/teacher-password">Forgot password?</a><button type="button" id="gcc135-resend" class="gcc135-link">Resend confirmation email</button></div>
+  </div>
+  <div id="gcc140-signup-pane" class="gcc140-auth-pane" role="tabpanel" aria-labelledby="gcc140-tab-signup" hidden>
+   <p class="gcc140-auth-note">Create an account, then confirm the link sent to your email.</p>
+   <form id="gcc120-signup-form" class="gcc120-grid">
+    <label>Email address <input type="email" id="gcc120-email" autocomplete="email" required></label>
+    <label>Password (8 characters minimum) <input type="password" id="gcc120-password" autocomplete="new-password" minlength="8" required></label>
+    <button class="gcc120-primary gcc140-action" type="submit">Create account →</button>
+   </form>
+  </div>
  </section>
- <section id="gcc120-profile-step" class="gcc120-panel" hidden><h2><span class="gcc120-step">2</span> Teacher &amp; school information</h2>
-  <p class="gcc135-step-hint">Your account already exists. Finish this application to join the administrator's review queue. If the photo upload fails, keep this tab open and submit again; do not sign up again.</p>
-  <p class="gcc120-hint">Your name, introduction, face photograph, and school details are required. Personal website, school website and region/state are optional. If provided, websites must be valid HTTPS links. A GCC reviewer will check your application.</p>
+ <section id="gcc120-profile-step" class="gcc120-panel gcc140-profile-panel" hidden><h2><span class="gcc120-step">2</span> Teacher &amp; school profile</h2>
+  <p class="gcc120-hint gcc140-short-hint">Fields marked * are required. Websites and region are optional.</p>
   <form id="gcc120-application" class="gcc120-grid">
   <h3 class="gcc120-span">About you</h3>
   <label>Full name *<input id="gcc120-name" autocomplete="name" minlength="2" maxlength="120" required></label>
@@ -46,21 +56,27 @@ export function TeacherJoinV120(){return `<main class="gcc120-page"><section cla
   <label>Region / prefecture / state (optional)<input id="gcc120-region" minlength="2" maxlength="120"></label>
   <label>School time zone (IANA) *<input id="gcc120-timezone" required placeholder="Asia/Tokyo" list="gcc120-zones"></label>
   <datalist id="gcc120-zones"></datalist>
-  <p class="gcc120-span gcc120-hint">Independent or individual schools are welcome. Please enter the school or organization name, country and city. Websites are optional; a reviewer may verify school information separately. No student names are required.</p>
-  <button type="submit" id="gcc120-submit" class="gcc120-primary gcc120-span">Submit for approval →</button>
-  <p class="gcc120-span gcc135-email-note">A successful submission displays “Application received”. Only then will the administrator see your application for approval.</p>
+  <button type="submit" id="gcc120-submit" class="gcc120-primary gcc140-action">Submit for approval →</button>
   </form></section>
  <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-primary gcc120-inline" hidden>Continue to Facilitator registration →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
- <footer class="gcc120-foot">Already approved? <a href="#/teacher-access">Sign in</a> · <a href="#/registration">Legacy invitation registration</a></footer>
  </section></main>`;}
 export function bindTeacherJoinV120(){
  const root=document.querySelector('.gcc120-join[aria-label="Join Global Classroom"]');if(!root)return;
  const $=id=>root.querySelector('#'+id),notify=(v,error=false)=>{const m=$('gcc120-msg');m.textContent=v;m.classList.toggle('error',error);};
  let draft=null,activeDraftUserId=null,displayedUserId=null,readySequence=0;
  let resendAt=0;
- function displayActiveAccount(user){$('gcc139-account-banner').hidden=!user;$('gcc139-account-email').textContent=user?'Signed in as '+(user.email||'your teacher account')+'. This account will be submitted.':'';}
+ function displayActiveAccount(user){$('gcc139-account-banner').hidden=!user;$('gcc139-account-email').textContent=user?'Signed in as '+(user.email||'your teacher account'):'';}
 
  const resend=$('gcc135-resend');
+ function setAuthMode(mode){
+  const signin=mode!=='signup';
+  $('gcc140-signin-pane').hidden=!signin;
+  $('gcc140-signup-pane').hidden=signin;
+  $('gcc140-tab-signin').setAttribute('aria-selected',String(signin));
+  $('gcc140-tab-signup').setAttribute('aria-selected',String(!signin));
+ }
+ $('gcc140-tab-signin').addEventListener('click',()=>{setAuthMode('signin');$('gcc120-old-email').focus();});
+ $('gcc140-tab-signup').addEventListener('click',()=>{setAuthMode('signup');$('gcc120-email').focus();});
  function setStep(which){for(const s of ['account','profile','status'])$('gcc120-'+s+'-step').hidden=s!==which;}
  function fillChoices(){
   const sel=$('gcc120-country');for(const c of countries){const name=c.name||c.label||c.country||'',code=c.code||c.iso2||c.iso||'';
@@ -93,7 +109,8 @@ export function bindTeacherJoinV120(){
    if(result.session){notify('Account created. Complete your teacher and school profile below.');await ready();}
    else {
      $('gcc120-old-email').value=$('gcc120-email').value.trim();
-     notify('Account created. Check your inbox and spam folder for a confirmation link. Once confirmed, use Sign in and continue below; then submit your teacher profile for approval.');
+     setAuthMode('signin');
+     notify('Check your email for the confirmation link. Then sign in to submit your teacher profile for approval.');
      $('gcc120-old-password').focus();
    }
   }catch(err){notify(teacherSignupErrorV135(err),true);}finally{btn.disabled=false;}});
@@ -122,7 +139,8 @@ export function bindTeacherJoinV120(){
   }catch(err){notify(teacherPhotoErrorV135(err),true);}finally{button.disabled=false;}});
  $('gcc139-switch-account').addEventListener('click',async()=>{const button=$('gcc139-switch-account');button.disabled=true;try{
   const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;
-  await ready();notify('Signed out. Sign in with the email you want to register, or create a new account.');
+  $('gcc120-signin-form').reset();$('gcc120-signup-form').reset();
+  setAuthMode('signin');await ready();notify('Signed out. Sign in with another account.');
  }catch(error){notify(teacherSignupErrorV135(error),true);}finally{button.disabled=false;}});
  resend.addEventListener('click',async()=>{
    const email=($('gcc120-old-email').value||$('gcc120-email').value).trim();
