@@ -1,5 +1,7 @@
 import '../../styles/sharePlanV102.css';
 import '../../styles/sharePlanV104.css';
+import '../../styles/netiquetteGuideV145.css';
+import {bindNetiquetteGuideV145,netiquetteGuideMarkupV145} from '../../lib/netiquetteGuideV145.js';
 import {openSharedRoomChart} from '../../services/sharePlanV102.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
@@ -34,6 +36,8 @@ const safeZoom=value=>{try{const u=new URL(value);return u.protocol==='https:'&&
 
 export function RoomPlanLookupPage(){return `
 <section class="gcc-v104 gcc-v104-guest" aria-label="Global Classroom breakout rooms">
+  ${netiquetteGuideMarkupV145()}
+  <div id="gcc-v145-room-access" hidden>
   <header class="gcc-v104-brand"><span aria-hidden="true">✦</span><div><strong>Global Classroom Connect</strong><small>Meet the world, one room at a time</small></div></header>
   <div class="gcc-v104-hero"><span class="gcc-v104-eyebrow">SESSION ROOM CHART</span><h1>Find your breakout room</h1><p>Enter the 6-digit code from your teacher to view every room.</p></div>
   <form class="gcc-v104-unlock" id="gcc-v104-unlock" autocomplete="off">
@@ -50,6 +54,7 @@ export function RoomPlanLookupPage(){return `
     <div class="gcc-v104-grid" id="gcc-v104-room-list"></div>
   </div>
   <p class="gcc-v104-privacy">Private session information · Share the invitation only with participants.</p>
+  </div>
 </section>`;}
 
 export function bindRoomPlanLookupPage(){
@@ -60,6 +65,7 @@ export function bindRoomPlanLookupPage(){
  const submit=$('gcc-v104-open'),form=$('gcc-v104-unlock'),result=$('gcc-v104-chart');
  const list=$('gcc-v104-room-list'),filter=$('gcc-v104-filter');
  const message=(s,err=false)=>{const n=$('gcc-v104-message');n.textContent=s;n.classList.toggle('error',err);};
+ bindNetiquetteGuideV145(root,Boolean(token));
  if(!token){submit.disabled=true;message('Invalid invitation link. Ask the session host for the current link.',true);return;}
  function draw(data){
    result.hidden=false;
