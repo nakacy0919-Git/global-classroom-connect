@@ -18,7 +18,7 @@ begin
    raise exception 'Invalid session details';
  end if;
  if octet_length(p_details::text)>3500 then raise exception 'Session details are too long'; end if;
- if jsonb_typeof(p_details->'session_name')<>'string'
+ if coalesce(jsonb_typeof(p_details->'session_name'),'')<>'string'
     or char_length(btrim(p_details->>'session_name')) not between 3 and 120 then
    raise exception 'Session name must be 3 to 120 characters';
  end if;
@@ -26,7 +26,7 @@ begin
    raise exception 'Select a session format';
  end if;
  levels:=p_details->'target_levels';
- if jsonb_typeof(levels)<>'array' or jsonb_array_length(levels) not between 1 and 5
+ if coalesce(jsonb_typeof(levels),'')<>'array' or jsonb_array_length(levels) not between 1 and 5
     or exists (select 1 from jsonb_array_elements_text(levels) as t(level)
      where t.level not in ('Primary','Lower Secondary','Upper Secondary','University','Mixed')) then
    raise exception 'Select valid partner school levels';
