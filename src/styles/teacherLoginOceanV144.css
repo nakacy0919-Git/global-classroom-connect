@@ -1,0 +1,270 @@
+/* GCC V14.4: ocean teacher sign-in; uses the same bundled image as the host sign-in.
+   All selectors are limited to the teacher-access scene. Password reset, teacher signup,
+   host login, and authentication behavior intentionally remain unchanged. */
+.public-page-content:has(> .gcc144-page) {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.gcc120-page.gcc144-page {
+  display: block;
+  place-items: initial;
+  min-height: calc(100svh - 44px);
+  padding: 0;
+  background: transparent;
+  color: #203e52;
+}
+.gcc144-scene {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: calc(100svh - 44px);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(350px, 490px);
+  align-items: center;
+  gap: clamp(28px, 5vw, 88px);
+  padding: clamp(26px, 5vw, 84px);
+  border: 1px solid rgba(255,255,255,.83);
+  border-radius: clamp(20px, 3vw, 32px);
+  background-color: #51a7cc;
+  background-image:
+    linear-gradient(105deg, rgba(2,39,76,.74) 0%, rgba(4,79,121,.37) 47%, rgba(5,75,113,.17) 100%),
+    url('../assets/landing-v118/ocean-islands.webp');
+  background-repeat: no-repeat;
+  background-size: cover, cover;
+  background-position: center, center 54%;
+  box-shadow: 0 20px 50px rgba(8,63,96,.17);
+}
+.gcc144-scene::after {
+  position: absolute;
+  z-index: -1;
+  inset: auto 0 0;
+  height: 34%;
+  content: '';
+  background: linear-gradient(to top, rgba(0,48,92,.26), transparent);
+  pointer-events: none;
+}
+.gcc144-scenic-copy {
+  color: #fff;
+  max-width: 570px;
+  text-shadow: 0 2px 18px rgba(3,31,59,.42);
+}
+.gcc144-scene-kicker {
+  display: inline-block;
+  max-width: 100%;
+  padding: 9px 15px;
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: 99px;
+  background: rgba(7,67,101,.25);
+  font-size: .69rem;
+  font-weight: 800;
+  letter-spacing: .115em;
+  line-height: 1.5;
+}
+.gcc144-scenic-copy h2 {
+  color: #fff;
+  font-size: clamp(2.35rem, 4vw, 4.2rem);
+  line-height: 1.08;
+  letter-spacing: -.045em;
+  font-weight: 850;
+  margin: 23px 0 15px;
+}
+.gcc144-scenic-copy p {
+  color: rgba(255,255,255,.96);
+  margin: 0;
+  font-size: clamp(.96rem, 1.4vw, 1.13rem);
+  font-weight: 550;
+  line-height: 1.6;
+}
+.gcc144-page .gcc144-card {
+  width: min(100%, 490px);
+  justify-self: end;
+  padding: clamp(24px, 3vw, 35px);
+  gap: 15px;
+  border: 1px solid rgba(255,255,255,.94);
+  border-radius: 25px;
+  background: rgba(255,253,249,.94);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 23px 66px rgba(3,41,72,.28);
+}
+.gcc144-page .gcc144-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  margin: 0 0 4px;
+  color: #387b87;
+  font-size: .81rem;
+}
+.gcc144-page .gcc144-back:hover { color: #155e73; }
+.gcc144-page .gcc144-heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+.gcc144-page .gcc144-heading > img {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  object-fit: contain;
+  background: rgba(255,255,255,.8);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(12,82,105,.11);
+}
+.gcc144-page .gcc144-heading .gcc126-eyebrow {
+  color: #438b91;
+  font-size: .65rem;
+  letter-spacing: .11em;
+}
+.gcc144-page .gcc144-heading h1 {
+  color: #1d4357;
+  font-size: clamp(1.55rem, 2.3vw, 1.95rem);
+  line-height: 1.12;
+  margin: 5px 0;
+  font-weight: 800;
+}
+.gcc144-page .gcc144-heading p:last-child {
+  color: #64808a;
+  font-size: .81rem;
+  line-height: 1.5;
+  margin: 5px 0 0;
+}
+.gcc144-page .gcc144-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 9px;
+}
+.gcc144-page .gcc144-form label {
+  display: grid;
+  gap: 7px;
+  font-size: .83rem;
+  font-weight: 750;
+  color: #315969;
+}
+.gcc144-page .gcc144-form input {
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid #c4dcd9;
+  background: #fff;
+  color: #173c52;
+  box-shadow: none;
+}
+.gcc144-page .gcc144-form input:focus-visible {
+  border-color: #268b94;
+  outline: 3px solid rgba(45,164,175,.3);
+  outline-offset: 2px;
+}
+.gcc144-page .gcc144-actions {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 1px 0 0;
+}
+.gcc144-page .gcc144-actions .gcc120-primary,
+.gcc144-page .gcc144-actions .gcc120-secondary {
+  width: auto;
+  max-width: 100%;
+  min-height: 45px;
+  padding: 11px 19px;
+  border-radius: 12px;
+  box-shadow: none;
+  font-size: .88rem;
+  line-height: 1.25;
+  font-weight: 760;
+}
+.gcc144-page .gcc144-actions .gcc120-primary {
+  display: inline-flex;
+  gap: 13px;
+  min-width: 122px;
+  background: linear-gradient(120deg, #159da9, #216ca4);
+  color: #fff;
+  box-shadow: 0 9px 18px rgba(13,106,149,.2);
+}
+.gcc144-page .gcc144-actions .gcc120-primary:hover {
+  background: linear-gradient(120deg, #138d9b, #1b5e91);
+}
+.gcc144-page .gcc144-actions .gcc120-secondary {
+  background: rgba(255,255,255,.8);
+  color: #256d7b;
+  border: 1px solid #c7dfdc;
+}
+.gcc144-page .gcc144-actions .gcc120-secondary:hover { background: #eef7f5; }
+.gcc144-page .gcc144-feedback { margin: 0; }
+.gcc144-page .gcc144-password-help {
+  margin: -3px 0 0;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+.gcc144-page .gcc144-password-help a { color: #2b7785; font-weight: 750; }
+.gcc144-page .gcc144-invitation {
+  border-top: 1px solid #dbe9e7;
+  margin-top: 4px;
+  padding: 15px 0 0;
+}
+.gcc144-page .gcc144-invitation summary {
+  color: #2b7281;
+  font-weight: 750;
+  line-height: 1.55;
+}
+.gcc144-page .gcc144-invitation .gct-auth-form { max-width: 100%; }
+.gcc144-page .gcc144-invitation .gct-secondary {
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-height: 42px;
+}
+.gcc144-page .gcc144-footer {
+  border-top: 1px solid #e4eeeb;
+  padding-top: 12px;
+  font-size: .79rem;
+  color: #397789;
+}
+.gcc144-page .gcc144-footer a { color: #307684; }
+.gcc144-page :is(button,a,summary):focus-visible {
+  outline: 3px solid #2eaaaf;
+  outline-offset: 3px;
+}
+@media (max-width: 920px) {
+  .gcc144-scene {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 24px;
+    padding: clamp(22px, 4vw, 38px);
+    background-position: center, 50% center;
+  }
+  .gcc144-scenic-copy { max-width: 540px; text-align: center; }
+  .gcc144-scenic-copy h2 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); margin: 12px 0 8px; }
+  .gcc144-scenic-copy p { font-size: .91rem; }
+  .gcc144-page .gcc144-card { justify-self: center; width: min(100%, 510px); }
+}
+@media (max-width: 540px) {
+  #app:has(.gcc144-page) { padding: 10px; }
+  .gcc144-scene {
+    min-height: calc(100svh - 20px);
+    padding: 19px 14px;
+    border-radius: 20px;
+    gap: 16px;
+  }
+  .gcc144-scene-kicker { font-size: .58rem; padding: 7px 10px; }
+  .gcc144-scenic-copy h2 { font-size: 1.85rem; margin: 9px 0 6px; }
+  .gcc144-scenic-copy p { font-size: .78rem; }
+  .gcc144-page .gcc144-card { padding: 22px 18px; border-radius: 21px; gap: 12px; }
+  .gcc144-page .gcc144-heading { gap: 12px; }
+  .gcc144-page .gcc144-heading > img { width: 54px; height: 54px; flex-basis: 54px; }
+  .gcc144-page .gcc144-heading h1 { font-size: 1.55rem; }
+  .gcc144-page .gcc144-actions { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gcc144-page .gcc144-actions :is(button,a) { transition: none; transform: none; }
+}
