@@ -8,7 +8,8 @@ const service=read('src/services/sharePlanV102.js');
 const sql=read('sql/gcc_v104_shared_code_rooms.sql');
 test('one 6-digit session code opens the complete read-only room chart',()=>{
  assert.match(page,/gcc-v104-code/);
- assert.match(page,/View all rooms/);
+ assert.match(page,/Verify code/);
+ assert.match(page,/netiquetteGuideV146\.show\(/);
  assert.match(page,/Find a student or school/);
  assert.match(page,/room\.students/);
  assert.doesNotMatch(page,/gcc-v103-access-code|gcc-v102-name|gcc-v102-school|listSessionSignups|fetchRoomDraft|\.innerHTML/);
