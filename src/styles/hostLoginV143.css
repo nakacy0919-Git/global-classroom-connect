@@ -1,0 +1,181 @@
+/* GCC V14.3 — Host sign in. Reuses the bundled ocean photo from the main GCC landing page.
+   Scope styling to host login; teacher onboarding, auth logic and host tools are untouched. */
+.gcc143-login-scene {
+  isolation: isolate;
+  position: relative;
+  width: 100%;
+  min-height: calc(100svh - 104px);
+  padding: clamp(22px, 5vw, 86px);
+  border: 1px solid rgba(255,255,255,.86);
+  border-radius: clamp(18px, 2.8vw, 32px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 450px);
+  gap: clamp(28px, 5vw, 100px);
+  align-items: center;
+  background-image:
+    linear-gradient(98deg, rgba(5,43,79,.59) 0%, rgba(3,79,132,.16) 46%, rgba(13,79,116,.13) 100%),
+    url('../assets/landing-v118/ocean-islands.webp');
+  background-color: #54a9d7;
+  background-repeat: no-repeat;
+  background-size: cover, cover;
+  background-position: center center, center 56%;
+  box-shadow: 0 19px 42px rgba(13,67,101,.17);
+  overflow: hidden;
+}
+.gcc143-login-scene::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 28%;
+  background: linear-gradient(to top, rgba(0,54,103,.24), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+.gcc143-scenic-copy {
+  z-index: 1;
+  max-width: 660px;
+  align-self: center;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(3,35,61,.38);
+}
+.gcc143-scenic-kicker {
+  display: inline-flex;
+  padding: 8px 13px;
+  border: 1px solid rgba(255,255,255,.62);
+  border-radius: 100px;
+  background: rgba(6,65,103,.23);
+  font-size: .72rem;
+  letter-spacing: .15em;
+  font-weight: 800;
+}
+.gcc143-scenic-copy h1 {
+  font-size: clamp(2.2rem, 4.1vw, 4.4rem);
+  line-height: 1.08;
+  letter-spacing: -.047em;
+  margin: 23px 0 14px;
+  font-weight: 850;
+}
+.gcc143-scenic-copy p {
+  font-size: clamp(.93rem, 1.5vw, 1.15rem);
+  margin: 0;
+  font-weight: 550;
+}
+.gcc143-login-scene .gcc143-login-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 450px);
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: 24px;
+  background: rgba(255,253,249,.91);
+  border: 1px solid rgba(255,255,255,.98);
+  -webkit-backdrop-filter: blur(17px);
+  backdrop-filter: blur(17px);
+  box-shadow: 0 20px 62px rgba(4,51,80,.24);
+}
+.gcc143-back {
+  display: inline-flex;
+  gap: 7px;
+  color: #367b87;
+  font-weight: 750;
+  font-size: .82rem;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 2px 0;
+}
+.gcc143-back:hover { color: #165e6f; text-decoration: underline; }
+.gcc143-login-heading { display: flex; align-items: center; gap: 15px; }
+.gcc143-brand-logo {
+  width: 62px;
+  height: 62px;
+  flex: none;
+  object-fit: contain;
+  border-radius: 50%;
+  background: rgba(247,252,255,.85);
+  box-shadow: 0 3px 14px rgba(28,100,122,.12);
+}
+.gcc143-brand-name {
+  color: #4a9194;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  line-height: 1.35;
+  margin: 0 0 5px;
+}
+.gcc143-login-scene .gcc143-login-card h2 {
+  margin: 0;
+  color: #21475b;
+  font-size: clamp(1.55rem, 2.2vw, 2rem);
+  letter-spacing: -.035em;
+  font-weight: 800;
+}
+.gcc143-login-intro {
+  margin: 19px 0 23px;
+  color: #5d7d8a;
+  font-size: .92rem;
+  line-height: 1.5;
+}
+.gcc143-login-form { display: flex; flex-direction: column; gap: 16px; }
+.gcc143-login-form .field { gap: 8px; color: #355e69; font-size: .87rem; font-weight: 700; }
+.gcc143-login-form .input {
+  min-height: 48px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #c7dcd9;
+  padding: 12px 14px;
+  color: #1b4057;
+  font-weight: 500;
+  box-shadow: none;
+}
+.gcc143-login-form .input:focus-visible {
+  outline: 3px solid rgba(30,148,151,.34);
+  outline-offset: 2px;
+  border-color: #2a8c92;
+}
+.gcc143-login-actions { display: flex; justify-content: flex-end; padding-top: 6px; }
+.gcc143-login-scene .gcc143-login-submit {
+  width: auto;
+  min-width: 138px;
+  max-width: 100%;
+  min-height: 46px;
+  margin: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 23px;
+  border-radius: 12px;
+  font-size: .95rem;
+  font-weight: 750;
+  background: linear-gradient(120deg, #179eab, #226da4);
+  box-shadow: 0 8px 18px rgba(19,104,149,.18);
+}
+.gcc143-login-scene .gcc143-login-submit:hover { background: linear-gradient(120deg,#148a98,#1b5d91); }
+.gcc143-login-scene .gcc143-login-submit:disabled { opacity: .65; cursor: wait; }
+.gcc143-login-message { margin: 13px 0 0; min-height: 0; line-height: 1.45; font-size: .86rem; overflow-wrap: anywhere; }
+.gcc143-login-message:empty { display: none; }
+.gcc143-back:focus-visible,.gcc143-login-submit:focus-visible { outline: 3px solid #178c94; outline-offset: 3px; }
+
+@media (max-width: 850px) {
+  .gcc143-login-scene {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    justify-items: center;
+    padding: clamp(20px, 4vw, 38px);
+    background-position: center, 52% center;
+  }
+  .gcc143-scenic-copy { text-align: center; max-width: 520px; }
+  .gcc143-scenic-copy h1 { font-size: clamp(1.7rem, 5vw, 2.65rem); margin: 11px 0 6px; }
+  .gcc143-scenic-copy p { font-size: .9rem; }
+  .gcc143-login-scene .gcc143-login-card { width: min(100%, 460px); }
+}
+@media (max-width: 540px) {
+  .public-page-content:has(> .gcc143-login-scene) { padding-top: 0; }
+  .gcc143-login-scene { padding: 16px; min-height: calc(100svh - 60px); border-radius: 18px; }
+  .gcc143-scenic-copy h1 { font-size: 1.8rem; }
+  .gcc143-scenic-kicker { font-size: .62rem; }
+  .gcc143-login-scene .gcc143-login-card { padding: 23px 20px; border-radius: 20px; }
+  .gcc143-login-actions { justify-content: stretch; }
+  .gcc143-login-scene .gcc143-login-submit { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gcc143-login-scene .gcc143-login-submit { transition: none; transform: none; }
+}
