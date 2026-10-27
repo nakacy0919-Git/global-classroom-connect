@@ -37,12 +37,12 @@ const safeZoom=value=>{try{const u=new URL(value);return u.protocol==='https:'&&
 export function RoomPlanLookupPage(){return `
 <section class="gcc-v104 gcc-v104-guest" aria-label="Global Classroom breakout rooms">
   ${netiquetteGuideMarkupV145()}
-  <div id="gcc-v145-room-access" hidden>
+  <div id="gcc-v145-room-access">
   <header class="gcc-v104-brand"><span aria-hidden="true">✦</span><div><strong>Global Classroom Connect</strong><small>Meet the world, one room at a time</small></div></header>
-  <div class="gcc-v104-hero"><span class="gcc-v104-eyebrow">SESSION ROOM CHART</span><h1>Find your breakout room</h1><p>Enter the 6-digit code from your teacher to view every room.</p></div>
+  <div class="gcc-v104-hero"><span class="gcc-v104-eyebrow">SESSION ROOM CHART</span><h1>Find your breakout room</h1><p>Enter the 6-digit code from your teacher first. After verification, check five Zoom guidelines to open your breakout room chart.</p></div>
   <form class="gcc-v104-unlock" id="gcc-v104-unlock" autocomplete="off">
     <label for="gcc-v104-code">Session access code</label>
-    <div class="gcc-v104-unlock-row"><input id="gcc-v104-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6-digit code" aria-label="6-digit session access code" autocomplete="off" required /><button type="submit" class="gcc-v104-primary" id="gcc-v104-open">View all rooms →</button></div>
+    <div class="gcc-v104-unlock-row"><input id="gcc-v104-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6-digit code" aria-label="6-digit session access code" autocomplete="off" required /><button type="submit" class="gcc-v104-primary" id="gcc-v104-open">Verify code →</button></div>
   </form>
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
   <div id="gcc-v104-chart" hidden>
@@ -65,7 +65,7 @@ export function bindRoomPlanLookupPage(){
  const submit=$('gcc-v104-open'),form=$('gcc-v104-unlock'),result=$('gcc-v104-chart');
  const list=$('gcc-v104-room-list'),filter=$('gcc-v104-filter');
  const message=(s,err=false)=>{const n=$('gcc-v104-message');n.textContent=s;n.classList.toggle('error',err);};
- bindNetiquetteGuideV145(root,Boolean(token));
+ const netiquetteGuideV146=bindNetiquetteGuideV145(root,Boolean(token));
  if(!token){submit.disabled=true;message('Invalid invitation link. Ask the session host for the current link.',true);return;}
  function draw(data){
    result.hidden=false;
@@ -128,12 +128,27 @@ export function bindRoomPlanLookupPage(){
  });
  filter.addEventListener('input',applyFilter);
  form.addEventListener('submit',async event=>{
-   event.preventDefault();roomToolsV106.reset();result.hidden=true;list.replaceChildren();submit.disabled=true;message('Opening the session chart…');
+   event.preventDefault();roomToolsV106.reset();result.hidden=true;list.replaceChildren();submit.disabled=true;message('Verifying your session access code…');
    const code=$('gcc-v104-code').value.trim();
    if(!/^[0-9]{6}$/.test(code)){message('Please enter the 6-digit code.',true);submit.disabled=false;return;}
    try{const data=await openSharedRoomChart(token,code);
      if(!data||!Array.isArray(data.rooms)){message('Code not accepted or invitation expired. Check with your teacher.',true);return;}
-     message('✓ Room chart is ready');draw(data);filter.value='';roomToolsV106.onDraw(data);
+     // Never render student names or room details until the verified visitor has
+     // acknowledged the guidelines (or used their own browser's prior confirmation).
+     filter.value='';
+     message('✓ Code verified. Please review the Zoom guidelines.');
+     netiquetteGuideV146.show(()=>{
+       if(!root.isConnected)return;
+       root.querySelector('.gcc-v104-hero').hidden=true;
+       form.hidden=true;
+       message('✓ Guide complete — your breakout room chart is ready.');
+       draw(data);
+       roomToolsV106.onDraw(data);
+       const heading=$('gcc-v104-session-name');
+       heading.setAttribute('tabindex','-1');
+       heading.focus({preventScroll:true});
+       heading.scrollIntoView({block:'start',behavior:'smooth'});
+     });
    }catch(_){message('Could not open the room chart. Please try again or contact the host.',true);}
    finally{submit.disabled=false;}
  });
