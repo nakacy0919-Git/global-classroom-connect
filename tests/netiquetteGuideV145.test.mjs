@@ -28,7 +28,7 @@ test('five slides match the overview and four topic graphics',()=>{
 });
 test('repeat visitors may skip but first visitors cannot and per-browser confirmation is versioned',()=>{
  assert.match(guide,/gcc-netiquette-v145-confirmed/);
- assert.match(guide,/skip.hidden=!completed/);
+ assert.match(guide,/skip.hidden=!isGuideConfirmedV145\(storage\)/);
  assert.match(guide,/isGuideConfirmedV145\(storage\)\)finish\(\)/);
  assert.match(guide,/markGuideConfirmedV145\(storage\)/);
  assert.match(guide,/localStorage/);
