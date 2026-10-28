@@ -5,9 +5,10 @@ import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot} from '../../lib/matching.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
-import '../../styles/sessionStudioV151.css';
+
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
 import '../../styles/sessionStudioV150.css';
+import '../../styles/sessionStudioV151.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut} from '../../services/teacherSelfService.js';
 
@@ -266,7 +267,18 @@ export function bindTeacherPortalPage(){
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:detailsPayload()};
    if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){inform('Check student and room counts.',true);return;}
    const btn=$('gctp-publish');btn.disabled=true;
-   try{prepareSuccessChime();await teacherCreateSession(slot,data);await refresh();inform('Session published to approved teachers. No email sent.');showFormStep(0);display('create');showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});}
+   try{
+    prepareSuccessChime();await teacherCreateSession(slot,data);await refresh();
+    inform('Session published to approved teachers. No email sent.');
+    $('gctp-create').reset();$('gctp-date').value=tomorrow(identity.timezone);$('gctp-zone').value=identity.timezone;
+    const defaultLevel=GCC_LEVELS_V150.find(([id])=>id===identity.school_level)?.[0]||'Upper Secondary';
+    $('gctp-band').value=defaultLevel;
+    const defaultCheck=root.querySelector(`input[name="gctp-target-level"][value="${defaultLevel}"]`);
+    if(defaultCheck)defaultCheck.checked=true;
+    $('gctp-sdg-wrap').hidden=true;
+    showFormStep(0);display('create');
+    showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});
+   }
    catch(err){inform(err.message||'Could not publish the session.',true);}finally{btn.disabled=false;}
  });
  const setDiscoverMode=(mode)=>{
