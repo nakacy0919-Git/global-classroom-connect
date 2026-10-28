@@ -55,8 +55,8 @@ test('language toggles preserve original English text and ARIA attributes on eve
  assert.match(module,/current===last\.last/);
  assert.match(module,/el\.setAttribute\(attr,target\)/);
  assert.match(module,/skipTags=new Set/);
- assert.match(module,/\\.gcc-v104-identity/);
- assert.match(module,/\\[contenteditable\\]/);
+ assert.ok(module.includes('.gcc-v104-identity'));
+ assert.ok(module.includes('[contenteditable]'));
  assert.doesNotMatch(module,/input\.value\s*=/);
  assert.doesNotMatch(module,/window\.location\.reload/);
  assert.doesNotMatch(module,/innerHTML\s*=\s*translateUiText/);
