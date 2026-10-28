@@ -6,6 +6,7 @@ async function rpc(name,params={}){
   return data;
 }
 export const listPublicSessions=()=>rpc('gcc_v6_public_sessions');
+export const listPublicSessionOverviews=()=>rpc('gcc_v168_public_session_overviews');
 export const submitSharedRoster=p=>rpc('gcc_v165_submit_roster',{
   p_event_id:p.eventId,p_teacher_name:p.teacher,
   p_school_name:p.school,p_country_code:p.countryCode,
