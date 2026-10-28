@@ -12,3 +12,10 @@
  #app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-bubble{font-size:.48rem;padding:2px 4px;border-radius:5px}
  #app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label{display:flex}
 }
+
+/* V17.0: golden-orange Practice English card, matching the supplied rounded icon. */
+#app .gcc117-welcome .gcc117-choice-practice{--gcc117-color:#ffb500;--gcc117-soft:#ffe7aa;border-color:#ffb914!important;box-shadow:0 9px 25px #c57b1d59,inset 0 0 0 3px #ffe96b!important}
+#app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-art{background:radial-gradient(circle at 48% 18%,#f8fdff,#b7effa 30%,#72c4ed 55%,#5d5cc4 100%);border:5px solid #ffe96e;box-shadow:inset 0 0 28px #ffffffaa}
+#app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label{background:linear-gradient(180deg,#ffd946,#ff9c12 56%,#f76c17)!important;border:3px solid #ffed8b!important;border-radius:23px!important;box-shadow:0 -5px 17px #ffd64b9c!important}
+#app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label strong{font-weight:950;text-shadow:0 3px 4px #c45124,0 0 3px #3b3f8b;color:white}
+#app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-bubble-b{background:#16c969;color:white;border:2px solid #a6ffba}
