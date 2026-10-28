@@ -351,6 +351,7 @@ YOUR ROOM | あなたのルーム
 Your room | あなたのルーム
 Zoom Netiquette | Zoomでのマナー
 I have read and understood | 内容を読み、理解しました
+I Understand | 内容を理解しました
 Skip | スキップ
 Sound on | 音声オン
 Sound off | 音声オフ
