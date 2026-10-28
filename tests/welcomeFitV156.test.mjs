@@ -43,7 +43,7 @@ test('account actions have coherent sign-in/sign-up styles and keep accessible a
 });
 test('small phones get four horizontal menu cards with explicit readable labels',()=>{
  assert.equal((page.match(/class="gcc156-choice-label"/g)||[]).length,4);
- for(const x of ['Host a Session','Find a Session','Facilitator / GC Host','Practice'])assert.ok(page.includes('<strong>'+x+'</strong>'),x);
+ for(const x of ['Host a Session','Find a Session','Facilitator / GC Host','Practice English'])assert.ok(page.includes('<strong>'+x+'</strong>'),x);
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(css,/grid-template-rows:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/\.gcc118-choice-image/);
