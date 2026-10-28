@@ -54,7 +54,7 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
  if(!$('gcc153-editor'))return;
  const notify=(message,error=false)=>{const e=$('gcc153-message');e.textContent=message;e.classList.toggle('error',error);};
  const schoolNotify=(message,error=false)=>{const e=$('gcc153-school-status');e.textContent=message;e.classList.toggle('error',error);};
- let profile=null;
+ let profile=null,schoolSnapshot=null;
  const avatar=$('gcc153-avatar');
  const photoPreview=async(path)=>{
   avatar.replaceChildren();
@@ -83,7 +83,7 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   $('gcc153-bio-count').textContent=Array.from($('gcc153-bio').value).length.toLocaleString('en-US')+' / 3,000';
   await photoPreview(profile.photo_path);
   $('gcc153-remove-photo').hidden=!profile.photo_path;
-  const school=await rpc('gcc_v153_my_school_details');
+  const school=await rpc('gcc_v153_my_school_details');schoolSnapshot=school;
   $('gcc153-location').textContent=[school.country_name,school.timezone].filter(Boolean).join(' · ');
   for(const [id] of schoolFields)$('gcc153-school-'+id).value=school?.[id]||'';
   const request=await rpc('gcc_v153_my_school_edit');
@@ -142,6 +142,8 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   event.preventDefault();const button=$('gcc153-school-request');
   const requested=Object.fromEntries(schoolFields.map(([id])=>[id,$('gcc153-school-'+id).value.trim()]));
   if(requested.name.length<2||requested.name.length>160)return schoolNotify('Enter a valid school name.',true);
+  if(schoolSnapshot&&schoolFields.every(([key])=>String(schoolSnapshot[key]||'').trim()===requested[key]))
+   return schoolNotify('No changes to submit. Your school information is already up to date.');
   if(!validateLink(requested.website_url))return schoolNotify('Use an HTTPS school website URL.',true);
   button.disabled=true;schoolNotify('Sending your correction request…');
   try{await rpc('gcc_v153_request_school_edit',{p_changes:requested});
