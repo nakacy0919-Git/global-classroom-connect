@@ -45,8 +45,8 @@ export function Header(route) {
           <strong id="current-language">English</strong>
         </div>
 
-        <button class="lang-button" data-lang="en">EN</button>
-        <button class="lang-button" data-lang="ja">日本語</button>
+        <button type="button" class="lang-button" data-lang="en" aria-label="Display in English">EN</button>
+        <button type="button" class="lang-button" data-lang="ja" aria-label="日本語で表示">日本語</button>
       </div>
     </header>
   `;
