@@ -3,6 +3,7 @@ import '../../styles/welcomeV117.css';
 import hostIllustration from '../../assets/landing-v118/host-session.webp';
 import findIllustration from '../../assets/landing-v118/find-session.webp';
 import volunteerIllustration from '../../assets/landing-v118/facilitator-host.webp';
+import practiceEnglishArtwork from '../../assets/landing-v118/practice-english.avif';
 import '../../styles/welcomeArtV118.css';
 import gccOfficialBadgeV119 from '../../assets/gcc-v119-official.webp';
 import '../../styles/welcomeBrandV119.css';
@@ -46,7 +47,7 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
    <a class="gcc117-choice gcc117-choice-create" href="#/teacher-portal?view=create" aria-label="Host a Session — Create and share" title="Host a Session — Create and share"><img class="gcc118-choice-image" src="${hostIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Host a Session</strong><small>Create and share <span aria-hidden="true">→</span></small></span></a>
    <a class="gcc117-choice gcc117-choice-find" href="#/teacher-portal?view=find" aria-label="Find a Session — Search and join" title="Find a Session — Search and join"><img class="gcc118-choice-image" src="${findIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Find a Session</strong><small>Search and join <span aria-hidden="true">→</span></small></span></a>
    <a class="gcc117-choice gcc117-choice-join" href="#/teacher-portal?view=volunteer" aria-label="Be a Facilitator or GC Host — Support and connect" title="Be a Facilitator or GC Host — Support and connect"><img class="gcc118-choice-image" src="${volunteerIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Facilitator / GC Host</strong><small>Support and connect <span aria-hidden="true">→</span></small></span></a>
-   <a class="gcc117-choice gcc117-choice-practice" href="#/practice" aria-label="Practice — Speak and connect" title="Practice English for Zoom exchanges"><span class="gcc169-landing-art" aria-hidden="true"><span class="gcc169-landing-halo"></span><span class="gcc169-landing-mic">🎙️</span><span class="gcc169-landing-bubble gcc169-landing-bubble-a">Hello!</span><span class="gcc169-landing-bubble gcc169-landing-bubble-b">✓ 96%</span><span class="gcc169-landing-waves">〰 〰 〰</span></span><span class="gcc156-choice-label"><strong>Practice English</strong><small>Speak · Practice · Be Ready! <span aria-hidden="true">→</span></small></span></a>
+   <a class="gcc117-choice gcc117-choice-practice" href="#/practice" aria-label="Practice English — Speak. Practice. Be Ready!" title="Practice English — Speak. Practice. Be Ready!"><img class="gcc118-choice-image gcc172-practice-artwork" src="${practiceEnglishArtwork}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Practice English</strong><small>Speak · Practice · Be Ready! <span aria-hidden="true">→</span></small></span></a>
  </div>
  <div class="gcc117-bottom gcc119-footer"><span class="gcc119-hosted"><img src="${globalClassroomLogo}" alt="" width="26" height="26"/>Hosted by Global Classroom</span></div>
  </section>`;}

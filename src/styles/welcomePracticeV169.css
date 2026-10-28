@@ -1,21 +1,60 @@
-/* Fourth entry follows the existing ocean-card visual system. */.gcc117-welcome .gcc117-choices{grid-template-columns:repeat(4,minmax(0,1fr));max-width:1360px;gap:clamp(9px,1.4vw,19px)}.gcc117-welcome .gcc117-choice-practice{--gcc117-color:#187f9c;--gcc117-soft:#d9f8f6;position:relative}.gcc169-landing-art{position:absolute;inset:0;display:block;overflow:hidden;border-radius:inherit;background:linear-gradient(145deg,#b6f0f2,#8ccedb 49%,#4b86b7);border:5px solid #e5fcff;box-shadow:inset 0 0 45px #ffffff80}.gcc169-landing-halo{position:absolute;width:75%;height:75%;left:12%;top:8%;border-radius:50%;background:radial-gradient(circle,#fff9,#c6e8f000 72%);border:3px solid #ffffff65}.gcc169-landing-mic{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-12deg);font-size:clamp(4rem,7vw,7.3rem);filter:drop-shadow(0 9px 10px #1b50705e)}.gcc169-landing-bubble{position:absolute;z-index:1;border-radius:14px;background:#fffffff0;color:#28667b;padding:8px 12px;font-weight:900;box-shadow:0 5px 13px #15566a3d;font-size:clamp(.75rem,1.2vw,1.1rem)}.gcc169-landing-bubble-a{top:13%;left:7%;transform:rotate(-8deg)}.gcc169-landing-bubble-b{top:23%;right:5%;transform:rotate(7deg);color:#178975}.gcc169-landing-waves{position:absolute;top:57%;width:100%;text-align:center;font-size:2.2rem;color:#e3fff5;letter-spacing:.2em}.gcc117-choice-practice .gcc156-choice-label{z-index:2}.gcc117-welcome .gcc117-choice-practice:hover .gcc169-landing-mic{transform:translate(-50%,-50%) rotate(0)}@media(max-width:960px){.gcc117-welcome .gcc117-choices{grid-template-columns:repeat(2,minmax(0,1fr));max-width:740px}.gcc117-welcome .gcc117-choice-join{grid-column:auto;width:100%;margin:0}.gcc117-welcome .gcc169-landing-mic{font-size:6rem}}@media(max-width:620px){.gcc117-welcome .gcc117-choices{grid-template-columns:repeat(2,minmax(0,1fr));max-width:540px}.gcc169-landing-bubble{padding:4px 7px;font-size:.66rem}.gcc169-landing-waves{font-size:1.3rem}.gcc117-welcome .gcc169-landing-mic{font-size:clamp(3rem,10vw,5rem)}}@media(max-width:370px){.gcc117-welcome .gcc117-choices{grid-template-columns:1fr;max-width:300px}}
-/* V15.6 full-viewport rules are more specific; override them for four entries. */
-#app .gcc117-welcome .gcc117-choices{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,1fr);width:min(100%,1270px);max-width:1270px}
-#app .gcc117-welcome .gcc117-choice-practice{position:relative}
-#app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-art{position:absolute;inset:0}
-@media(max-width:920px) and (min-width:621px){#app .gcc117-welcome .gcc117-choices{grid-template-columns:repeat(4,minmax(0,1fr));max-width:800px}}
-@media(max-width:620px){
- #app .gcc117-welcome .gcc117-choices{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));max-width:450px}
- #app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-art{position:relative;inset:auto;width:auto;height:100%;max-width:37%;aspect-ratio:1/1;flex:0 0 auto;border:0;border-radius:11px}
- #app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-mic{font-size:clamp(2rem,6vh,3.2rem)}
- #app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-waves{font-size:.7rem}
- #app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-bubble{font-size:.48rem;padding:2px 4px;border-radius:5px}
- #app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label{display:flex}
+/* GCC V17.2 — fourth landing button uses the supplied transparent artwork itself.
+   No synthetic badge, text overlay, or replacement illustration on desktop. */
+#app .gcc117-welcome .gcc117-choices{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr);
+  width:min(100%,1270px);
+  max-width:1270px;
+  gap:clamp(8px,1.4vw,19px);
 }
-
-/* V17.0: golden-orange Practice English card, matching the supplied rounded icon. */
-#app .gcc117-welcome .gcc117-choice-practice{--gcc117-color:#ffb500;--gcc117-soft:#ffe7aa;border-color:#ffb914!important;box-shadow:0 9px 25px #c57b1d59,inset 0 0 0 3px #ffe96b!important}
-#app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-art{background:radial-gradient(circle at 48% 18%,#f8fdff,#b7effa 30%,#72c4ed 55%,#5d5cc4 100%);border:5px solid #ffe96e;box-shadow:inset 0 0 28px #ffffffaa}
-#app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label{background:linear-gradient(180deg,#ffd946,#ff9c12 56%,#f76c17)!important;border:3px solid #ffed8b!important;border-radius:23px!important;box-shadow:0 -5px 17px #ffd64b9c!important}
-#app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label strong{font-weight:950;text-shadow:0 3px 4px #c45124,0 0 3px #3b3f8b;color:white}
-#app .gcc117-welcome .gcc117-choice-practice .gcc169-landing-bubble-b{background:#16c969;color:white;border:2px solid #a6ffba}
+#app .gcc117-welcome .gcc117-choice-practice{
+  position:relative;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible;
+  filter:drop-shadow(0 12px 14px rgba(9,38,74,.27));
+}
+#app .gcc117-welcome .gcc117-choice-practice .gcc172-practice-artwork{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:transparent;
+  border:0;
+  pointer-events:none;
+  user-select:none;
+}
+#app .gcc117-welcome .gcc117-choice-practice:hover{
+  transform:translateY(-8px) scale(1.025);
+  filter:drop-shadow(0 18px 19px rgba(9,38,74,.32));
+}
+@media(max-width:920px) and (min-width:621px){
+  #app .gcc117-welcome .gcc117-choices{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    max-width:800px;
+  }
+}
+@media(max-width:620px){
+  #app .gcc117-welcome .gcc117-choices{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:repeat(4,minmax(0,1fr));
+    max-width:450px;
+  }
+  #app .gcc117-welcome .gcc117-choice-practice{
+    width:100%;height:100%;
+    display:flex;align-items:center;
+    padding:0 9px;
+    border-radius:clamp(11px,2.2vw,17px);
+    background:rgba(255,250,229,.94)!important;
+    border:1px solid rgba(255,210,120,.88)!important;
+    filter:none;
+  }
+  #app .gcc117-welcome .gcc117-choice-practice .gcc172-practice-artwork{
+    width:auto;height:100%;min-height:0;max-width:37%;
+    aspect-ratio:1/1;flex:0 0 auto;
+  }
+  #app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label{display:flex}
+  #app .gcc117-welcome .gcc117-choice-practice .gcc156-choice-label strong{color:#b76806}
+}
