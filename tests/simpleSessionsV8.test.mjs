@@ -82,6 +82,6 @@ test('only the host lists signups; public form submits via RPC',()=>{
 
  assert.match(host,/listSessionSignups/);assert.doesNotMatch(teacher,/listSessionSignups/);
 
- assert.match(svc,/gcc_v8_submit_roster/);
+ assert.match(svc,/gcc_v165_submit_roster/);
 
 });
