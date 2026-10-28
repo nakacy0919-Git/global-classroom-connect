@@ -63,6 +63,7 @@ test('world map renders grounded GeoJSON, clickable pins and an accessible count
  assert.match(module,/countryChip/);
  assert.match(module,/No open sessions/);
  assert.match(css,/gcs151-world-pin/);
+ assert.match(css,/\.gcs151-find\[hidden\]\{display:none!important\}/);
  assert.match(css,/@media\(max-width:540px\)/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
