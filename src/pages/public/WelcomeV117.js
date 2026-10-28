@@ -22,8 +22,8 @@ const svg=(name,cls='')=>`<svg class="${cls}" width="24" height="24" viewBox="0 
 export function WelcomeV117(){return `<section class="gcc117-welcome" aria-labelledby="gcc117-heading">
  <div class="gcc117-world" aria-hidden="true"><div class="gcc117-globe"></div><i class="gcc117-orbit gcc117-orbit-a"></i><i class="gcc117-orbit gcc117-orbit-b"></i><i class="gcc117-dot gcc117-dot-a"></i><i class="gcc117-dot gcc117-dot-b"></i><i class="gcc117-dot gcc117-dot-c"></i></div>
  <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management" class="gcc124-actions">
-    <a href="#/signup" class="gcc120-signup-top">Sign up</a>
-    <a href="#/teacher-access" class="gcc120-signin-top">Sign in</a>
+    <a href="#/teacher-access" class="gcc120-signin-top">${svg('profile')}<span>Sign in</span></a>
+    <a href="#/signup" class="gcc120-signup-top"><span>Sign up</span>${svg('arrow')}</a>
     <details class="gcc124-account-menu">
       <summary aria-label="More account options" title="More account options">
         ${svg('profile')}<span class="gcc124-menu-label">Account</span>
@@ -41,9 +41,9 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
    <p>Meet teachers around the globe, bring young people together, and make every exchange a new story.</p>
  </div>
  <div class="gcc117-choices" aria-label="Choose your next step">
-   <a class="gcc117-choice gcc117-choice-create" href="#/teacher-portal?view=create" aria-label="Host a Session — Create and share" title="Host a Session — Create and share"><img class="gcc118-choice-image" src="${hostIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
-   <a class="gcc117-choice gcc117-choice-find" href="#/teacher-portal?view=find" aria-label="Find a Session — Search and join" title="Find a Session — Search and join"><img class="gcc118-choice-image" src="${findIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
-   <a class="gcc117-choice gcc117-choice-join" href="#/teacher-portal?view=volunteer" aria-label="Be a Facilitator or GC Host — Support and connect" title="Be a Facilitator or GC Host — Support and connect"><img class="gcc118-choice-image" src="${volunteerIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /></a>
+   <a class="gcc117-choice gcc117-choice-create" href="#/teacher-portal?view=create" aria-label="Host a Session — Create and share" title="Host a Session — Create and share"><img class="gcc118-choice-image" src="${hostIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Host a Session</strong><small>Create and share <span aria-hidden="true">→</span></small></span></a>
+   <a class="gcc117-choice gcc117-choice-find" href="#/teacher-portal?view=find" aria-label="Find a Session — Search and join" title="Find a Session — Search and join"><img class="gcc118-choice-image" src="${findIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Find a Session</strong><small>Search and join <span aria-hidden="true">→</span></small></span></a>
+   <a class="gcc117-choice gcc117-choice-join" href="#/teacher-portal?view=volunteer" aria-label="Be a Facilitator or GC Host — Support and connect" title="Be a Facilitator or GC Host — Support and connect"><img class="gcc118-choice-image" src="${volunteerIllustration}" alt="" aria-hidden="true" width="900" height="900" decoding="async" /><span class="gcc156-choice-label"><strong>Facilitator / GC Host</strong><small>Support and connect <span aria-hidden="true">→</span></small></span></a>
  </div>
- <div class="gcc117-bottom gcc119-footer"><span class="gcc119-hosted"><img src="${globalClassroomLogo}" alt="" width="26" height="26"/>Hosted by Global Classroom</span><span class="gcc119-divider" aria-hidden="true"></span><a href="#/teacher-access">New here? Sign up and join our network</a></div>
+ <div class="gcc117-bottom gcc119-footer"><span class="gcc119-hosted"><img src="${globalClassroomLogo}" alt="" width="26" height="26"/>Hosted by Global Classroom</span></div>
  </section>`;}
