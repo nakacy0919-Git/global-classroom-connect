@@ -55,7 +55,7 @@ GRANT EXECUTE ON FUNCTION public.gcc_v165_submit_signup(text,uuid,text,text,text
 CREATE OR REPLACE FUNCTION public.gcc_v155_review_signup_with_auto_rooms(p_signup_id uuid,p_approve boolean)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE e uuid;result jsonb;d record;pr record;rooms jsonb;idx integer;old_idx integer;
-  new_d jsonb;new_rev integer;pub record;applied integer:=0;skipped integer:=0;
+  new_d jsonb;new_rev integer;pub record;applied integer:=0;skipped integer:=0;applied_ids uuid[]:=ARRAY[]::uuid[];
 BEGIN
  PERFORM public.gcc_v6_require_host();
  SELECT event_id INTO e FROM public.gcc_session_signups WHERE id=p_signup_id AND status='pending';
@@ -80,7 +80,7 @@ BEGIN
    END LOOP;
    rooms:=jsonb_set(rooms,ARRAY[idx::text,'students'],
      (rooms->idx->'students')||to_jsonb(pr.student_a::text)||to_jsonb(pr.student_b::text),false);
-   applied:=applied+1;
+   applied:=applied+1;applied_ids:=applied_ids||pr.student_a;
  END LOOP;
  IF applied>0 THEN
    SELECT revision,token_hash,is_active INTO pub FROM public.gcc_v102_shared_plans WHERE event_id=e FOR UPDATE;
@@ -92,7 +92,7 @@ BEGIN
    END IF;
    INSERT INTO public.gcc_v106_locked_pairs(event_id,student_a,student_b,created_by)
    SELECT e,student_a,student_b,auth.uid() FROM public.gcc_v165_pair_requests WHERE signup_id=p_signup_id
-   AND target_room BETWEEN 1 AND jsonb_array_length(rooms)
+   AND student_a=ANY(applied_ids)
    ON CONFLICT DO NOTHING;
  END IF;
  RETURN result||jsonb_build_object('approved',true,'event_id',e,'pairs_applied',applied,'pairs_skipped',skipped);
