@@ -13,6 +13,7 @@ import {TeacherPortalPage,bindTeacherPortalPage} from './pages/teacher/TeacherPo
 import {TeacherInvitesPage,bindTeacherInvitesPage} from './pages/host/TeacherInvitesPage.js';
 import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
 import {bindMobileNavigationV152} from './lib/mobileNavigationV152.js';
+import {bindGccLanguage} from './lib/i18nV157.js';
 import {WelcomeV117} from './pages/public/WelcomeV117.js';
 import {HostVolunteersPageV117,bindHostVolunteersV117} from './pages/host/HostVolunteersV117.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
@@ -289,66 +290,8 @@ function bindUiEvents() {
   bindSharedRegistrationPage();
   bindRoomPlanLookupPage();
   
-  // =========================================================
-  // Language
-  // =========================================================
-
-
-  const langButtons =
-    document.querySelectorAll(
-      '[data-lang]'
-    );
-
-
-  const langLabel =
-    document.querySelector(
-      '#current-language'
-    );
-
-
-
-
-  langButtons.forEach(
-
-    (button) => {
-
-
-      button.addEventListener(
-
-        'click',
-
-        () => {
-
-
-          const lang =
-            button.dataset.lang;
-
-
-
-
-          if (
-            langLabel
-          ) {
-
-            langLabel.textContent =
-              lang === 'ja'
-                ? '日本語'
-                : 'English';
-
-          }
-
-        }
-
-      );
-
-    }
-
-  );
-
-
-
-
-
+  // Language switching is handled by the persistent bilingual UI module.
+  // Translations do not change submitted form values or server-side identities.
 
   // =========================================================
   // Participant Pool
@@ -3578,6 +3521,9 @@ export async function renderApp() {
   await renderCurrentPage(
     route
   );
+
+  // Translate once and observe late-loaded session cards / validation messages.
+  bindGccLanguage(app,isPublicRoute);
 
   // Re-bind after each full route render; drawer only appears at mobile widths.
   bindMobileNavigationV152();
