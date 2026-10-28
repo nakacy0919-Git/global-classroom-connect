@@ -3501,7 +3501,7 @@ export async function renderApp() {
     }
     if(!allowed){
       const requested=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
-      const next=['create','find','volunteer','network','requests'].includes(requested)?requested:'home';
+      const next=['create','find','volunteer','network','requests','profile'].includes(requested)?requested:'home';
       window.location.hash = route === 'teacher-portal' ? '#/teacher-access?next='+next : '#/login';
       return;
     }

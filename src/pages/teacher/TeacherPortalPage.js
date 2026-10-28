@@ -1,6 +1,8 @@
 import '../../styles/teacherSelfService.css';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
+import {teacherProfileMarkupV153,mountTeacherProfileV153} from './TeacherProfileV153.js';
+import {myTeacherProfileV116} from '../../services/teacherNetworkV116.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot} from '../../lib/matching.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
@@ -103,7 +105,10 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
  <p class="gct-hint">Approval records interest only. Agree on the final arrangements separately; no notification, Zoom link, or event is automatically sent.</p></div>
- <section class="gct-section" data-gct-view="network" hidden>${teacherNetworkMarkupV116()}</section>
+ <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
+ <section class="gct-section" data-gct-view="network" hidden>
+  <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
+  ${teacherNetworkMarkupV116()}</section>
  <section class="gct-section" data-gct-view="volunteer" hidden>${volunteerMarkupV117()}</section>
  </section>`;}
 
@@ -259,7 +264,17 @@ export function bindTeacherPortalPage(){
   $('gctp-band').value=level;
   const checkbox=root.querySelector(`input[name="gctp-target-level"][value="${level}"]`);
   if(checkbox)checkbox.checked=true;
-  await refresh();inform('');await mountVolunteerV117(root,display);const networkProfile=await mountTeacherNetworkV116(root);if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
+  await refresh();inform('');await mountVolunteerV117(root,display);
+  const networkProfile=await myTeacherProfileV116();
+  // Only fetch/edit photo + profile details on their dedicated pages.
+  if(view==='profile')await mountTeacherProfileV153(root,updated=>{
+   if(!updated)return;
+   identity.name=updated.name||identity.name;
+   $('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
+   $('gctp-host-identity').textContent=`${identity.name} · ${identity.country}`;
+  });
+  if(view==='network')await mountTeacherNetworkV116(root);
+  if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
  $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
    if(slot.error){inform(slot.error,true);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);return;}
@@ -310,6 +325,6 @@ export function bindTeacherPortalPage(){
  }
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
- if(!['create','find','volunteer','network','requests'].includes(view)){window.location.hash='#/welcome';return;}
+ if(!['create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/welcome';return;}
  showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
 }

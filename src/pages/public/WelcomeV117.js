@@ -31,7 +31,7 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
       <div class="gcc124-account-popup">
         <a href="#/teacher-portal?view=requests">${svg('people')} My Requests</a>
         <a href="#/teacher-portal?view=network">${svg('globe')} Teacher Network</a>
-        <a href="#/teacher-portal?view=network">${svg('profile')} My profile</a>
+        <a href="#/teacher-portal?view=profile">${svg('profile')} My profile</a>
         <a href="#/login">Host sign in</a>
       </div>
     </details>
