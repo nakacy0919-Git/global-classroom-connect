@@ -437,25 +437,24 @@ function applyText(node){
  originals.set(node,{source,last:target});
 }
 const attributes=['placeholder','aria-label','title','alt'];
-const skipTags=new Set(['SCRIPT','STYLE','TEXTAREA','OPTION_UNUSED','NOSCRIPT','CODE','PRE']);
+const attrOriginals=new WeakMap();
+const skipTags=new Set(['SCRIPT','STYLE','TEXTAREA','NOSCRIPT','CODE','PRE']);
 function protectedNode(el){
  return el?.closest?.('[data-i18n-skip], [contenteditable], .gcc-v104-identity, .gcc-v104-person-meta, .gcc133-detail-bio, .gcc153-status[data-user-content], .gcc122-person-name, .gcc122-person-school')||false;
 }
 function applyElement(el){
  if(!el||el.nodeType!==1)return;
  if(skipTags.has(el.tagName)||protectedNode(el))return;
+ let saved=attrOriginals.get(el);
+ if(!saved){saved=new Map();attrOriginals.set(el,saved);}
  for(const attr of attributes){
   if(!el.hasAttribute(attr))continue;
-  const key='gcc157-original-'+attr;
   const current=el.getAttribute(attr);
-  let source=el.getAttribute('data-'+key);
-  if(source===null){source=current;el.setAttribute('data-'+key,source);}
-  else{
-   const old=translateUiText(source,locale);
-   if(current!==old&&current!==source){source=current;el.setAttribute('data-'+key,source);}
-  }
+  const last=saved.get(attr);
+  const source=last&&current===last.last?last.source:current;
   const target=translateUiText(source,locale);
   if(target!==current)el.setAttribute(attr,target);
+  saved.set(attr,{source,last:target});
  }
 }
 export function translateTree(root){
