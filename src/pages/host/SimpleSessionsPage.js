@@ -1,5 +1,6 @@
 import '../../styles/simpleSessionsV8.css';
 import '../../styles/hostBentoV130.css';
+import '../../styles/sessionTitleV164.css';
 import '../../styles/privacyV103.css';
 import '../../styles/sharePlanV104.css';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
