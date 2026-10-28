@@ -1,6 +1,7 @@
 import {PRACTICE_STAGES,fillPracticePhrase,scorePracticePhrase} from '../../lib/practiceDataV169.js';
 import {getPracticeItemsV171 as getPracticeItems,getPracticeTotalsV171 as getPracticeTotals} from '../../lib/practiceCurriculumV171.js';
-import '../../styles/practiceStudioV170.css';\nimport '../../styles/practiceStudioV171.css';
+import '../../styles/practiceStudioV170.css';
+import '../../styles/practiceStudioV171.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
