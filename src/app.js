@@ -12,6 +12,7 @@ import {TeacherApprovalsV120,bindTeacherApprovalsV120} from './pages/host/Teache
 import {TeacherPortalPage,bindTeacherPortalPage} from './pages/teacher/TeacherPortalPage.js';
 import {TeacherInvitesPage,bindTeacherInvitesPage} from './pages/host/TeacherInvitesPage.js';
 import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
+import {bindMobileNavigationV152} from './lib/mobileNavigationV152.js';
 import {WelcomeV117} from './pages/public/WelcomeV117.js';
 import {HostVolunteersPageV117,bindHostVolunteersV117} from './pages/host/HostVolunteersV117.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
@@ -3546,7 +3547,7 @@ export async function renderApp() {
 
       <div class="app-shell">
 
-
+        <button id="gcc-mobile-nav-backdrop" class="gcc-mobile-nav-backdrop" type="button" aria-label="Close navigation menu" hidden></button>
         ${route === 'teacher-portal' ? TeacherSidebar() : Sidebar(route)}
 
 
@@ -3577,6 +3578,9 @@ export async function renderApp() {
   await renderCurrentPage(
     route
   );
+
+  // Re-bind after each full route render; drawer only appears at mobile widths.
+  bindMobileNavigationV152();
 
   // V13.7: mount password recovery before any generic host/teacher binders.
   // Shared sign-in styling must never disable its submit listener.

@@ -28,7 +28,8 @@ const links=(items,activeRoute)=>items.map(item=>`
  <a href="#/${item.key}" class="route-link ${activeRoute===item.key?'active':''}">${item.label}</a>`).join('');
 
 export function Sidebar(activeRoute){
-  return `<aside class="sidebar">
+  return `<aside id="gcc-mobile-sidebar" class="sidebar" aria-label="Host navigation drawer">
+    <button class="gcc-mobile-drawer-close" type="button" aria-label="Close navigation menu"><span aria-hidden="true">✕</span> Close menu</button>
     <div class="brand-block"><div class="brand-mark"><img src="${globalClassroomLogo}" alt="" aria-hidden="true" /></div><div><p class="brand-name">Global Classroom</p><h2 class="brand-title">Connect</h2></div></div>
     <nav class="sidebar-nav" aria-label="Host navigation">
       ${links(primaryMenu,activeRoute)}

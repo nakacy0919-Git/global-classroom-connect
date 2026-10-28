@@ -28,9 +28,15 @@ export function Header(route) {
   const pageTitle=route==='teacher-portal'?(teacherTitles[view]||'Global Classroom Connect'):titles[route];
   return `
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Global Classroom Connect</p>
-        <h1 class="page-title">${pageTitle}</h1>
+      <div class="gcc152-topbar-main">
+        <button id="gcc-mobile-menu-button" class="gcc-mobile-menu-button" type="button" aria-label="Open navigation menu" aria-controls="gcc-mobile-sidebar" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <span>Menu</span>
+        </button>
+        <div class="gcc152-title-block">
+          <p class="eyebrow">Global Classroom Connect</p>
+          <h1 class="page-title">${pageTitle}</h1>
+        </div>
       </div>
 
       <div class="topbar-actions">
