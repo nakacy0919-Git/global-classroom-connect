@@ -14,7 +14,7 @@ import {TeacherInvitesPage,bindTeacherInvitesPage} from './pages/host/TeacherInv
 import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
 import {bindMobileNavigationV152} from './lib/mobileNavigationV152.js';
 import {bindGccLanguage} from './lib/i18nV157.js';
-import {WelcomeV117} from './pages/public/WelcomeV117.js';
+import {WelcomeV117,bindWelcomeArtV173} from './pages/public/WelcomeV117.js';
 import {PracticePageV170,bindPracticePageV170} from './pages/public/PracticePageV170.js';
 import {HostVolunteersPageV117,bindHostVolunteersV117} from './pages/host/HostVolunteersV117.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
@@ -3529,6 +3529,7 @@ export async function renderApp() {
 
   // Translate once and observe late-loaded session cards / validation messages.
   bindGccLanguage(app,isPublicRoute);
+  if(route==='welcome')bindWelcomeArtV173();
 
   // Re-bind after each full route render; drawer only appears at mobile widths.
   bindMobileNavigationV152();
