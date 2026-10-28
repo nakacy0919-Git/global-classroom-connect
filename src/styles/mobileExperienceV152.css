@@ -142,7 +142,7 @@
  }
  .gct-portal .gct-form-actions .gct-primary{grid-column:2;min-width:0;margin:0}
  .gct-portal .gct-form-actions .gct-secondary{grid-column:1;margin:0}
- .gct-portal .gct-form-actions button:only-child{grid-column:1 / -1;width:100%}
+ .gct-portal .gct-form-actions:has(#gctp-back[hidden]) #gctp-next:not([hidden]){grid-column:1 / -1;width:100%}
  .gct-portal #gctp-publish:not([hidden]){grid-column:2}
  .gct-portal .gct-review-line{flex-wrap:wrap;gap:4px;padding:10px}
  .gct-portal .gct-review-line strong{text-align:left;width:100%}
@@ -189,4 +189,27 @@
 }
 @media(prefers-reduced-motion:reduce){
  .app-shell>.sidebar{transition:none}
+}
+
+/* Public pages: input focus must not trigger automatic iOS page zoom. */
+@media(max-width:620px){
+ .public-page-content :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  max-width:100%;min-width:0;font-size:16px;line-height:1.35;
+ }
+ .public-page-content :is(button,input[type="submit"],.gcc120-primary,.gcc120-secondary){
+  touch-action:manipulation;min-height:44px;
+ }
+ .gcc144-page .gcc144-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .gcc144-page .gcc144-actions .gcc120-primary,
+ .gcc144-page .gcc144-actions .gcc120-secondary{width:100%;min-height:46px;justify-content:center}
+ .gcc144-page .gcc144-card{min-width:0;max-width:100%}
+ .gcc143-login-scene .gcc143-login-card{min-width:0;max-width:100%}
+ .gcc143-login-form .input{font-size:16px;min-height:48px}
+ .gcc143-login-scene .gcc143-login-submit{min-height:48px}
+ .gcc120-page .gcc120-grid{grid-template-columns:minmax(0,1fr)}
+ .gcc120-page .gcc120-span{grid-column:1}
+ .gcc120-page .gcc120-join{width:100%;max-width:100%}
+ .gcc120-page .gcc120-review-actions{flex-direction:column;align-items:stretch}
+ .gcc120-page .gcc120-review-actions>button{width:100%}
+ .gcc117-welcome .gcc124-account-popup{right:0;max-width:calc(100vw - 34px)}
 }
