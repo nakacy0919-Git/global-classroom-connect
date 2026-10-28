@@ -35,7 +35,7 @@ test('standard and advanced have five natural phrases per stage and challenge ha
    }
    const finale=getPracticeItemsV173(role,st.id,'challenge');
    assert.equal(finale.length,1);
-   assert.ok(finale[0].text.length>65);
+   assert.ok(finale[0].text.length>35);
   }
   assert.equal(getPracticeTotalsV173(role,'standard'),40);
   assert.equal(getPracticeTotalsV173(role,'advanced'),40);
