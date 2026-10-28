@@ -225,7 +225,7 @@ export function bindSimpleSessionsPage(){
    const wrap=el('section','gcc-v104-host');panel.append(wrap);
    mountHostRoomAuditV106(panel,eventId);
    const heading=el('div','gcc-v104-host-intro');heading.append(el('h3','','One session. One code. All rooms.'));
-   heading.append(el('p','','Publish once, then give everyone the same link and 6-digit code. Participants can view the complete room chart.'));
+   heading.append(el('p','','Publish once, then give everyone the same link and 6-digit code. Later registrations and room updates use the same invitation.'));
    wrap.append(heading);
    const body=el('div','gcc-v104-host-body');wrap.append(body);
    let liveToken=shareEvent===eventId?shareToken:'';
@@ -243,6 +243,7 @@ export function bindSimpleSessionsPage(){
        const revision=Number(draft?.revision||0);
        if(!revision){body.append(el('p','gcc-v104-note','No saved rooms yet. Go back to Step 3 to arrange and save them.'));return;}
        const upToDate=pub?.is_active===true && pub.up_to_date===true;
+       const alreadyIssued=gate?.issued===true;
        const ready=upToDate && gate?.ready===true;
        const sectionOne=el('section','gcc-v104-host-card');
        const oneHead=el('div','gcc-v104-card-title');oneHead.append(el('span','gcc-v104-number','1'),el('h4','','Publish your rooms'));
@@ -250,13 +251,13 @@ export function bindSimpleSessionsPage(){
        if(upToDate && liveToken){
          sectionOne.append(el('p','gcc-v104-good','✓ Current room arrangement is published.'));
          sectionOne.append(el('p','gcc-v104-meta',`Saved revision ${revision} · Zoom link connected`));
-         const details=el('details','gcc-v104-secondary-details');details.append(el('summary','','Change the Zoom link or replace the private link'));
+         const details=el('details','gcc-v104-secondary-details');details.append(el('summary','','Update the Zoom link (keep the same invitation)'));
          addPublishForm(details,pub,revision);sectionOne.append(details);
        }else if(upToDate){
-         sectionOne.append(el('p','gcc-v104-note','The private invitation link was not kept on this device. Create a fresh link to share it again.'));
+         sectionOne.append(el('p','gcc-v104-note','This session already has a permanent invitation link. It cannot be regenerated. Use the originally shared invitation; updating Zoom will not change it.'));
          addPublishForm(sectionOne,pub,revision);
        }else{
-         if(pub?.is_active) sectionOne.append(el('p','gcc-v130-publish-warning',`⚠ Your saved room plan is revision ${revision}, but the published version is ${pub?.revision||'older'}. New participants will not appear in the shared chart until the current plan is published again. The new private invitation link and access code must be shared again.`));
+         if(pub?.is_active) sectionOne.append(el('p','gcc-v130-publish-warning',`⚠ Your saved room plan is revision ${revision}, but the published version is ${pub?.revision||'older'}. New participants will not appear in the shared chart until the current plan is published again. The original invitation link and access code remain unchanged when you publish the updated arrangement.`));
          sectionOne.append(el('p','gcc-v104-note',pub?.is_active?'Rooms have changed. Publish the current arrangement.':'A saved room chart is ready to publish.'));
          addPublishForm(sectionOne,pub,revision);
        }
@@ -265,10 +266,10 @@ export function bindSimpleSessionsPage(){
        const twoHead=el('div','gcc-v104-card-title');twoHead.append(el('span','gcc-v104-number','2'),el('h4','','Share one invitation'));
        sectionTwo.append(twoHead);
        if(gate?.needsDatabase){sectionTwo.append(el('p','gcc-v104-note','V10.4 database update is not installed yet. Finish the SQL update before sharing.'));}
-       else if(!upToDate || !liveToken){sectionTwo.append(el('p','gcc-v104-muted','Create the private invitation link in Step 1 first.'));}
+       else if(!upToDate){sectionTwo.append(el('p','gcc-v104-muted','Publish the current room arrangement in Step 1. Your original link and code will remain unchanged.'));}
        else if(!ready){
-         sectionTwo.append(el('p','gcc-v104-muted','Generate one 6-digit code for everyone. No individual student codes.'));
-         sectionTwo.append(btn('Create 6-digit session code →','gcc-v104-primary',async()=>{await createCode(false);}));
+         sectionTwo.append(el('p','gcc-v104-muted',alreadyIssued?'The original code is disabled, expired or not currently available. It will not be replaced automatically.':'Create the session’s only 6-digit code. Save the invitation when it is first displayed.'));
+         if(!alreadyIssued && liveToken)sectionTwo.append(btn('Create 6-digit session code →','gcc-v104-primary',async()=>{await createCode();}));
        }else{
          sectionTwo.append(el('p','gcc-v104-good','✓ Session code is active.'));
          if(gate?.expires_at){const until=new Date(gate.expires_at);sectionTwo.append(el('p','gcc-v104-meta',`Valid until ${Number.isNaN(until.getTime())?'the scheduled expiry':until.toLocaleString()}`));}
@@ -279,13 +280,12 @@ export function bindSimpleSessionsPage(){
          summary.append(btn('Copy invitation (link + code)','gcc-v104-primary',()=>copy(buildInvite(liveCode),'Invitation')));
          sectionTwo.append(summary);
        }else if(ready){
-         sectionTwo.append(el('p','gcc-v104-muted','The code and private link are shown only when created. If you did not save them, use the replacement options below.'));
+         sectionTwo.append(el('p','gcc-v104-muted','The original invitation remains valid. For security, the link and code are shown only when first issued. Use the copy saved or sent to participating schools.'));
        }
-       if(upToDate && liveToken){
-         const extra=el('details','gcc-v104-secondary-details');extra.append(el('summary','','Replace or disable access'));
+       if(upToDate && alreadyIssued){
+         const extra=el('details','gcc-v104-secondary-details');extra.append(el('summary','','Emergency access control'));
          const buttons=el('div','gcc-v104-small-actions');
-         buttons.append(btn('Replace 6-digit code','gcc-v8-secondary',()=>createCode(true)));
-         buttons.append(btn('Disable session code','gcc-v8-secondary',async()=>{
+         buttons.append(btn('Emergency disable session code','gcc-v8-secondary',async()=>{
            if(!confirm('Stop participants from opening this session chart?'))return;
            try{await disableSharedCode(eventId);liveCode='';alertMsg('Session code disabled.');refresh();}
            catch(err){alertMsg(err.message,true);}
@@ -297,24 +297,26 @@ export function bindSimpleSessionsPage(){
          const form=el('form','gcc-v104-publish-form');const label=el('label','','Zoom meeting link');
          const input=el('input');input.type='url';input.required=true;input.value=pub?.zoom_url||'';
          input.placeholder='https://zoom.us/j/123456789';input.maxLength=2000;label.append(input);form.append(label);
-         const action=el('button','gcc-v104-primary',upToDate?(liveToken?'Replace private link':'Create fresh invitation link →'):'Publish current rooms →');action.type='submit';form.append(action);
+         const action=el('button','gcc-v104-primary',pub?.is_active?'Update published rooms / Zoom (keep same link)':'Publish rooms and create invitation →');action.type='submit';form.append(action);
          form.addEventListener('submit',async e=>{
            e.preventDefault();if(busy)return;
            let u;try{u=new URL(input.value.trim());}catch{alertMsg('Enter a valid Zoom link.',true);return;}
            if(u.protocol!=='https:' || !(u.hostname==='zoom.us'||u.hostname.endsWith('.zoom.us'))){alertMsg('Only HTTPS zoom.us links are accepted.',true);return;}
-           if(!confirm(upToDate?'Replace the private link? The existing invitation will stop working.':'Publish the current room chart?'))return;
+           if(!confirm(pub?.is_active?'Update the published room chart while keeping the existing invitation link and six-digit code?':'Publish the current room chart and create its permanent invitation link?'))return;
            busy=true;action.disabled=true;
-           try{prepareSuccessChime();const saved=await publishRoomShare(eventId,rev,input.value.trim());shareToken=saved.token;shareEvent=eventId;liveToken=saved.token;liveCode='';
-             alertMsg('Published. Next, create the shared 6-digit code.');await refresh();showSuccessCelebration({title:'Room chart published!',detail:'Next, create the 6-digit session code.'});}
+           try{prepareSuccessChime();const saved=await publishRoomShare(eventId,rev,input.value.trim());
+             if(saved.token){shareToken=saved.token;shareEvent=eventId;liveToken=saved.token;liveCode='';}
+             alertMsg(saved.existing_link?'Published rooms updated. Original invitation link and six-digit code are unchanged.':'Published. Next, create the only shared 6-digit code.');await refresh();showSuccessCelebration({title:'Room chart published!',detail:saved.existing_link?'Your invitation stays the same.':'Save your invitation after issuing its code.'});}
            catch(err){alertMsg(`Could not publish: ${err.message}`,true);action.disabled=false;}
            finally{busy=false;}
          });parent.append(form);
        }
-       async function createCode(replace){
+       async function createCode(){
          if(busy)return;
-         if(replace && !confirm('Replace the session code? The old code will stop working for everyone.'))return;
          busy=true;
-         try{const r=await issueSharedCode(eventId);liveCode=String(r?.code||'');
+         try{const r=await issueSharedCode(eventId);
+           if(r?.already_issued){alertMsg('The original session code is already active. It was not changed. Use your previously saved invitation.');await refresh();return;}
+           liveCode=String(r?.code||'');
            if(!/^[0-9]{6}$/.test(liveCode))throw Error('The database did not return a 6-digit code.');
            alertMsg(liveToken?'Shared code ready. Copy one invitation for all schools.':'Code created. Your existing private link is not recoverable here; replace the link to create a new invitation.');await refresh();}
          catch(err){alertMsg(`Cannot issue code: ${err.message}`,true);}
