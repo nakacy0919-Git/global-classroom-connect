@@ -21,7 +21,7 @@ test('every session registration opens with device requirement before any form s
 });
 test('landscape and portrait infographics show the device rule in clear English',()=>{
  assert.match(gate,/id="gcc158-device-gate"/);
- assert.match(gate,/One student = one device/);
+ assert.match(gate,/Each student needs their own device/);
  assert.match(gate,/I Understand <span aria-hidden="true">✓<\/span>/);
  assert.match(gate,/type="image\/webp"/);
  assert.match(gate,/max-width: 600px/);
