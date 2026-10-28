@@ -23,7 +23,7 @@ export const PRACTICE_STAGES={
 };
 export const PRACTICE_VERSION='gcc-practice-v1';
 export function fillPracticePhrase(phrase,profile){
- return phrase.replace(/\{(name|school|hobby)\}/g,(_,key)=>String(profile?.[key]||({name:'your name',school:'your school',hobby:'your hobby'}[key])).trim());
+ return phrase.replace(/\{(name|school|hobby|hometown|schoolDescription)\}/g,(_,key)=>String(profile?.[key]||({name:'your name',school:'your school',hobby:'your hobby',hometown:'your hometown',schoolDescription:'students learn together'}[key])).trim());
 }
 export function normalizePracticeWords(s){
  return String(s||'').toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9\s]/g,' ').trim().split(/\s+/).filter(Boolean);
@@ -31,8 +31,8 @@ export function normalizePracticeWords(s){
 // Speech recognition is not a phonetic pronunciation evaluator: this is word accuracy.
 export function scorePracticePhrase(template,transcript,profile={}){
  const filled=fillPracticePhrase(template,profile);
- const parts=template.split(/(\{(?:name|school|hobby)\})/g);
- const expected=parts.flatMap(part=>/^\{(?:name|school|hobby)\}$/.test(part)?['__name__']:normalizePracticeWords(part));
+ const parts=template.split(/(\{(?:name|school|hobby|hometown|schoolDescription)\})/g);
+ const expected=parts.flatMap(part=>/^\{(?:name|school|hobby|hometown|schoolDescription)\}$/.test(part)?['__name__']:normalizePracticeWords(part));
  const heard=normalizePracticeWords(transcript);
  const n=expected.length,m=heard.length;
  const dp=Array.from({length:n+1},()=>Array(m+1).fill(Infinity));

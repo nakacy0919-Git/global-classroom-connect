@@ -1,6 +1,7 @@
 import {PRACTICE_STAGES,fillPracticePhrase,scorePracticePhrase} from '../../lib/practiceDataV169.js';
-import {PRACTICE_LEVELS,getPracticeItems,getPracticeTotals} from '../../lib/practiceCurriculumV170.js';
+import {getPracticeItemsV171 as getPracticeItems,getPracticeTotalsV171 as getPracticeTotals} from '../../lib/practiceCurriculumV171.js';
 import '../../styles/practiceStudioV170.css';
+import '../../styles/practiceStudioV171.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
@@ -20,7 +21,7 @@ const icons={student:'🎓',facilitator:'🎙️'};
 const levelName={standard:'Standard',advanced:'Advanced',challenge:'Final Challenge'};
 export function PracticePageV170(){return `
 <main id="gcc170" class="gcc170">
- <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong><span>✨ No account needed</span></header>
+ <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong><span class="gcc171-no-account">No account needed</span><div class="gcc171-language" role="group" aria-label="Language"><button type="button" data-ui-lang="en" aria-pressed="true">EN</button><button type="button" data-ui-lang="ja" aria-pressed="false">日本語</button></div></header>
  <section class="gcc170-overview" aria-label="My Practice Overview">
   <div class="gcc170-overview-title"><span>🏆 MY PRACTICE OVERVIEW</span><strong id="gcc170-overview-role">STUDENT</strong></div>
   <div class="gcc170-stat"><strong id="gcc170-progress">0%</strong><small>Progress</small></div>
@@ -35,22 +36,21 @@ export function PracticePageV170(){return `
  </section>
  <section class="gcc170-choose"><div><span class="gcc170-kicker">PICK A SITUATION</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Choose a scene and start your speaking adventure!</p></section>
  <section id="gcc170-stages" class="gcc170-stages" aria-label="Practice stages"></section>
- <footer class="gcc170-foot">🔒 Your practice scores are stored on this device only. · Speech-to-text accuracy is not a phonetic pronunciation score.</footer>
+ <footer class="gcc170-foot">🔒 Your practice scores are stored on this device only. · Speech-to-text accuracy is not a direct assessment of pronunciation.</footer>
  <dialog id="gcc170-profile-dialog" class="gcc170-dialog gcc170-profile-dialog" aria-label="Personalize your practice">
   <div class="gcc170-dialog-top"><strong>⚙ Make it yours</strong><button type="button" id="gcc170-profile-close">✕ Close</button></div>
-  <div class="gcc170-profile-fields"><p>Your name, school and hobby appear in the sentences but are not scored. 名前・学校名・趣味は採点対象外です。</p><label>Your name / 名前<input id="gcc170-name" maxlength="70" autocomplete="off" placeholder="Sara"></label><label>School / 学校名<input id="gcc170-school" maxlength="120" autocomplete="off" placeholder="Anjo Gakuen High School"></label><label>Hobby / 趣味<input id="gcc170-hobby" maxlength="80" autocomplete="off" placeholder="playing soccer"></label><button id="gcc170-reset" type="button">Reset all practice scores / 成績をリセット</button></div>
+  <div class="gcc170-profile-fields"><p id="gcc171-profile-guide">Welcome! Please enter your basic information before practicing. You can change it anytime in My Profile.<br><small lang="ja">ようこそ！まず基本情報を登録しましょう。後からいつでも変更できます。入力した固有名詞は採点しません。</small></p><label>Your name / 名前<input id="gcc170-name" maxlength="70" autocomplete="off" placeholder="Sara"></label><label>School / 学校名<input id="gcc170-school" maxlength="120" autocomplete="off" placeholder="Anjo Gakuen High School"></label><label>Hobby / 趣味<input id="gcc170-hobby" maxlength="80" autocomplete="off" placeholder="playing soccer"></label><label>Hometown / 出身地<input id="gcc170-hometown" maxlength="100" autocomplete="off" placeholder="Aichi, Japan"></label><label>About your school (optional) / 学校の特徴（任意）<textarea id="gcc170-schoolDescription" maxlength="220" rows="2" placeholder="students enjoy international exchanges"></textarea></label><button id="gcc171-profile-save" type="button">✓ Save & Start Practice / 保存して練習へ</button><button id="gcc170-reset" type="button">Reset all practice scores / 成績をリセット</button></div>
  </dialog>
  <dialog id="gcc170-stage-dialog" class="gcc170-dialog gcc170-stage-dialog" aria-label="Speaking practice">
   <div class="gcc170-dialog-top"><strong id="gcc170-dialog-heading">Practice</strong><button id="gcc170-dialog-close" type="button">✕ Close</button></div>
   <div class="gcc170-dialog-scroll">
    <div class="gcc170-scene"><div class="gcc170-scene-icon" id="gcc170-scene-icon">🎧</div><div><span id="gcc170-scene-level" class="gcc170-scene-level">STANDARD</span><h2 id="gcc170-scene-title"></h2><p id="gcc170-scene-hint"></p></div></div>
    <div class="gcc170-phrase-nav"><button type="button" id="gcc170-prev">← Previous</button><span id="gcc170-counter">1 / 3</span><button type="button" id="gcc170-next">Next →</button></div>
-   <div class="gcc170-phrase"><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
-   <div class="gcc170-mic-actions"><button id="gcc170-listen" type="button">🔊 Listen</button><button id="gcc170-start" type="button">🎙️ Start Speaking</button><button id="gcc170-end" type="button" disabled>■ End & Score</button></div>
-   <p id="gcc170-status" class="gcc170-status" role="status">Press Start Speaking, then End & Score when finished.</p>
-   <div class="gcc170-transcript"><span>YOUR SPEECH / 文字起こし</span><p id="gcc170-transcript">Your words will appear here…</p></div>
-   <div class="gcc170-score-panel"><div class="gcc170-score-heading"><span>ACCURACY</span><span id="gcc170-best">Best Score: —</span></div><div class="gcc170-score-value" id="gcc170-score-value">—%</div><div class="gcc170-score-track"><div id="gcc170-score-fill"></div></div><p id="gcc170-score-message">Aim for 80% or higher! 🎯</p></div>
-   <p class="gcc170-disclaimer">Accuracy = speech recognition word match, not a direct assessment of pronunciation. The browser may send audio to its speech recognition provider. 音声認識の精度は端末やブラウザによって異なります。</p>
+   <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span>MODEL PHRASE</span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
+   <div class="gcc170-mic-actions"><button id="gcc170-start" type="button">🎙️ Start Speaking</button><button id="gcc170-end" type="button" disabled>■ End & Score</button></div>
+   <p id="gcc170-status" class="gcc170-status" role="status"></p>
+   <div class="gcc171-results"><div class="gcc170-transcript"><span>YOUR SPEECH / 文字起こし</span><p id="gcc170-transcript">Your words will appear here…</p></div><div class="gcc170-score-panel"><div class="gcc170-score-heading"><span>ACCURACY</span><span id="gcc170-best">Best: —</span></div><div class="gcc171-gauge" role="meter" aria-label="Accuracy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg viewBox="0 0 200 112" aria-hidden="true"><path class="gcc171-gauge-base" d="M 18 100 A 82 82 0 0 1 182 100" pathLength="100"/><path id="gcc170-score-fill" class="gcc171-gauge-fill" d="M 18 100 A 82 82 0 0 1 182 100" pathLength="100"/></svg><div class="gcc170-score-value" id="gcc170-score-value">—%</div></div><p id="gcc170-score-message">Aim for 80%! 🎯</p></div></div>
+   
   </div>
   <div class="gcc170-confetti" id="gcc170-confetti" aria-hidden="true"></div>
  </dialog>
@@ -58,7 +58,7 @@ export function PracticePageV170(){return `
 export function bindPracticePageV170(){
  const root=document.getElementById('gcc170');if(!root)return;
  const $=id=>document.getElementById('gcc170-'+id);
- const state=read();let role='student',level='standard',stageIndex=0,itemIndex=0,recording=false,recognition=null,token=0,segments=[],interim='',ending=false,scoreTimer=null;
+ const state=read();let uiLang='en',role='student',level='standard',stageIndex=0,itemIndex=0,recording=false,recognition=null,token=0,segments=[],interim='',ending=false,scoreTimer=null;
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  const stages=()=>PRACTICE_STAGES[role],stage=()=>stages()[stageIndex],items=()=>getPracticeItems(role,stage().id,level);
  const profileDialog=$('profile-dialog'),stageDialog=$('stage-dialog');
@@ -88,7 +88,7 @@ export function bindPracticePageV170(){
  }
  function paintScore(value,best){
   $('score-value').textContent=value==null?'—%':value+'%';
-  $('score-fill').style.width=(value??0)+'%';
+  $('score-fill').style.strokeDasharray=(value??0)+' 100';$('score-fill').closest('.gcc171-gauge').setAttribute('aria-valuenow',String(value??0));
   $('score-fill').classList.toggle('success',value>=80);
   $('score-value').classList.toggle('success',value>=80);
   $('best').textContent='Best Score: '+(best==null?'—':best+'%');
@@ -105,7 +105,7 @@ export function bindPracticePageV170(){
   $('japanese').textContent=fillPracticePhrase(item.ja,state.profile);
   $('transcript').textContent=saved?.transcript||'Your words will appear here…';
   paintScore(saved?.last,saved?.best);
-  $('status').textContent=SpeechRecognition?'Start Speaking → read aloud → End & Score.':'Speech recognition is not supported here. Try a supported Chrome or Safari version.';
+  $('status').textContent=SpeechRecognition?'':'Speech recognition unavailable. Try Chrome or Safari.';
   $('start').disabled=!SpeechRecognition;$('end').disabled=true;
   $('confetti').replaceChildren();
  }
@@ -117,14 +117,15 @@ export function bindPracticePageV170(){
  root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>switchLevel(b.dataset.level)));
  $('profile-open').addEventListener('click',()=>profileDialog.showModal());
  $('profile-close').addEventListener('click',()=>profileDialog.close());
- for(const field of ['name','school','hobby']){$(field).value=state.profile[field]||'';$(field).addEventListener('input',()=>{state.profile[field]=$(field).value.trim();save();if(stageDialog.open&&!recording)paintItem();});}
+ for(const field of ['name','school','hobby','hometown','schoolDescription']){$(field).value=state.profile[field]||'';$(field).addEventListener('input',()=>{state.profile[field]=$(field).value.trim();save();if(stageDialog.open&&!recording)paintItem();});}
+ document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();});
  $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();if(stageDialog.open)paintItem();});
  $('dialog-close').addEventListener('click',()=>stageDialog.close());
  stageDialog.addEventListener('close',()=>stopRecognition());
  stageDialog.addEventListener('cancel',()=>stopRecognition());
  $('prev').addEventListener('click',()=>{stopRecognition();itemIndex=Math.max(0,itemIndex-1);paintItem();});
  $('next').addEventListener('click',()=>{stopRecognition();if(itemIndex<items().length-1)itemIndex++;else{stageIndex=(stageIndex+1)%stages().length;itemIndex=0;}paintItem();});
- $('listen').addEventListener('click',()=>{if(!speechSynthesis){$('status').textContent='Text-to-speech unavailable.';return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('prompt').textContent);u.lang='en-US';u.rate=.88;speechSynthesis.speak(u);});
+ $('listen').addEventListener('click',()=>{if(!window.speechSynthesis){$('status').textContent='Text-to-speech unavailable.';return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('prompt').textContent);u.lang='en-US';u.rate=.88;speechSynthesis.speak(u);});
  function playSuccess(){
   try{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;const ctx=new Audio();[523.25,659.25,783.99,1046.5].forEach((hz,i)=>{const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime+i*.11;o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.32);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+.35);});setTimeout(()=>ctx.close().catch(()=>{}),1300);}catch{}
  }
@@ -138,7 +139,7 @@ export function bindPracticePageV170(){
  }
  function begin(){
   if(!SpeechRecognition||recording)return;
-  speechSynthesis?.cancel();stopRecognition();recording=true;ending=false;segments=[];interim='';const myToken=token;
+  window.speechSynthesis?.cancel();stopRecognition();recording=true;ending=false;segments=[];interim='';const myToken=token;
   $('start').disabled=true;$('end').disabled=false;$('status').textContent='🔴 Listening… Press End & Score when you finish. / 終了ボタンまで採点しません。';
   $('transcript').textContent='Listening…';root.classList.add('gcc170-recording');
   // Browser speech APIs can auto-end after a pause. Restart recognition while Start is active;
@@ -172,5 +173,7 @@ export function bindPracticePageV170(){
   if(recognition){try{recognition.stop();}catch{finish();}scoreTimer=setTimeout(finish,1600);}else finish();
  });
  window.addEventListener('hashchange',stopRecognition,{once:true});
+ root.querySelectorAll('[data-ui-lang]').forEach(b=>b.addEventListener('click',()=>{uiLang=b.dataset.uiLang;root.querySelectorAll('[data-ui-lang]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const jp=uiLang==='ja';root.querySelector('.gcc170-choose h1').firstChild.textContent=jp?'ステージを選ぶ ':'Choose a Stage ';root.querySelector('.gcc170-kicker').textContent=jp?'シチュエーションを選ぼう':'PICK A SITUATION';root.querySelector('.gcc170-overview-title span').textContent=jp?'🏆 練習の記録':'🏆 MY PRACTICE OVERVIEW';root.querySelector('#gcc170-profile-open').textContent=jp?'⚙ マイプロフィール':'⚙ My profile';}));
  switchRole('student');switchLevel('standard');
+ if(!state.profile.onboarded){setTimeout(()=>{if(root.isConnected&&!profileDialog.open)profileDialog.showModal();},120);}
 }
