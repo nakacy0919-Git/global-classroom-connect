@@ -6,10 +6,10 @@ async function rpc(name,params={}){
   return data;
 }
 export const listPublicSessions=()=>rpc('gcc_v6_public_sessions');
-export const submitSharedRoster=p=>rpc('gcc_v8_submit_roster',{
+export const submitSharedRoster=p=>rpc('gcc_v165_submit_roster',{
   p_event_id:p.eventId,p_teacher_name:p.teacher,
   p_school_name:p.school,p_country_code:p.countryCode,
-  p_country_name:p.countryName,p_students:p.students,p_facilitators:p.facilitators
+  p_country_name:p.countryName,p_students:p.students,p_facilitators:p.facilitators,p_pairs:p.pairs||[]
 });
 export const getSessionSettings=()=>rpc('gcc_v8_get_session_settings');
 export const saveSessionSettings=p=>rpc('gcc_v8_save_session_settings',{
