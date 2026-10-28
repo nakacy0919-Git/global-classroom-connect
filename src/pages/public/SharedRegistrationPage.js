@@ -105,6 +105,8 @@ export function bindSharedRegistrationPage(){
    const picker=$('gcc-v8-event');picker.replaceChildren();const o=el('option','',events.length?'Select a session':'No open sessions');o.value='';picker.append(o);
    for(const s of events){const op=el('option','',`${s.title} · ${format(s.starts_at)}`);op.value=s.id;picker.append(op);}
    const select=$('gcc-v8-country');for(const c of master.countries){const op=el('option','',c.name);op.value=c.code;select.append(op);}
-   if(events.length===1){picker.value=events[0].id;$('gcc-v8-session-date').textContent=`📅 ${format(events[0].starts_at)} · Your local time`;}
+   const requested=new URLSearchParams(window.location.hash.split('?')[1]||'').get('session');
+   const chosen=events.find(e=>e.id===requested)||(events.length===1?events[0]:null);
+   if(chosen){picker.value=chosen.id;$('gcc-v8-session-date').textContent=`📅 ${format(chosen.starts_at)} · Your local time`;}
  }catch(err){message('Could not load sessions: '+err.message);}})();
 }
