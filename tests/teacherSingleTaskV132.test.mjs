@@ -11,7 +11,7 @@ test('duplicate teacher tabs and duplicate workspace home have been removed',()=
 });
 test('the public home remains the entry point and teacher sidebar returns to it',()=>{
  const home=read('src/pages/public/WelcomeV117.js');
- assert.equal((home.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,3);
+ assert.equal((home.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,4);
  for(const view of ['create','find','volunteer']) assert.ok(home.includes('href="#/teacher-portal?view='+view+'"'));
  const sidebar=read('src/pages/teacher/TeacherSidebar.js');
  assert.ok(sidebar.includes('href="#/welcome"'));

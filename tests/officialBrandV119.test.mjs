@@ -5,8 +5,8 @@ test('official GCC logo, Hosted by credit, and existing host entry remain',()=>{
  assert.match(page,/Hosted by Global Classroom/);assert.match(page,/My profile/);assert.match(page,/Host sign in/);
  assert.match(css,/background:transparent/);
 });
-test('gateway has three actions, new signup/signin and guarded teacher access',()=>{
- assert.equal((page.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,3);
+test('gateway has four actions, new signup/signin and guarded teacher access',()=>{
+ assert.equal((page.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,4);
  for(const r of ['create','find','volunteer'])assert.match(page,new RegExp('teacher-portal\\?view='+r));
  assert.match(page,/#\/signup/);assert.match(page,/#\/teacher-access/);
  const app=rfile('src/app.js');assert.match(app,/gcc_teacher_identity/);assert.match(app,/teacher-access\?next=/);

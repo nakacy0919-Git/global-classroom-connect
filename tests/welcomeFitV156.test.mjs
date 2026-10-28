@@ -41,9 +41,9 @@ test('account actions have coherent sign-in/sign-up styles and keep accessible a
  assert.match(css,/backdrop-filter:blur\(14px\)/);
  assert.doesNotMatch(page,/New here\? Sign up and join our network/);
 });
-test('small phones get three horizontal menu cards with explicit readable labels',()=>{
- assert.equal((page.match(/class="gcc156-choice-label"/g)||[]).length,3);
- for(const x of ['Host a Session','Find a Session','Facilitator / GC Host'])assert.ok(page.includes('<strong>'+x+'</strong>'),x);
+test('small phones get four horizontal menu cards with explicit readable labels',()=>{
+ assert.equal((page.match(/class="gcc156-choice-label"/g)||[]).length,4);
+ for(const x of ['Host a Session','Find a Session','Facilitator / GC Host','Practice'])assert.ok(page.includes('<strong>'+x+'</strong>'),x);
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(css,/grid-template-rows:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/\.gcc118-choice-image/);
