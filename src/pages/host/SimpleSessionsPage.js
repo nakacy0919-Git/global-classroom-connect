@@ -1,3 +1,4 @@
+import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
 import '../../styles/simpleSessionsV8.css';
 import '../../styles/hostBentoV130.css';
 import '../../styles/sessionTitleV164.css';
@@ -44,7 +45,7 @@ const defaultSettings=()=>({breakout_rooms:10,max_students:150,facilitators_per_
 let activeEventId='';let activeStage=0;
 export function SimpleSessionsPage(){return `
 <section class="gcc-v8 gcc-v8-host" aria-label="Manage Global Classroom sessions">
-  <header class="gcc-v8-top"><div><span class="gcc-v8-small">ONE SESSION · ONE TASK</span><p>Prepare your exchange, one step at a time.</p></div><button type="button" id="gcc-v8-new" class="gcc-v8-secondary">+ New session</button></header>
+  <header class="gcc-v8-top"><div><span class="gcc-v8-small">ONE SESSION · ONE TASK</span><p>Prepare your exchange, one step at a time.</p></div><button type="button" id="gcc-v8-new" class="gcc-v8-secondary gcc-v166-new">+ New session</button></header>
   <div id="gcc-v8-create-wrap" class="gcc-v8-new-form" hidden>
     <h2>Create a session</h2>
     <form id="gcc-v8-create">
@@ -61,6 +62,7 @@ export function SimpleSessionsPage(){return `
       <div class="gcc-v8-actions"><button type="button" id="gcc-v8-cancel-new" class="gcc-v8-secondary">Cancel</button><button type="submit" class="gcc-v8-primary">Create session →</button></div>
     </form>
   </div>
+  <div class="gcc-v166-host-wrap" id="gcc-v166-host-calendar"></div>
   <section class="gcc-v8-current"><label>YOUR SESSION <select id="gcc-v8-host-select"><option value="">Loading…</option></select></label><div id="gcc-v8-current-title"></div></section>
   <section class="gcc-v8-focus" id="gcc-v8-focus">
     <div class="gcc-v8-focus-head"><span id="gcc-v8-stage-counter" class="gcc-v8-small">STEP 1 OF 4</span><div id="gcc-v8-stage-progress" class="gcc-v8-progress"></div></div>
@@ -94,6 +96,7 @@ export function SimpleSessionsPage(){return `
 export function bindSimpleSessionsPage(){
  const root=document.querySelector('.gcc-v8-host');if(!root)return;
  let events=[],settings=[],signups=[],edit=null;
+ let calendarV166=null;
  let shareToken='',shareEvent='';
  let deletingSessionV105=null;
  const current=()=>events.find(x=>x.id===activeEventId);
@@ -102,6 +105,22 @@ export function bindSimpleSessionsPage(){
  const notify=(text,bad=false)=>{$('gcc-v8-host-message').textContent=text;$('gcc-v8-host-message').classList.toggle('bad',bad);};
  const btn=(text,cls,fn)=>{const b=el('button',cls,text);b.type='button';b.addEventListener('click',fn);return b;};
  const link=()=>`${location.origin}${location.pathname}#/session-register`;
+ function openCalendarSessionV166(e){
+   activeEventId=e.id;shareToken='';shareEvent='';activeStage=0;paint();notify('');
+   const selected=document.querySelector('#gcc-v166-host-detail');
+   if(selected){selected.replaceChildren();
+     selected.append(el('strong','',e.title),el('span','',e.status==='draft'?'Draft · not visible to teachers':'Published · visible in Find a Session'));
+     const actions=[['✉ Invite teachers',0],['⚙ Session settings',0],['👥 Registrations',1],['▦ Breakout rooms',2],['↗ Share room chart',3]];
+     for(const [label,stage] of actions){const b=btn(label,stage===0?'gcc-v166-edit':'',()=>{activeStage=stage;paint();$('gcc-v8-focus').scrollIntoView({behavior:'smooth',block:'start'});});selected.append(b);}
+   }
+ }
+ function updateCalendarV166(){
+   if(!calendarV166){
+     const mount=$('gcc-v166-host-calendar');
+     calendarV166=mountSessionCalendarV166(mount,{events,heading:'Your sessions · Calendar',onSelect:openCalendarSessionV166});
+     const detail=el('div','gcc-v166-host-detail');detail.id='gcc-v166-host-detail';detail.setAttribute('aria-live','polite');mount.append(detail);
+   }else calendarV166.setEvents(events);
+ }
  function currentLabel(){const p=$('gcc-v8-host-select');p.replaceChildren();$('gcc-v8-current-title').replaceChildren();if(!events.length){const o=el('option','','No sessions yet');o.value='';p.append(o);p.disabled=true;return;}
    p.disabled=false;for(const e of events){const o=el('option','',e.title);o.value=e.id;p.append(o);}p.value=activeEventId;
    const x=$('gcc-v8-current-title');x.replaceChildren();const e=current();if(e){
@@ -365,7 +384,7 @@ export function bindSimpleSessionsPage(){
  }
  async function reload(resetStage){try{const [e,s,c]=await Promise.all([getEvents(),listSessionSignups(),getSessionSettings()]);events=e||[];settings=c||[];signups=s||[];
    if(!events.some(x=>x.id===activeEventId))activeEventId=events.find(x=>x.status==='published')?.id||events[0]?.id||'';
-   if(resetStage)activeStage=0;paint();
+   if(resetStage)activeStage=0;updateCalendarV166();paint();
  }catch(err){notify('Could not load sessions: '+err.message,true);}}
  async function review(s,yes){if(!confirm(`${yes?'Approve':'Decline'} the registration from ${s.school_name}?`))return;
    try{
@@ -437,7 +456,7 @@ export function bindSimpleSessionsPage(){
      $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');showSuccessCelebration({title:'Session created!',detail:'Your session is saved as a draft. Publish it when ready.'});}
    catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}
  });
- $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();notify('');});
+ $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();const chosen=current();if(chosen)openCalendarSessionV166(chosen);notify('');});
  $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();notify('');});
  $('gcc-v8-host-next').addEventListener('click',async()=>{const next=Math.min(3,activeStage+1);activeStage=next;if(next===2){$('gcc-v8-host-next').disabled=true;try{await reload(false);}finally{$('gcc-v8-host-next').disabled=false;}}else paint();notify('');});
  reload(true);
