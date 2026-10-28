@@ -249,6 +249,31 @@ const additions={
   }
  }
 };
+
+// Challenge prompts are separate from the model answers students actually speak.
+const challengeResponses={
+ student:{
+  audio:['I think my microphone is muted, and I can hear an echo. Could we try using headphones? Can everyone hear me now?','マイクがミュートになっているようで、音も反響しています。ヘッドホンを使ってみませんか？今はみなさん聞こえますか？'],
+  join:['Hello, everyone! Is this the right breakout room? I am glad to meet you. Shall we introduce ourselves one by one?','みなさん、こんにちは！ここは正しいブレイクアウトルームですか？お会いできてうれしいです。一人ずつ自己紹介しませんか？'],
+  intro:['Hi, my name is {name}, and I am from {hometown}. I go to {school}. I joined because I want to learn about other cultures. What is your school like?','こんにちは、私は{name}で、{hometown}出身です。{school}に通っています。異文化を学びたくて参加しました。あなたの学校はどんなところですか？'],
+  hobbies:['I have never tried that hobby before, but it sounds fun. How did you become interested in it? What do you enjoy most about it?','その趣味はやったことがありませんが、楽しそうです。興味を持ったきっかけは何ですか？一番好きなところは何ですか？'],
+  school:['We usually eat lunch with our classmates, and we have clubs after school. What is your school day like? It sounds as if we both have busy schedules.','私たちは普段クラスメートと昼食を食べ、放課後には部活動があります。あなたの学校生活はどんな感じですか？どちらも忙しそうですね。'],
+  culture:['That tradition is new to me. Is it common in your area, or does it vary? Have you celebrated it yourself? Thank you for sharing your experience.','その伝統は初めて知りました。あなたの地域では一般的ですか、それとも違いがありますか？ご自身で祝ったことはありますか？教えてくれてありがとう。'],
+  repair:['Sorry, your audio cut out, so I missed your last point. Could you say it again more slowly? Do you mean that the schedule is different? Thank you!','すみません、音声が途切れて最後の点を聞き逃しました。もう少しゆっくり言ってもらえますか？時間割が違うという意味ですか？ありがとう！'],
+  closing:['I learned something new about your school today. I especially enjoyed hearing your personal experience. Thank you for sharing your ideas. I hope we meet again!','今日はあなたの学校について新しいことを学びました。特に個人的な経験を聞けてよかったです。考えを共有してくれてありがとう。また会えるといいですね！']
+ },
+ facilitator:{
+  welcome:['Welcome, everyone! We have different English levels, and that is okay. Mistakes are part of learning. We will introduce ourselves, discuss two questions, and share one thing we learned.','みなさん、ようこそ！英語力はそれぞれ違いますが、大丈夫です。間違いも学びの一部です。自己紹介をして二つの質問を話し合い、学びを一つ共有しましょう。'],
+  audio:['It seems two people cannot hear each other. Could you check your microphones and try headphones? You can use the chat while we solve the problem. Let us keep everyone included.','二人がお互いの声を聞けないようです。マイクを確認し、ヘッドホンを試してもらえますか？解決するまではチャットを使えます。全員が参加できるようにしましょう。'],
+  turns:['Thank you for sharing your ideas. Let us hear from someone who has not spoken yet. There is no pressure, and you can start with a short sentence.','意見を共有してくれてありがとう。まだ話していない人の意見も聞きましょう。無理はしなくて大丈夫です。短い文から始めてもいいですよ。'],
+  questions:['What has been the most surprising part of this discussion? Could someone share a personal example? How does that connect to what our previous speaker said?','この話し合いで一番驚いたことは何ですか？個人的な例を挙げてくれますか？それは前の人の発言とどうつながりますか？'],
+  respect:['Let us avoid making assumptions about a whole country. People have different experiences, even in the same place. Could you share what it has been like for you personally?','国全体について決めつけないようにしましょう。同じ場所でも経験は人それぞれです。あなた自身の経験を教えてもらえますか？'],
+  time:['We lost some time because of the connection issue, so we have three minutes left. Let us hear one short final thought from each person, and then return to the main room.','接続の問題で時間が少なくなり、残り3分です。一人ずつ短く最後の一言を話してから、メインルームに戻りましょう。'],
+  host:['Please check your assigned breakout room number before joining. If you cannot find your room, return to the main room and contact the host. Facilitators, please help everyone participate.','入室前に割り当てられた部屋番号を確認してください。部屋が見つからなければメインルームに戻り、ホストに連絡してください。進行役のみなさんは全員の参加を支援してください。'],
+  end:['Thank you to all the students and facilitators who joined us today. We learned about different experiences and perspectives. Please share one new thing you learned with your teacher. Have a wonderful day!','参加してくれた生徒と進行役のみなさん、ありがとうございました。さまざまな経験や視点を学びました。新しく学んだことを一つ先生に共有してください。よい一日を！']
+ }
+};
+
 // The opening five items per stage remain intact; advanced receives three extras.
 // A scene now offers a specific task, not just a vague theme.
 export const PRACTICE_SCENES_V174=Object.fromEntries(Object.entries(PRACTICE_SCENES_V173).map(([role,scenes])=>[
@@ -267,7 +292,8 @@ export function getPracticeItemsV174(role,stageId,level='standard'){
  if(level==='standard'||level==='advanced')return [...previous,...append(role,stageId,level)];
  if(level==='challenge'){
   const [cue,text,cueJa,ja]=additions[role][stageId].challenge;
-  return [...previous,{id:'challenge-situation',kind:'final',text,ja,cue,cueJa}];
+  const [answer,answerJa]=challengeResponses[role][stageId];
+  return [...previous,{id:'challenge-situation',kind:'final',text:answer,ja:answerJa,cue:text,cueJa:ja,context:cue,contextJa:cueJa}];
  }
  return previous;
 }
