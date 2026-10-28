@@ -153,7 +153,7 @@ export function bindFindSessionPage() {
     body.append(countriesBox);
     body.append(el('p','gcc-v168-privacy','Only a general overview is shown. Student names, teacher contacts, school rosters and breakout room assignments are private.'));
     const footer=el('div','gcc-v168-actions');
-    footer.append(el('p','', 'Registration requests require host approval. Submitting does not guarantee participation.'));
+    footer.append(el('p','', 'Registration requests require host approval. Applying does not guarantee approval.'));
     const register=el('a','gcc-v168-register','Register for this session →');
     register.href='#/session-register?session='+encodeURIComponent(e.id);
     register.addEventListener('click',()=>dialog.close());
