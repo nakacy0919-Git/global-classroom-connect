@@ -9,7 +9,7 @@ const read=path=>readFileSync(resolve(base,path),'utf8');
 const portal=read('src/pages/teacher/TeacherPortalPage.js');
 const sql=read('supabase/migrations/20261028_session_studio_v150.sql');
 test('four-step wizard automatically uses verified teacher/school data and safely saves all details',()=>{
- for(const s of ['gctp-name','gctp-host-school','gctp-host-identity','gctp-from','gctp-to','gctp-theme','gctp-sdg','gctp-language','gctp-english','gctp-goals','gctp-form-progress','gctp-review','data-gctp-form-section="3"'])assert.ok(portal.includes(s),s);
+ for(const s of ['gctp-name','gctp-host-school','gctp-host-identity','gctp-from','gctp-to','gctp-theme','gctp-sdg','gctp-language','gctp-english','gctp-goals','gctp-form-step','gctp-review','data-gctp-form-section="3"'])assert.ok(portal.includes(s),s);
  assert.match(portal,/identity\.school/);assert.match(portal,/identity\.country/);assert.match(portal,/identity\.name/);
  assert.match(portal,/details:detailsPayload\(\)/);
  assert.match(portal,/teacherCreateSession\(slot,data\)/);
