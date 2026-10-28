@@ -48,8 +48,7 @@ export function PracticePageV170(){return `
    <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span>MODEL PHRASE</span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
    <div class="gcc170-mic-actions"><button id="gcc170-start" type="button">🎙️ Start Speaking</button><button id="gcc170-end" type="button" disabled>■ End & Score</button></div>
    <p id="gcc170-status" class="gcc170-status" role="status"></p>
-   <div class="gcc170-transcript"><span>YOUR SPEECH / 文字起こし</span><p id="gcc170-transcript">Your words will appear here…</p></div>
-   <div class="gcc170-score-panel"><div class="gcc170-score-heading"><span>ACCURACY</span><span id="gcc170-best">Best Score: —</span></div><div class="gcc170-score-value" id="gcc170-score-value">—%</div><div class="gcc170-score-track"><div id="gcc170-score-fill"></div></div><p id="gcc170-score-message">Aim for 80% or higher! 🎯</p></div>
+   <div class="gcc171-results"><div class="gcc170-transcript"><span>YOUR SPEECH / 文字起こし</span><p id="gcc170-transcript">Your words will appear here…</p></div><div class="gcc170-score-panel"><div class="gcc170-score-heading"><span>ACCURACY</span><span id="gcc170-best">Best: —</span></div><div class="gcc171-gauge" role="meter" aria-label="Accuracy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg viewBox="0 0 200 112" aria-hidden="true"><path class="gcc171-gauge-base" d="M 18 100 A 82 82 0 0 1 182 100" pathLength="100"/><path id="gcc170-score-fill" class="gcc171-gauge-fill" d="M 18 100 A 82 82 0 0 1 182 100" pathLength="100"/></svg><div class="gcc170-score-value" id="gcc170-score-value">—%</div></div><p id="gcc170-score-message">Aim for 80%! 🎯</p></div></div>
    
   </div>
   <div class="gcc170-confetti" id="gcc170-confetti" aria-hidden="true"></div>
