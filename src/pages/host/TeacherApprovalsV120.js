@@ -14,6 +14,12 @@ export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-a
   <div id="gcc134-counts" class="gcc134-counts"></div>
   <div id="gcc134-accounts" class="gcc134-accounts">Loading registration status…</div>
  </section>
+ <section class="gcc153-host-school-queue gcc120-panel" aria-label="School information correction requests">
+  <div class="gcc134-tracker-head"><div><h2>School information corrections</h2><p>Review changes requested by approved teachers. Approved changes may affect everyone linked to the same school.</p></div>
+  <button type="button" id="gcc153-refresh-school" class="gcc120-secondary">↻ Refresh corrections</button></div>
+  <p id="gcc153-host-school-msg" class="gcc120-message" role="status" aria-live="polite"></p>
+  <div id="gcc153-host-school-list" class="gcc120-review-list">Loading requests…</div>
+ </section>
  <h2 class="gcc134-queue-title">Applications awaiting approval</h2>
  <p id="gcc120-review-msg" role="status" aria-live="polite" class="gcc120-message"></p><div id="gcc120-review-list" class="gcc120-review-list">Loading…</div>
  </section></main>`;}
@@ -22,6 +28,10 @@ export function bindTeacherApprovalsV120(){
  const message=root.querySelector('#gcc120-review-msg'),list=root.querySelector('#gcc120-review-list');
  const accountsBox=root.querySelector('#gcc134-accounts'),countBox=root.querySelector('#gcc134-counts');
  const lastCheck=root.querySelector('#gcc134-refresh-time'),refreshButton=root.querySelector('#gcc134-refresh');
+ const schoolList=root.querySelector('#gcc153-host-school-list');
+ const schoolStatus=root.querySelector('#gcc153-host-school-msg');
+ const schoolRefresh=root.querySelector('#gcc153-refresh-school');
+ let schoolBusy=false;
  let loading=false,lastAccountKey=null,lastQueueKey=null;
  const stages={
   email_unconfirmed:['Email confirmation needed','Ask the teacher to confirm their email.'],
@@ -107,14 +117,58 @@ export function bindTeacherApprovalsV120(){
    notify(e.message||'Could not load applications.',true);
   }finally{loading=false;refreshButton.disabled=false;}
  }
- refreshButton.addEventListener('click',refresh);
- const onActive=()=>{if(root.isConnected&&document.visibilityState==='visible')refresh();};
+ async function refreshSchoolEdits(){
+  if(schoolBusy||!root.isConnected)return;
+  schoolBusy=true;schoolRefresh.disabled=true;
+  try{
+   const {data,error}=await supabase.rpc('gcc_v153_host_school_edits');if(error)throw error;
+   schoolList.replaceChildren();
+   if(!data?.length){schoolList.append(el('p','gcn116-help','No school correction requests are waiting.'));return;}
+   for(const request of data){
+    const card=el('article','gcc120-panel gcc153-school-review');
+    card.append(el('h3','',request.school_name||'School'));
+    card.append(el('p','',`Requested by ${request.teacher_name||'approved teacher'}`));
+    for(const [key,label] of [['name','School name'],['school_type','School type'],['school_level','School level'],
+       ['city','City'],['region','Region'],['website_url','Website']]){
+      const oldValue=String(request.current?.[key]||'');
+      const newValue=String(request.requested?.[key]||'');
+      if(oldValue===newValue)continue;
+      const row=el('p','gcc153-school-diff');
+      row.append(el('strong','',label+': '),document.createTextNode((oldValue||'—')+' → '+(newValue||'—')));
+      card.append(row);
+    }
+    const actions=el('div','gcc120-review-actions');
+    for(const [approve,label] of [[true,'Approve school changes'],[false,'Decline changes']]){
+     const button=el('button',approve?'gcc120-primary':'gcc120-secondary',label);
+     button.type='button';
+     button.addEventListener('click',async()=>{
+      if(!confirm(approve?
+       'Approve changes to '+request.school_name+'? All teachers linked to this school will see the new details.':
+       'Decline this school correction request?'))return;
+      button.disabled=true;
+      try{
+       const {error}=await supabase.rpc('gcc_v153_review_school_edit',{p_id:request.id,p_accept:approve});
+       if(error)throw error;
+       schoolStatus.textContent=approve?'School correction approved.':'School correction declined.';
+       await refreshSchoolEdits();
+      }catch(err){schoolStatus.textContent=err.message||'Could not review the correction.';button.disabled=false;}
+     });
+     actions.append(button);
+    }
+    card.append(actions);schoolList.append(card);
+   }
+  }catch(err){schoolStatus.textContent=err.message||'Could not load school correction requests.';}
+  finally{schoolBusy=false;schoolRefresh.disabled=false;}
+ }
+ schoolRefresh.addEventListener('click',refreshSchoolEdits);
+ refreshButton.addEventListener('click',()=>{refresh();refreshSchoolEdits();});
+ const onActive=()=>{if(root.isConnected&&document.visibilityState==='visible'){refresh();refreshSchoolEdits();}};
  window.addEventListener('focus',onActive);
  document.addEventListener('visibilitychange',onActive);
  const timer=window.setInterval(()=>{
   if(!root.isConnected){window.clearInterval(timer);window.removeEventListener('focus',onActive);
    document.removeEventListener('visibilitychange',onActive);return;}
-  if(document.visibilityState==='visible')refresh();
+  if(document.visibilityState==='visible'){refresh();refreshSchoolEdits();}
  },15000);
- refresh();
+ refresh();refreshSchoolEdits();
 }
