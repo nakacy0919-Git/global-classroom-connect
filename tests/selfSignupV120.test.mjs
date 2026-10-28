@@ -39,9 +39,9 @@ test('photos private; only applicant draft can upload and approve cannot bypass 
  assert.match(sql,/CREATE POLICY "GCC V120 applicant photo read"/);
  assert.match(sql,/photo_path=p_photo_path/);
 });
-test('landing retains 3 real actions and adds signup, signin and button bounce',()=>{
+test('landing retains original actions plus Practice and adds signup, signin and button bounce',()=>{
  const page=read('src/pages/public/WelcomeV117.js'),css=read('src/styles/welcomeSignupV120.css');
- assert.equal((page.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,3);
+ assert.equal((page.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,4);
  assert.match(page,/#\/signup/);assert.match(page,/#\/teacher-access/);
  assert.match(css,/@keyframes gcc120-bouncy-hover/);
  assert.match(css,/prefers-reduced-motion:reduce/);
