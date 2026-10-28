@@ -4,8 +4,11 @@ import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetwork
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot} from '../../lib/matching.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
+import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
+
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
 import '../../styles/sessionStudioV150.css';
+import '../../styles/sessionStudioV151.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut} from '../../services/teacherSelfService.js';
 
@@ -14,30 +17,30 @@ const flag=code=>/^[A-Z]{2}$/.test(code||'')?[...code].map(c=>String.fromCodePoi
 function fmt(iso,zone){try{return new Intl.DateTimeFormat('en-GB',{timeZone:zone,weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(iso));}catch{return String(iso||'');}}
 function tomorrow(zone){const x=new Date(Date.now()+86400000);try{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(x).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`;}catch{return x.toISOString().slice(0,10);}}
 export function TeacherPortalPage(){return `<section class="gct-workspace gct-portal">
- <header class="gct-banner"><div class="gct-banner-icon">🌍</div><div><p class="gct-eyebrow">GLOBAL CLASSROOM · TEACHER SPACE</p><h2>Connect your classroom</h2><p id="gctp-greeting">Loading your school…</p></div><button id="gctp-logout" type="button" class="gct-secondary gct-logout">Sign out</button></header>
+ <header class="gct-banner"><div class="gct-banner-icon">🌍</div><div><p class="gct-eyebrow">GLOBAL CLASSROOM · TEACHER SPACE</p><h2>Explore. Connect. Inspire.</h2><p id="gctp-greeting">Loading your school…</p></div><button id="gctp-logout" type="button" class="gct-secondary gct-logout">Sign out</button></header>
  <p id="gctp-message" class="gct-feedback" role="status" aria-live="polite"></p>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
-  <div class="gct-section-head"><span>✦</span><div><h3>Create a global classroom session</h3><p>Build an exchange in four simple steps.</p></div></div>
+  <div class="gct-section-head"><span>✦</span><div><h3>Create a global classroom session</h3><p>Four quick steps to bring the world into your classroom.</p></div></div>
   <nav class="gcs150-steps" aria-label="Session setup"><span data-gcs150-step-dot="0">1 · Basics</span><span data-gcs150-step-dot="1">2 · Format</span><span data-gcs150-step-dot="2">3 · Topics</span><span data-gcs150-step-dot="3">4 · Review</span></nav>
-  <div class="gct-wizard-progress"><span id="gctp-form-step">Step 1 of 4</span><div><span id="gctp-form-progress"></span></div></div>
+  <p class="gcs151-step-status" id="gctp-form-step" aria-live="polite">Step 1 of 4 · Tell us when you can connect</p>
   <section class="gct-form-section" data-gctp-form-section="0">
-   <div class="gcs150-intro"><h4>Plan your session</h4><p>Your approved teacher and school records are filled automatically.</p></div>
+   <div class="gcs150-intro"><h4>Plan your session</h4><p>No need to enter your school or teacher details again.</p></div>
    <label>Session name *<input id="gctp-name" maxlength="120" required placeholder="e.g. Discover school life around the world"></label>
    <div class="gcs150-host"><span aria-hidden="true">🏫</span><div><strong id="gctp-host-school">Loading school…</strong><small id="gctp-host-identity">Approved teacher</small></div><span class="gcs150-verified">✓ Verified</span></div>
    <div class="gct-fields"><label>Date *<input id="gctp-date" type="date" required></label><label>School time zone<input id="gctp-zone" readonly required></label></div>
    <div class="gct-fields"><label>From *<input id="gctp-from" type="time" value="09:00" required></label><label>Until *<input id="gctp-to" type="time" value="10:00" required></label></div>
-   <p class="gct-hint">Partner teachers see this session converted to their own local time.</p>
+   <p class="gct-hint">Enter your school's local time. GCC automatically shows matching times to teachers abroad.</p>
   </section>
   <section class="gct-form-section" data-gctp-form-section="1" hidden>
-   <div class="gcs150-intro"><h4>How will students connect?</h4><p>Select the type of equipment needed for your session.</p></div>
+   <div class="gcs150-intro"><h4>Choose your exchange format</h4><p>Pick one illustration, then choose the students you would like to meet.</p></div>
    <div class="gcs150-mode-grid" role="group" aria-label="Session format"><label class="gcs150-mode"><input type="radio" name="gctp-mode" value="device" ><span class="gcs150-mode-art" aria-hidden="true"><img src="/assets/session-formats/device.svg" width="110" height="80" alt="" loading="lazy"></span><strong>Individual devices</strong><small>Each student connects on a device</small></label><label class="gcs150-mode"><input type="radio" name="gctp-mode" value="classroom" checked><span class="gcs150-mode-art" aria-hidden="true"><img src="/assets/session-formats/classroom.svg" width="110" height="80" alt="" loading="lazy"></span><strong>Classroom to classroom</strong><small>One shared screen for the class</small></label><label class="gcs150-mode"><input type="radio" name="gctp-mode" value="hybrid" ><span class="gcs150-mode-art" aria-hidden="true"><img src="/assets/session-formats/hybrid.svg" width="110" height="80" alt="" loading="lazy"></span><strong>Flexible / hybrid</strong><small>Mix both formats</small></label></div>
    <div class="gct-fields"><label>Students *<input id="gctp-students" type="number" min="1" max="500" value="20" required></label><label>Breakout rooms *<input id="gctp-rooms" type="number" min="1" max="100" value="1" required></label></div>
    <label>Your school level *<select id="gctp-band"><option value="Upper Secondary">High school</option><option value="Lower Secondary">Junior high</option><option value="Primary">Elementary</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
    <fieldset class="gcs150-targets"><legend>Partner school levels you welcome *</legend><p class="gct-hint">You can select several grades, such as junior high and high school.</p><div class="gcs150-levels"><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Primary"><span>Elementary</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Lower Secondary"><span>Junior high</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Upper Secondary"><span>High school</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="University"><span>University</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Mixed"><span>Mixed ages</span></label></div></fieldset>
   </section>
   <section class="gct-form-section" data-gctp-form-section="2" hidden>
-   <div class="gcs150-intro"><h4>What will students explore?</h4><p>Choose a theme and add details only if useful.</p></div>
+   <div class="gcs150-intro"><h4>Make your exchange memorable</h4><p>Choose a theme; language proficiency and learning goals are optional.</p></div>
    <label>Session theme *<select id="gctp-theme"><option value="Cultural Exchange">Culture and daily life</option><option value="SDGs">SDGs / global challenges</option><option value="Mystery Skype">Mystery Skype</option><option value="Language Exchange">Language exchange</option><option value="Global Citizenship">Global citizenship</option><option value="Free Topic">Free topic</option></select></label>
    <label id="gctp-sdg-wrap" hidden>SDG goal<select id="gctp-sdg"><option value="">Any SDG goal</option><option value="1">1. No Poverty</option><option value="2">2. Zero Hunger</option><option value="3">3. Good Health and Well-being</option><option value="4">4. Quality Education</option><option value="5">5. Gender Equality</option><option value="6">6. Clean Water and Sanitation</option><option value="7">7. Affordable and Clean Energy</option><option value="8">8. Decent Work and Economic Growth</option><option value="9">9. Industry, Innovation and Infrastructure</option><option value="10">10. Reduced Inequalities</option><option value="11">11. Sustainable Cities and Communities</option><option value="12">12. Responsible Consumption and Production</option><option value="13">13. Climate Action</option><option value="14">14. Life Below Water</option><option value="15">15. Life on Land</option><option value="16">16. Peace, Justice and Strong Institutions</option><option value="17">17. Partnerships for the Goals</option></select></label>
    <label>Specific topic (optional)<input id="gctp-topic" maxlength="90" placeholder="e.g. Climate, local food, school traditions"></label>
@@ -46,29 +49,56 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <label>Notes to partner teachers (optional)<textarea id="gctp-notes" rows="2" maxlength="500" placeholder="Preparation and other details"></textarea></label>
   </section>
   <section class="gct-form-section" data-gctp-form-section="3" hidden>
-   <div class="gcs150-intro"><h4>Ready to connect the world?</h4><p>Check your session before publishing.</p></div><div class="gct-review" id="gctp-review"></div>
+   <div class="gcs150-intro"><h4>Ready to connect the world?</h4><p>Check the details. You can go back and change anything before publishing.</p></div><div class="gct-review" id="gctp-review"></div>
    <p class="gct-hint">Publishing makes this session visible to approved teachers. It does not automatically create a Zoom meeting or send invitations.</p>
   </section>
   <div class="gct-form-actions"><button type="button" id="gctp-back" class="gct-secondary" hidden>← Back</button><button type="button" id="gctp-next" class="gct-primary">Continue →</button><button class="gct-primary" id="gctp-publish" type="submit" hidden>Publish session ✓</button></div>
  </form><aside class="gct-panel"><div class="gct-section-head"><span>02</span><div><h3>Your upcoming sessions</h3><p>Sessions you can manage.</p></div></div><div id="gctp-mine" class="gct-card-list"></div></aside>
  </div></div>
- <div class="gct-section" data-gct-view="find" hidden>
- <div class="gcs150-find-header"><span aria-hidden="true">🌏</span><div><h3>Find a classroom to connect with</h3><p>Choose a convenient time in your country. Session times are converted automatically.</p><small id="gctp-find-zone-label">Your local time</small></div></div>
- <div class="gct-filterbar gcs150-main-filters">
-  <label>My available time<select id="gctp-find-preset"><option value="any">Any time</option><option value="morning">Morning · 08:00–12:00</option><option value="afternoon">Afternoon · 12:00–17:00</option><option value="evening">Evening · 17:00–22:00</option><option value="custom">Custom hours</option></select></label>
-  <label>Date (optional)<input id="gctp-find-date" type="date"></label>
-  <div id="gctp-find-custom" class="gcs150-custom" hidden><label>From<input id="gctp-find-from" type="time" value="09:00"></label><label>Until<input id="gctp-find-to" type="time" value="12:00"></label></div>
-  <button id="gctp-find-button" type="button" class="gct-primary">Find sessions →</button>
- </div>
- <details class="gcs150-advanced"><summary>More filters · country, school level, SDGs, format</summary><div class="gct-filterbar">
-  <label>Country<select id="gctp-find-country"><option value="">Any country</option></select></label>
-  <label>Partner level<select id="gctp-find-band"><option value="">Any level</option><option value="Primary">Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
-  <label>Format<select id="gctp-find-mode"><option value="">Any format</option><option value="device">Individual devices</option><option value="classroom">Classroom to classroom</option><option value="hybrid">Hybrid</option></select></label>
-  <label>SDGs<select id="gctp-find-sdg"><option value="">Any goal</option><option value="1">1. No Poverty</option><option value="2">2. Zero Hunger</option><option value="3">3. Good Health and Well-being</option><option value="4">4. Quality Education</option><option value="5">5. Gender Equality</option><option value="6">6. Clean Water and Sanitation</option><option value="7">7. Affordable and Clean Energy</option><option value="8">8. Decent Work and Economic Growth</option><option value="9">9. Industry, Innovation and Infrastructure</option><option value="10">10. Reduced Inequalities</option><option value="11">11. Sustainable Cities and Communities</option><option value="12">12. Responsible Consumption and Production</option><option value="13">13. Climate Action</option><option value="14">14. Life Below Water</option><option value="15">15. Life on Land</option><option value="16">16. Peace, Justice and Strong Institutions</option><option value="17">17. Partnerships for the Goals</option></select></label>
-  <label>Topic<input id="gctp-find-topic" type="search" placeholder="Any topic"></label>
-  <label class="gcs150-match"><input id="gctp-find-compatible" type="checkbox"><span>Sessions that accept my school level</span></label>
- </div></details>
- <div class="gct-section-subhead"><h3>Available sessions</h3><span id="gctp-search-count"></span></div><div id="gctp-results" class="gct-results"></div>
+ <div class="gct-section gcs151-find" data-gct-view="find" hidden>
+  <header class="gcs151-find-hero">
+   <div><span class="gcs151-kicker">DISCOVER GLOBAL CLASSROOMS</span>
+   <h3>Where will your classroom connect next?</h3>
+   <p>Find a partner by your available time or explore countries offering sessions.</p>
+   <span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
+   <div class="gcs151-hero-world" aria-hidden="true"><span>✦</span><span>🌏</span><span>✦</span></div>
+  </header>
+  <div class="gcs151-discover-modes" role="group" aria-label="Choose how to find a session">
+   <button id="gctp-discover-time" class="gcs151-discover-card" type="button" aria-pressed="true" data-gcs151-discovery="time">
+    <span class="gcs151-discover-icon" aria-hidden="true">🕒</span><span class="gcs151-discover-label"><strong>Find by time</strong><small>Start with the hours you're available</small></span><span aria-hidden="true">→</span>
+   </button>
+   <button id="gctp-discover-map" class="gcs151-discover-card" type="button" aria-pressed="false" data-gcs151-discovery="map">
+    <span class="gcs151-discover-icon" aria-hidden="true">🌐</span><span class="gcs151-discover-label"><strong>Explore world map</strong><small>Choose a country with an open session</small></span><span aria-hidden="true">→</span>
+   </button>
+  </div>
+  <section id="gctp-find-time-panel" class="gcs151-discover-panel" aria-label="Find by available time">
+   <h4>When can your class join?</h4>
+   <div class="gct-filterbar gcs150-main-filters">
+    <label>Available time (your school time)<select id="gctp-find-preset"><option value="any">Any time</option><option value="morning">Morning · 08:00–12:00</option><option value="afternoon">Afternoon · 12:00–17:00</option><option value="evening">Evening · 17:00–22:00</option><option value="custom">Choose hours</option></select></label>
+    <label>Date (optional)<input id="gctp-find-date" type="date"></label>
+    <div id="gctp-find-custom" class="gcs150-custom" hidden><label>From<input id="gctp-find-from" type="time" value="09:00"></label><label>Until<input id="gctp-find-to" type="time" value="12:00"></label></div>
+   </div>
+   <p class="gcs151-small-help">Results update automatically. Time zones and daylight saving are calculated for each session date.</p>
+  </section>
+  <section id="gctp-find-map-panel" class="gcs151-discover-panel" aria-label="Find by country" hidden>
+   <div class="gcs151-map-heading"><div><h4>Explore available countries</h4><p>Only countries with currently open sessions are marked on the map.</p></div><span id="gctp-map-status" role="status" aria-live="polite">Select the map to explore</span></div>
+   <div id="gctp-country-map" class="gcs151-map-stage" aria-label="Interactive world map"></div>
+   <label class="gcs151-country-select-label">Choose from the list instead
+    <select id="gctp-find-country"><option value="">All available countries</option></select>
+   </label>
+   <div id="gctp-country-list" class="gcs151-country-list" aria-label="Countries with open sessions"></div>
+  </section>
+  <details class="gcs150-advanced"><summary>More options · school level, SDGs, format &amp; topic</summary>
+   <div class="gct-filterbar">
+    <label>Partner school level<select id="gctp-find-band"><option value="">Any level</option><option value="Primary">Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
+    <label>Session format<select id="gctp-find-mode"><option value="">Any format</option><option value="device">Individual devices</option><option value="classroom">Classroom to classroom</option><option value="hybrid">Flexible / hybrid</option></select></label>
+    <label>SDG topic<select id="gctp-find-sdg"><option value="">Any SDG</option><option value="1">1. No Poverty</option><option value="2">2. Zero Hunger</option><option value="3">3. Good Health and Well-being</option><option value="4">4. Quality Education</option><option value="5">5. Gender Equality</option><option value="6">6. Clean Water and Sanitation</option><option value="7">7. Affordable and Clean Energy</option><option value="8">8. Decent Work and Economic Growth</option><option value="9">9. Industry, Innovation and Infrastructure</option><option value="10">10. Reduced Inequalities</option><option value="11">11. Sustainable Cities and Communities</option><option value="12">12. Responsible Consumption and Production</option><option value="13">13. Climate Action</option><option value="14">14. Life Below Water</option><option value="15">15. Life on Land</option><option value="16">16. Peace, Justice and Strong Institutions</option><option value="17">17. Partnerships for the Goals</option></select></label>
+    <label>Keyword<input id="gctp-find-topic" type="search" placeholder="Culture, climate, language…"></label>
+    <label class="gcs150-match"><input id="gctp-find-compatible" type="checkbox"><span>Partner accepts my school level</span></label>
+   </div>
+  </details>
+  <div class="gcs151-results-heading"><div><h3>Matching sessions</h3><span id="gctp-search-count" role="status" aria-live="polite"></span></div><button id="gctp-reset-filters" class="gct-secondary" type="button">Clear filters</button></div>
+  <div id="gctp-results" class="gct-results"></div>
  </div>
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
@@ -80,7 +110,13 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
 export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
- let identity=null,offers=[],requests=[],formStep=0;
+ let identity=null,offers=[],requests=[],formStep=0,discoverMode='time';
+ const countryExplorer=mountCountryExplorerV151(root,code=>{
+  if(!identity)return;
+  $('gctp-find-country').value=code;
+  countryExplorer.update(upcoming(),code);
+  renderResults();
+ });
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
@@ -93,7 +129,7 @@ export function bindTeacherPortalPage(){
  function showFormStep(index){
   formStep=index;
   for(const section of root.querySelectorAll('[data-gctp-form-section]'))section.hidden=Number(section.dataset.gctpFormSection)!==index;
-  $('gctp-form-step').textContent=`Step ${index+1} of 4`;$('gctp-form-progress').style.width=`${(index+1)*25}%`;
+  $('gctp-form-step').textContent=`Step ${index+1} of 4 · ${['When and where','Exchange format','Topic and activities','Review and publish'][index]}`;
   for(const n of root.querySelectorAll('[data-gcs150-step-dot]')){
    n.classList.toggle('active',Number(n.dataset.gcs150StepDot)===index);
    n.classList.toggle('completed',Number(n.dataset.gcs150StepDot)<index);
@@ -137,7 +173,7 @@ export function bindTeacherPortalPage(){
  async function refresh(){
   const [mine,applications]=await Promise.all([teacherSessions(),teacherRequests()]);
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  renderMine();updateFindCountries();renderResults();renderRequests();
+  renderMine();updateFindCountries();countryExplorer.update(upcoming(),$('gctp-find-country').value);renderResults();renderRequests();
  }
  function renderMine(){const list=$('gctp-mine');list.replaceChildren();
   const mine=upcoming().filter(o=>o.is_mine);if(!mine.length){list.append(element('p','gct-empty','No sessions yet. Choose a date and publish your first session.'));return;}
@@ -154,8 +190,9 @@ export function bindTeacherPortalPage(){
    morning:['08:00','12:00'],afternoon:['12:00','17:00'],evening:['17:00','22:00']
   };
   const [from,to]=preset==='custom'?[$('gctp-find-from').value,$('gctp-find-to').value]:(range[preset]||['','']);
-  return filterOffersV150(upcoming(),{date:$('gctp-find-date').value,from,to,
-   country:$('gctp-find-country').value,band:$('gctp-find-band').value,topic:$('gctp-find-topic').value,
+  return filterOffersV150(upcoming(),{date:discoverMode==='time'?$('gctp-find-date').value:'',
+   from:discoverMode==='time'?from:'',to:discoverMode==='time'?to:'',
+   country:discoverMode==='map'?$('gctp-find-country').value:'',band:$('gctp-find-band').value,topic:$('gctp-find-topic').value,
    sdg:$('gctp-find-sdg').value,mode:$('gctp-find-mode').value,compatible:$('gctp-find-compatible').checked},identity);
  }
  function updateFindCountries(){
@@ -164,6 +201,7 @@ export function bindTeacherPortalPage(){
   select.replaceChildren(new Option('Any country',''));
   for(const [code,name] of [...codes].sort((a,b)=>a[1].localeCompare(b[1])))select.add(new Option(name,code));
   if(codes.has(current))select.value=current;
+  else select.value='';
  }
  function renderResults(){
   if(!identity)return;
@@ -229,13 +267,46 @@ export function bindTeacherPortalPage(){
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:detailsPayload()};
    if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){inform('Check student and room counts.',true);return;}
    const btn=$('gctp-publish');btn.disabled=true;
-   try{prepareSuccessChime();await teacherCreateSession(slot,data);await refresh();inform('Session published to approved teachers. No email sent.');showFormStep(0);display('create');showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});}
+   try{
+    prepareSuccessChime();await teacherCreateSession(slot,data);await refresh();
+    inform('Session published to approved teachers. No email sent.');
+    $('gctp-create').reset();$('gctp-date').value=tomorrow(identity.timezone);$('gctp-zone').value=identity.timezone;
+    const defaultLevel=GCC_LEVELS_V150.find(([id])=>id===identity.school_level)?.[0]||'Upper Secondary';
+    $('gctp-band').value=defaultLevel;
+    const defaultCheck=root.querySelector(`input[name="gctp-target-level"][value="${defaultLevel}"]`);
+    if(defaultCheck)defaultCheck.checked=true;
+    $('gctp-sdg-wrap').hidden=true;
+    showFormStep(0);display('create');
+    showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});
+   }
    catch(err){inform(err.message||'Could not publish the session.',true);}finally{btn.disabled=false;}
  });
- $('gctp-find-button').addEventListener('click',()=>{inform('');renderResults();});
+ const setDiscoverMode=(mode)=>{
+  discoverMode=mode==='map'?'map':'time';
+  $('gctp-find-time-panel').hidden=discoverMode!=='time';
+  $('gctp-find-map-panel').hidden=discoverMode!=='map';
+  for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
+   button.setAttribute('aria-pressed',String(button.dataset.gcs151Discovery===discoverMode));
+  }
+  if(discoverMode==='map')countryExplorer.load();
+  renderResults();
+ };
+ for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
+  button.addEventListener('click',()=>setDiscoverMode(button.dataset.gcs151Discovery));
+ }
+ $('gctp-reset-filters').addEventListener('click',()=>{
+  $('gctp-find-preset').value='any';$('gctp-find-date').value='';
+  $('gctp-find-custom').hidden=true;$('gctp-find-country').value='';
+  for(const id of ['gctp-find-band','gctp-find-mode','gctp-find-sdg','gctp-find-topic'])$(id).value='';
+  $('gctp-find-compatible').checked=false;
+  countryExplorer.update(upcoming(),'');renderResults();
+ });
  $('gctp-find-preset').addEventListener('change',()=>{$('gctp-find-custom').hidden=$('gctp-find-preset').value!=='custom';renderResults();});
  for(const id of ['gctp-find-date','gctp-find-from','gctp-find-to','gctp-find-country','gctp-find-band','gctp-find-mode','gctp-find-sdg','gctp-find-compatible','gctp-find-topic']){
-  $(id).addEventListener(id==='gctp-find-topic'?'input':'change',renderResults);
+  $(id).addEventListener(id==='gctp-find-topic'?'input':'change',()=>{
+   if(id==='gctp-find-country')countryExplorer.update(upcoming(),$('gctp-find-country').value);
+   renderResults();
+  });
  }
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
