@@ -2,12 +2,14 @@ import '../../styles/simpleSessionsV8.css';
 import {parseSimpleRoster,parseSimpleFacilitators,englishName} from '../../lib/simpleRoster.js';
 import {listPublicSessions,submitSharedRoster} from '../../services/simpleSessionService.js';
 import {deviceRequirementMarkupV158,bindDeviceRequirementV158} from '../../lib/registrationDeviceGateV158.js';
+import {timeConfirmationMarkupV160,bindTimeConfirmationV160} from '../../lib/registrationTimeGateV160.js';
 const $=id=>document.getElementById(id);
 const el=(tag,cls='',text='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=text;return n;};
 const format=(iso)=>{try{return new Intl.DateTimeFormat('en',{dateStyle:'full',timeStyle:'short'}).format(new Date(iso));}catch{return iso||'';}};
 export function SharedRegistrationPage(){return `
 <section class="gcc-v8 gcc-v8-teacher" aria-label="Global Classroom teacher registration">
   ${deviceRequirementMarkupV158()}
+  ${timeConfirmationMarkupV160()}
   <div id="gcc158-register-form" hidden>
   <header class="gcc-v8-brand"><span aria-hidden="true">🌍</span><div><strong>Global Classroom Connect</strong><small>International school exchange</small></div></header>
   <div class="gcc-v8-steps"><span id="gcc-v8-step-index">STEP 1 OF 4</span><div class="gcc-v8-progress" id="gcc-v8-progress"></div></div>
@@ -45,6 +47,7 @@ export function SharedRegistrationPage(){return `
 export function bindSharedRegistrationPage(){
  const root=document.querySelector('.gcc-v8-teacher');if(!root)return;
  bindDeviceRequirementV158(root);
+ const timeGate=bindTimeConfirmationV160(root,{getSession:()=>events.find(s=>s.id===$('gcc-v8-event').value),onConfirmed:()=>show(1),onBack:()=>show(0)});
  let step=0,events=[],countries=new Map(),sending=false;
  const titles=['Choose your session','Your school & country','Students & facilitators','Check & submit'];
  const subtitles=['Select the exchange your class would like to join.','These details help us mix students from different schools.','Paste students and add any teacher facilitators.','Check your class details before submitting.'];
@@ -79,7 +82,7 @@ export function bindSharedRegistrationPage(){
    return '';
  }
  $('gcc-v8-back').addEventListener('click',()=>show(Math.max(0,step-1)));
- $('gcc-v8-next').addEventListener('click',()=>{const err=validate(step);if(err){message(err);return;}show(step+1);});
+ $('gcc-v8-next').addEventListener('click',()=>{const err=validate(step);if(err){message(err);return;}if(step===0){if(!timeGate.show())message('Session time is unavailable.');return;}show(step+1);});
  $('gcc-v8-roster').addEventListener('input',preview);
  $('gcc-v8-event').addEventListener('change',()=>{$('gcc-v8-session-date').textContent=current()?`📅 ${format(current().starts_at)} · Your local time`:'';});
  $('gcc-v8-submit').addEventListener('click',async()=>{
