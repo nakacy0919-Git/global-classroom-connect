@@ -6,6 +6,7 @@ import './styles/mobileExperienceV152.css';
 import './styles/welcomeFitV156.css';
 import './styles/welcomePracticeV169.css';
 import './styles/i18nV157.css';
+import './styles/welcomeButtonsV173.css';
 
 renderApp();
 window.addEventListener('hashchange', renderApp);
