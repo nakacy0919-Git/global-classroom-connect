@@ -1,7 +1,9 @@
 import {PRACTICE_STAGES,fillPracticePhrase,scorePracticePhrase} from '../../lib/practiceDataV169.js';
-import {getPracticeItemsV171 as getPracticeItems,getPracticeTotalsV171 as getPracticeTotals} from '../../lib/practiceCurriculumV171.js';
+import {getPracticeItemsV173 as getPracticeItems,getPracticeTotalsV173 as getPracticeTotals,PRACTICE_SCENES_V173} from '../../lib/practiceCurriculumV173.js';
+import {getPracticeItemsV171} from '../../lib/practiceCurriculumV171.js';
 import '../../styles/practiceStudioV170.css';
 import '../../styles/practiceStudioV171.css';
+import '../../styles/practiceExplorerV173.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
@@ -34,8 +36,17 @@ export function PracticePageV170(){return `
   <div class="gcc170-levels" role="group" aria-label="Practice difficulty"><button data-level="standard" type="button">⭐ Standard</button><button data-level="advanced" type="button">🚀 Advanced</button><button data-level="challenge" type="button">🏆 Challenge</button></div>
   <button class="gcc170-profile-button" id="gcc170-profile-open" type="button">⚙ My profile</button>
  </section>
- <section class="gcc170-choose"><div><span class="gcc170-kicker">PICK A SITUATION</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Choose a scene and start your speaking adventure!</p></section>
- <section id="gcc170-stages" class="gcc170-stages" aria-label="Practice stages"></section>
+ <section class="gcc173-intro" aria-label="Practice purpose"><span class="gcc173-intro-icon">🌍</span><div><strong>English for Real Zoom Exchanges</strong><p>Get ready to join international breakout rooms: check your microphone, introduce yourself, ask questions, solve problems, and say goodbye.<span lang="ja">オンライン国際交流で使う英語を、Zoom入室から自己紹介・会話・トラブル対応・お別れまで練習しよう。</span></p></div></section>
+ <section class="gcc170-choose"><div><span class="gcc170-kicker">YOUR ZOOM CONVERSATION TOOLKIT</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Select a stage to preview all the expressions before speaking.</p></section>
+ <section id="gcc173-explorer" class="gcc173-explorer" aria-label="Speaking stages and practice phrase list">
+   <div id="gcc170-stages" class="gcc170-stages" aria-label="Practice stages"></div>
+   <section id="gcc173-preview" class="gcc173-preview" aria-label="Stage phrase preview" hidden>
+    <header class="gcc173-preview-header"><span class="gcc173-preview-badge">YOUR PRACTICE PHRASES</span><button id="gcc173-preview-close" type="button" aria-label="Close preview">✕ Close</button></header>
+    <div class="gcc173-preview-intro"><span id="gcc173-preview-icon" aria-hidden="true"></span><div><h2 id="gcc173-preview-title"></h2><p id="gcc173-preview-ja" lang="ja"></p><p id="gcc173-preview-goal"></p><small id="gcc173-preview-goal-ja" lang="ja"></small></div></div>
+    <div id="gcc173-phrase-list" class="gcc173-phrase-list"></div>
+    <p class="gcc173-preview-hint">Select any phrase to open the speaking practice. / 練習したい表現を選んでください。</p>
+   </section>
+ </section>
  <footer class="gcc170-foot">🔒 Your practice scores are stored on this device only. · Speech-to-text accuracy is not a direct assessment of pronunciation.</footer>
  <dialog id="gcc170-profile-dialog" class="gcc170-dialog gcc170-profile-dialog" aria-label="Personalize your practice">
   <div class="gcc170-dialog-top"><strong>⚙ Make it yours</strong><button type="button" id="gcc170-profile-close">✕ Close</button></div>
@@ -62,9 +73,11 @@ export function bindPracticePageV170(){
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  const stages=()=>PRACTICE_STAGES[role],stage=()=>stages()[stageIndex],items=()=>getPracticeItems(role,stage().id,level);
  const profileDialog=$('profile-dialog'),stageDialog=$('stage-dialog');
+ const explorer=document.getElementById('gcc173-explorer'),preview=document.getElementById('gcc173-preview');
+ let previewOpen=false;
  const save=()=>{if(!write(state))$('status').textContent='This browser could not save scores.';};
  const key=(r,l,s,i)=>r+'|'+l+'|'+s+'|'+i;
- const scoreFor=(r,l,s,i)=>state.scores[key(r,l,s,i)];
+ const scoreFor=(r,l,s,i)=>{const saved=state.scores[key(r,l,s,i)];if(!saved)return null;const currentText=getPracticeItems(r,s,l)[i]?.text;if(saved.template)return saved.template===currentText?saved:null;const previousText=getPracticeItemsV171(r,s,l)[i]?.text;return currentText===previousText?saved:null;};
  const total=()=>getPracticeTotals(role,level);
  const allScores=()=>stages().flatMap(s=>getPracticeItems(role,s.id,level).map((_,i)=>scoreFor(role,level,s.id,i)).filter(Boolean));
  function updateOverview(){
@@ -79,11 +92,11 @@ export function bindPracticePageV170(){
   const list=$('stages');list.replaceChildren();
   stages().forEach((s,i)=>{
    const done=getPracticeItems(role,s.id,level).filter((_,n)=>scoreFor(role,level,s.id,n)).length;
-   const b=el('button','gcc170-stage');
-   b.type='button';b.append(el('span','gcc170-stage-icon',s.icon));
-   const text=el('span','gcc170-stage-text');text.append(el('strong','',String(i+1).padStart(2,'0')+' · '+s.title),el('small','',s.scene));b.append(text);
-   const right=el('span','gcc170-stage-right');right.append(el('strong','',done+'/'+getPracticeItems(role,s.id,level).length),el('small','',done===getPracticeItems(role,s.id,level).length?'✓ Completed':'Tap to practice →'));b.append(right);
-   b.addEventListener('click',()=>openStage(i));list.append(b);
+   const b=el('button','gcc170-stage'+(previewOpen&&stageIndex===i?' gcc173-selected':''));
+   b.type='button';b.setAttribute('aria-pressed',String(previewOpen&&stageIndex===i));b.append(el('span','gcc170-stage-icon',s.icon));
+   const text=el('span','gcc170-stage-text');text.append(el('strong','',String(i+1).padStart(2,'0')+' · '+s.title),el('small','',s.scene),el('em','gcc173-stage-ja',PRACTICE_SCENES_V173[role][s.id].ja));b.append(text);
+   const right=el('span','gcc170-stage-right');right.append(el('strong','',done+'/'+getPracticeItems(role,s.id,level).length),el('small','',done===getPracticeItems(role,s.id,level).length?'✓ Completed':'See phrases →'));b.append(right);
+   b.addEventListener('click',()=>selectStage(i));list.append(b);
   });
  }
  function paintScore(value,best){
@@ -110,16 +123,45 @@ export function bindPracticePageV170(){
   $('confetti').replaceChildren();
  }
  function stopRecognition(){token++;recording=false;ending=false;clearTimeout(scoreTimer);if(recognition){const r=recognition;recognition=null;try{r.abort();}catch{}}$('start').disabled=!SpeechRecognition;$('end').disabled=true;root.classList.remove('gcc170-recording');}
- function openStage(i){stopRecognition();stageIndex=i;itemIndex=0;paintItem();stageDialog.showModal();}
- function switchRole(r){stopRecognition();role=r;root.querySelectorAll('[data-role]').forEach(b=>{const on=b.dataset.role===r;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();}
- function switchLevel(l){stopRecognition();level=l;root.querySelectorAll('[data-level]').forEach(b=>{const on=b.dataset.level===l;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();}
+ function paintPreview(){
+  if(!previewOpen)return;
+  const s=stage(),scene=PRACTICE_SCENES_V173[role][s.id];
+  document.getElementById('gcc173-preview-icon').textContent=s.icon;
+  document.getElementById('gcc173-preview-title').textContent=s.title;
+  document.getElementById('gcc173-preview-ja').textContent=scene.ja;
+  document.getElementById('gcc173-preview-goal').textContent=scene.goal;
+  document.getElementById('gcc173-preview-goal-ja').textContent=scene.goalJa;
+  const list=document.getElementById('gcc173-phrase-list');list.replaceChildren();
+  items().forEach((item,i)=>{
+    const score=scoreFor(role,level,s.id,i);
+    const button=el('button','gcc173-phrase-row');button.type='button';
+    const number=el('span','gcc173-phrase-number',String(i+1).padStart(2,'0'));
+    const body=el('span','gcc173-phrase-body');
+    body.append(el('strong','',fillPracticePhrase(item.text,state.profile)),el('small','',fillPracticePhrase(item.ja,state.profile)));
+    const result=el('span','gcc173-phrase-result',score?score.best+'%':'Practice ↗');
+    if(score?.best>=80)result.classList.add('gcc173-phrase-passed');
+    button.append(number,body,result);
+    button.addEventListener('click',()=>openStage(stageIndex,i));
+    list.append(button);
+  });
+ }
+ function selectStage(i){
+  stopRecognition();stageIndex=i;itemIndex=0;
+  previewOpen=true;preview.hidden=false;explorer.classList.add('gcc173-expanded');
+  paintStages();paintPreview();
+ }
+ function closePreview(){previewOpen=false;explorer.classList.remove('gcc173-expanded');preview.hidden=true;paintStages();}
+ function openStage(i,index=0){stopRecognition();stageIndex=i;itemIndex=index;paintItem();stageDialog.showModal();}
+ function switchRole(r){stopRecognition();role=r;root.querySelectorAll('[data-role]').forEach(b=>{const on=b.dataset.role===r;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
+ function switchLevel(l){stopRecognition();level=l;root.querySelectorAll('[data-level]').forEach(b=>{const on=b.dataset.level===l;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
+ document.getElementById('gcc173-preview-close').addEventListener('click',closePreview);
  root.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>switchRole(b.dataset.role)));
  root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>switchLevel(b.dataset.level)));
  $('profile-open').addEventListener('click',()=>profileDialog.showModal());
  $('profile-close').addEventListener('click',()=>profileDialog.close());
- for(const field of ['name','school','hobby','hometown','schoolDescription']){$(field).value=state.profile[field]||'';$(field).addEventListener('input',()=>{state.profile[field]=$(field).value.trim();save();if(stageDialog.open&&!recording)paintItem();});}
+ for(const field of ['name','school','hobby','hometown','schoolDescription']){$(field).value=state.profile[field]||'';$(field).addEventListener('input',()=>{state.profile[field]=$(field).value.trim();save();if(stageDialog.open&&!recording)paintItem();paintPreview();});}
  document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();});
- $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();if(stageDialog.open)paintItem();});
+ $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();paintPreview();if(stageDialog.open)paintItem();});
  $('dialog-close').addEventListener('click',()=>stageDialog.close());
  stageDialog.addEventListener('close',()=>stopRecognition());
  stageDialog.addEventListener('cancel',()=>stopRecognition());
@@ -161,8 +203,8 @@ export function bindPracticePageV170(){
   if(!text){$('status').textContent='No speech recognized. Please try again.';return;}
   const s=stage(),item=items()[itemIndex],result=scorePracticePhrase(item.text,text,state.profile),k=key(role,level,s.id,itemIndex),prev=state.scores[k];
   const best=Math.max(prev?.best||0,result.accuracy);
-  state.scores[k]={best,last:result.accuracy,transcript:text,attempts:(prev?.attempts||0)+1};
-  save();paintScore(result.accuracy,best);updateOverview();paintStages();
+  state.scores[k]={best,last:result.accuracy,transcript:text,template:item.text,attempts:(prev?.attempts||0)+1};
+  save();paintScore(result.accuracy,best);updateOverview();paintStages();paintPreview();
   $('status').textContent=result.accuracy>=80?'🎉 Excellent! 80% cleared! / 合格！':'💪 Almost there! Try again! / もう一度挑戦！';
   if(result.accuracy>=80)celebrate();
  }
