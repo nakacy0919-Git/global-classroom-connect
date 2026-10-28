@@ -11,7 +11,7 @@ export function teacherNetworkMarkupV116(){return `<div class="gcn116-network">
    <label>Your name *<input id="gcn116-name" required maxlength="120" autocomplete="name"></label>
    <label>Job title<input id="gcn116-title" maxlength="120" placeholder="English teacher"></label>
    <label>Languages (comma-separated)<input id="gcn116-languages" placeholder="English, Japanese"></label>
-   <label>Introduction<textarea id="gcn116-bio" maxlength="1000" rows="3" placeholder="About your teaching and your classroom"></textarea></label>
+   <label>Introduction<textarea id="gcn116-bio" maxlength="3000" rows="3" placeholder="About your teaching and your classroom"></textarea></label>
    <p class="gcn116-help">Your links help teachers stay in touch after the exchange. Use complete https:// links.</p>
    <label>My website<input type="url" id="gcc117-site" placeholder="https://my-school.example.org" maxlength="240"></label>
    <label>Instagram<input type="url" id="gcc117-ig" placeholder="https://www.instagram.com/youraccount/" maxlength="240"></label>
