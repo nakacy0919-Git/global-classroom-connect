@@ -105,7 +105,9 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
  <p class="gct-hint">Approval records interest only. Agree on the final arrangements separately; no notification, Zoom link, or event is automatically sent.</p></div>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
- <section class="gct-section" data-gct-view="network" hidden>${teacherNetworkMarkupV116()}</section>
+ <section class="gct-section" data-gct-view="network" hidden>
+  <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
+  ${teacherNetworkMarkupV116()}</section>
  <section class="gct-section" data-gct-view="volunteer" hidden>${volunteerMarkupV117()}</section>
  </section>`;}
 
