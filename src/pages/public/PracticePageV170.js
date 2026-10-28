@@ -1,9 +1,10 @@
 import {PRACTICE_STAGES,fillPracticePhrase,scorePracticePhrase} from '../../lib/practiceDataV169.js';
-import {getPracticeItemsV173 as getPracticeItems,getPracticeTotalsV173 as getPracticeTotals,PRACTICE_SCENES_V173} from '../../lib/practiceCurriculumV173.js';
+import {getPracticeItemsV174 as getPracticeItems,getPracticeTotalsV174 as getPracticeTotals,PRACTICE_SCENES_V174} from '../../lib/practiceCurriculumV174.js';
 import {getPracticeItemsV171} from '../../lib/practiceCurriculumV171.js';
 import '../../styles/practiceStudioV170.css';
 import '../../styles/practiceStudioV171.css';
 import '../../styles/practiceExplorerV173.css';
+import '../../styles/practiceSituationsV174.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
@@ -28,7 +29,7 @@ export function PracticePageV170(){return `
   <div class="gcc170-overview-title"><span>🏆 MY PRACTICE OVERVIEW</span><strong id="gcc170-overview-role">STUDENT</strong></div>
   <div class="gcc170-stat"><strong id="gcc170-progress">0%</strong><small>Progress</small></div>
   <div class="gcc170-stat"><strong id="gcc170-average">—</strong><small>Average Accuracy</small></div>
-  <div class="gcc170-stat"><strong id="gcc170-completed">0 / 24</strong><small>Phrases practiced</small></div>
+  <div class="gcc170-stat"><strong id="gcc170-completed">0 / 80</strong><small>Phrases practiced</small></div>
   <div class="gcc170-overview-bar"><div id="gcc170-progress-bar"></div></div>
  </section>
  <section class="gcc170-controls">
@@ -43,6 +44,7 @@ export function PracticePageV170(){return `
    <section id="gcc173-preview" class="gcc173-preview" aria-label="Stage phrase preview" hidden>
     <header class="gcc173-preview-header"><span class="gcc173-preview-badge">YOUR PRACTICE PHRASES</span><button id="gcc173-preview-close" type="button" aria-label="Close preview">✕ Close</button></header>
     <div class="gcc173-preview-intro"><span id="gcc173-preview-icon" aria-hidden="true"></span><div><h2 id="gcc173-preview-title"></h2><p id="gcc173-preview-ja" lang="ja"></p><p id="gcc173-preview-goal"></p><small id="gcc173-preview-goal-ja" lang="ja"></small></div></div>
+    <div class="gcc174-mission"><span>🎯 REAL-LIFE MISSION / 実践ミッション</span><strong id="gcc174-mission-en"></strong><small id="gcc174-mission-ja" lang="ja"></small></div>
     <div id="gcc173-phrase-list" class="gcc173-phrase-list"></div>
     <p class="gcc173-preview-hint">Select any phrase to open the speaking practice. / 練習したい表現を選んでください。</p>
    </section>
@@ -57,6 +59,7 @@ export function PracticePageV170(){return `
   <div class="gcc170-dialog-scroll">
    <div class="gcc170-scene"><div class="gcc170-scene-icon" id="gcc170-scene-icon">🎧</div><div><span id="gcc170-scene-level" class="gcc170-scene-level">STANDARD</span><h2 id="gcc170-scene-title"></h2><p id="gcc170-scene-hint"></p></div></div>
    <div class="gcc170-phrase-nav"><button type="button" id="gcc170-prev">← Previous</button><span id="gcc170-counter">1 / 3</span><button type="button" id="gcc170-next">Next →</button></div>
+   <div class="gcc174-dialog-cue" id="gcc174-dialog-cue" hidden><span>📍 SITUATION / 場面</span><strong id="gcc174-dialog-cue-en"></strong><small id="gcc174-dialog-cue-ja" lang="ja"></small></div>
    <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span>MODEL PHRASE</span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
    <div class="gcc170-mic-actions"><button id="gcc170-start" type="button">🎙️ Start Speaking</button><button id="gcc170-end" type="button" disabled>■ End & Score</button></div>
    <p id="gcc170-status" class="gcc170-status" role="status"></p>
@@ -94,7 +97,7 @@ export function bindPracticePageV170(){
    const done=getPracticeItems(role,s.id,level).filter((_,n)=>scoreFor(role,level,s.id,n)).length;
    const b=el('button','gcc170-stage'+(previewOpen&&stageIndex===i?' gcc173-selected':''));
    b.type='button';b.setAttribute('aria-pressed',String(previewOpen&&stageIndex===i));b.append(el('span','gcc170-stage-icon',s.icon));
-   const text=el('span','gcc170-stage-text');text.append(el('strong','',String(i+1).padStart(2,'0')+' · '+s.title),el('small','',s.scene),el('em','gcc173-stage-ja',PRACTICE_SCENES_V173[role][s.id].ja));b.append(text);
+   const text=el('span','gcc170-stage-text');text.append(el('strong','',String(i+1).padStart(2,'0')+' · '+s.title),el('small','',s.scene),el('em','gcc173-stage-ja',PRACTICE_SCENES_V174[role][s.id].ja));b.append(text);
    const right=el('span','gcc170-stage-right');right.append(el('strong','',done+'/'+getPracticeItems(role,s.id,level).length),el('small','',done===getPracticeItems(role,s.id,level).length?'✓ Completed':'See phrases →'));b.append(right);
    b.addEventListener('click',()=>selectStage(i));list.append(b);
   });
@@ -114,6 +117,10 @@ export function bindPracticePageV170(){
   $('scene-level').textContent=levelName[level].toUpperCase();
   $('counter').textContent=(itemIndex+1)+' / '+arr.length;
   $('prev').disabled=itemIndex===0;$('next').textContent=itemIndex===arr.length-1?'Next stage →':'Next phrase →';
+  const cue=document.getElementById('gcc174-dialog-cue');
+  cue.hidden=!(item.cue||item.context);
+  document.getElementById('gcc174-dialog-cue-en').textContent=item.cue||item.context||'';
+  document.getElementById('gcc174-dialog-cue-ja').textContent=item.cueJa||item.contextJa||'';
   $('prompt').textContent=fillPracticePhrase(item.text,state.profile);
   $('japanese').textContent=fillPracticePhrase(item.ja,state.profile);
   $('transcript').textContent=saved?.transcript||'Your words will appear here…';
@@ -131,12 +138,15 @@ export function bindPracticePageV170(){
   document.getElementById('gcc173-preview-ja').textContent=scene.ja;
   document.getElementById('gcc173-preview-goal').textContent=scene.goal;
   document.getElementById('gcc173-preview-goal-ja').textContent=scene.goalJa;
+  document.getElementById('gcc174-mission-en').textContent=scene.scenario+' — '+scene.mission;
+  document.getElementById('gcc174-mission-ja').textContent=scene.scenarioJa+'：'+scene.missionJa;
   const list=document.getElementById('gcc173-phrase-list');list.replaceChildren();
   items().forEach((item,i)=>{
     const score=scoreFor(role,level,s.id,i);
     const button=el('button','gcc173-phrase-row');button.type='button';
     const number=el('span','gcc173-phrase-number',String(i+1).padStart(2,'0'));
     const body=el('span','gcc173-phrase-body');
+    if(item.cue)body.append(el('span','gcc174-cue',item.cue),el('span','gcc174-cue-ja',item.cueJa||''));
     body.append(el('strong','',fillPracticePhrase(item.text,state.profile)),el('small','',fillPracticePhrase(item.ja,state.profile)));
     const result=el('span','gcc173-phrase-result',score?score.best+'%':'Practice ↗');
     if(score?.best>=80)result.classList.add('gcc173-phrase-passed');
