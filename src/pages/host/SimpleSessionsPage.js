@@ -1,3 +1,4 @@
+import '../../styles/sessionDialogV167.css';
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
 import '../../styles/simpleSessionsV8.css';
 import '../../styles/hostBentoV130.css';
@@ -63,6 +64,7 @@ export function SimpleSessionsPage(){return `
     </form>
   </div>
   <div class="gcc-v166-host-wrap" id="gcc-v166-host-calendar"></div>
+  <div id="gcc-v167-workspace" class="gcc-v167-workspace" hidden>
   <section class="gcc-v8-current"><label>YOUR SESSION <select id="gcc-v8-host-select"><option value="">Loading…</option></select></label><div id="gcc-v8-current-title"></div></section>
   <section class="gcc-v8-focus" id="gcc-v8-focus">
     <div class="gcc-v8-focus-head"><span id="gcc-v8-stage-counter" class="gcc-v8-small">STEP 1 OF 4</span><div id="gcc-v8-stage-progress" class="gcc-v8-progress"></div></div>
@@ -71,6 +73,7 @@ export function SimpleSessionsPage(){return `
     <div id="gcc-v8-host-panel"></div>
     <footer class="gcc-v8-footer"><button id="gcc-v8-host-back" type="button" class="gcc-v8-secondary" hidden>← Back</button><button id="gcc-v8-host-next" type="button" class="gcc-v8-primary">Next: Registrations →</button></footer>
   </section>
+  </div>
   <p id="gcc-v8-host-message" class="gcc-v8-error" role="status" aria-live="polite"></p>
   <div id="gcc-v8-edit-wrap" class="gcc-v8-modal-cover" hidden>
     <div class="gcc-v8-modal" role="dialog" aria-modal="true" aria-labelledby="gcc-v8-edit-heading">
@@ -97,6 +100,7 @@ export function bindSimpleSessionsPage(){
  const root=document.querySelector('.gcc-v8-host');if(!root)return;
  let events=[],settings=[],signups=[],edit=null;
  let calendarV166=null;
+ let dialogV167=null;
  let shareToken='',shareEvent='';
  let deletingSessionV105=null;
  const current=()=>events.find(x=>x.id===activeEventId);
@@ -105,20 +109,59 @@ export function bindSimpleSessionsPage(){
  const notify=(text,bad=false)=>{$('gcc-v8-host-message').textContent=text;$('gcc-v8-host-message').classList.toggle('bad',bad);};
  const btn=(text,cls,fn)=>{const b=el('button',cls,text);b.type='button';b.addEventListener('click',fn);return b;};
  const link=()=>`${location.origin}${location.pathname}#/session-register`;
- function openCalendarSessionV166(e){
-   activeEventId=e.id;shareToken='';shareEvent='';activeStage=0;paint();notify('');
-   const selected=document.querySelector('#gcc-v166-host-detail');
-   if(selected){selected.replaceChildren();
-     selected.append(el('strong','',e.title),el('span','',e.status==='draft'?'Draft · not visible to teachers':'Published · visible in Find a Session'));
-     const actions=[['✉ Invite teachers',0],['⚙ Session settings',0],['👥 Registrations',1],['▦ Breakout rooms',2],['↗ Share room chart',3]];
-     for(const [label,stage] of actions){const b=btn(label,stage===0?'gcc-v166-edit':'',()=>{activeStage=stage;paint();$('gcc-v8-focus').scrollIntoView({behavior:'smooth',block:'start'});});selected.append(b);}
-   }
+ function sessionOverviewV167(e){
+   const entries=signups.filter(s=>s.event_id===e.id);
+   const approved=entries.filter(s=>s.status==='approved');
+   const pending=entries.filter(s=>s.status==='pending');
+   const students=approved.reduce((sum,s)=>sum+(s.students||[]).length,0);
+   const countries=[...new Map(approved.map(s=>[s.country_code||s.country_name,s.country_name||s.country_code]).filter(([k])=>k)).values()];
+   return {students,schools:approved.length,pending:pending.length,countries};
  }
+ function openWorkspaceV167(e,stage=0){
+   activeEventId=e.id;activeStage=stage;shareToken='';shareEvent='';paint();notify('');
+   if(!dialogV167){
+     dialogV167=el('dialog','gcc-v167-dialog');dialogV167.id='gcc-v167-dialog';
+     const top=el('div','gcc-v167-dialog-top');
+     const heading=el('h2','gcc-v167-dialog-heading','Session workspace');
+     const close=btn('✕ Close','gcc-v167-close',()=>dialogV167.close());close.setAttribute('aria-label','Close session workspace');
+     top.append(heading,close);
+     const overview=el('div','gcc-v167-overview');overview.id='gcc-v167-overview';
+     const content=el('div','gcc-v167-dialog-content');
+     dialogV167.append(top,overview,content);
+     root.append(dialogV167);
+     const workspace=$('gcc-v167-workspace');workspace.hidden=false;content.append(workspace);
+     dialogV167.addEventListener('close',()=>{
+       $('gcc-v166-host-calendar')?.querySelector('.gcc-v166-calendar')?.focus?.();
+     });
+   }
+   const overview=$('gcc-v167-overview');overview.replaceChildren();
+   const info=sessionOverviewV167(e);
+   const schedule=sessionScheduleV130(e);
+   const top=el('div','gcc-v167-overview-head');
+   const title=el('h3','',e.title);
+   const badge=el('span','gcc-v167-status',e.status==='published'?'● Published':'● Draft');
+   top.append(title,badge);
+   const date=el('p','gcc-v167-schedule','🕒 '+schedule.date+' · '+schedule.start+'–'+schedule.end+' '+schedule.zone);
+   const stats=el('div','gcc-v167-stats');
+   for(const [label,value] of [['Students',info.students],['Schools',info.schools],['Countries',info.countries.length],['Pending',info.pending]]){
+     const card=el('div','gcc-v167-stat');card.append(el('strong','',value),el('span','',label));stats.append(card);
+   }
+   const nations=el('p','gcc-v167-countries',info.countries.length?'🌍 '+info.countries.join(' · '):'🌍 No approved countries yet');
+   const tabs=el('nav','gcc-v167-tabs');tabs.setAttribute('aria-label','Session steps');
+   for(const [label,n] of [['✉ Invite',0],['👥 Registrations',1],['▦ Rooms',2],['↗ Share',3]]){
+     const button=btn(label,n===stage?'active':'',()=>{activeStage=n;paint();openWorkspaceV167(current(),n);});
+     tabs.append(button);
+   }
+   overview.append(top,date,stats,nations,tabs);
+   if(!dialogV167.open)dialogV167.showModal();
+ }
+ function openCalendarSessionV166(e){openWorkspaceV167(e,0);}
  function updateCalendarV166(){
    if(!calendarV166){
      const mount=$('gcc-v166-host-calendar');
-     calendarV166=mountSessionCalendarV166(mount,{events,heading:'Your sessions · Calendar',onSelect:openCalendarSessionV166});
-     const detail=el('div','gcc-v166-host-detail');detail.id='gcc-v166-host-detail';detail.setAttribute('aria-live','polite');mount.append(detail);
+     calendarV166=mountSessionCalendarV166(mount,{events,heading:'Your sessions · Calendar',
+       cardSummary:e=>{const s=sessionOverviewV167(e);return s.students+' students · '+s.countries.length+' countries';},
+       onSelect:openCalendarSessionV166});
    }else calendarV166.setEvents(events);
  }
  function currentLabel(){const p=$('gcc-v8-host-select');p.replaceChildren();$('gcc-v8-current-title').replaceChildren();if(!events.length){const o=el('option','','No sessions yet');o.value='';p.append(o);p.disabled=true;return;}
@@ -384,7 +427,7 @@ export function bindSimpleSessionsPage(){
  }
  async function reload(resetStage){try{const [e,s,c]=await Promise.all([getEvents(),listSessionSignups(),getSessionSettings()]);events=e||[];settings=c||[];signups=s||[];
    if(!events.some(x=>x.id===activeEventId))activeEventId=events.find(x=>x.status==='published')?.id||events[0]?.id||'';
-   if(resetStage)activeStage=0;updateCalendarV166();paint();
+   if(resetStage)activeStage=0;updateCalendarV166();paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);
  }catch(err){notify('Could not load sessions: '+err.message,true);}}
  async function review(s,yes){if(!confirm(`${yes?'Approve':'Decline'} the registration from ${s.school_name}?`))return;
    try{
@@ -457,7 +500,7 @@ export function bindSimpleSessionsPage(){
    catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}
  });
  $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();const chosen=current();if(chosen)openCalendarSessionV166(chosen);notify('');});
- $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();notify('');});
- $('gcc-v8-host-next').addEventListener('click',async()=>{const next=Math.min(3,activeStage+1);activeStage=next;if(next===2){$('gcc-v8-host-next').disabled=true;try{await reload(false);}finally{$('gcc-v8-host-next').disabled=false;}}else paint();notify('');});
+ $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);notify('');});
+ $('gcc-v8-host-next').addEventListener('click',async()=>{const next=Math.min(3,activeStage+1);activeStage=next;if(dialogV167?.open&&current())openWorkspaceV167(current(),next);if(next===2){$('gcc-v8-host-next').disabled=true;try{await reload(false);}finally{$('gcc-v8-host-next').disabled=false;}}else paint();notify('');});
  reload(true);
 }
