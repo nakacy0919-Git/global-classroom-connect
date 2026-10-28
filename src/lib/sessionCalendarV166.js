@@ -10,7 +10,7 @@ export function sessionDayV166(iso,zone='Asia/Tokyo'){
  }catch{return '';}
 }
 export function sessionMonthV166(iso,zone='Asia/Tokyo'){return sessionDayV166(iso,zone).slice(0,7);}
-export function mountSessionCalendarV166(root,{events=[],zone='Asia/Tokyo',onSelect,initialMonth,heading='Session calendar'}={}){
+export function mountSessionCalendarV166(root,{events=[],zone='Asia/Tokyo',onSelect,initialMonth,heading='Session calendar',cardSummary}={}){
  let month=/^\d{4}-\d{2}$/.test(initialMonth||'')?initialMonth:
   sessionMonthV166(events.find(e=>e.starts_at)?.starts_at,zone)||sessionDayV166(new Date().toISOString(),zone).slice(0,7);
  let selected='';
@@ -45,6 +45,7 @@ export function mountSessionCalendarV166(root,{events=[],zone='Asia/Tokyo',onSel
    for(const event of items.slice(0,4)){
     const card=node('button','gcc-v166-card gcc-v166-'+String(event.status||'published').replace(/[^a-z]/gi,''),
       event.title||'Untitled session');
+    if(cardSummary){const info=cardSummary(event);if(info)card.append(node('small','gcc-v167-card-count',info));}
     card.type='button';card.title=(event.title||'Session')+' · '+event.status;
     card.setAttribute('aria-label',event.title+' · '+key+' · '+event.status);
     if(selected===event.id)card.classList.add('gcc-v166-selected');
