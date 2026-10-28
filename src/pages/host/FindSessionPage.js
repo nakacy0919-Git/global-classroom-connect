@@ -1,3 +1,5 @@
+import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
+import {listPublicSessions} from '../../services/simpleSessionService.js';
 // GCC_SESSION_SPLIT_V3: host-only browsing; teacher self-service requires account security.
 import '../../styles/findSession.css';
 import '../../styles/sessionWorkspacePolish.css'; // GCC_WORKFLOW_POLISH_V41
@@ -30,6 +32,7 @@ export function FindSessionPage() {
         <span>Find international classroom exchanges that fit your available time.</span></div>
       <a href="#/register-session" class="gcf-side-link">＋ Register a Session <span aria-hidden="true">↗</span></a>
     </header>
+    <div class="gcc-v166-find" id="gcc-v166-public-calendar"><p class="gcf-intro">Loading published session calendar…</p></div>
     <div class="gcf-main">
       <form class="gcf-filter-panel" id="gcf-form" novalidate>
         <div class="gcf-subhead"><span class="gcf-step">01 · YOUR AVAILABILITY</span><h3>When can you join?</h3></div>
@@ -108,6 +111,25 @@ export function bindFindSessionPage() {
   more.append(moreTitle,...advancedFields);
   optionalHeading.replaceWith(more);
 
+  async function loadPublishedCalendarV166(){
+    const mount=root.querySelector('#gcc-v166-public-calendar');
+    try{
+      const events=await listPublicSessions();
+      mount.replaceChildren();
+      mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
+        initialMonth:new Date().toISOString().slice(0,7),onSelect:e=>{
+          let detail=mount.querySelector('#gcc-v166-find-detail');
+          if(!detail){detail=el('section','gcc-v166-find-detail');detail.id='gcc-v166-find-detail';mount.append(detail);}
+          detail.replaceChildren(el('h4','',e.title),
+            el('p','',new Intl.DateTimeFormat('en',{dateStyle:'full',timeStyle:'short',timeZone:e.timezone||'Asia/Tokyo'}).format(new Date(e.starts_at))+' · '+(e.timezone||'Asia/Tokyo')),
+            el('p','','Registration requests are reviewed by the host. Applying does not guarantee approval.'));
+          const link=el('a','','Register for this session →');
+          link.href='#/session-register?session='+encodeURIComponent(e.id);detail.append(link);
+        }});
+      if(!events.length)mount.append(el('p','gcf-intro','No upcoming published sessions yet. Check back soon.'));
+    }catch(error){mount.replaceChildren(el('p','gcf-error','Published sessions could not be loaded: '+error.message));}
+  }
+  loadPublishedCalendarV166();
   const $=id=>root.querySelector('#'+id);
   let state={teachers:[],offers:[],shortlists:[]};let master=[];let selectedWindow={from:null,to:null};
   let joinRequests=[];let activeOffer=null; // GCC_JOIN_V4
