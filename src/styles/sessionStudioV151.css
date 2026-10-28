@@ -24,6 +24,7 @@
 
 /* Find: choose one path first; advanced filters are collapsed and shared. */
 .gct-portal .gcs151-find{display:grid;gap:16px}
+.gct-portal .gcs151-find[hidden]{display:none!important}
 .gcs151-find-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden;isolation:isolate;position:relative;border-radius:23px;padding:clamp(20px,3vw,35px);background:linear-gradient(109deg,#ebf9fc,#f9fefa 65%,#def5f2);border:1px solid #d0e8ed;min-height:159px}
 .gcs151-find-hero::before{position:absolute;content:'';width:270px;height:270px;right:-87px;top:-140px;z-index:-1;border-radius:50%;background:radial-gradient(circle,#94dedb70,transparent 70%)}
 .gcs151-kicker{font-size:.7rem;letter-spacing:.13em;font-weight:850;color:#1887a5}
