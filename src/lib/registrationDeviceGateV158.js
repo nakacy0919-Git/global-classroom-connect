@@ -1,8 +1,8 @@
 import {playSuccessChime} from './successCelebrationV142.js';
 import '../styles/registrationDeviceGateV158.css';
 
-const DESKTOP='/assets/device-confirmation/desktop.webp';
-const MOBILE='/assets/device-confirmation/mobile.webp';
+const DESKTOP='/assets/device-confirmation/desktop.svg';
+const MOBILE='/assets/device-confirmation/mobile.svg';
 
 /** Every visit to either public registration route requires a new confirmation.
  * Do not persist a skip flag; a teacher may enroll a different class next time.
@@ -18,8 +18,8 @@ export function deviceRequirementMarkupV158(){
      </header>
      <div class="gcc158-image-frame">
        <picture>
-         <source media="(max-width: 800px) and (orientation: portrait)" srcset="${MOBILE}" type="image/webp">
-         <img id="gcc158-image" src="${DESKTOP}" width="1672" height="941"
+         <source media="(max-width: 800px) and (orientation: portrait)" srcset="${MOBILE}" type="image/svg+xml">
+         <img id="gcc158-image" src="${DESKTOP}" width="1200" height="675"
            alt="Correct: each of three students uses a separate device. Not correct: three students share one laptop. Every student must connect individually for breakout room assignments."
            decoding="async" fetchpriority="high">
        </picture>
