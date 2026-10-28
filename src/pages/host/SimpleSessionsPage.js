@@ -122,7 +122,29 @@ export function bindSimpleSessionsPage(){
  }
  function formRow(label,value){const row=el('div','gcc-v8-information');row.append(el('span','',label),el('strong','',value));return row;}
  async function updateSettings(p){await saveSessionSettings({eventId:activeEventId,...p});await reload(false);notify('Session settings saved.');}
-  function scheduleEditorV112(panel,e){
+  function sessionTitleEditorV164(panel,e){
+   const box=el('section','gcc-v164-title-editor');
+   const heading=el('h3','','Session name');box.append(heading);
+   const form=el('form','gcc-v164-title-form');
+   const label=el('label','','Edit session name');
+   const input=el('input');input.type='text';input.name='title';input.required=true;input.maxLength=140;input.value=e.title||'';
+   input.autocomplete='off';label.append(input);
+   const save=el('button','gcc-v8-secondary','Save session name');save.type='submit';
+   const status=el('p','gcc-v164-title-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+   form.append(label,save,status);
+   form.addEventListener('submit',async event=>{
+     event.preventDefault();
+     const title=input.value.trim();
+     if(!title||title.length>140){status.textContent='Enter a session name (1–140 characters).';return;}
+     if(title===e.title){status.textContent='The session name is already up to date.';return;}
+     save.disabled=true;status.textContent='Saving session name…';
+     try{await updateEvent(e.id,{title});await reload(false);notify('Session name updated. Existing registration and room chart links are unchanged.');}
+     catch(error){status.textContent=error.message||'Could not update the session name.';notify(status.textContent,true);}
+     finally{save.disabled=false;}
+   });
+   box.append(form);panel.append(box);
+ }
+ function scheduleEditorV112(panel,e){
    const box=el('section','gcc-v112-schedule-editor');box.append(el('h3','','Session schedule · start and end'));
    const f=el('form');const fields=el('div','gcc-v112-schedule-fields');
    let local=null;try{local=timePartsV112(e.starts_at,e.timezone||'Asia/Tokyo');}catch{}
@@ -143,6 +165,7 @@ export function bindSimpleSessionsPage(){
    box.append(f);panel.append(box);
  }
  function stagePrepare(panel,e){
+    sessionTitleEditorV164(panel,e);
     scheduleEditorV112(panel,e);
    if(e.status==='draft'){
      panel.append(el('p','gcc-v8-info-box','This session is a draft. Publish it when the details are ready.'));
