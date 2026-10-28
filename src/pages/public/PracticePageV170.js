@@ -3,7 +3,18 @@ import {PRACTICE_LEVELS,getPracticeItems,getPracticeTotals} from '../../lib/prac
 import '../../styles/practiceStudioV170.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
-const read=()=>{try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return {profile:x.profile||{},scores:x.scores||{}};}catch{return {profile:{},scores:{}};}};
+const read=()=>{try{
+ const stored=localStorage.getItem(KEY);
+ if(stored){const x=JSON.parse(stored);return {profile:x.profile||{},scores:x.scores||{}};}
+ // Preserve existing V16.9 student/facilitator scores when moving to the new studio.
+ const previous=JSON.parse(localStorage.getItem('gcc-practice-v1-local')||'{}');
+ const scores={};
+ for(const role of ['student','facilitator'])for(const stage of PRACTICE_STAGES[role])for(let i=0;i<stage.lines.length;i++){
+  const old=previous.scores?.[role]?.[stage.id]?.[i];if(old&&typeof old.best==='number')
+   scores[role+'|standard|'+stage.id+'|'+i]={best:old.best,last:old.last??old.best,transcript:old.transcript||'',attempts:old.attempts||1};
+ }
+ return {profile:previous.profile||{},scores};
+}catch{return {profile:{},scores:{}};}};
 const write=s=>{try{localStorage.setItem(KEY,JSON.stringify(s));return true;}catch{return false;}};
 const icons={student:'🎓',facilitator:'🎙️'};
 const levelName={standard:'Standard',advanced:'Advanced',challenge:'Final Challenge'};
