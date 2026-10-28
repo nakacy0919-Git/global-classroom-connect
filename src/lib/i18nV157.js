@@ -378,6 +378,11 @@ Registration approved | 登録を承認しました
 Request sent! | 参加申請を送信しました！
 No email was sent. | メールは送信されません。
 All volunteer roles | すべてのボランティアの役割
+Before You Register | 参加登録の前に
+One student = one device. Please check this important requirement. | 生徒1人につき端末1台が必要です。重要なルールを確認してください。
+Every registered student needs their own device to join the breakout room. Sharing a device will cause room assignment problems. | 登録する生徒は全員、自分専用の端末でブレイクアウトルームに参加してください。端末を共有すると部屋割りに問題が起きます。
+I Understand — Continue to Registration | 理解しました・登録へ進む
+OK! Confirmed | OK！確認しました
 ← Global Classroom Connect | ← GCCホームに戻る
 GLOBAL CLASSROOM CONNECT · TEACHER REGISTRATION | GCC · 先生の新規登録
 Join Global Classroom | Global Classroomに参加

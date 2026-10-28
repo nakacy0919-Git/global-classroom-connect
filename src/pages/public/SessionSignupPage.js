@@ -2,11 +2,14 @@ import '../../styles/sessionSignupV6.css';
 import {parseRoster,parseFacilitators,isIdentityComplete} from '../../lib/sessionRoster.js';
 import {isEnglishName} from '../../lib/englishNames.js';
 import {publicSessions,submitSessionSignup} from '../../services/sessionRosterService.js';
+import {deviceRequirementMarkupV158,bindDeviceRequirementV158} from '../../lib/registrationDeviceGateV158.js';
 const $=id=>document.getElementById(id);
 const el=(tag,cls='',text='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=text;return n;};
 const time=(s,tz)=>{try{return new Intl.DateTimeFormat('en',{timeZone:tz||'UTC',dateStyle:'medium',timeStyle:'short'}).format(new Date(s));}catch{return s||'Date not set';}};
 export function SessionSignupPage(){return `
 <section class="gcc-v6 gcc-v6-public" aria-label="Join a Global Classroom session">
+  ${deviceRequirementMarkupV158()}
+  <div id="gcc158-register-form" hidden>
   <div class="gcc-v6-header"><span class="gcc-v6-logo">🌎</span><div><span class="gcc-v6-kicker">GLOBAL CLASSROOM CONNECT</span><h2>Join a Session</h2></div></div>
   <div class="gcc-v6-progress" id="gcc-v6-progress" aria-label="Registration progress"></div>
   <div class="gcc-v6-intro"><strong id="gcc-v6-step-title">1. Choose your session</strong><span id="gcc-v6-step-subtitle">Select the exchange your class wants to join.</span></div>
@@ -37,9 +40,11 @@ export function SessionSignupPage(){return `
   </div>
   <p class="gcc-v6-message" id="gcc-v6-message" role="status" aria-live="polite"></p>
   <div class="gcc-v6-actions"><button type="button" class="gcc-v6-back" id="gcc-v6-back" hidden>← Back</button><button type="button" class="gcc-v6-primary" id="gcc-v6-next">Continue →</button><button type="button" class="gcc-v6-primary" id="gcc-v6-submit" hidden>Submit registration ✓</button></div>
+  </div>
 </section>`;}
 export function bindSessionSignupPage(){
  const root=document.querySelector('.gcc-v6-public');if(!root)return;
+ bindDeviceRequirementV158(root);
  let step=0,submitting=false;let allSessions=[];let master=new Map();
  const steps=['Choose your session','School & country','Student list','Facilitators & review'];
  const msg=(text,error=false)=>{$('gcc-v6-message').textContent=text;$('gcc-v6-message').classList.toggle('error',error);};
