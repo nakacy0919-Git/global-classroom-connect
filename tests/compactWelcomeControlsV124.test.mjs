@@ -4,8 +4,8 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const welcome=read('src/pages/public/WelcomeV117.js');
 const css=read('src/styles/welcomeControlsV124.css');
-test('welcome retains three original illustrated actions and their routes',()=>{
- assert.equal((welcome.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,3);
+test('welcome retains four actions including three original illustrated entries and their routes',()=>{
+ assert.equal((welcome.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,4);
  for(const page of ['create','find','volunteer'])assert.match(welcome,new RegExp('href="#/teacher-portal\\?view='+page+'"'));
  assert.match(welcome,/gcc119-logo-image/);
 });
