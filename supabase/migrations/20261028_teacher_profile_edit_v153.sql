@@ -28,15 +28,6 @@ CREATE OR REPLACE FUNCTION public.gcc_v153_clear_my_photo()
 RETURNS text LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE tid uuid:=public.gcc_current_teacher_id(); old_path text;
 BEGIN
- UPDATE public.teachers SET photo_path=null,updated_at=now() WHERE id=tid RETURNING photo_path INTO old_path;
- -- The old path is returned using a prior SELECT instead; the profile is now hidden.
- RETURN null;
-END $$;
--- Replace with a function that captures the OLD value before clearing.
-CREATE OR REPLACE FUNCTION public.gcc_v153_clear_my_photo()
-RETURNS text LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
-DECLARE tid uuid:=public.gcc_current_teacher_id(); old_path text;
-BEGIN
  SELECT photo_path INTO old_path FROM public.teachers WHERE id=tid FOR UPDATE;
  UPDATE public.teachers SET photo_path=null,updated_at=now() WHERE id=tid;
  RETURN old_path;
@@ -165,3 +156,17 @@ GRANT EXECUTE ON FUNCTION public.gcc_v153_request_school_edit(jsonb) TO authenti
 GRANT EXECUTE ON FUNCTION public.gcc_v153_my_school_edit() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.gcc_v153_host_school_edits() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.gcc_v153_review_school_edit(uuid,boolean) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.gcc_v153_my_school_details()
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
+DECLARE tid uuid:=public.gcc_current_teacher_id(); v jsonb;
+BEGIN
+ SELECT jsonb_build_object('name',s.name,'city',s.city,'region',s.region,
+ 'country_name',s.country_name,'country_code',s.country_code,
+ 'school_type',s.school_type,'school_level',s.school_level,
+ 'timezone',s.timezone,'website_url',s.website_url)
+ INTO v FROM public.teachers t JOIN public.schools s ON s.id=t.school_id WHERE t.id=tid;
+ RETURN v;
+END $$;
+REVOKE ALL ON FUNCTION public.gcc_v153_my_school_details() FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.gcc_v153_my_school_details() TO authenticated;
