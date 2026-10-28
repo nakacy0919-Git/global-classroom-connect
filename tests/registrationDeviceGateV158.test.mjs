@@ -20,12 +20,11 @@ test('every session registration opens with device requirement before any form s
  assert.match(gate,/form\.hidden=false/);
 });
 test('landscape and portrait infographics show the device rule in clear English',()=>{
- const html=deviceRequirementMarkupV158();
- assert.match(html,/id="gcc158-device-gate"/);
- assert.match(html,/One student = one device/);
- assert.match(html,/I Understand — Continue to Registration/);
- assert.match(html,/type="image\/svg\+xml"/);
- assert.match(html,/max-width: 800px/);
+ assert.match(gate,/id="gcc158-device-gate"/);
+ assert.match(gate,/One student = one device/);
+ assert.match(gate,/I Understand — Continue to Registration/);
+ assert.match(gate,/type="image\/svg\+xml"/);
+ assert.match(gate,/max-width: 800px/);
  for(const filename of ['desktop','mobile']){
   const svg=read('public/assets/device-confirmation/'+filename+'.svg');
   assert.match(svg,/<svg /);
