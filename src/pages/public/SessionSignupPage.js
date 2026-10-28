@@ -1,3 +1,4 @@
+import {bindRegistrationPairsV165} from '../../lib/registrationPairsV165.js';
 import '../../styles/sessionSignupV6.css';
 import {parseRoster,parseFacilitators,isIdentityComplete} from '../../lib/sessionRoster.js';
 import {isEnglishName} from '../../lib/englishNames.js';
@@ -36,7 +37,7 @@ export function SessionSignupPage(){return `
     <section data-v6-step="3" class="gcc-v6-stage" hidden>
       <label class="gcc-v6-label">Facilitators (optional) <textarea id="gcc-v6-facilitators" rows="5" placeholder="One facilitator's name per line"></textarea></label>
       <p class="gcc-v6-helper">Include teachers who can help facilitate breakout rooms. The host will assign individual rooms.</p>
-      <div class="gcc-v6-review" id="gcc-v6-review"></div>
+      <section class="gcc-v165-pairs" data-v165-pairs><h3>Would you like to pair students in breakout rooms?</h3><p class="gcc-v165-note">Optional: request pairs and a preferred room. The host confirms assignments after approval.</p><div class="gcc-v165-choice"><label><input type="radio" name="gcc-v165-pair-choice" data-v165-no checked> No, finish registration</label><label><input type="radio" name="gcc-v165-pair-choice" data-v165-yes> Yes, set up pairs</label></div><div data-v165-editor hidden><div data-v165-list></div><button type="button" data-v165-add>+ Add a student pair</button><p class="gcc-v165-note" data-v165-note></p></div></section><div class="gcc-v6-review" id="gcc-v6-review"></div>
       <p class="gcc-v6-helper">Student lists are private to the host. The host checks and approves your submission before it enters room assignments.</p>
     </section>
   </div>
@@ -49,6 +50,7 @@ export function bindSessionSignupPage(){
  bindDeviceRequirementV158(root);
  const timeGate=bindTimeConfirmationV160(root,{getSession:()=>allSessions.find(s=>s.id===$('gcc-v6-event').value),onConfirmed:()=>showStep(1),onBack:()=>showStep(0)});
  let step=0,submitting=false;let allSessions=[];let master=new Map();
+ const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>students().records,getSession:()=>allSessions.find(s=>s.id===$('gcc-v6-event').value)});
  const steps=['Choose your session','School & country','Student list','Facilitators & review'];
  const msg=(text,error=false)=>{$('gcc-v6-message').textContent=text;$('gcc-v6-message').classList.toggle('error',error);};
  const identity=()=>({country:$('gcc-v6-country').value,school:$('gcc-v6-school').value.trim(),teacher:$('gcc-v6-teacher').value.trim()});
@@ -61,10 +63,10 @@ export function bindSessionSignupPage(){
  $('gcc-v6-step-title').textContent=`${n+1}. ${steps[n]}`;
  $('gcc-v6-step-subtitle').textContent=n===1?'Country and school are required for fair room mixing.':n===2?'Paste names directly from your spreadsheet.':n===3?'Check everything, then submit to the host.':'Choose one of the published sessions.';
  $('gcc-v6-progress').replaceChildren();for(let i=0;i<4;i++){const seg=el('span');seg.classList.toggle('active',i<=n);$('gcc-v6-progress').append(seg);}
- $('gcc-v6-back').hidden=n===0;$('gcc-v6-next').hidden=n===3;$('gcc-v6-submit').hidden=n!==3;if(n===2)renderRoster();if(n===3)renderReview();}
+ $('gcc-v6-back').hidden=n===0;$('gcc-v6-next').hidden=n===3;$('gcc-v6-submit').hidden=n!==3;if(n===2)renderRoster();if(n===3){pairPicker.refresh();renderReview();}}
  function renderReview(){const event=allSessions.find(s=>s.id===$('gcc-v6-event').value);
  const country=master.get($('gcc-v6-country').value);const {records}=students();const facilitators=parseFacilitators($('gcc-v6-facilitators').value);
- const values=[['Session',event?.title||'—'],['Country',country?.name||'—'],['School',identity().school],['Teacher',identity().teacher],['Students',String(records.length)],['Facilitators',String(facilitators.length)]];
+ const values=[['Session',event?.title||'—'],['Country',country?.name||'—'],['School',identity().school],['Teacher',identity().teacher],['Students',String(records.length)],['Facilitators',String(facilitators.length)],['Requested pairs',pairPicker.summary()]];
  const box=$('gcc-v6-review');box.replaceChildren();for(const [key,value] of values){const row=el('div');row.append(el('span','',key),el('strong','',value));box.append(row);}}
  function validate(n){if(n===0){if(!/^[a-f0-9]{32}$/.test($('gcc-v6-code').value.trim().toLowerCase()))return 'Enter the 32-character invitation code from your host.';
  if(!allSessions.some(s=>s.id===$('gcc-v6-event').value))return 'Choose a session.';}
@@ -80,9 +82,9 @@ export function bindSessionSignupPage(){
  $('gcc-v6-submit').addEventListener('click',async()=>{if(submitting)return;for(let i=0;i<4;i++){const e=validate(i);if(e){showStep(i);msg(e,true);return;}}
  submitting=true;$('gcc-v6-submit').disabled=true;msg('Submitting your registration…');
  try{const id=await submitSessionSignup({code:$('gcc-v6-code').value.trim().toLowerCase(),eventId:$('gcc-v6-event').value,
- ...identity(),countryName:master.get(identity().country)?.name||'',students:students().records,facilitators:parseFacilitators($('gcc-v6-facilitators').value)});
+ ...identity(),countryName:master.get(identity().country)?.name||'',students:students().records,facilitators:parseFacilitators($('gcc-v6-facilitators').value),pairs:pairPicker.getPairs()});
  root.querySelector('.gcc-v6-form').hidden=true;root.querySelector('.gcc-v6-actions').hidden=true;root.querySelector('.gcc-v6-intro').hidden=true;root.querySelector('.gcc-v6-progress').hidden=true;
- msg(`✓ Registration received. Your host will review your ${students().records.length} students. Reference: ${String(id).slice(0,8)}. You may close this page.`);
+ msg(`✓ Registration received. Your host will review your ${students().records.length} students. Reference: ${String(id).slice(0,8)}. After approval, you can edit pairs and rooms in Teacher Mode using your 4-digit Teacher Code. You may close this page.`);
  }catch(e){msg(e.message||'Could not submit registration.',true);submitting=false;$('gcc-v6-submit').disabled=false;}});
  showStep(0);
  (async()=>{try{const [events,response]=await Promise.all([publicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
