@@ -4,8 +4,8 @@ import fs from 'node:fs';
 const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const page=read('src/pages/public/WelcomeV117.js');
 const css=read('src/styles/welcomeArtV118.css');
-test('gateway keeps exactly three clickable photo buttons and routes',()=>{
- assert.equal((page.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,3);
+test('gateway keeps three photo buttons plus Practice and routes',()=>{
+ assert.equal((page.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,4);
  for(const r of ['create','find','volunteer'])assert.match(page,new RegExp('href="#/teacher-portal\\?view='+r+'"'));
  assert.match(page,/aria-label="Host a Session/);
  assert.match(page,/aria-label="Find a Session/);
