@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {deviceRequirementMarkupV158} from '../src/lib/registrationDeviceGateV158.js';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const v6=read('src/pages/public/SessionSignupPage.js');
 const v8=read('src/pages/public/SharedRegistrationPage.js');
