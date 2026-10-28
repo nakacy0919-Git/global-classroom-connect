@@ -68,7 +68,7 @@
   font-weight:750;padding:9px 12px;cursor:pointer;
  }
  .gcc-mobile-drawer-close>span{font-size:1.12rem}
- body.gcc-mobile-menu-open{overflow:hidden;touch-action:none}
+ body.gcc-mobile-menu-open{overflow:hidden}
  .main-shell #page-content{min-width:0;width:100%;gap:12px}
  .main-shell #page-content>.gct-workspace{padding:13px;border-radius:18px;gap:12px}
  .main-shell #page-content .gct-panel{min-width:0}
