@@ -1,8 +1,8 @@
 import {playSuccessChime} from './successCelebrationV142.js';
 import '../styles/registrationDeviceGateV158.css';
 
-const DESKTOP='/assets/device-confirmation/desktop.svg';
-const MOBILE='/assets/device-confirmation/mobile.svg';
+const DESKTOP='/assets/device-confirmation/desktop.webp';
+const MOBILE='/assets/device-confirmation/mobile.webp';
 
 /** Every visit to either public registration route requires a new confirmation.
  * Do not persist a skip flag; a teacher may enroll a different class next time.
@@ -11,16 +11,13 @@ export function deviceRequirementMarkupV158(){
  return `<section class="gcc158-gate" id="gcc158-device-gate"
     aria-labelledby="gcc158-title" aria-describedby="gcc158-intro">
    <div class="gcc158-shell">
-     <header class="gcc158-header">
-       <div class="gcc158-brand">🌐 GLOBAL CLASSROOM CONNECT</div>
-       <h1 id="gcc158-title" tabindex="-1">Before You Register</h1>
-       <p id="gcc158-intro">One student = one device. Please check this important requirement.</p>
-     </header>
+     <h1 class="gcc158-sr-only" id="gcc158-title">Before You Register</h1>
+     <p class="gcc158-sr-only" id="gcc158-intro">Each student needs their own device. One student, one device. Please review the comparison before registering.</p>
      <div class="gcc158-image-frame">
        <picture>
-         <source media="(max-width: 800px) and (orientation: portrait)" srcset="${MOBILE}" type="image/svg+xml">
-         <img id="gcc158-image" src="${DESKTOP}" width="1200" height="675"
-           alt="Correct: each of three students uses a separate device. Not correct: three students share one laptop. Every student must connect individually for breakout room assignments."
+         <source media="(max-width: 600px) and (orientation: portrait)" srcset="${MOBILE}" type="image/webp">
+         <img id="gcc158-image" src="${DESKTOP}" width="1672" height="941"
+           alt="Before You Register: Each student needs their own device. Correct: three students each join on separate computers or tablets. Not correct: multiple students share one laptop. Shared devices cause breakout room assignment problems. Please confirm this before registration."
            decoding="async" fetchpriority="high">
        </picture>
        <div class="gcc158-complete" id="gcc158-complete" role="status" aria-live="polite" hidden>
@@ -28,11 +25,11 @@ export function deviceRequirementMarkupV158(){
        </div>
      </div>
      <div class="gcc158-bottom">
-       <p class="gcc158-reminder">Every registered student needs their own device to join the breakout room. Sharing a device will cause room assignment problems.</p>
-       <button id="gcc158-understand" type="button" class="gcc158-confirm">I Understand — Continue to Registration <span aria-hidden="true">✓</span></button>
+       <button id="gcc158-understand" type="button" class="gcc158-confirm">I Understand <span aria-hidden="true">✓</span></button>
      </div>
    </div>
  </section>`;
+
 }
 /** Registration form stays inaccessible until the teacher actually acknowledges. */
 export function bindDeviceRequirementV158(root){

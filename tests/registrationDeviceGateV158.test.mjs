@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,statSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const v6=read('src/pages/public/SessionSignupPage.js');
 const v8=read('src/pages/public/SharedRegistrationPage.js');
@@ -21,19 +21,21 @@ test('every session registration opens with device requirement before any form s
 });
 test('landscape and portrait infographics show the device rule in clear English',()=>{
  assert.match(gate,/id="gcc158-device-gate"/);
- assert.match(gate,/One student = one device/);
- assert.match(gate,/I Understand — Continue to Registration/);
- assert.match(gate,/type="image\/svg\+xml"/);
- assert.match(gate,/max-width: 800px/);
+ assert.match(gate,/Each student needs their own device/);
+ assert.match(gate,/I Understand <span aria-hidden="true">✓<\/span>/);
+ assert.match(gate,/type="image\/webp"/);
+ assert.match(gate,/max-width: 600px/);
+ assert.match(gate,/width="1672" height="941"/);
  for(const filename of ['desktop','mobile']){
-  const svg=read('public/assets/device-confirmation/'+filename+'.svg');
-  assert.match(svg,/<svg /);
-  assert.match(svg,/Before You/);
-  assert.match(svg,/Correct/);
-  assert.match(svg,/Not correct/);
-  assert.match(svg,/Each student/);
-  assert.match(svg,/device/);
+  const path=new URL('../public/assets/device-confirmation/'+filename+'.webp',import.meta.url);
+  const bytes=readFileSync(path);
+  assert.equal(bytes.subarray(0,4).toString('ascii'),'RIFF');
+  assert.equal(bytes.subarray(8,12).toString('ascii'),'WEBP');
+  assert.ok(statSync(path).size>100000,'Actual provided poster missing: '+filename);
+  assert.ok(statSync(path).size<400000,'Unexpectedly large asset: '+filename);
  }
+ assert.doesNotMatch(gate,/desktop\.svg|mobile\.svg/);
+ assert.doesNotMatch(gate,/gcc158-reminder/);
 });
 test('tap triggers real existing GCC chime and prominent confirmation pop then registration',()=>{
  assert.match(gate,/playSuccessChime\(\)/);
@@ -47,10 +49,10 @@ test('tap triggers real existing GCC chime and prominent confirmation pop then r
 test('confirmation is on-screen without scrolling on iPhone and Android',()=>{
  assert.match(css,/position:fixed;inset:0/);
  assert.match(css,/100dvh/);
- assert.match(css,/grid-template-rows:auto minmax\(0,1fr\) auto/);
+ assert.match(css,/grid-template-rows:minmax\(0,1fr\) auto/);
  assert.match(css,/object-fit:contain/);
- assert.match(css,/@media\(max-width:800px\) and \(orientation:portrait\)/);
- assert.match(css,/min-height:50px/);
+ assert.match(css,/@media\(max-width:600px\) and \(orientation:portrait\)/);
+ assert.match(css,/min-height:52px/);
  assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/gcc158-gate\[hidden\]/);
