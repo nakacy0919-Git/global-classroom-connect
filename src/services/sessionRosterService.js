@@ -5,10 +5,10 @@ async function rpc(name,params={}){
  if(error)throw error;return data;
 }
 export const publicSessions=()=>rpc('gcc_v6_public_sessions');
-export const submitSessionSignup=p=>rpc('gcc_v6_submit_signup',{
+export const submitSessionSignup=p=>rpc('gcc_v165_submit_signup',{
  p_code:p.code,p_event_id:p.eventId,p_teacher_name:p.teacher,
  p_school_name:p.school,p_country_code:p.country,p_country_name:p.countryName,
- p_students:p.students,p_facilitators:p.facilitators
+ p_students:p.students,p_facilitators:p.facilitators,p_pairs:p.pairs||[]
 });
 export const issueSessionCode=label=>rpc('gcc_v6_issue_code',{p_label:label});
 export const listSessionCodes=()=>rpc('gcc_v6_list_codes');
