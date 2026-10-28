@@ -2,6 +2,7 @@ import '../../styles/teacherSelfService.css';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
 import {teacherProfileMarkupV153,mountTeacherProfileV153} from './TeacherProfileV153.js';
+import {myTeacherProfileV116} from '../../services/teacherNetworkV116.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot} from '../../lib/matching.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
@@ -264,13 +265,15 @@ export function bindTeacherPortalPage(){
   const checkbox=root.querySelector(`input[name="gctp-target-level"][value="${level}"]`);
   if(checkbox)checkbox.checked=true;
   await refresh();inform('');await mountVolunteerV117(root,display);
-  await mountTeacherProfileV153(root,updated=>{
+  const networkProfile=await myTeacherProfileV116();
+  // Only fetch/edit photo + profile details on their dedicated pages.
+  if(view==='profile')await mountTeacherProfileV153(root,updated=>{
    if(!updated)return;
    identity.name=updated.name||identity.name;
    $('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
    $('gctp-host-identity').textContent=`${identity.name} · ${identity.country}`;
   });
-  const networkProfile=await mountTeacherNetworkV116(root);
+  if(view==='network')await mountTeacherNetworkV116(root);
   if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
  $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
