@@ -378,6 +378,153 @@ Registration approved | 登録を承認しました
 Request sent! | 参加申請を送信しました！
 No email was sent. | メールは送信されません。
 All volunteer roles | すべてのボランティアの役割
+← Global Classroom Connect | ← GCCホームに戻る
+GLOBAL CLASSROOM CONNECT · TEACHER REGISTRATION | GCC · 先生の新規登録
+Join Global Classroom | Global Classroomに参加
+Bring your classroom closer to the world. | あなたの教室を世界へ近づけましょう。
+Switch account | アカウントを切り替える
+Your account | アカウント情報
+Sign in and continue → | ログインして続ける →
+Forgot password? | パスワードをお忘れですか？
+Resend confirmation email | 確認メールを再送
+Create an account, then confirm the link sent to your email. | アカウントを作成し、メールに届くリンクから認証してください。
+Password (8 characters minimum) | パスワード（8文字以上）
+Create account → | アカウントを作成 →
+Teacher & school profile | 先生と学校の情報
+Fields marked * are required. Websites and region are optional. | * は必須項目です。ウェブサイトと地域は任意です。
+Personal website (HTTPS, optional) | 個人サイト（HTTPS・任意）
+0 / 3000 characters | 0 / 3000文字
+Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) * | 顔写真（JPEG・PNG・WebP、最大5MB）*
+Processed privately in your browser into a WebP image, maximum 512 pixels. | ブラウザ内で最大512pxのWebP画像に変換します。
+School / organization name * | 学校・団体名 *
+School website (HTTPS, optional) | 学校のウェブサイト（HTTPS・任意）
+School type * | 学校の種類 *
+Choose one | 選択してください
+Public | 公立
+Private | 私立
+Independent / individual | 個人・独立
+Other | その他
+Country * | 国 *
+Choose country | 国を選ぶ
+Choose your country | 国を選択してください
+City * | 都市 *
+Region / prefecture / state (optional) | 地域・都道府県・州（任意）
+School time zone (IANA) * | 学校のタイムゾーン（IANA）*
+Submit for approval → | 審査を申請 →
+Your application | 申請状況
+Continue to Facilitator registration → | ファシリテーター登録へ進む →
+Return to GCC home | GCCホームへ戻る
+Choose how to access GCC | GCCへのアクセス方法を選ぶ
+Tell other teachers about your teaching and interests | 教え方や関心のあることをほかの先生に紹介しましょう
+GLOBAL CLASSROOM · VOLUNTEER TEAM | GCC · ボランティアチーム
+JOIN THE GLOBAL CLASSROOM TEAM | グローバルクラスルームのチームに参加
+STEP 1 OF 3 | ステップ1 / 3
+STEP 2 OF 3 | ステップ2 / 3
+STEP 3 OF 3 | ステップ3 / 3
+How would you like to help? | どのように協力したいですか？
+Choose the roles you would like to support at Global Classroom-hosted sessions. | GCCが主催するセッションで希望する役割を選びましょう。
+Breakout room facilitator | ブレイクアウトルームの進行役
+Help international groups talk, listen and enjoy their exchange. | 国際交流グループで会話や傾聴を支援します。
+Online session host / co-host | オンラインセッションのホスト・共同ホスト
+Welcome participants and help coordinate Global Classroom sessions. | 参加者を迎え、セッションの進行をサポートします。
+When could you help? | いつ協力できますか？
+Tell our coordination team about your languages, time zone and availability. You can change this later. | 使用言語・タイムゾーン・都合の良い日時を教えてください。あとから変更できます。
+Your experience and availability (optional) | 経験・参加可能な日時（任意）
+🔒 This note is only for the Global Classroom coordination team, not the photo gallery. | 🔒 このメモは運営チームのみ閲覧でき、写真一覧には公開されません。
+Ready to join the team? | チームに参加する準備はできましたか？
+Your verified teacher profile will become your team card. There is no need to re-enter your name, school or face photograph. | 登録済みの先生プロフィールを使用します。名前・学校・顔写真の再入力は不要です。
+Checking your teacher profile… | 先生のプロフィールを確認中…
+I agree to show my name, face photograph, school, country, introduction and social links to approved GCC teachers in the Global Team gallery. | 氏名・顔写真・学校・国・自己紹介・SNSリンクを認証済みのGCCの先生に公開することに同意します。
+Complete my teacher profile → | 先生プロフィールを完成させる →
+Join the Global Team ✓ | GCCチームに参加 ✓
+Close registration | 登録画面を閉じる
+Registration progress | 登録の進捗
+For example: I speak English and Japanese, and I'm available on Saturday evenings in Japan. | 例：英語と日本語が使え、日本時間の土曜夜に参加できます。
+Your teacher profile & global directory | 先生プロフィールと世界の先生一覧
+Complete your profile, then find teachers by country and school level. | プロフィールを完成させ、国や学齢から交流相手を探しましょう。
+My teacher profile | 自分の先生プロフィール
+Photo | 写真
+Upload a photo (JPEG, PNG, WebP; max 5MB) | 写真をアップロード（JPEG・PNG・WebP、最大5MB）
+Photos are resized to 512px and compressed to WebP before upload. They remain private unless you choose to appear in the teacher directory. | 写真は最大512pxに縮小してWebPで保存します。公開設定を有効にするまで非公開です。
+Your name * | 氏名 *
+Job title | 役職・担当教科
+Languages (comma-separated) | 使用言語（カンマ区切り）
+Introduction | 自己紹介
+Your links help teachers stay in touch after the exchange. Use complete https:// links. | リンクは交流後の連絡に役立ちます。https://で始まるURLを入力してください。
+My website | 自分のウェブサイト
+Show my name, school, photo, introduction and social links to other approved GCC teachers. | 氏名・学校・写真・自己紹介・SNSリンクを認証済みGCC教員に公開する
+Save profile | プロフィールを保存
+Teachers around the world | 世界の先生たち
+Only teachers who have opted in are listed. Email addresses are never shown. | 公開に同意した先生のみ表示します。メールアドレスは表示されません。
+All levels | すべての学齢
+Teacher, school, country | 先生名・学校・国
+ONE SESSION · ONE TASK | 1つのセッションを順番に準備
+Prepare your exchange, one step at a time. | 国際交流の準備を一歩ずつ進めましょう。
++ New session | ＋ 新しいセッション
+Create a session | セッションを作成
+Session title * | セッション名 *
+Start time * | 開始時刻 *
+End time * | 終了時刻 *
+Time zone | タイムゾーン
+Japan (JST) | 日本（JST）
+Philippines | フィリピン
+Vietnam | ベトナム
+Indonesia | インドネシア
+Malaysia | マレーシア
+Sri Lanka | スリランカ
+United Kingdom | イギリス
+USA Eastern | 米国東部
+Maximum students | 最大生徒数
+Facilitators per room | 各部屋のファシリテーター数
+1 person | 1人
+2 people | 2人
+No facilitator required | ファシリテーター不要
+Create session → | セッションを作成 →
+YOUR SESSION | 対象セッション
+STEP 1 OF 4 | ステップ1 / 4
+Get ready | 準備する
+Next: Registrations → | 次へ：参加登録 →
+Edit names | 氏名を編集
+English A–Z letters only. Approved students are updated in the Participant Pool. | 英語のA〜Zのみ使用できます。変更した生徒名は参加者一覧にも反映されます。
+Teacher name | 先生の氏名
+Delete this session? | このセッションを削除しますか？
+Type the exact session title to confirm | 確認のためセッション名を入力
+Delete session permanently | セッションを完全に削除
+Manage Global Classroom sessions | GCCのセッション管理
+New password (8 characters minimum) | 新しいパスワード（8文字以上）
+Confirm new password | 新しいパスワードを再入力
+Save new password | 新しいパスワードを保存
+Registered email address | 登録したメールアドレス
+Send recovery email | パスワード再設定メールを送信
+← Teacher sign in | ← 先生用ログイン
+Never share your password with anyone. Check your spam folder if the email does not arrive. | パスワードを他人に教えないでください。メールが届かない場合は迷惑メールも確認してください。
+Join a Session | セッションに参加する
+1. Choose your session | 1. セッションを選ぶ
+Select the exchange your class wants to join. | クラスが参加するセッションを選択してください。
+Your invitation code * | 招待コード *
+Your host shares the same registration link with everyone, but provides a separate code to each teacher. | 登録リンクは共通ですが、先生ごとに異なる招待コードが配布されます。
+Available sessions * | 参加可能なセッション *
+Loading upcoming sessions… | 開催予定のセッションを読み込み中…
+These details are required so students can be mixed across schools and countries. | 学校・国をまたいで生徒を適切に配置するために必要な情報です。
+School name * | 学校名 *
+Teacher name * | 先生の氏名 *
+Student names * | 生徒名簿 *
+Paste a column of names, or two columns (Name + Grade), straight from Excel / Google Sheets. Maximum 500 students. | ExcelやGoogleスプレッドシートから生徒名（名前＋学年の2列も可）を貼り付けてください。最大500人です。
+0 students detected | 0人の生徒を検出
+Facilitators (optional) | ファシリテーター（任意）
+Include teachers who can help facilitate breakout rooms. The host will assign individual rooms. | 進行をサポートする先生がいれば入力してください。部屋の配置はホストが行います。
+Student lists are private to the host. The host checks and approves your submission before it enters room assignments. | 生徒名簿はホストのみ閲覧できます。ホストの承認後に部屋割りへ反映されます。
+Submit registration ✓ | 参加登録を送信 ✓
+Code provided by your host | ホストから配布されたコード
+Official school name | 学校の正式名称
+One facilitator's name per line | ファシリテーターの氏名を1行に1人ずつ
+GLOBAL CLASSROOM CONNECT · SESSION GUIDE | GCC · セッション参加ガイド
+Before you join your breakout room | ブレイクアウトルームに入る前に
+Please read each of the five slides. First-time visitors must complete the guide. | 5枚の注意事項を確認してください。初回利用時は最後まで確認が必要です。
+1 of 5 | 1 / 5
+← Previous | ← 前へ
+Skip (already completed) | スキップ（確認済み）
+Your confirmation is remembered on this browser. Your session code was verified before this guide. | このブラウザでは確認済みの状態が保存されます。アクセスコードは認証済みです。
 `;
 // Convert the source dictionary to a Map; only exact authored UI strings translate.
 export const JA_UI=Object.freeze(Object.fromEntries(
