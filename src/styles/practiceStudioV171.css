@@ -1,0 +1,55 @@
+
+/* V17.1: compact, legible practice studio */
+.gcc170-overview{align-self:center;width:min(100%,980px);border-radius:18px;box-shadow:0 5px 16px #384bbd22;padding:11px 18px;gap:7px 14px}
+.gcc170-overview-title span{font-size:.86rem}
+.gcc170-controls{justify-content:center;gap:10px}
+.gcc170-roles button,.gcc170-levels button{padding:7px 11px;font-size:.8rem}
+.gcc170-profile-button{padding:8px 12px!important;font-size:.8rem}
+.gcc170-stage{padding:clamp(7px,1vw,13px);border-radius:15px}
+.gcc170-stage-icon{width:clamp(35px,5vh,51px);height:clamp(35px,5vh,51px)}
+.gcc170-stage-text strong{font-size:clamp(.83rem,1.15vw,1.04rem)}
+.gcc170-dialog-top{padding:12px 20px;font-size:1.02rem}
+.gcc170-dialog-top button{font-size:.9rem}
+.gcc170-dialog-scroll{padding:14px 20px 18px}
+.gcc170-scene{padding:10px 15px}
+.gcc170-scene h2{font-size:1.12rem}
+.gcc170-scene p{font-size:.91rem}
+.gcc170-phrase-nav{font-size:.9rem}
+.gcc170-phrase-nav button{font-size:.85rem}
+.gcc170-phrase{position:relative;padding:13px 16px 15px;min-height:112px}
+.gcc171-phrase-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:30px}
+.gcc171-phrase-top>span{font-size:.72rem;letter-spacing:.07em;font-weight:900;color:#7193b4}
+.gcc171-listen-icon{border:0;border-radius:50%;background:#d9efff;color:#146bc0;font-size:1.35rem;display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;box-shadow:0 2px 8px #80aee055}
+.gcc170-phrase>p:first-of-type{font-size:clamp(1.28rem,2.45vw,1.88rem);margin:0}
+.gcc170-phrase>p:nth-of-type(2){font-size:.9rem;margin:7px 0 0}
+.gcc170-mic-actions{margin:10px 0 6px}
+.gcc170-mic-actions button{font-size:1.01rem;padding:12px 20px}
+.gcc170-status{font-size:.89rem;margin:3px 0;min-height:0}
+.gcc170-status:empty{display:none}
+.gcc171-results{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.85fr);align-items:stretch;gap:12px;margin-top:12px}
+.gcc170-transcript{margin:0;min-height:165px;padding:15px 17px}
+.gcc170-transcript span{font-size:.8rem}
+.gcc170-transcript p{font-size:1.19rem;line-height:1.55;font-weight:650;margin-top:10px}
+.gcc170-score-panel{padding:12px 15px;min-height:165px;display:flex;flex-direction:column;justify-content:center}
+.gcc170-score-heading{font-size:.79rem}
+.gcc171-gauge{position:relative;width:min(100%,210px);height:106px;margin:0 auto;display:grid;place-items:center}
+.gcc171-gauge svg{width:100%;height:100%;overflow:visible}
+.gcc171-gauge-base,.gcc171-gauge-fill{fill:none;stroke-width:18;stroke-linecap:round}
+.gcc171-gauge-base{stroke:#d5e4f5}
+.gcc171-gauge-fill{stroke:#8079dc;stroke-dasharray:0 100;transition:stroke-dasharray .7s ease,stroke .35s}
+.gcc171-gauge-fill.success{stroke:#20c879}
+.gcc171-gauge .gcc170-score-value{position:absolute;left:0;right:0;bottom:-3px;text-align:center;font-size:2.35rem;margin:0;line-height:1}
+.gcc170-score-panel p{font-size:.81rem;margin:2px 0 0}
+.gcc170-profile-dialog{width:min(560px,calc(100vw - 24px))}
+.gcc170-profile-fields{padding:16px 22px;gap:9px;max-height:calc(90dvh - 60px);overflow:auto}
+.gcc170-profile-fields p{margin:0 0 4px;font-size:.92rem;line-height:1.4}
+.gcc170-profile-fields p small{font-size:.78rem;color:#7890a5}
+.gcc170-profile-fields label{font-size:.86rem;gap:4px}
+.gcc170-profile-fields input,.gcc170-profile-fields textarea{font:inherit;border:1px solid #ccdced;border-radius:9px;padding:9px 11px;font-size:.93rem;width:100%;resize:vertical}
+.gcc170-profile-fields #gcc171-profile-save{background:linear-gradient(110deg,#21b98d,#4a97e4);color:#fff;border:0;font-size:.96rem;font-weight:850;padding:12px}
+.gcc170-profile-fields #gcc170-reset{font-size:.8rem;padding:7px}
+.gcc171-language{display:flex;gap:3px;border-radius:12px;background:#ffffffdd;padding:3px}
+.gcc171-language button{border:0;background:transparent;border-radius:9px;padding:6px 10px;color:#4776a5;font-size:.75rem;font-weight:900}
+.gcc171-language button[aria-pressed="true"]{background:#447cce;color:white}
+@media(max-width:620px){.gcc170-overview{width:100%;padding:8px}.gcc170-controls{gap:5px}.gcc170-roles button,.gcc170-levels button{padding:6px;font-size:.68rem}.gcc170-stage{padding:6px}.gcc170-dialog-scroll{padding:10px}.gcc170-phrase{min-height:100px}.gcc170-phrase>p:first-of-type{font-size:1.18rem}.gcc170-phrase>p:nth-of-type(2){font-size:.79rem}.gcc170-mic-actions button{font-size:.8rem;padding:10px 13px}.gcc171-results{grid-template-columns:minmax(0,1.2fr) minmax(130px,.8fr);gap:6px}.gcc170-transcript{padding:9px;min-height:128px}.gcc170-transcript span{font-size:.64rem}.gcc170-transcript p{font-size:.94rem;line-height:1.4}.gcc170-score-panel{padding:8px;min-height:128px}.gcc170-score-heading{font-size:.6rem}.gcc171-gauge{height:80px}.gcc171-gauge .gcc170-score-value{font-size:1.55rem;bottom:1px}.gcc170-score-panel p{font-size:.67rem}.gcc170-profile-fields{padding:12px;gap:7px}.gcc170-profile-fields input,.gcc170-profile-fields textarea{padding:8px}.gcc170-top strong{font-size:.75rem}.gcc171-language button{padding:5px 7px;font-size:.65rem}}
+@media(max-width:380px){.gcc171-results{grid-template-columns:1fr}.gcc170-transcript{min-height:65px}.gcc170-score-panel{min-height:100px}.gcc171-gauge{height:75px}}
