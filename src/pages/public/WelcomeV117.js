@@ -51,3 +51,20 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
  </div>
  <div class="gcc117-bottom gcc119-footer"><span class="gcc119-hosted"><img src="${globalClassroomLogo}" alt="" width="26" height="26"/>Hosted by Global Classroom</span></div>
  </section>`;}
+
+/** Ensure broken/blocked image requests never leave invisible gateway actions. */
+export function bindWelcomeArtV173(){
+ const root=document.querySelector('.gcc117-welcome');if(!root)return;
+ for(const card of root.querySelectorAll('.gcc117-choices > .gcc117-choice')){
+  card.removeAttribute('hidden');
+  card.style.setProperty('visibility','visible');
+  card.style.setProperty('opacity','1');
+  const img=card.querySelector('img.gcc118-choice-image');
+  if(!img)continue;
+  const fail=()=>card.classList.add('gcc173-art-failed');
+  const ok=()=>card.classList.remove('gcc173-art-failed');
+  img.addEventListener('error',fail,{once:true});
+  img.addEventListener('load',ok,{once:true});
+  if(img.complete){if(img.naturalWidth)ok();else fail();}
+ }
+}
