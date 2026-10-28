@@ -87,7 +87,7 @@ export function bindPracticePageV170(){
  }
  function paintScore(value,best){
   $('score-value').textContent=value==null?'—%':value+'%';
-  $('score-fill').style.strokeDasharray=(value??0)+' 100';$('score-fill').parentElement.setAttribute('aria-valuenow',String(value??0));
+  $('score-fill').style.strokeDasharray=(value??0)+' 100';$('score-fill').closest('.gcc171-gauge').setAttribute('aria-valuenow',String(value??0));
   $('score-fill').classList.toggle('success',value>=80);
   $('score-value').classList.toggle('success',value>=80);
   $('best').textContent='Best Score: '+(best==null?'—':best+'%');
