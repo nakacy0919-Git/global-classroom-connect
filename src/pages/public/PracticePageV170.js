@@ -118,7 +118,8 @@ export function bindPracticePageV170(){
  $('profile-open').addEventListener('click',()=>profileDialog.showModal());
  $('profile-close').addEventListener('click',()=>profileDialog.close());
  for(const field of ['name','school','hobby','hometown','schoolDescription']){$(field).value=state.profile[field]||'';$(field).addEventListener('input',()=>{state.profile[field]=$(field).value.trim();save();if(stageDialog.open&&!recording)paintItem();});}
- document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();});\n $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();if(stageDialog.open)paintItem();});
+ document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();});
+ $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();if(stageDialog.open)paintItem();});
  $('dialog-close').addEventListener('click',()=>stageDialog.close());
  stageDialog.addEventListener('close',()=>stopRecognition());
  stageDialog.addEventListener('cancel',()=>stopRecognition());
@@ -172,5 +173,7 @@ export function bindPracticePageV170(){
   if(recognition){try{recognition.stop();}catch{finish();}scoreTimer=setTimeout(finish,1600);}else finish();
  });
  window.addEventListener('hashchange',stopRecognition,{once:true});
- root.querySelectorAll('[data-ui-lang]').forEach(b=>b.addEventListener('click',()=>{uiLang=b.dataset.uiLang;root.querySelectorAll('[data-ui-lang]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const jp=uiLang==='ja';root.querySelector('.gcc170-choose h1').firstChild.textContent=jp?'ステージを選ぶ ':'Choose a Stage ';root.querySelector('.gcc170-kicker').textContent=jp?'シチュエーションを選ぼう':'PICK A SITUATION';root.querySelector('.gcc170-overview-title span').textContent=jp?'🏆 練習の記録':'🏆 MY PRACTICE OVERVIEW';root.querySelector('#gcc170-profile-open').textContent=jp?'⚙ マイプロフィール':'⚙ My profile';}));\n switchRole('student');switchLevel('standard');\n if(!state.profile.onboarded){setTimeout(()=>{if(root.isConnected&&!profileDialog.open)profileDialog.showModal();},120);}
+ root.querySelectorAll('[data-ui-lang]').forEach(b=>b.addEventListener('click',()=>{uiLang=b.dataset.uiLang;root.querySelectorAll('[data-ui-lang]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const jp=uiLang==='ja';root.querySelector('.gcc170-choose h1').firstChild.textContent=jp?'ステージを選ぶ ':'Choose a Stage ';root.querySelector('.gcc170-kicker').textContent=jp?'シチュエーションを選ぼう':'PICK A SITUATION';root.querySelector('.gcc170-overview-title span').textContent=jp?'🏆 練習の記録':'🏆 MY PRACTICE OVERVIEW';root.querySelector('#gcc170-profile-open').textContent=jp?'⚙ マイプロフィール':'⚙ My profile';}));
+ switchRole('student');switchLevel('standard');
+ if(!state.profile.onboarded){setTimeout(()=>{if(root.isConnected&&!profileDialog.open)profileDialog.showModal();},120);}
 }
