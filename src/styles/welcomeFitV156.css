@@ -1,0 +1,280 @@
+/* GCC V15.6 — Ocean welcome: one-screen gateway and consistent account navigation.
+   Scoped to the landing page so teacher forms and participant charts remain scrollable. */
+html:has(.gcc117-welcome),body:has(.gcc117-welcome){
+  height:100%;min-height:0;overflow:hidden;
+}
+#app:has(.gcc117-welcome){
+  height:100vh;height:100dvh;min-height:0;
+  padding:clamp(6px,1.2vh,16px);
+  overflow:hidden;
+}
+#app>.public-page-content:has(>.gcc117-welcome){
+  height:100%;min-height:0;max-height:100%;
+  width:100%;display:block;overflow:hidden;
+}
+#app .gcc117-welcome{
+  box-sizing:border-box;
+  height:100%;max-height:100%;min-height:0;
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  gap:clamp(5px,.9vh,11px);
+  padding:clamp(10px,1.6vh,18px) clamp(12px,2.1vw,38px);
+  align-content:stretch;align-items:stretch;
+  overflow:hidden;
+  border-radius:clamp(15px,2vw,27px);
+}
+#app .gcc117-welcome .gcc117-topbar{
+  width:100%;min-width:0;max-width:100%;height:auto;min-height:0;
+  display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:center;
+  padding:0 clamp(2px,.4vw,8px);gap:clamp(10px,2vw,22px);
+  z-index:6;
+}
+#app .gcc117-welcome .gcc119-logo-image{
+  width:clamp(53px,9.5vh,91px);height:clamp(53px,9.5vh,91px);
+}
+#app .gcc117-welcome .gcc119-brand-words strong{
+  font-size:clamp(1.08rem,min(2.2vw,3.1vh),2rem);
+}
+#app .gcc117-welcome .gcc119-brand-words small{
+  font-size:clamp(.55rem,min(.8vw,1.4vh),.7rem);
+}
+#app .gcc117-welcome .gcc117-intro{
+  align-self:center;width:min(100%,950px);max-width:950px;
+  min-height:0;margin:0 auto;
+  padding:clamp(10px,1.9vh,19px) clamp(12px,2vw,30px);
+  border-radius:clamp(15px,2vw,22px);
+}
+#app .gcc117-welcome .gcc117-kicker{
+  font-size:clamp(.57rem,min(.75vw,1.4vh),.77rem);
+  line-height:1.2;letter-spacing:.115em;
+}
+#app .gcc117-welcome .gcc117-intro h1{
+  font-size:clamp(2rem,min(4.4vw,7vh),4.5rem);
+  line-height:1.05;
+  margin:clamp(4px,.9vh,10px) 0 clamp(4px,.9vh,10px);
+}
+#app .gcc117-welcome .gcc117-intro p{
+  font-size:clamp(.75rem,min(1.2vw,2vh),1.09rem);
+  line-height:1.4;
+}
+#app .gcc117-welcome .gcc117-choices{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr);
+  justify-items:center;align-items:center;align-self:center;
+  width:min(100%,1060px);max-width:1060px;
+  height:100%;max-height:min(38vh,350px);min-height:0;
+  gap:clamp(8px,1.6vw,22px);margin:0 auto;overflow:visible;
+}
+#app .gcc117-welcome .gcc117-choice,
+#app .gcc117-welcome .gcc117-choice-join{
+  box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+  grid-column:auto;
+  height:min(100%,34vh,330px);width:auto;max-width:100%;
+  aspect-ratio:1 / 1;min-height:0;
+  margin:0;padding:0;
+  border:0;border-radius:clamp(16px,3vw,38px);background:transparent;
+}
+#app .gcc117-welcome .gcc118-choice-image{
+  display:block;width:100%;height:100%;min-width:0;object-fit:contain;
+}
+.gcc156-choice-label{display:none}
+#app .gcc117-welcome .gcc119-footer{
+  justify-self:center;align-self:center;
+  display:flex;align-items:center;justify-content:center;
+  width:max-content;max-width:100%;min-height:30px;
+  margin:0 auto;padding:5px 12px;
+  flex-wrap:nowrap;white-space:nowrap;
+  font-size:clamp(.67rem,1.15vh,.84rem);
+  border-radius:999px;
+}
+#app .gcc117-welcome .gcc119-hosted img{width:23px;height:23px}
+
+/* Top-right actions: a matching polished glass navigation cluster. */
+#app .gcc117-topbar nav.gcc124-actions{
+  display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;
+  width:auto;min-width:0;gap:5px;padding:5px;margin-left:auto;
+  border-radius:18px;
+  background:rgba(13,65,105,.16);
+  border:1px solid rgba(245,253,255,.43);
+  box-shadow:0 6px 23px rgba(4,47,86,.12),inset 0 1px rgba(255,255,255,.18);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+}
+#app .gcc117-topbar nav.gcc124-actions>a,
+#app .gcc117-topbar .gcc124-account-menu>summary{
+  display:inline-flex;gap:7px;align-items:center;justify-content:center;
+  height:42px;min-height:42px;
+  padding:0 clamp(9px,1.3vw,17px);
+  border-radius:12px;border:1px solid rgba(255,255,255,.85);
+  font-size:clamp(.73rem,.85vw,.87rem);font-weight:850;
+  line-height:1;letter-spacing:.005em;white-space:nowrap;
+  box-shadow:none;transition:transform .15s,background .15s,box-shadow .15s;
+  text-decoration:none;
+}
+#app .gcc117-topbar .gcc120-signin-top{
+  color:#165475;background:rgba(246,252,255,.92);
+  border-color:rgba(255,255,255,.9);
+}
+#app .gcc117-topbar .gcc120-signup-top{
+  color:white;background:linear-gradient(115deg,#0c9b9e,#147db9 80%);
+  border-color:rgba(195,255,246,.72);
+  box-shadow:0 5px 13px rgba(14,95,146,.24);
+}
+#app .gcc117-topbar .gcc124-account-menu>summary{
+  color:#164d6e;background:rgba(241,250,255,.87);
+  border-color:rgba(255,255,255,.92);
+}
+#app .gcc117-topbar nav.gcc124-actions>a:hover,
+#app .gcc117-topbar .gcc124-account-menu>summary:hover{
+  transform:translateY(-1px);box-shadow:0 5px 13px rgba(11,67,105,.22);
+}
+#app .gcc117-topbar nav.gcc124-actions>a:focus-visible,
+#app .gcc117-topbar .gcc124-account-menu>summary:focus-visible{
+  outline:3px solid #fff;outline-offset:3px;
+}
+#app .gcc117-topbar .gcc124-account-menu[open]>summary{
+  background:#e9fafe;border-color:#91d5e6;
+}
+#app .gcc117-topbar nav.gcc124-actions svg{
+  width:16px;height:16px;flex:0 0 16px;
+}
+#app .gcc117-topbar .gcc124-account-menu{
+  flex:0 0 auto;z-index:21;
+}
+#app .gcc117-topbar .gcc124-account-popup{
+  max-height:min(70dvh,400px);overflow-y:auto;
+  z-index:100;border-radius:14px;
+  box-shadow:0 17px 35px rgba(0,45,89,.26);
+}
+
+/* Tablet and short-laptop: retain three equally visible image choices. */
+@media(max-width:920px){
+ #app .gcc117-welcome .gcc117-choices{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr);
+  width:min(100%,800px);max-width:800px;
+ }
+ #app .gcc117-welcome .gcc117-choice-join{grid-column:auto;width:auto;max-width:100%}
+ #app .gcc117-welcome .gcc117-intro{width:min(100%,760px)}
+ #app .gcc117-welcome .gcc119-logo-image{width:clamp(51px,8vh,70px);height:clamp(51px,8vh,70px)}
+}
+@media(max-width:620px){
+ #app:has(.gcc117-welcome){padding:6px}
+ #app .gcc117-welcome{
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  gap:clamp(5px,.85vh,9px);
+  padding:clamp(8px,1.3vh,12px) clamp(8px,2.8vw,14px);
+  border-radius:16px;
+ }
+ #app .gcc117-welcome .gcc117-topbar{
+  display:flex;flex-wrap:wrap;gap:4px 6px;
+  justify-content:center;align-content:start;padding:0;
+ }
+ #app .gcc117-welcome .gcc119-brand{
+  justify-content:center;gap:5px;min-height:0;
+ }
+ #app .gcc117-welcome .gcc119-logo-image{
+  width:clamp(40px,6.6vh,54px);height:clamp(40px,6.6vh,54px);
+ }
+ #app .gcc117-welcome .gcc119-brand-words strong{font-size:1.16rem}
+ #app .gcc117-welcome .gcc119-brand-words small{font-size:.55rem}
+ #app .gcc117-topbar nav.gcc124-actions{
+  width:100%;margin:0;padding:4px;
+  justify-content:center;gap:4px;border-radius:13px;
+ }
+ #app .gcc117-topbar nav.gcc124-actions>a,
+ #app .gcc117-topbar .gcc124-account-menu>summary{
+  height:38px;min-height:38px;
+  padding:0 clamp(8px,2.4vw,13px);
+  border-radius:10px;font-size:.77rem;
+ }
+ #app .gcc117-topbar .gcc124-menu-label{display:inline!important}
+ #app .gcc117-topbar .gcc124-account-menu>summary{width:auto!important}
+ #app .gcc117-topbar nav.gcc124-actions svg{width:15px;height:15px;flex-basis:15px}
+ #app .gcc117-welcome .gcc117-intro{
+  align-self:center;margin:0 auto;max-width:100%;
+  padding:clamp(7px,1.1vh,12px) 10px;
+  border-radius:15px;
+ }
+ #app .gcc117-welcome .gcc117-kicker{font-size:clamp(.53rem,2.2vw,.63rem);letter-spacing:.075em}
+ #app .gcc117-welcome .gcc117-intro h1{
+  font-size:clamp(1.45rem,6vw,2.15rem);
+  line-height:1.05;margin:5px 0;
+ }
+ #app .gcc117-welcome .gcc117-intro p{
+  font-size:clamp(.7rem,2.9vw,.81rem);line-height:1.28;
+ }
+ #app .gcc117-welcome .gcc117-choices{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:repeat(3,minmax(0,1fr));
+  width:min(100%,450px);max-width:450px;
+  height:100%;max-height:none;min-height:0;gap:clamp(4px,.9vh,9px);
+  align-self:stretch;justify-self:center;align-items:stretch;overflow:hidden;
+ }
+ #app .gcc117-welcome .gcc117-choice,
+ #app .gcc117-welcome .gcc117-choice-join{
+  width:100%;max-width:100%;height:100%;max-height:none;min-height:0;
+  aspect-ratio:auto;grid-column:1;
+  display:flex;flex-direction:row;align-items:center;justify-content:flex-start;
+  gap:clamp(7px,3vw,13px);
+  padding:clamp(3px,.6vh,7px) clamp(10px,3vw,15px) clamp(3px,.6vh,7px) clamp(3px,.6vh,7px);
+  border-radius:15px;border:1px solid rgba(255,255,255,.82);
+  background:rgba(241,252,255,.9);
+  box-shadow:0 5px 14px rgba(13,70,115,.16);
+  filter:none;overflow:hidden;
+ }
+ #app .gcc117-welcome .gcc117-choice-find{background:rgba(237,255,250,.92)}
+ #app .gcc117-welcome .gcc117-choice-join{background:rgba(255,240,251,.91)}
+ #app .gcc117-welcome .gcc118-choice-image{
+  display:block;width:auto;height:100%;min-height:0;max-width:37%;
+  aspect-ratio:1 / 1;object-fit:contain;flex:0 0 auto;
+ }
+ #app .gcc117-welcome .gcc156-choice-label{
+  display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(2px,.4vh,6px);flex:1;min-width:0;
+  color:#134d71;line-height:1.22;text-align:left;
+ }
+ #app .gcc117-welcome .gcc156-choice-label strong{
+  font-size:clamp(.9rem,3.8vw,1.12rem);font-weight:890;letter-spacing:-.025em;
+  overflow-wrap:normal;
+ }
+ #app .gcc117-welcome .gcc156-choice-label small{
+  color:#40788d;font-size:clamp(.72rem,2.7vw,.86rem);
+  font-weight:750;display:flex;align-items:center;gap:5px;
+ }
+ #app .gcc117-welcome .gcc119-footer{
+  min-height:24px;height:auto;padding:3px 11px;font-size:.68rem;
+ }
+ #app .gcc117-welcome .gcc119-hosted img{width:18px;height:18px}
+ #app .gcc117-topbar .gcc124-account-popup{right:0;max-width:calc(100vw - 24px)}
+}
+/* A truly short landscape viewport: reduce decoration before shrinking buttons. */
+@media(max-height:570px) and (min-width:621px){
+ #app .gcc117-welcome{gap:4px;padding-block:6px}
+ #app .gcc117-welcome .gcc119-logo-image{width:clamp(43px,9vh,58px);height:clamp(43px,9vh,58px)}
+ #app .gcc117-welcome .gcc117-intro{padding:5px 14px}
+ #app .gcc117-welcome .gcc117-kicker{font-size:.61rem}
+ #app .gcc117-welcome .gcc117-intro h1{font-size:clamp(1.5rem,5.4vh,2.35rem);margin:3px 0}
+ #app .gcc117-welcome .gcc117-intro p{font-size:.72rem;line-height:1.18}
+ #app .gcc117-welcome .gcc117-choices{max-height:40vh}
+ #app .gcc117-welcome .gcc117-choice{height:min(100%,37vh)}
+ #app .gcc117-welcome .gcc119-footer{display:none}
+}
+@media(max-height:680px) and (max-width:620px){
+ #app .gcc117-welcome .gcc117-intro p{display:none}
+ #app .gcc117-welcome .gcc117-kicker{font-size:.51rem}
+ #app .gcc117-welcome .gcc117-intro h1{margin:3px 0;font-size:clamp(1.26rem,5.1vw,1.75rem)}
+ #app .gcc117-welcome .gcc119-footer{padding:1px 9px;min-height:20px}
+ #app .gcc117-welcome .gcc119-hosted img{width:16px;height:16px}
+}
+@media(max-height:420px) and (max-width:620px){
+ /* Accessibility fallback: do not trap controls off-screen on extreme landscape/zoom. */
+ html:has(.gcc117-welcome),body:has(.gcc117-welcome){height:auto;overflow-y:auto}
+ #app:has(.gcc117-welcome){height:auto;min-height:100dvh;overflow:visible}
+ #app .gcc117-welcome{height:auto;min-height:calc(100dvh - 12px);overflow:visible}
+ #app .gcc117-welcome .gcc117-choices{height:auto;grid-template-rows:repeat(3,minmax(74px,auto))}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .gcc117-topbar nav.gcc124-actions>a,
+ #app .gcc117-topbar .gcc124-account-menu>summary{transition:none}
+}
