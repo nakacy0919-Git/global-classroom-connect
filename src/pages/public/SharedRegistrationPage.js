@@ -50,13 +50,13 @@ export function bindSharedRegistrationPage(){
  bindDeviceRequirementV158(root);
  const timeGate=bindTimeConfirmationV160(root,{getSession:()=>events.find(s=>s.id===$('gcc-v8-event').value),onConfirmed:()=>show(1),onBack:()=>show(0)});
  let step=0,events=[],countries=new Map(),sending=false;
- const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>roster().records,getSession:()=>current()});
  const titles=['Choose your session','Your school & country','Students & facilitators','Check & submit'];
  const subtitles=['Select the exchange your class would like to join.','These details help us mix students from different schools.','Paste students and add any teacher facilitators.','Check your class details before submitting.'];
  const message=s=>$('gcc-v8-error').textContent=s;
  const roster=()=>parseSimpleRoster($('gcc-v8-roster').value);
  const facs=()=>parseSimpleFacilitators($('gcc-v8-facilitators').value);
  const current=()=>events.find(s=>s.id===$('gcc-v8-event').value);
+ const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>roster().records,getSession:()=>current()});
  function preview(){const r=roster();$('gcc-v8-roster-count').textContent=`${r.records.length} students${r.errors.length?` · ${r.errors.length} lines to fix`:''}`;
    const p=$('gcc-v8-preview');p.replaceChildren();
    for(const v of r.records.slice(0,7))p.append(el('div','',v.name+(v.grade?' · '+v.grade:'')));
