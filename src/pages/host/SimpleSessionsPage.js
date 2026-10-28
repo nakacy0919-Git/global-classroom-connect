@@ -342,7 +342,22 @@ export function bindSimpleSessionsPage(){
    if(resetStage)activeStage=0;paint();
  }catch(err){notify('Could not load sessions: '+err.message,true);}}
  async function review(s,yes){if(!confirm(`${yes?'Approve':'Decline'} the registration from ${s.school_name}?`))return;
-   try{if(yes)prepareSuccessChime();await reviewSessionSignup(s.id,yes);await reload(false);notify(yes?'Approved. Students added to this session.':'Registration declined.');if(yes)showSuccessCelebration({title:'Registration approved!',detail:'The students were added to this session.'});}catch(err){notify(err.message,true);}}
+   try{
+     if(yes)prepareSuccessChime();
+     const outcome=await reviewSessionSignup(s.id,yes);
+     await reload(false);
+     const auto=outcome?.auto_assigned===true;
+     const extra=Number(outcome?.added_students||0);
+     const message=yes
+       ? (auto
+         ? `Approved! ${extra} student(s) automatically placed in the existing rooms. Published chart and six-digit access code remain valid.`
+         : 'Approved! No saved arrangement exists yet. Create and publish the room plan before sharing.')
+       : 'Registration declined.';
+     notify(message);
+     if(yes)showSuccessCelebration({title:'Registration approved!',detail:auto
+       ? `${extra} new students seated. Existing classmates stayed in their assigned rooms.`
+       : 'Students approved. Arrange rooms in Step 3.'});
+    }catch(err){notify(err.message,true);}}
  function openEdit(s){edit=s;$('gcc-v8-edit-teacher').value=s.teacher_name;$('gcc-v8-edit-error').textContent='';const rows=$('gcc-v8-edit-rows');rows.replaceChildren();
    for(const [i,student] of (s.students||[]).entries()){const row=el('div','gcc-v8-edit-row');row.dataset.studentId=student.id;row.append(el('span','',`${i+1}.`));
      const input=el('input');input.value=student.name;input.maxLength=120;input.required=true;input.setAttribute('aria-label',`Student ${i+1} name`);input.name='student_name';row.append(input);
