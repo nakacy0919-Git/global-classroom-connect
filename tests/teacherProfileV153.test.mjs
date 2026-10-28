@@ -42,8 +42,10 @@ test('photo changes use existing private storage image compressor and old photo 
  assert.match(sql,/FOR DELETE TO authenticated/);
 });
 test('school registration edits are submitted for host verification, not directly changed by teachers',()=>{
- for(const id of ['gcc153-school-name','gcc153-school-city','gcc153-school-region',
-  'gcc153-school-school_type','gcc153-school-school_level','gcc153-school-website_url'])assert.ok(ui.includes(id),id);
+ assert.match(ui,/const schoolFields=\[/);
+ assert.match(ui,/schoolFields\.map/);
+ assert.match(ui,/id="gcc153-school-\$\{id\}"/);
+ for(const id of ['name','city','region','school_type','school_level','website_url'])assert.ok(ui.includes("'"+id+"'"),id);
  assert.match(ui,/gcc_v153_request_school_edit/);
  assert.match(ui,/gcc_v153_my_school_edit/);
  assert.match(ui,/gcc_v153_my_school_details/);
