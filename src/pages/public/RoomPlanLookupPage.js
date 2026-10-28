@@ -6,6 +6,7 @@ import {openSharedRoomChart} from '../../services/sharePlanV102.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
 import {countryFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
+import {bindRoomFinderV161} from '../../lib/roomFinderV161.js';
 
 const $=id=>document.getElementById(id);
 const make=(tag,cls='',value='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=String(value);return n;};
@@ -46,12 +47,46 @@ export function RoomPlanLookupPage(){return `
   </form>
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
   <div id="gcc-v104-chart" hidden>
+    <section id="gcc-v161-choice" class="gcc-v161-choice" hidden aria-labelledby="gcc-v161-choice-title">
+      <span class="gcc-v161-eyebrow">YOUR BREAKOUT ROOM</span>
+      <h2 id="gcc-v161-choice-title">What would you like to check?</h2>
+      <p>Find your own room in a few taps, or explore the complete room chart.</p>
+      <div class="gcc-v161-modes">
+        <button type="button" id="gcc-v161-choice-find"><span class="gcc-v161-icon" aria-hidden="true">📍</span><strong>Find My Breakout Room</strong><small>Select your school and your name to see your room number and teammates.</small></button>
+        <button type="button" id="gcc-v161-choice-all"><span class="gcc-v161-icon" aria-hidden="true">🌍</span><strong>View All Breakout Rooms</strong><small>See the complete arrangement for every school and participant.</small></button>
+      </div>
+    </section>
+    <section id="gcc-v161-finder" class="gcc-v161-finder" hidden aria-labelledby="gcc-v161-finder-title">
+      <span class="gcc-v161-eyebrow">FIND YOUR SEAT · 2 SIMPLE STEPS</span>
+      <h2 id="gcc-v161-finder-title">Where is my breakout room?</h2>
+      <p id="gcc-v161-hint" role="status" aria-live="polite">Choose your school, then your name. Names are listed alphabetically.</p>
+      <div class="gcc-v161-fields">
+        <label for="gcc-v161-school">1. Choose your school<select id="gcc-v161-school"><option value="">Select your school…</option></select></label>
+        <label for="gcc-v161-person">2. Who are you?<select id="gcc-v161-person"><option value="">Select your name…</option></select></label>
+      </div>
+      <div class="gcc-v161-actions">
+        <button type="button" id="gcc-v161-find" class="gcc-v161-primary" disabled>Show My Breakout Room →</button>
+        <button type="button" id="gcc-v161-back">← Back</button>
+        <button type="button" id="gcc-v161-all-from-find">View All Rooms</button>
+      </div>
+      <section id="gcc-v161-detail" class="gcc-v161-detail" hidden aria-live="polite">
+        <span class="gcc-v161-eyebrow">YOUR ASSIGNED BREAKOUT ROOM</span>
+        <div id="gcc-v161-room-number" class="gcc-v161-room-number"></div>
+        <div id="gcc-v161-selection" class="gcc-v161-selection"></div>
+        <div id="gcc-v161-selected-card"></div>
+        <p class="gcc-v161-room-caption">These are the students and facilitators in your breakout room.</p>
+        <div class="gcc-v161-actions"><button type="button" id="gcc-v161-find-again">Find Another Person</button></div>
+      </section>
+    </section>
+    <div id="gcc-v161-full" class="gcc-v161-full" hidden>
+      <div class="gcc-v161-actions"><button type="button" id="gcc-v161-back-all">← Back to room choices</button></div>
     <div class="gcc-v104-chart-head"><div><span class="gcc-v104-eyebrow">YOUR SESSION</span><h2 id="gcc-v104-session-name">Breakout rooms</h2><p id="gcc-v104-count"></p></div><div id="gcc-v104-zoom"></div></div>
     <section class="gcc-v112-world" id="gcc-v112-world" aria-label="Session start times around the world" hidden></section>
     <label class="gcc-v104-filter-label" for="gcc-v104-filter">Find a student or school</label>
     <input id="gcc-v104-filter" type="search" placeholder="Search names or school" autocomplete="off" />
     <p class="gcc-v104-filter-hint">All rooms are shown below. Search to highlight your room.</p>
     <div class="gcc-v104-grid" id="gcc-v104-room-list"></div>
+    </div>
   </div>
   <p class="gcc-v104-privacy">Private session information · Share the invitation only with participants.</p>
   </div>
@@ -66,6 +101,7 @@ export function bindRoomPlanLookupPage(){
  const list=$('gcc-v104-room-list'),filter=$('gcc-v104-filter');
  const message=(s,err=false)=>{const n=$('gcc-v104-message');n.textContent=s;n.classList.toggle('error',err);};
  const netiquetteGuideV146=bindNetiquetteGuideV145(root,Boolean(token));
+ const roomFinderV161=bindRoomFinderV161(root);
  if(!token){submit.disabled=true;message('Invalid invitation link. Ask the session host for the current link.',true);return;}
  function draw(data){
    result.hidden=false;
@@ -107,8 +143,10 @@ export function bindRoomPlanLookupPage(){
        }
        card.append(support);}
      card.dataset.findText=[...(room.students||[]).map(x=>`${x.name} ${x.school} ${x.country}`),...(room.facilitators||[]).map(x=>`${x.name} ${x.school}`)].join(' ').toLocaleLowerCase();
+     card.dataset.roomNumber=String(room.room_number);
      list.append(card);
    }
+   roomFinderV161.onDraw(data);
  }
  function applyFilter(){const v=filter.value.trim().toLocaleLowerCase();let found=0;
    for(const card of list.children){const matches=!v||card.dataset.findText.includes(v);
@@ -143,8 +181,9 @@ export function bindRoomPlanLookupPage(){
        form.hidden=true;
        message('✓ Guide complete — your breakout room chart is ready.');
        draw(data);
+       roomFinderV161.showStart();
        roomToolsV106.onDraw(data);
-       const heading=$('gcc-v104-session-name');
+       const heading=$('gcc-v161-choice-title');
        heading.setAttribute('tabindex','-1');
        heading.focus({preventScroll:true});
        heading.scrollIntoView({block:'start',behavior:'smooth'});
