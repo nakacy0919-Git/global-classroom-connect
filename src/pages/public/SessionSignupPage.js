@@ -50,11 +50,11 @@ export function bindSessionSignupPage(){
  bindDeviceRequirementV158(root);
  const timeGate=bindTimeConfirmationV160(root,{getSession:()=>allSessions.find(s=>s.id===$('gcc-v6-event').value),onConfirmed:()=>showStep(1),onBack:()=>showStep(0)});
  let step=0,submitting=false;let allSessions=[];let master=new Map();
- const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>students().records,getSession:()=>allSessions.find(s=>s.id===$('gcc-v6-event').value)});
  const steps=['Choose your session','School & country','Student list','Facilitators & review'];
  const msg=(text,error=false)=>{$('gcc-v6-message').textContent=text;$('gcc-v6-message').classList.toggle('error',error);};
  const identity=()=>({country:$('gcc-v6-country').value,school:$('gcc-v6-school').value.trim(),teacher:$('gcc-v6-teacher').value.trim()});
  const students=()=>parseRoster($('gcc-v6-roster').value);
+ const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>students().records,getSession:()=>allSessions.find(s=>s.id===$('gcc-v6-event').value)});
  function renderRoster(){const {records,invalid}=students();$('gcc-v6-roster-count').textContent=`${records.length} students detected`;
  $('gcc-v6-roster-warnings').textContent=invalid.length?`Names must use A–Z letters. Correct lines: ${invalid.join(', ')}`:'';
  const box=$('gcc-v6-roster-list');box.replaceChildren();for(const [i,s] of records.slice(0,20).entries())box.append(el('div','',`${i+1}. ${s.name}  ${s.grade}`));
