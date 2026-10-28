@@ -3,12 +3,14 @@ import {parseRoster,parseFacilitators,isIdentityComplete} from '../../lib/sessio
 import {isEnglishName} from '../../lib/englishNames.js';
 import {publicSessions,submitSessionSignup} from '../../services/sessionRosterService.js';
 import {deviceRequirementMarkupV158,bindDeviceRequirementV158} from '../../lib/registrationDeviceGateV158.js';
+import {timeConfirmationMarkupV160,bindTimeConfirmationV160} from '../../lib/registrationTimeGateV160.js';
 const $=id=>document.getElementById(id);
 const el=(tag,cls='',text='')=>{const n=document.createElement(tag);n.className=cls;n.textContent=text;return n;};
 const time=(s,tz)=>{try{return new Intl.DateTimeFormat('en',{timeZone:tz||'UTC',dateStyle:'medium',timeStyle:'short'}).format(new Date(s));}catch{return s||'Date not set';}};
 export function SessionSignupPage(){return `
 <section class="gcc-v6 gcc-v6-public" aria-label="Join a Global Classroom session">
   ${deviceRequirementMarkupV158()}
+  ${timeConfirmationMarkupV160()}
   <div id="gcc158-register-form" hidden>
   <div class="gcc-v6-header"><span class="gcc-v6-logo">🌎</span><div><span class="gcc-v6-kicker">GLOBAL CLASSROOM CONNECT</span><h2>Join a Session</h2></div></div>
   <div class="gcc-v6-progress" id="gcc-v6-progress" aria-label="Registration progress"></div>
@@ -45,6 +47,7 @@ export function SessionSignupPage(){return `
 export function bindSessionSignupPage(){
  const root=document.querySelector('.gcc-v6-public');if(!root)return;
  bindDeviceRequirementV158(root);
+ const timeGate=bindTimeConfirmationV160(root,{getSession:()=>allSessions.find(s=>s.id===$('gcc-v6-event').value),onConfirmed:()=>showStep(1),onBack:()=>showStep(0)});
  let step=0,submitting=false;let allSessions=[];let master=new Map();
  const steps=['Choose your session','School & country','Student list','Facilitators & review'];
  const msg=(text,error=false)=>{$('gcc-v6-message').textContent=text;$('gcc-v6-message').classList.toggle('error',error);};
@@ -71,7 +74,7 @@ export function bindSessionSignupPage(){
  if(n===3){const fac=parseFacilitators($('gcc-v6-facilitators').value);if(fac.length>50||fac.some(x=>!isEnglishName(x)))return 'Facilitator names must be 2–120 characters, maximum 50 names.';}
  return null;}
  $('gcc-v6-back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
- $('gcc-v6-next').addEventListener('click',()=>{const problem=validate(step);if(problem){msg(problem,true);return;}showStep(Math.min(3,step+1));});
+ $('gcc-v6-next').addEventListener('click',()=>{const problem=validate(step);if(problem){msg(problem,true);return;}if(step===0){if(!timeGate.show())msg('Session time is unavailable.',true);return;}showStep(Math.min(3,step+1));});
  $('gcc-v6-roster').addEventListener('input',renderRoster);
  $('gcc-v6-event').addEventListener('change',()=>{const e=allSessions.find(s=>s.id===$('gcc-v6-event').value);$('gcc-v6-date-info').textContent=e?`📅 ${time(e.starts_at,e.timezone)} (${e.timezone})`:'';});
  $('gcc-v6-submit').addEventListener('click',async()=>{if(submitting)return;for(let i=0;i<4;i++){const e=validate(i);if(e){showStep(i);msg(e,true);return;}}
