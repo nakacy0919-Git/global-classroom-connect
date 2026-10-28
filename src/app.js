@@ -15,6 +15,7 @@ import {TeacherSidebar} from './pages/teacher/TeacherSidebar.js';
 import {bindMobileNavigationV152} from './lib/mobileNavigationV152.js';
 import {bindGccLanguage} from './lib/i18nV157.js';
 import {WelcomeV117} from './pages/public/WelcomeV117.js';
+import {PracticePageV169,bindPracticePageV169} from './pages/public/PracticePageV169.js';
 import {HostVolunteersPageV117,bindHostVolunteersV117} from './pages/host/HostVolunteersV117.js';
 import { initRegistrationWizard } from './controllers/registrationWizard.js';
 import { SchedulingPage, bindSchedulePlanner } from './pages/host/SchedulingPage.js';
@@ -110,6 +111,7 @@ import {
 
 const routes = {
   welcome: WelcomeV117,
+  practice: PracticePageV169,
   dashboard: DashboardPage,
   sessions: SimpleSessionsPage,
   events: EventsPage,
@@ -145,6 +147,7 @@ const publicRoutes =
   new Set([
     'login',
     'welcome',
+    'practice',
     'registration',
     'teacher-access',
     'teacher-password',
@@ -289,6 +292,7 @@ function bindUiEvents() {
   bindSimpleSessionsPage();
   bindSharedRegistrationPage();
   bindRoomPlanLookupPage();
+  bindPracticePageV169();
   
   // Language switching is handled by the persistent bilingual UI module.
   // Translations do not change submitted form values or server-side identities.
@@ -3458,6 +3462,7 @@ export async function renderApp() {
 
   if (
     route === 'welcome' ||
+    route === 'practice' ||
     route === 'login' ||
     route === 'registration' ||
     route === 'teacher-access' ||
