@@ -1,0 +1,33 @@
+/* GCC V16.1: guided breakout-room discovery after code + etiquette confirmation. */
+.gcc-v104-guest .gcc-v161-choice[hidden],
+.gcc-v104-guest .gcc-v161-finder[hidden],
+.gcc-v104-guest .gcc-v161-full[hidden],
+.gcc-v104-guest .gcc-v161-detail[hidden]{display:none!important}
+.gcc-v161-choice,.gcc-v161-finder{margin:20px 0;padding:clamp(16px,3vw,28px);border:1px solid #cfe8e8;border-radius:24px;background:linear-gradient(145deg,#f0fcff,#f3fff5);box-shadow:0 8px 30px #0b6e7920}
+.gcc-v161-eyebrow{font-size:.73rem;font-weight:900;letter-spacing:.12em;color:#087f91}
+.gcc-v161-choice h2,.gcc-v161-finder h2{font-size:clamp(1.45rem,4vw,2rem);line-height:1.2;margin:8px 0;color:#153b5b}
+.gcc-v161-choice p,.gcc-v161-finder p{color:#54717d;line-height:1.55}
+.gcc-v161-modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.gcc-v161-modes button{display:grid;justify-items:start;text-align:left;gap:9px;min-height:145px;padding:20px;border-radius:20px;border:2px solid #aee5e2;background:#fff;box-shadow:0 5px 0 #d5efea;color:#18445c;font:inherit;cursor:pointer}
+.gcc-v161-modes button:first-child{border-color:#7acac5;background:linear-gradient(135deg,#ddfff3,#f7fffe)}
+.gcc-v161-modes button:hover{transform:translateY(-2px);box-shadow:0 8px 20px #137b8b22}
+.gcc-v161-modes strong{font-size:1.16rem}.gcc-v161-modes small{font-size:.84rem;line-height:1.4;color:#5c7684}
+.gcc-v161-icon{font-size:2rem;line-height:1.1}
+.gcc-v161-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.gcc-v161-fields label{display:grid;gap:8px;font-weight:850;color:#294b5b}
+.gcc-v161-fields select{width:100%;min-width:0;min-height:54px;border:1px solid #b6d9df;border-radius:12px;background:white;padding:12px;font:inherit;font-size:1rem;color:#244d60}
+.gcc-v161-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}
+.gcc-v161-actions button{min-height:47px;border:1px solid #bfdfe5;border-radius:12px;background:white;color:#205778;padding:11px 17px;font:inherit;font-weight:800;cursor:pointer}
+.gcc-v161-actions .gcc-v161-primary{background:linear-gradient(120deg,#079f8d,#1685bd);border:0;color:white;box-shadow:0 4px 0 #0a7485}
+.gcc-v161-actions button:disabled{opacity:.45;cursor:not-allowed}
+.gcc-v161-detail{margin-top:22px;border:2px solid #7ed6c4;border-radius:22px;padding:clamp(14px,3vw,23px);background:#fff;box-shadow:0 12px 28px #0e736d1b}
+.gcc-v161-room-number{font-size:clamp(2.8rem,8vw,5rem);font-weight:950;line-height:1.1;letter-spacing:-.05em;color:#0a8e86}
+.gcc-v161-selection{font-weight:850;font-size:1.08rem;color:#1a516d;margin:9px 0 16px}
+.gcc-v161-detail .gcc-v104-room{max-width:700px;margin:0 auto}
+.gcc-v161-detail .gcc-v104-room-heading{display:none}
+.gcc-v161-detail .gcc-v104-person{padding:9px 0}
+.gcc-v161-room-caption{margin:15px 0 0;color:#507582;font-size:.87rem}
+.gcc-v161-full>.gcc-v161-actions{margin:0 0 12px}
+.gcc-v161-choice button:focus-visible,.gcc-v161-finder button:focus-visible,.gcc-v161-finder select:focus-visible,.gcc-v161-full button:focus-visible{outline:3px solid #138cba;outline-offset:3px}
+@media(max-width:650px){.gcc-v161-modes,.gcc-v161-fields{grid-template-columns:1fr}.gcc-v161-modes button{min-height:116px;padding:16px}.gcc-v161-choice,.gcc-v161-finder{margin:12px 0;padding:15px;border-radius:18px}.gcc-v161-actions{display:grid}.gcc-v161-actions button{width:100%}}
+@media(prefers-reduced-motion:reduce){.gcc-v161-modes button:hover{transform:none}}
