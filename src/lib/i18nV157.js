@@ -1,7 +1,7 @@
 // GCC V15.7 — Japanese / English interface. Source strings are English UI copy.
 // Never translate free-form user content, stored form values, IDs, dates or URLs.
 const STORAGE_KEY='gcc-ui-language-v157';
-const pairs=String.raw\`
+const pairs=String.raw`
 Language | 表示言語
 English | 英語
 Sign in | ログイン
@@ -378,7 +378,7 @@ Registration approved | 登録を承認しました
 Request sent! | 参加申請を送信しました！
 No email was sent. | メールは送信されません。
 All volunteer roles | すべてのボランティアの役割
-\`;
+`;
 // Convert the source dictionary to a Map; only exact authored UI strings translate.
 export const JA_UI=Object.freeze(Object.fromEntries(
  pairs.trim().split('\n').map(line=>{
@@ -395,17 +395,17 @@ export function translateUiText(text,locale='ja'){
  let translated=JA_UI[trimmed];
  if(!translated){
   let match=trimmed.match(/^(\d+)\s+rooms?\s*[·•]\s*(\d+)\s+students?$/i);
-  if(match)translated=\`\${match[1]}室 · \${match[2]}人の生徒\`;
+  if(match)translated=`${match[1]}室 · ${match[2]}人の生徒`;
   match=trimmed.match(/^(\d+)\s+sessions?$/i);
-  if(!translated&&match)translated=\`\${match[1]}件のセッション\`;
+  if(!translated&&match)translated=`${match[1]}件のセッション`;
   match=trimmed.match(/^(\d+)\s+students?$/i);
-  if(!translated&&match)translated=\`\${match[1]}人の生徒\`;
+  if(!translated&&match)translated=`${match[1]}人の生徒`;
   match=trimmed.match(/^Room\s+(\d+)$/i);
-  if(!translated&&match)translated=\`ルーム \${match[1]}\`;
+  if(!translated&&match)translated=`ルーム ${match[1]}`;
   match=trimmed.match(/^Step\s+(\d+)\s+of\s+4(?:\s*[·•]\s*(.+))?$/i);
-  if(!translated&&match)translated=\`ステップ\${match[1]} / 4\${match[2]?' · '+(JA_UI[match[2]]||match[2]):''}\`;
+  if(!translated&&match)translated=`ステップ${match[1]} / 4${match[2]?' · '+(JA_UI[match[2]]||match[2]):''}`;
   match=trimmed.match(/^(\d+)\s+countries?\s+with\s+available\s+sessions?.*$/i);
-  if(!translated&&match)translated=\`募集中の国：\${match[1]}か国 · 地図のピンを選択\`;
+  if(!translated&&match)translated=`募集中の国：${match[1]}か国 · 地図のピンを選択`;
  }
  if(!translated)return text;
  const left=text.match(/^\s*/)?.[0]||'';
