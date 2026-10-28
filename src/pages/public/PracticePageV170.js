@@ -20,7 +20,7 @@ const icons={student:'🎓',facilitator:'🎙️'};
 const levelName={standard:'Standard',advanced:'Advanced',challenge:'Final Challenge'};
 export function PracticePageV170(){return `
 <main id="gcc170" class="gcc170">
- <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong><div class="gcc171-language" role="group" aria-label="Language"><button type="button" data-ui-lang="en" aria-pressed="true">EN</button><button type="button" data-ui-lang="ja" aria-pressed="false">日本語</button></div></header>
+ <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong><span class="gcc171-no-account">No account needed</span><div class="gcc171-language" role="group" aria-label="Language"><button type="button" data-ui-lang="en" aria-pressed="true">EN</button><button type="button" data-ui-lang="ja" aria-pressed="false">日本語</button></div></header>
  <section class="gcc170-overview" aria-label="My Practice Overview">
   <div class="gcc170-overview-title"><span>🏆 MY PRACTICE OVERVIEW</span><strong id="gcc170-overview-role">STUDENT</strong></div>
   <div class="gcc170-stat"><strong id="gcc170-progress">0%</strong><small>Progress</small></div>
@@ -138,7 +138,7 @@ export function bindPracticePageV170(){
  }
  function begin(){
   if(!SpeechRecognition||recording)return;
-  speechSynthesis?.cancel();stopRecognition();recording=true;ending=false;segments=[];interim='';const myToken=token;
+  window.speechSynthesis?.cancel();stopRecognition();recording=true;ending=false;segments=[];interim='';const myToken=token;
   $('start').disabled=true;$('end').disabled=false;$('status').textContent='🔴 Listening… Press End & Score when you finish. / 終了ボタンまで採点しません。';
   $('transcript').textContent='Listening…';root.classList.add('gcc170-recording');
   // Browser speech APIs can auto-end after a pause. Restart recognition while Start is active;
