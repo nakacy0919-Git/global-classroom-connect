@@ -22,6 +22,7 @@ const svg=(name,cls='')=>`<svg class="${cls}" width="24" height="24" viewBox="0 
 export function WelcomeV117(){return `<section class="gcc117-welcome" aria-labelledby="gcc117-heading">
  <div class="gcc117-world" aria-hidden="true"><div class="gcc117-globe"></div><i class="gcc117-orbit gcc117-orbit-a"></i><i class="gcc117-orbit gcc117-orbit-b"></i><i class="gcc117-dot gcc117-dot-a"></i><i class="gcc117-dot gcc117-dot-b"></i><i class="gcc117-dot gcc117-dot-c"></i></div>
  <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management" class="gcc124-actions">
+    <div class="gcc157-home-lang" role="group" aria-label="Choose interface language"><span aria-hidden="true">🌐</span><button type="button" data-lang="en" aria-label="Display in English">EN</button><button type="button" data-lang="ja" aria-label="日本語で表示">日本語</button></div>
     <a href="#/teacher-access" class="gcc120-signin-top">${svg('profile')}<span>Sign in</span></a>
     <a href="#/signup" class="gcc120-signup-top"><span>Sign up</span>${svg('arrow')}</a>
     <details class="gcc124-account-menu">
