@@ -63,9 +63,9 @@ export function bindRoomFinderV161(root){
  findButton.addEventListener('click',showSelected);
  return {onDraw(data){
   const previous=chosen;
+  const oldPersonEntry=entries.find(e=>e.id===person.value);
   entries=roomFinderEntriesV161(data.rooms);
   const oldSchool=school.value;
-  const oldPersonEntry=entries.find(e=>e.id===person.value);
   school.replaceChildren(option('','Select your school…'));
   for(const s of roomFinderSchoolsV161(entries))school.append(option(s,s));
   school.value=[...school.options].some(o=>o.value===oldSchool)?oldSchool:'';
