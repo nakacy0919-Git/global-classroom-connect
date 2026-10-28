@@ -1,5 +1,6 @@
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
-import {listPublicSessions} from '../../services/simpleSessionService.js';
+import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
+import '../../styles/publicSessionOverviewV168.css';
 // GCC_SESSION_SPLIT_V3: host-only browsing; teacher self-service requires account security.
 import '../../styles/findSession.css';
 import '../../styles/sessionWorkspacePolish.css'; // GCC_WORKFLOW_POLISH_V41
@@ -111,21 +112,64 @@ export function bindFindSessionPage() {
   more.append(moreTitle,...advancedFields);
   optionalHeading.replaceWith(more);
 
+  function showPublicSessionOverviewV168(e){
+    let dialog=root.querySelector('#gcc-v168-public-dialog');
+    if(!dialog){
+      dialog=el('dialog','gcc-v168-dialog');dialog.id='gcc-v168-public-dialog';
+      dialog.setAttribute('aria-label','Session overview');
+      root.append(dialog);
+    }
+    dialog.replaceChildren();
+    const header=el('div','gcc-v168-top');
+    const eyebrow=el('span','gcc-v168-eyebrow','GLOBAL CLASSROOM CONNECT · SESSION OVERVIEW');
+    const close=el('button','gcc-v168-close','✕');close.type='button';
+    close.setAttribute('aria-label','Close session overview');close.addEventListener('click',()=>dialog.close());
+    header.append(eyebrow,close);
+    const body=el('div','gcc-v168-body');
+    body.append(el('h2','',e.title||'International classroom exchange'));
+    const status=el('span','gcc-v168-badge','● Open for registration');
+    body.append(status);
+    const zone=e.timezone||'Asia/Tokyo';
+    const when=el('div','gcc-v168-when');
+    const icon=el('span','gcc-v168-clock','◷');icon.setAttribute('aria-hidden','true');
+    const time=el('div','');
+    let dateText='Date to be confirmed';
+    try{
+      const fmt=new Intl.DateTimeFormat('en',{dateStyle:'full',timeStyle:'short',timeZone:zone});
+      dateText=fmt.format(new Date(e.starts_at));
+      if(e.ends_at)dateText+=' – '+new Intl.DateTimeFormat('en',{timeStyle:'short',timeZone:zone}).format(new Date(e.ends_at));
+    }catch{}
+    time.append(el('strong','',dateText),el('small','',zone));
+    when.append(icon,time);body.append(when);
+    const countries=Array.isArray(e.countries)?e.countries.filter(x=>typeof x==='string'&&x.trim()):[];
+    const stats=el('div','gcc-v168-stats');
+    for(const [value,label] of [[Number(e.students)||0,'Registered students'],[Number(e.schools)||0,'Participating schools'],[countries.length,'Countries']]){
+      const box=el('div','gcc-v168-stat');box.append(el('strong','',String(value)),el('span','',label));stats.append(box);
+    }
+    body.append(stats);
+    const countriesBox=el('section','gcc-v168-countries');
+    countriesBox.append(el('h3','','🌍 Participating countries'),
+      el('p','',countries.length?countries.join(' · '):'Countries will appear after registrations are approved.'));
+    body.append(countriesBox);
+    body.append(el('p','gcc-v168-privacy','Only a general overview is shown. Student names, teacher contacts, school rosters and breakout room assignments are private.'));
+    const footer=el('div','gcc-v168-actions');
+    footer.append(el('p','', 'Registration requests require host approval. Submitting does not guarantee participation.'));
+    const register=el('a','gcc-v168-register','Register for this session →');
+    register.href='#/session-register?session='+encodeURIComponent(e.id);
+    register.addEventListener('click',()=>dialog.close());
+    footer.append(register);
+    dialog.append(header,body,footer);
+    dialog.showModal();
+  }
   async function loadPublishedCalendarV166(){
     const mount=root.querySelector('#gcc-v166-public-calendar');
     try{
-      const events=await listPublicSessions();
+      const events=await listPublicSessionOverviews();
       mount.replaceChildren();
       mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
-        initialMonth:new Date().toISOString().slice(0,7),onSelect:e=>{
-          let detail=mount.querySelector('#gcc-v166-find-detail');
-          if(!detail){detail=el('section','gcc-v166-find-detail');detail.id='gcc-v166-find-detail';mount.append(detail);}
-          detail.replaceChildren(el('h4','',e.title),
-            el('p','',new Intl.DateTimeFormat('en',{dateStyle:'full',timeStyle:'short',timeZone:e.timezone||'Asia/Tokyo'}).format(new Date(e.starts_at))+' · '+(e.timezone||'Asia/Tokyo')),
-            el('p','','Registration requests are reviewed by the host. Applying does not guarantee approval.'));
-          const link=el('a','','Register for this session →');
-          link.href='#/session-register?session='+encodeURIComponent(e.id);detail.append(link);
-        }});
+        initialMonth:new Date().toISOString().slice(0,7),
+        cardSummary:e=>(Number(e.students)||0)+' students · '+(Array.isArray(e.countries)?e.countries.length:0)+' countries',
+        onSelect:showPublicSessionOverviewV168});
       if(!events.length)mount.append(el('p','gcf-intro','No upcoming published sessions yet. Check back soon.'));
     }catch(error){mount.replaceChildren(el('p','gcf-error','Published sessions could not be loaded: '+error.message));}
   }
