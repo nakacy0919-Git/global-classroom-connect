@@ -44,3 +44,13 @@
 @media(max-width:700px){.gcc153-hero{flex-direction:column;align-items:stretch;padding:18px;gap:13px}.gcc153-network-link{align-self:flex-start}.gcc153-link-grid{grid-template-columns:minmax(0,1fr)}.gcc153-editor,.gcc153-school-panel{padding:16px 14px}.gcc153-avatar{width:100px;height:100px;flex-basis:100px;border-radius:19px}.gcc153-savebar button{width:100%}}
 @media(max-width:370px){.gcc153-photo-row{flex-direction:column;align-items:flex-start}.gcc153-photo-actions{flex-basis:auto}}
 @media(prefers-reduced-motion:reduce){.gcc153-page *{scroll-behavior:auto}}
+
+/* A dedicated editor owns personal changes; Teacher Network shows only the directory. */
+.gct-portal [data-gct-view="network"] .gcn116-layout{grid-template-columns:minmax(0,1fr)}
+.gct-portal [data-gct-view="network"] .gcn116-layout>form#gcn116-profile{display:none!important}
+.gct-portal [data-gct-view="network"] .gcn116-network>.gct-section-head{display:none}
+.gcc153-directory-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:15px}
+.gcc153-directory-head h3{margin:0;font-size:1.4rem;color:#195777}
+.gcc153-directory-head p{margin:5px 0 0;font-size:.85rem;color:#6c8c99}
+.gcc153-directory-head a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 13px;border-radius:11px;font-weight:800;font-size:.81rem}
+@media(max-width:600px){.gcc153-directory-head a{width:100%}}
