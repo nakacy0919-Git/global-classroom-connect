@@ -1,0 +1,303 @@
+/* GCC V18.0 — clean practice layout, dedicated analytics, bilingual mission, accessible sound controls. */
+#app .gcc170{gap:7px}
+#app .gcc170 .gcc170-top.gcc180-minimal-top{
+  display:flex;align-items:center;justify-content:flex-start;flex:0 0 auto;
+  width:min(100%,1480px);min-height:35px;
+  margin:0 auto;padding:0;gap:0;
+}
+#app .gcc170 .gcc170-top.gcc180-minimal-top>a{margin:0}
+#app .gcc170 .gcc178-practice-content{gap:5px}
+#app .gcc170 .gcc170-choose{margin:0;min-height:0;align-items:center}
+#app .gcc170 .gcc179-stage-heading{gap:3px}
+#app .gcc170 .gcc179-change-role{
+  padding:5px 10px;min-height:27px;margin-bottom:2px;font-size:.68rem;
+}
+#app .gcc170 .gcc170-kicker{font-size:.57rem}
+#app .gcc170 .gcc180-practice-actions{
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:8px;flex-wrap:wrap;min-width:0;
+}
+#app .gcc170 .gcc180-practice-actions button{
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#275774;background:#fff!important;
+  border:1px solid #d3e1eb;border-radius:10px;
+  box-shadow:0 2px 7px #3857730a;
+  min-height:34px;padding:7px 12px;
+  font-size:.73rem;font-weight:750;white-space:nowrap;
+}
+#app .gcc170 .gcc180-practice-actions button:hover{background:#edf6fb!important}
+#app .gcc170 .gcc180-practice-actions #gcc170-profile-open{
+  border-color:#a6c7d9;background:#e8f4fa!important;font-weight:850;
+}
+#app .gcc170 .gcc180-practice-actions #gcc180-sound-toggle[aria-pressed="false"]{color:#8c9aac}
+#app .gcc170 .gcc180-overview-screen{
+  flex:1 1 auto;min-height:0;overflow-y:auto;
+  display:flex;align-items:flex-start;justify-content:center;
+  width:100%;padding:5px 8px 15px;
+}
+#app .gcc170 .gcc180-report-card{
+  width:min(940px,100%);margin:auto;
+  border:1px solid #d5e4ee;border-radius:22px;
+  padding:clamp(18px,2.7vw,31px);
+  background:linear-gradient(180deg,#fff,#fafdff);
+  box-shadow:0 20px 50px rgba(41,82,114,.12);
+  display:flex;flex-direction:column;gap:14px;
+}
+#app .gcc170 .gcc180-report-heading{text-align:center}
+#app .gcc170 .gcc180-eyebrow{
+  display:inline-block;background:#e7f2f8;color:#245c77;
+  font-size:.72rem;font-weight:850;letter-spacing:.12em;
+  border-radius:99px;padding:6px 12px;
+}
+#app .gcc170 .gcc180-report-heading h1{
+  color:#1d435e;font-size:clamp(1.55rem,2.6vw,2.35rem);
+  line-height:1.15;margin:9px 0 5px;
+}
+#app .gcc170 .gcc180-report-heading p{
+  margin:0;color:#667f92;font-size:.85rem;line-height:1.4;
+}
+#app .gcc170 .gcc180-report-overview{
+  display:flex;flex-direction:column;
+  background:#f7fbfd;color:#173e59;
+  border:1px solid #e1ecf2;border-radius:14px;
+  box-shadow:none;margin:0;gap:10px;padding:15px 20px;
+  min-width:0;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-overview-title{
+  display:flex;flex-direction:row;gap:12px;
+  justify-content:space-between;align-items:baseline;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-overview-title span{
+  color:#244c69;font-size:.9rem;font-weight:850;letter-spacing:.01em;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-overview-title strong{
+  color:#5b798f;font-size:.74rem;opacity:1;font-weight:750;white-space:normal;
+}
+#app .gcc170 .gcc180-report-overview .gcc179-overview-stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;padding-top:12px;border-top:1px solid #dce9f0;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-stat{
+  display:flex;flex-direction:column;gap:4px;text-align:center;align-items:center;min-width:0;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-stat strong{
+  font-size:clamp(1.25rem,2.2vw,1.9rem);font-weight:800;line-height:1.15;
+  color:#204b67;font-variant-numeric:tabular-nums;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-stat small{
+  font-size:.69rem;font-weight:700;color:#627c8e;opacity:1;line-height:1.2;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-overview-bar{
+  height:8px;width:100%;grid-column:auto;
+  background:#dae5eb;border-radius:99px;overflow:hidden;margin:1px 0 0;
+}
+#app .gcc170 .gcc180-report-overview .gcc170-overview-bar>div{
+  height:100%;border-radius:99px;background:linear-gradient(90deg,#287eab,#3eab99);
+}
+#app .gcc170 .gcc180-report-insight{
+  padding:12px 16px;border-left:3px solid #3a90a9;
+  background:#f2f8fa;color:#355f71;font-size:.83rem;
+  line-height:1.45;border-radius:0 9px 9px 0;
+}
+#app .gcc170 .gcc180-report-stages-heading{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+}
+#app .gcc170 .gcc180-report-stages-heading h2{
+  color:#284f68;margin:0;font-size:.98rem;font-weight:850;
+}
+#app .gcc170 .gcc180-report-stages-heading small{color:#748d9d;font-size:.7rem}
+#app .gcc170 .gcc180-stage-breakdown{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:22px;row-gap:11px;
+}
+#app .gcc170 .gcc180-stage-progress{
+  display:flex;flex-direction:column;gap:5px;min-width:0;
+}
+#app .gcc170 .gcc180-stage-progress-title{
+  display:flex;justify-content:space-between;align-items:baseline;
+  gap:8px;min-width:0;color:#355d76;font-size:.75rem;font-weight:740;
+}
+#app .gcc170 .gcc180-stage-progress-title span{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+}
+#app .gcc170 .gcc180-stage-progress-title strong{
+  font-variant-numeric:tabular-nums;color:#748c9e;flex-shrink:0;
+}
+#app .gcc170 .gcc180-stage-track{
+  display:block;height:7px;width:100%;border-radius:99px;background:#e3e9ec;overflow:hidden;
+}
+#app .gcc170 .gcc180-stage-fill{
+  display:block;height:100%;border-radius:99px;
+  background:#3585a8;
+}
+#app .gcc170 .gcc180-report-actions{
+  display:flex;justify-content:space-between;gap:13px;margin-top:3px;
+}
+#app .gcc170 .gcc180-report-actions button{
+  border:1px solid #cadce6;background:#fff;color:#45687c;
+  border-radius:11px;min-height:43px;padding:11px 17px;
+  font-size:.85rem;font-weight:850;
+}
+#app .gcc170 .gcc180-report-actions #gcc180-overview-next{
+  background:linear-gradient(105deg,#287d9c,#285c89);
+  border-color:#296b8b;color:#fff;min-width:190px;
+}
+#app .gcc170 .gcc180-report-actions #gcc180-overview-next:hover{
+  filter:brightness(1.08);
+}
+/* Fix illustration/missions overlap: the image belongs entirely inside the intro row. */
+#app .gcc170 .gcc177-phrase-panel .gcc173-preview-intro{
+  width:100%;display:grid;grid-template-columns:42px minmax(0,1fr) minmax(210px,310px);
+  gap:12px;align-items:center;min-height:0;height:auto;
+  flex:0 0 auto;padding:9px 2px 10px;margin:0;
+  border-bottom:1px solid #e4edf4;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-preview-intro>span{
+  align-self:center;justify-self:center;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy{
+  grid-column:2;min-width:0;align-self:center;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-stage-image{
+  grid-column:3;grid-row:1;display:block;
+  justify-self:center;align-self:center;
+  width:100%;height:auto;max-width:310px;max-height:175px;
+  aspect-ratio:16/9;object-fit:contain;object-position:center;
+  margin:0;border-radius:10px;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy h2{
+  font-size:clamp(1.01rem,1.25vw,1.25rem);line-height:1.2;margin:0 0 5px;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy p,
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy small{
+  display:block;line-height:1.35;margin:2px 0 0;overflow-wrap:anywhere;
+}
+/* Mission language tabs; default two-line preview, full text on More. */
+#app .gcc170 .gcc177-phrase-panel .gcc180-mission{
+  width:100%;flex:0 0 auto;min-height:0;
+  display:flex;flex-direction:column;gap:4px;
+  padding:9px 12px;margin:4px 0 6px;
+  border-radius:11px;
+  background:linear-gradient(110deg,#f1f7fc,#f7f4ff);
+}
+#app .gcc170 .gcc180-mission-heading{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+#app .gcc170 .gcc180-mission-heading>span{
+  color:#5c77a0;font-size:.68rem;font-weight:850;letter-spacing:.045em;
+}
+#app .gcc170 .gcc180-mission-controls{
+  display:inline-flex;align-items:center;gap:2px;
+  background:#e5edf5;border-radius:9px;padding:3px;flex-shrink:0;
+}
+#app .gcc170 .gcc180-mission-controls button{
+  border:0;border-radius:7px;background:transparent;
+  padding:4px 10px;color:#51718c;font-size:.68rem;font-weight:850;
+  min-height:24px;line-height:1.2;
+}
+#app .gcc170 .gcc180-mission-controls button[aria-pressed="true"]{
+  background:#fff;color:#22567e;box-shadow:0 1px 5px #2e52731d;
+}
+#app .gcc170 .gcc180-mission-controls #gcc180-mission-more{
+  border-left:1px solid #c7d7e4;border-radius:0 7px 7px 0;
+  padding-inline:9px;
+}
+#app .gcc170 .gcc180-mission>strong,
+#app .gcc170 .gcc180-mission>small{
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  line-clamp:2;overflow:hidden;
+  margin:0;max-width:100%;font-size:.77rem;line-height:1.42;
+  font-weight:700;color:#2c5579;overflow-wrap:anywhere;
+}
+#app .gcc170 .gcc180-mission>small{font-size:.75rem;color:#526b89}
+#app .gcc170 .gcc180-mission.gcc180-mission-expanded>strong,
+#app .gcc170 .gcc180-mission.gcc180-mission-expanded>small{
+  display:block;-webkit-line-clamp:unset;line-clamp:unset;overflow:visible;
+}
+/* Field scrolling and clearly separate navigation footer. */
+#app .gcc170 .gcc170-profile-dialog{
+  width:min(565px,calc(100vw - 24px));
+  max-height:min(94dvh,790px);display:none;
+  flex-direction:column;overflow:hidden;
+}
+#app .gcc170 .gcc170-profile-dialog[open]{display:flex}
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields{
+  flex:1 1 auto;min-height:0;overflow-y:auto;
+  padding:16px 23px;gap:10px;
+}
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields label{gap:4px}
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields input,
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields textarea{
+  width:100%;min-width:0;padding:10px 12px;border-radius:9px;
+  border:1px solid #ccdbeb;font:inherit;background:#fff;color:#29465b;
+}
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields p{
+  margin:0 0 4px;line-height:1.45;
+}
+#app .gcc170 .gcc180-profile-footer{
+  flex:0 0 auto;display:flex;flex-direction:column;gap:8px;
+  padding:12px 22px 13px;border-top:1px solid #dfe8f0;
+  background:#f8fbfd;
+}
+#app .gcc170 .gcc180-profile-footer .gcc178-profile-actions{gap:9px}
+#app .gcc170 .gcc180-profile-footer .gcc178-profile-actions button{
+  min-height:40px;white-space:normal;
+}
+#app .gcc170 .gcc180-profile-footer .gcc180-reset-button{
+  align-self:stretch;min-height:29px;padding:4px 8px;
+  background:transparent;border:0;border-radius:6px;
+  font:inherit;font-size:.67rem;font-weight:650;color:#a86c70;
+}
+#app .gcc170 .gcc180-profile-footer .gcc180-reset-button:hover{
+  background:#fdf0f0;color:#963c4a;
+}
+@media(max-width:950px){
+ #app .gcc170 .gcc177-phrase-panel .gcc173-preview-intro{
+  grid-template-columns:34px minmax(0,1fr) minmax(155px,38%);gap:8px
+ }
+ #app .gcc170 .gcc177-phrase-panel .gcc178-stage-image{max-width:100%;max-height:none}
+ #app .gcc170 .gcc180-practice-actions{gap:5px}
+ #app .gcc170 .gcc180-practice-actions button{padding:6px 9px;font-size:.68rem}
+}
+@media(max-width:740px){
+ #app .gcc170 .gcc170-top.gcc180-minimal-top{padding:40px 0 0;min-height:0}
+ #app .gcc170 .gcc180-overview-screen{overflow:visible;flex:none;padding:8px 0 28px}
+ #app .gcc170 .gcc180-report-card{padding:17px 15px;gap:11px}
+ #app .gcc170 .gcc180-report-overview{padding:12px}
+ #app .gcc170 .gcc180-report-overview .gcc179-overview-stats{
+  grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px;
+ }
+ #app .gcc170 .gcc180-stage-breakdown{grid-template-columns:1fr}
+ #app .gcc170 .gcc180-report-actions{gap:8px}
+ #app .gcc170 .gcc180-report-actions button{padding:10px;font-size:.73rem;min-width:0}
+ #app .gcc170 .gcc180-report-actions #gcc180-overview-next{min-width:0}
+ #app .gcc170 .gcc170-choose{align-items:flex-start}
+ #app .gcc170 .gcc180-practice-actions{max-width:65%;justify-content:flex-end}
+ #app .gcc170 .gcc177-phrase-panel .gcc173-preview-intro{grid-template-columns:29px minmax(0,1fr) 140px}
+ #app .gcc170 .gcc180-mission-heading>span{font-size:.59rem}
+ #app .gcc170 .gcc180-mission-controls button{padding:4px 6px;font-size:.6rem}
+ #app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields{padding:12px 14px}
+ #app .gcc170 .gcc180-profile-footer{padding:10px 14px}
+}
+@media(max-width:480px){
+ #app .gcc170 .gcc177-phrase-panel .gcc173-preview-intro{
+  grid-template-columns:26px minmax(0,1fr);gap:7px;padding-block:9px;
+ }
+ #app .gcc170 .gcc177-phrase-panel .gcc178-stage-image{
+  grid-column:1/-1;grid-row:2;
+  width:min(100%,280px);max-width:280px;justify-self:center;
+ }
+ #app .gcc170 .gcc180-practice-actions{max-width:62%}
+ #app .gcc170 .gcc180-practice-actions button{font-size:.6rem;padding:5px 6px;min-height:31px}
+ #app .gcc170 .gcc180-report-heading p{font-size:.75rem}
+ #app .gcc170 .gcc180-report-overview .gcc170-overview-title{
+  flex-direction:column;align-items:start;gap:3px
+ }
+ #app .gcc170 .gcc180-mission-heading{align-items:flex-start;flex-wrap:wrap;gap:5px}
+ #app .gcc170 .gcc180-profile-footer .gcc178-profile-actions{gap:6px}
+ #app .gcc170 .gcc180-profile-footer .gcc178-profile-actions button{font-size:.69rem;padding:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .gcc170 .gcc170-confetti{display:none!important}
+ #app .gcc170 .gcc180-stage-fill{transition:none}
+}

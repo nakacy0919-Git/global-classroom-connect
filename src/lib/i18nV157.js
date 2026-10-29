@@ -558,6 +558,27 @@ My Practice Overview | 練習の記録
 ⚙ My Profile | ⚙ マイプロフィール
 Average accuracy | 平均一致率
 ← Change role / level | ← 役割・レベルを選び直す
+STEP 1 / 4 | ステップ 1 / 4
+STEP 2 / 4 | ステップ 2 / 4
+STEP 4 / 4 · LEARNING SNAPSHOT | ステップ 4 / 4 · 学習状況
+Your Practice Overview | 学習状況の確認
+Your progress for the selected role and level. Ready for your next conversation? | 選択した役割・レベルの学習状況です。次の交流に向けて準備しましょう。
+Learning progress | 学習の進み具合
+Speaking attempts | 音読練習回数
+Progress by Stage | ステージ別の進捗
+Completed phrases in each stage | ステージごとの練習済みフレーズ
+← Back to levels | ← レベル選択に戻る
+← Back to Practice | ← 練習画面に戻る
+Continue to Practice → | 練習を始める →
+Return to Practice → | 練習に戻る →
+▥ My Progress | ▥ 学習状況
+♪ Sound On | ♪ 効果音オン
+♪ Sound Off | ♪ 効果音オフ
+More ↓ | すべて表示 ↓
+Less ↑ | 閉じる ↑
+✓ Save & Continue / 保存して次へ | ✓ 保存して次へ
+Ready to begin! Choose any stage and build your confidence one phrase at a time. | さあ、始めましょう！ステージを選んで少しずつ自信をつけましょう。
+All phrases practiced! Keep sharpening your accuracy and confidence. | 全フレーズを練習しました！さらにAccuracyと自信を高めましょう。
 `;
 // Convert the source dictionary to a Map; only exact authored UI strings translate.
 export const JA_UI=Object.freeze(Object.fromEntries(
