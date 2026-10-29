@@ -56,6 +56,18 @@ test('every new item is a unique, speakable bilingual English model, with Japane
  }
  assert.equal(all.length,144);
 });
+test('the phrase preview renders from the imported V17.4 scene map for all roles and levels',()=>{
+ // A previous preview referenced undefined PRACTICE_SCENES_V173 after V17.4 imports were introduced,
+ // aborting paintPreview and leaving every phrase row blank after clicking a stage.
+ assert.match(page,/import \{[^\n]*PRACTICE_SCENES_V174\} from/);
+ assert.match(page,/function paintPreview\(\)\s*\{[\s\S]*?const s=stage\(\),scene=PRACTICE_SCENES_V174\[role\]\[s\.id\];/);
+ assert.doesNotMatch(page,/PRACTICE_SCENES_V173/);
+ for(const role of ['student','facilitator'])for(const stage of PRACTICE_STAGES[role]){
+  const scene=PRACTICE_SCENES_V174[role][stage.id];
+  for(const field of ['ja','goal','goalJa','scenario','scenarioJa','mission','missionJa'])assert.ok(scene[field],role+':'+stage.id+':'+field);
+  for(const level of ['standard','advanced','challenge'])assert.ok(getPracticeItemsV174(role,stage.id,level).length>0,role+':'+stage.id+':'+level);
+ }
+});
 test('the UI displays scenario missions and contextual cues while preserving the scoring dialog',()=>{
  assert.match(page,/getPracticeItemsV174 as getPracticeItems/);
  assert.match(page,/id="gcc174-mission-en"/);
