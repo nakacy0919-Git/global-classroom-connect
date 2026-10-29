@@ -553,6 +553,11 @@ Select a model phrase to open Read This Aloud. / モデルフレーズを選ぶ�
 Practice ↗ | 音読する ↗
 YOUR PRACTICE PHRASES | 練習するフレーズ
 English for Real Zoom Exchanges | Zoomでの実際の国際交流に役立つ英語
+← Back to Home | ← ホームに戻る
+My Practice Overview | 練習の記録
+⚙ My Profile | ⚙ マイプロフィール
+Average accuracy | 平均一致率
+← Change role / level | ← 役割・レベルを選び直す
 `;
 // Convert the source dictionary to a Map; only exact authored UI strings translate.
 export const JA_UI=Object.freeze(Object.fromEntries(
