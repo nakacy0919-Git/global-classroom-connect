@@ -531,6 +531,28 @@ Please read each of the five slides. First-time visitors must complete the guide
 ← Previous | ← 前へ
 Skip (already completed) | スキップ（確認済み）
 Your confirmation is remembered on this browser. Your session code was verified before this guide. | このブラウザでは確認済みの状態が保存されます。アクセスコードは認証済みです。
+🎤 PRACTICE MODE | 🎤 英語練習モード
+No account needed | アカウント不要
+🏆 MY PRACTICE OVERVIEW | 🏆 練習の記録
+Progress | 進捗
+Average Accuracy | 平均一致率
+Phrases practiced | 練習済みフレーズ
+🎓 Student | 🎓 生徒
+🎙️ Host / Facilitator | 🎙️ ホスト・進行役
+⭐ Standard | ⭐ 標準
+🚀 Advanced | 🚀 発展
+🏆 Challenge | 🏆 チャレンジ
+⚙ My profile | ⚙ マイプロフィール
+YOUR ZOOM CONVERSATION TOOLKIT | Zoom英会話の練習
+Choose a Stage | ステージを選ぼう
+8 stages | 8ステージ
+Select a stage to preview all the expressions before speaking. | 左側のステージを選んでフレーズを確認しましょう。
+MODEL PHRASES / モデルフレーズ | モデルフレーズ / MODEL PHRASES
+Choose a stage on the left / 左のステージを選択 | 左側からステージを選んでください
+Select a model phrase to open Read This Aloud. / モデルフレーズを選ぶと音読画面が開きます。 | フレーズを選ぶと音読練習画面が開きます。
+Practice ↗ | 音読する ↗
+YOUR PRACTICE PHRASES | 練習するフレーズ
+English for Real Zoom Exchanges | Zoomでの実際の国際交流に役立つ英語
 `;
 // Convert the source dictionary to a Map; only exact authored UI strings translate.
 export const JA_UI=Object.freeze(Object.fromEntries(

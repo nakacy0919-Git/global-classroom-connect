@@ -6,23 +6,34 @@ import {getPracticeItemsV174} from '../src/lib/practiceCurriculumV174.js';
 const file=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const page=file('src/pages/public/PracticePageV170.js');
 const css=file('src/styles/practicePopupV175.css');
-test('phrase library is a native modal dialog with close and Esc support',()=>{
- assert.match(page,/<dialog id="gcc173-preview"[^>]*gcc173-preview-dialog/);
- assert.match(page,/function selectStage\(i\)[\s\S]*?previewDialog\.showModal\(\)/);
- assert.match(page,/function closePreview\(\)[^\n]*previewDialog\.close\(\)/);
- assert.match(page,/previewDialog\.addEventListener\('cancel'/);
- assert.match(page,/previewDialog\.addEventListener\('click'/);
- assert.doesNotMatch(page,/explorer\.classList\.add\('gcc173-expanded'\)/);
- assert.match(css,/dialog\.gcc173-preview-dialog\[open\]/);
- assert.match(css,/dialog\.gcc173-preview-dialog:not\(\[open\]\)/);
- assert.match(css,/::backdrop/);
+const sidebarCss=file('src/styles/practiceSidebarV177.css');
+const i18n=file('src/lib/i18nV157.js');
+test('all eight stages remain in the left column while model phrases fill the right panel',()=>{
+ assert.match(page,/<nav id="gcc170-stages"[^>]*class="gcc170-stages"/);
+ assert.match(page,/<section id="gcc173-preview"[^>]*gcc177-phrase-panel/);
+ assert.match(page,/id="gcc173-phrase-list"/);
+ assert.doesNotMatch(page,/<dialog id="gcc173-preview"/);
+ assert.doesNotMatch(page,/previewDialog\.showModal\(\)/);
+ assert.match(page,/function selectStage\(i\)[\s\S]*?paintStages\(\);paintPreview\(\)/);
+ assert.match(sidebarCss,/grid-template-columns:minmax\(250px,310px\) minmax\(0,1fr\)/);
+ assert.match(sidebarCss,/grid-template-rows:repeat\(8,minmax\(54px,1fr\)\)/);
+ assert.match(sidebarCss,/\.gcc177-phrase-panel \.gcc173-phrase-list/);
+ assert.match(sidebarCss,/@media\(max-width:740px\)/);
 });
-test('speaking opens from a selected phrase and returns to that list on close',()=>{
+test('selecting a model phrase opens only the speaking dialog and preserves the chosen stage on close',()=>{
+ assert.match(page,/b\.addEventListener\('click',\(\)=>selectStage\(i\)\)/);
  assert.match(page,/button\.addEventListener\('click',\(\)=>openStage\(stageIndex,i\)\)/);
- assert.match(page,/function openStage\(i,index=0\)[\s\S]*?previewDialog\.close\(\)[\s\S]*?stageDialog\.showModal\(\)/);
- assert.match(page,/stageDialog\.addEventListener\('close',[\s\S]*?paintPreview\(\);previewDialog\.showModal\(\)/);
+ assert.match(page,/function openStage\(i,index=0\)[\s\S]*?paintItem\(\);stageDialog\.showModal\(\)/);
+ assert.match(page,/stageDialog\.addEventListener\('close',[\s\S]*?paintStages\(\);paintPreview\(\)/);
  assert.match(page,/stopRecognition\(\)/);
  assert.match(page,/const key=\(r,l,s,i\)/);
+});
+test('only one top-right language switch is rendered and shared GCC language drives Practice',()=>{
+ assert.doesNotMatch(page,/data-ui-lang=/);
+ assert.doesNotMatch(page,/gcc171-language/);
+ assert.match(i18n,/gcc157-public-lang/);
+ assert.match(i18n,/MODEL PHRASES \/ モデルフレーズ/);
+ assert.match(i18n,/Choose a Stage \| ステージを選ぼう/);
 });
 test('read-aloud sentence is visually prominent and clearly contrasted',()=>{
  assert.match(page,/READ THIS ALOUD/);
