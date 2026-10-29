@@ -5,6 +5,7 @@ import '../../styles/practiceStudioV170.css';
 import '../../styles/practiceStudioV171.css';
 import '../../styles/practiceExplorerV173.css';
 import '../../styles/practiceSituationsV174.css';
+import '../../styles/practicePopupV175.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
@@ -41,14 +42,14 @@ export function PracticePageV170(){return `
  <section class="gcc170-choose"><div><span class="gcc170-kicker">YOUR ZOOM CONVERSATION TOOLKIT</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Select a stage to preview all the expressions before speaking.</p></section>
  <section id="gcc173-explorer" class="gcc173-explorer" aria-label="Speaking stages and practice phrase list">
    <div id="gcc170-stages" class="gcc170-stages" aria-label="Practice stages"></div>
-   <section id="gcc173-preview" class="gcc173-preview" aria-label="Stage phrase preview" hidden>
+ </section>
+ <dialog id="gcc173-preview" class="gcc170-dialog gcc173-preview gcc173-preview-dialog" aria-label="Choose a practice phrase">
     <header class="gcc173-preview-header"><span class="gcc173-preview-badge">YOUR PRACTICE PHRASES</span><button id="gcc173-preview-close" type="button" aria-label="Close preview">✕ Close</button></header>
     <div class="gcc173-preview-intro"><span id="gcc173-preview-icon" aria-hidden="true"></span><div><h2 id="gcc173-preview-title"></h2><p id="gcc173-preview-ja" lang="ja"></p><p id="gcc173-preview-goal"></p><small id="gcc173-preview-goal-ja" lang="ja"></small></div></div>
     <div class="gcc174-mission"><span>🎯 REAL-LIFE MISSION / 実践ミッション</span><strong id="gcc174-mission-en"></strong><small id="gcc174-mission-ja" lang="ja"></small></div>
     <div id="gcc173-phrase-list" class="gcc173-phrase-list"></div>
     <p class="gcc173-preview-hint">Select any phrase to open the speaking practice. / 練習したい表現を選んでください。</p>
-   </section>
- </section>
+ </dialog>
  <footer class="gcc170-foot">🔒 Your practice scores are stored on this device only. · Speech-to-text accuracy is not a direct assessment of pronunciation.</footer>
  <dialog id="gcc170-profile-dialog" class="gcc170-dialog gcc170-profile-dialog" aria-label="Personalize your practice">
   <div class="gcc170-dialog-top"><strong>⚙ Make it yours</strong><button type="button" id="gcc170-profile-close">✕ Close</button></div>
@@ -60,7 +61,7 @@ export function PracticePageV170(){return `
    <div class="gcc170-scene"><div class="gcc170-scene-icon" id="gcc170-scene-icon">🎧</div><div><span id="gcc170-scene-level" class="gcc170-scene-level">STANDARD</span><h2 id="gcc170-scene-title"></h2><p id="gcc170-scene-hint"></p></div></div>
    <div class="gcc170-phrase-nav"><button type="button" id="gcc170-prev">← Previous</button><span id="gcc170-counter">1 / 3</span><button type="button" id="gcc170-next">Next →</button></div>
    <div class="gcc174-dialog-cue" id="gcc174-dialog-cue" hidden><span>📍 SITUATION / 場面</span><strong id="gcc174-dialog-cue-en"></strong><small id="gcc174-dialog-cue-ja" lang="ja"></small></div>
-   <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span>MODEL PHRASE</span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
+   <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span class="gcc175-read-label">📣 READ THIS ALOUD <small lang="ja">ここを声に出して読もう</small></span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
    <div class="gcc170-mic-actions"><button id="gcc170-start" type="button">🎙️ Start Speaking</button><button id="gcc170-end" type="button" disabled>■ End & Score</button></div>
    <p id="gcc170-status" class="gcc170-status" role="status"></p>
    <div class="gcc171-results"><div class="gcc170-transcript"><span>YOUR SPEECH / 文字起こし</span><p id="gcc170-transcript">Your words will appear here…</p></div><div class="gcc170-score-panel"><div class="gcc170-score-heading"><span>ACCURACY</span><span id="gcc170-best">Best: —</span></div><div class="gcc171-gauge" role="meter" aria-label="Accuracy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg viewBox="0 0 200 112" aria-hidden="true"><path class="gcc171-gauge-base" d="M 18 100 A 82 82 0 0 1 182 100" pathLength="100"/><path id="gcc170-score-fill" class="gcc171-gauge-fill" d="M 18 100 A 82 82 0 0 1 182 100" pathLength="100"/></svg><div class="gcc170-score-value" id="gcc170-score-value">—%</div></div><p id="gcc170-score-message">Aim for 80%! 🎯</p></div></div>
@@ -76,7 +77,7 @@ export function bindPracticePageV170(){
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  const stages=()=>PRACTICE_STAGES[role],stage=()=>stages()[stageIndex],items=()=>getPracticeItems(role,stage().id,level);
  const profileDialog=$('profile-dialog'),stageDialog=$('stage-dialog');
- const explorer=document.getElementById('gcc173-explorer'),preview=document.getElementById('gcc173-preview');
+ const previewDialog=document.getElementById('gcc173-preview');
  let previewOpen=false;
  const save=()=>{if(!write(state))$('status').textContent='This browser could not save scores.';};
  const key=(r,l,s,i)=>r+'|'+l+'|'+s+'|'+i;
@@ -157,14 +158,21 @@ export function bindPracticePageV170(){
  }
  function selectStage(i){
   stopRecognition();stageIndex=i;itemIndex=0;
-  previewOpen=true;preview.hidden=false;explorer.classList.add('gcc173-expanded');
+  previewOpen=true;
   paintStages();paintPreview();
+  if(!previewDialog.open)previewDialog.showModal();
  }
- function closePreview(){previewOpen=false;explorer.classList.remove('gcc173-expanded');preview.hidden=true;paintStages();}
- function openStage(i,index=0){stopRecognition();stageIndex=i;itemIndex=index;paintItem();stageDialog.showModal();}
+ function closePreview(){previewOpen=false;if(previewDialog.open)previewDialog.close();paintStages();}
+ function openStage(i,index=0){
+  stopRecognition();stageIndex=i;itemIndex=index;
+  if(previewDialog.open)previewDialog.close();
+  paintItem();stageDialog.showModal();
+ }
  function switchRole(r){stopRecognition();role=r;root.querySelectorAll('[data-role]').forEach(b=>{const on=b.dataset.role===r;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
  function switchLevel(l){stopRecognition();level=l;root.querySelectorAll('[data-level]').forEach(b=>{const on=b.dataset.level===l;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
  document.getElementById('gcc173-preview-close').addEventListener('click',closePreview);
+ previewDialog.addEventListener('cancel',()=>{previewOpen=false;paintStages();});
+ previewDialog.addEventListener('click',event=>{if(event.target===previewDialog)closePreview();});
  root.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>switchRole(b.dataset.role)));
  root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>switchLevel(b.dataset.level)));
  $('profile-open').addEventListener('click',()=>profileDialog.showModal());
@@ -173,7 +181,13 @@ export function bindPracticePageV170(){
  document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();});
  $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();paintPreview();if(stageDialog.open)paintItem();});
  $('dialog-close').addEventListener('click',()=>stageDialog.close());
- stageDialog.addEventListener('close',()=>stopRecognition());
+ stageDialog.addEventListener('close',()=>{
+  stopRecognition();
+  // Return to the same phrase list after speaking; scores and selection stay intact.
+  if(previewOpen&&root.isConnected&&!previewDialog.open){
+   paintPreview();previewDialog.showModal();
+  }
+ });
  stageDialog.addEventListener('cancel',()=>stopRecognition());
  $('prev').addEventListener('click',()=>{stopRecognition();itemIndex=Math.max(0,itemIndex-1);paintItem();});
  $('next').addEventListener('click',()=>{stopRecognition();if(itemIndex<items().length-1)itemIndex++;else{stageIndex=(stageIndex+1)%stages().length;itemIndex=0;}paintItem();});
