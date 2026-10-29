@@ -11,6 +11,7 @@ import '../../styles/practiceGuidedV178.css';
 import '../../styles/practiceAcademicV179.css';
 import '../../styles/practiceFlowV180.css';
 import '../../styles/practiceFullscreenV181.css';
+import '../../styles/practiceContrastV182.css';
 import {getGccLanguage} from '../../lib/i18nV157.js';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
