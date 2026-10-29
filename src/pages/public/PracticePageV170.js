@@ -7,6 +7,7 @@ import '../../styles/practiceExplorerV173.css';
 import '../../styles/practiceSituationsV174.css';
 import '../../styles/practicePopupV175.css';
 import '../../styles/practiceSidebarV177.css';
+import '../../styles/practiceGuidedV178.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
@@ -24,9 +25,10 @@ const read=()=>{try{
 const write=s=>{try{localStorage.setItem(KEY,JSON.stringify(s));return true;}catch{return false;}};
 const icons={student:'🎓',facilitator:'🎙️'};
 const levelName={standard:'Standard',advanced:'Advanced',challenge:'Final Challenge'};
+const stageArt=(role,index)=>'/practice-stages/stage-'+String(role==='student'?index+1:[3,1,4,6,7,8,2,8][index]).padStart(2,'0')+'.webp';
 export function PracticePageV170(){return `
 <main id="gcc170" class="gcc170">
- <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong><span class="gcc171-no-account">No account needed</span></header>
+ <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong>
  <section class="gcc170-overview" aria-label="My Practice Overview">
   <div class="gcc170-overview-title"><span>🏆 MY PRACTICE OVERVIEW</span><strong id="gcc170-overview-role">STUDENT</strong></div>
   <div class="gcc170-stat"><strong id="gcc170-progress">0%</strong><small>Progress</small></div>
@@ -34,32 +36,41 @@ export function PracticePageV170(){return `
   <div class="gcc170-stat"><strong id="gcc170-completed">0 / 80</strong><small>Phrases practiced</small></div>
   <div class="gcc170-overview-bar"><div id="gcc170-progress-bar"></div></div>
  </section>
- <section class="gcc170-controls">
-  <div class="gcc170-roles" role="group" aria-label="Choose your role"><button data-role="student" type="button">🎓 Student</button><button data-role="facilitator" type="button">🎙️ Host / Facilitator</button></div>
-  <div class="gcc170-levels" role="group" aria-label="Practice difficulty"><button data-level="standard" type="button">⭐ Standard</button><button data-level="advanced" type="button">🚀 Advanced</button><button data-level="challenge" type="button">🏆 Challenge</button></div>
-  <button class="gcc170-profile-button" id="gcc170-profile-open" type="button">⚙ My profile</button>
+ <div class="gcc178-top-actions"><button id="gcc178-change" type="button" hidden>← Change role / level</button><button class="gcc170-profile-button" id="gcc170-profile-open" type="button" hidden>⚙ My profile</button></div>
+ </header>
+ <section id="gcc178-setup" class="gcc178-setup" aria-label="Practice setup">
+  <div id="gcc178-role-step" class="gcc178-step">
+   <span class="gcc178-step-label">STEP 1 / 3</span><h1>How would you like to practice?</h1><p>Choose your role for a real international Zoom exchange.<span lang="ja">オンライン国際交流での役割を選びましょう。</span></p>
+   <div class="gcc178-choice-row" role="group" aria-label="Choose your role"><button data-role="student" type="button">🎓 <strong>Student</strong><small>Practice as a student / 生徒として練習</small></button><button data-role="facilitator" type="button">🎙️ <strong>Host / Facilitator</strong><small>Guide an exchange / 進行役として練習</small></button></div>
+  </div>
+  <div id="gcc178-level-step" class="gcc178-step" hidden>
+   <span class="gcc178-step-label">STEP 2 / 3</span><h1>Choose your practice level</h1><p>Pick the challenge that is right for you.<span lang="ja">練習するレベルを選びましょう。</span></p>
+   <div class="gcc178-choice-row gcc178-level-row" role="group" aria-label="Practice difficulty"><button data-level="standard" type="button">⭐ <strong>Standard</strong><small>Useful everyday phrases / 基本表現</small></button><button data-level="advanced" type="button">🚀 <strong>Advanced</strong><small>Deeper conversation / 発展表現</small></button><button data-level="challenge" type="button">🏆 <strong>Challenge</strong><small>Real-world missions / 実践課題</small></button></div>
+   <button id="gcc178-role-back" class="gcc178-back" type="button">← Back to roles / 役割を選び直す</button>
+  </div>
  </section>
- <section class="gcc173-intro" aria-label="Practice purpose"><span class="gcc173-intro-icon">🌍</span><div><strong>English for Real Zoom Exchanges</strong><p>Get ready to join international breakout rooms: check your microphone, introduce yourself, ask questions, solve problems, and say goodbye.<span lang="ja">オンライン国際交流で使う英語を、Zoom入室から自己紹介・会話・トラブル対応・お別れまで練習しよう。</span></p></div></section>
+ <div id="gcc178-practice-content" class="gcc178-practice-content" hidden>
  <section class="gcc170-choose"><div><span class="gcc170-kicker">YOUR ZOOM CONVERSATION TOOLKIT</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Select a stage to preview all the expressions before speaking.</p></section>
  <section id="gcc173-explorer" class="gcc173-explorer" aria-label="Speaking stages and practice phrase list">
    <nav id="gcc170-stages" class="gcc170-stages" aria-label="Practice stages"></nav>
    <section id="gcc173-preview" class="gcc173-preview gcc177-phrase-panel" aria-labelledby="gcc173-preview-title">
     <header class="gcc173-preview-header"><span class="gcc173-preview-badge">MODEL PHRASES / モデルフレーズ</span><span class="gcc177-preview-guide">Choose a stage on the left / 左のステージを選択</span></header>
-    <div class="gcc173-preview-intro"><span id="gcc173-preview-icon" aria-hidden="true"></span><div><h2 id="gcc173-preview-title"></h2><p id="gcc173-preview-ja" lang="ja"></p><p id="gcc173-preview-goal"></p><small id="gcc173-preview-goal-ja" lang="ja"></small></div></div>
+    <div class="gcc173-preview-intro"><span id="gcc173-preview-icon" aria-hidden="true"></span><div class="gcc178-scene-copy"><h2 id="gcc173-preview-title"></h2><p id="gcc173-preview-ja" lang="ja"></p><p id="gcc173-preview-goal"></p><small id="gcc173-preview-goal-ja" lang="ja"></small></div><img id="gcc178-stage-image" class="gcc178-stage-image" src="/practice-stages/stage-01.webp" alt="Zoom situation illustration"></div>
     <div class="gcc174-mission"><span>🎯 REAL-LIFE MISSION / 実践ミッション</span><strong id="gcc174-mission-en"></strong><small id="gcc174-mission-ja" lang="ja"></small></div>
     <div id="gcc173-phrase-list" class="gcc173-phrase-list"></div>
     <p class="gcc173-preview-hint">Select a model phrase to open Read This Aloud. / モデルフレーズを選ぶと音読画面が開きます。</p>
    </section>
  </section>
  <footer class="gcc170-foot">🔒 Your practice scores are stored on this device only. · Speech-to-text accuracy is not a direct assessment of pronunciation.</footer>
+ </div>
  <dialog id="gcc170-profile-dialog" class="gcc170-dialog gcc170-profile-dialog" aria-label="Personalize your practice">
-  <div class="gcc170-dialog-top"><strong>⚙ Make it yours</strong><button type="button" id="gcc170-profile-close">✕ Close</button></div>
-  <div class="gcc170-profile-fields"><p id="gcc171-profile-guide">Welcome! Please enter your basic information before practicing. You can change it anytime in My Profile.<br><small lang="ja">ようこそ！まず基本情報を登録しましょう。後からいつでも変更できます。入力した固有名詞は採点しません。</small></p><label>Your name / 名前<input id="gcc170-name" maxlength="70" autocomplete="off" placeholder="Sara"></label><label>School / 学校名<input id="gcc170-school" maxlength="120" autocomplete="off" placeholder="Anjo Gakuen High School"></label><label>Hobby / 趣味<input id="gcc170-hobby" maxlength="80" autocomplete="off" placeholder="playing soccer"></label><label>Hometown / 出身地<input id="gcc170-hometown" maxlength="100" autocomplete="off" placeholder="Aichi, Japan"></label><label>About your school (optional) / 学校の特徴（任意）<textarea id="gcc170-schoolDescription" maxlength="220" rows="2" placeholder="students enjoy international exchanges"></textarea></label><button id="gcc171-profile-save" type="button">✓ Save & Start Practice / 保存して練習へ</button><button id="gcc170-reset" type="button">Reset all practice scores / 成績をリセット</button></div>
+  <div class="gcc170-dialog-top"><strong>⚙ My Profile / マイプロフィール</strong><button type="button" id="gcc170-profile-close">✕ Close</button></div>
+  <div class="gcc170-profile-fields"><p id="gcc171-profile-guide">Welcome! Please enter your basic information before practicing. You can change it anytime in My Profile.<br><small lang="ja">ようこそ！まず基本情報を登録しましょう。後からいつでも変更できます。入力した固有名詞は採点しません。</small></p><label>Your name / 名前<input id="gcc170-name" maxlength="70" autocomplete="off" placeholder="Sara"></label><label>School / 学校名<input id="gcc170-school" maxlength="120" autocomplete="off" placeholder="Anjo Gakuen High School"></label><label>Hobby / 趣味<input id="gcc170-hobby" maxlength="80" autocomplete="off" placeholder="playing soccer"></label><label>Hometown / 出身地<input id="gcc170-hometown" maxlength="100" autocomplete="off" placeholder="Aichi, Japan"></label><label>About your school (optional) / 学校の特徴（任意）<textarea id="gcc170-schoolDescription" maxlength="220" rows="2" placeholder="students enjoy international exchanges"></textarea></label><div class="gcc178-profile-actions"><button id="gcc178-profile-back" type="button">← Back / 戻る</button><button id="gcc178-profile-skip" type="button">Skip / スキップ</button><button id="gcc171-profile-save" type="button">✓ Save & Start Practice / 保存して練習へ</button></div><button id="gcc170-reset" type="button">Reset all practice scores / 成績をリセット</button></div>
  </dialog>
  <dialog id="gcc170-stage-dialog" class="gcc170-dialog gcc170-stage-dialog" aria-label="Speaking practice">
   <div class="gcc170-dialog-top"><strong id="gcc170-dialog-heading">Practice</strong><button id="gcc170-dialog-close" type="button">✕ Close</button></div>
   <div class="gcc170-dialog-scroll">
-   <div class="gcc170-scene"><div class="gcc170-scene-icon" id="gcc170-scene-icon">🎧</div><div><span id="gcc170-scene-level" class="gcc170-scene-level">STANDARD</span><h2 id="gcc170-scene-title"></h2><p id="gcc170-scene-hint"></p></div></div>
+   <div class="gcc170-scene"><div class="gcc170-scene-icon" id="gcc170-scene-icon">🎧</div><div><span id="gcc170-scene-level" class="gcc170-scene-level">STANDARD</span><h2 id="gcc170-scene-title"></h2><p id="gcc170-scene-hint"></p></div><img id="gcc178-dialog-image" src="/practice-stages/stage-01.webp" alt="Zoom practice situation"></div>
    <div class="gcc170-phrase-nav"><button type="button" id="gcc170-prev">← Previous</button><span id="gcc170-counter">1 / 3</span><button type="button" id="gcc170-next">Next →</button></div>
    <div class="gcc174-dialog-cue" id="gcc174-dialog-cue" hidden><span>📍 SITUATION / 場面</span><strong id="gcc174-dialog-cue-en"></strong><small id="gcc174-dialog-cue-ja" lang="ja"></small></div>
    <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span class="gcc175-read-label">📣 READ THIS ALOUD <small lang="ja">ここを声に出して読もう</small></span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
@@ -74,7 +85,7 @@ export function PracticePageV170(){return `
 export function bindPracticePageV170(){
  const root=document.getElementById('gcc170');if(!root)return;
  const $=id=>document.getElementById('gcc170-'+id);
- const state=read();let role='student',level='standard',stageIndex=0,itemIndex=0,recording=false,recognition=null,token=0,segments=[],interim='',ending=false,scoreTimer=null;
+ const state=read();let role='student',level='standard',stageIndex=0,itemIndex=0,recording=false,recognition=null,token=0,segments=[],interim='',ending=false,scoreTimer=null,setupStep='role',profileFromSetup=false;
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  const stages=()=>PRACTICE_STAGES[role],stage=()=>stages()[stageIndex],items=()=>getPracticeItems(role,stage().id,level);
  const profileDialog=$('profile-dialog'),stageDialog=$('stage-dialog');
@@ -113,7 +124,7 @@ export function bindPracticePageV170(){
  function paintItem(){
   const s=stage(),arr=items(),item=arr[itemIndex],saved=scoreFor(role,level,s.id,itemIndex);
   $('dialog-heading').textContent=s.icon+' '+s.title;
-  $('scene-icon').textContent=s.icon;$('scene-title').textContent=s.scene;$('scene-hint').textContent=s.hint;
+  $('scene-icon').textContent=s.icon;$('scene-title').textContent=s.scene;$('scene-hint').textContent=s.hint;document.getElementById('gcc178-dialog-image').src=stageArt(role,stageIndex);
   $('scene-level').textContent=levelName[level].toUpperCase();
   $('counter').textContent=(itemIndex+1)+' / '+arr.length;
   $('prev').disabled=itemIndex===0;$('next').textContent=itemIndex===arr.length-1?'Next stage →':'Next phrase →';
@@ -137,6 +148,7 @@ export function bindPracticePageV170(){
   document.getElementById('gcc173-preview-ja').textContent=scene.ja;
   document.getElementById('gcc173-preview-goal').textContent=scene.goal;
   document.getElementById('gcc173-preview-goal-ja').textContent=scene.goalJa;
+  const art=document.getElementById('gcc178-stage-image');art.src=stageArt(role,stageIndex);art.alt='Zoom scenario: '+s.title;
   document.getElementById('gcc174-mission-en').textContent=scene.scenario+' — '+scene.mission;
   document.getElementById('gcc174-mission-ja').textContent=scene.scenarioJa+'：'+scene.missionJa;
   const list=document.getElementById('gcc173-phrase-list');list.replaceChildren();
@@ -147,10 +159,20 @@ export function bindPracticePageV170(){
     const body=el('span','gcc173-phrase-body');
     if(item.cue)body.append(el('span','gcc174-cue',item.cue),el('span','gcc174-cue-ja',item.cueJa||''));
     body.append(el('strong','',fillPracticePhrase(item.text,state.profile)),el('small','',fillPracticePhrase(item.ja,state.profile)));
-    const result=el('span','gcc173-phrase-result',score?score.best+'%':'Practice ↗');
-    if(score?.best>=80)result.classList.add('gcc173-phrase-passed');
-    button.append(number,body,result);
-    button.addEventListener('click',()=>openStage(stageIndex,i));
+    const metrics=el('span','gcc178-phrase-metrics');
+  const attempts=el('small','gcc178-attempts',(score?.attempts||0)+' tries');
+  const accuracy=el('strong','gcc178-accuracy',score?score.best+'%':'—%');
+  const bar=el('span','gcc178-accuracy-bar');
+  bar.setAttribute('role','progressbar');bar.setAttribute('aria-label','Best accuracy');
+  bar.setAttribute('aria-valuemin','0');bar.setAttribute('aria-valuemax','100');
+  const value=Math.max(0,Math.min(100,Number(score?.best)||0));
+  bar.setAttribute('aria-valuenow',String(value));
+  const fill=el('span','gcc178-accuracy-fill');fill.style.width=value+'%';
+  bar.append(fill);metrics.append(attempts,accuracy,bar);
+  const result=el('span','gcc173-phrase-result',score?'Practice ↗':'Start ↗');
+  if(score?.best>=80)result.classList.add('gcc173-phrase-passed');
+  metrics.append(result);button.append(number,body,metrics);
+  button.addEventListener('click',()=>openStage(stageIndex,i));
     list.append(button);
   });
  }
@@ -163,14 +185,38 @@ export function bindPracticePageV170(){
   stopRecognition();stageIndex=i;itemIndex=index;
   paintItem();stageDialog.showModal();
  }
- function switchRole(r){stopRecognition();role=r;root.querySelectorAll('[data-role]').forEach(b=>{const on=b.dataset.role===r;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
+ function switchRole(r){stopRecognition();role=r;stageIndex=0;root.querySelectorAll('[data-role]').forEach(b=>{const on=b.dataset.role===r;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
  function switchLevel(l){stopRecognition();level=l;root.querySelectorAll('[data-level]').forEach(b=>{const on=b.dataset.level===l;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
- root.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>switchRole(b.dataset.role)));
- root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>switchLevel(b.dataset.level)));
- $('profile-open').addEventListener('click',()=>profileDialog.showModal());
- $('profile-close').addEventListener('click',()=>profileDialog.close());
+ const setup=document.getElementById('gcc178-setup'),practice=document.getElementById('gcc178-practice-content');
+ const roleStep=document.getElementById('gcc178-role-step'),levelStep=document.getElementById('gcc178-level-step');
+ const changeButton=document.getElementById('gcc178-change'),profileButton=$('profile-open');
+ const profileSkip=document.getElementById('gcc178-profile-skip'),profileBack=document.getElementById('gcc178-profile-back');
+ function showSetup(step){
+  setupStep=step;setup.hidden=false;practice.hidden=true;
+  roleStep.hidden=step!=='role';levelStep.hidden=step!=='level';
+  changeButton.hidden=true;profileButton.hidden=true;
+ }
+ function showPractice(){
+  setupStep='practice';setup.hidden=true;practice.hidden=false;
+  changeButton.hidden=false;profileButton.hidden=false;
+  updateOverview();paintStages();paintPreview();
+ }
+ function showProfile(fromSetup){
+  profileFromSetup=fromSetup;
+  profileBack.hidden=!fromSetup;profileSkip.hidden=!fromSetup;
+  document.getElementById('gcc171-profile-guide').hidden=!fromSetup;
+  profileDialog.showModal();
+ }
+ root.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>{switchRole(b.dataset.role);showSetup('level');}));
+ root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{switchLevel(b.dataset.level);showProfile(true);}));
+ document.getElementById('gcc178-role-back').addEventListener('click',()=>showSetup('role'));
+ changeButton.addEventListener('click',()=>showSetup('role'));
+ profileButton.addEventListener('click',()=>showProfile(false));
+ $('profile-close').addEventListener('click',()=>{profileDialog.close();if(profileFromSetup)showSetup('level');});
+ profileBack.addEventListener('click',()=>{profileDialog.close();showSetup('level');});
+ profileSkip.addEventListener('click',()=>{profileDialog.close();showPractice();});
  for(const field of ['name','school','hobby','hometown','schoolDescription']){$(field).value=state.profile[field]||'';$(field).addEventListener('input',()=>{state.profile[field]=$(field).value.trim();save();if(stageDialog.open&&!recording)paintItem();paintPreview();});}
- document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();});
+ document.getElementById('gcc171-profile-save').addEventListener('click',()=>{state.profile.onboarded=true;save();profileDialog.close();if(profileFromSetup)showPractice();});
  $('reset').addEventListener('click',()=>{if(!confirm('Reset all practice scores on this device? / すべての成績を削除しますか？'))return;state.scores={};save();updateOverview();paintStages();paintPreview();if(stageDialog.open)paintItem();});
  $('dialog-close').addEventListener('click',()=>stageDialog.close());
  stageDialog.addEventListener('close',()=>{
@@ -229,6 +275,5 @@ export function bindPracticePageV170(){
   if(recognition){try{recognition.stop();}catch{finish();}scoreTimer=setTimeout(finish,1600);}else finish();
  });
  window.addEventListener('hashchange',stopRecognition,{once:true});
- switchRole('student');switchLevel('standard');
- if(!state.profile.onboarded){setTimeout(()=>{if(root.isConnected&&!profileDialog.open)profileDialog.showModal();},120);}
+ switchRole('student');switchLevel('standard');showSetup('role');
 }
