@@ -50,8 +50,8 @@ test('stage selection opens phrase overview, then only phrase click opens speech
  assert.match(practice,/button.addEventListener\('click',\(\)=>openStage\(stageIndex,i\)\)/);
  assert.match(practice,/b.addEventListener\('click',\(\)=>selectStage\(i\)\)/);
  assert.match(practice,/getPracticeItemsV171/);
- assert.match(practice,/English for Real Zoom Exchanges/);
- assert.match(practice,/Zoom入室/);
+ assert.doesNotMatch(practice,/class="gcc173-intro"/);
+ assert.match(practice,/id="gcc178-stage-image"/);
  assert.match(exploreCss,/grid-template-columns:minmax\(220px,285px\)/);
  assert.match(exploreCss,/gcc173-reveal/);
  assert.match(exploreCss,/overflow-y:auto/);
