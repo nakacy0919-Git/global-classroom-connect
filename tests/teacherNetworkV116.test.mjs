@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 const here=new URL('../',import.meta.url);
 const read=p=>fs.readFileSync(new URL(p,here),'utf8');
-test('photos convert in-browser to a bounded WebP with no remote service',()=>{
- const s=read('src/lib/teacherWebpV116.js');assert.match(s,/createImageBitmap/);assert.match(s,/toBlob\(resolve,'image\/webp'/);
+test('photos resize privately, prefer WebP and fallback to JPEG without remote service',()=>{
+ const s=read('src/lib/teacherWebpV116.js');assert.match(s,/createImageBitmap/);assert.match(s,/canvas\.toBlob\(resolve,mime,quality\)/);assert.match(s,/EXPORT_TYPES=\['image\/webp','image\/jpeg'\]/);
  assert.match(s,/maxEdge=512/);assert.match(s,/maxBytes=250000/);assert.doesNotMatch(s,/fetch\(|http:|https:/);
 });
 test('profiles remain private by default; directory requires explicit consent',()=>{
