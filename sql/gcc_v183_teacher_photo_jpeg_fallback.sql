@@ -44,7 +44,7 @@ BEGIN
  ddl=pg_catalog.replace(ddl,old_check,new_check);
  ddl=pg_catalog.replace(ddl,'Uploaded WebP photo not found','Uploaded photo not found');
  ddl=pg_catalog.replace(ddl,'Photo must be a valid WebP under 300 KB','Photo must be a valid WebP or JPEG under 300 KB');
- EXECUTE ddl;
+ EXECUTE ddl || ';';
 END $migration$;
 
 -- Same executable permissions, no anonymous writes and no other storage policies changed.
