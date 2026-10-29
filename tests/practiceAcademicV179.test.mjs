@@ -14,34 +14,28 @@ test('Practice header only has Back to Home (no Practice Mode label)',()=>{
  assert.match(page,/import '\.\.\/\.\.\/styles\/practiceAcademicV179\.css'/);
 });
 
-test('My Profile belongs to the white academic overview; role switch sits above Choose a Stage',()=>{
- const startOverview=page.indexOf('<section class="gcc170-overview"');
- const endOverview=page.indexOf('</section>',startOverview);
+test('profile is visible beside Stage heading while report lives on a separate page',()=>{
+ const report=page.indexOf('id="gcc180-overview-screen"');
+ const overview=page.indexOf('class="gcc170-overview gcc180-report-overview"');
  const profile=page.indexOf('id="gcc170-profile-open"');
- assert.ok(startOverview>=0&&profile>startOverview&&profile<endOverview);
- const chooseStart=page.indexOf('<section class="gcc170-choose">');
- const change=page.indexOf('id="gcc178-change"');
- const title=page.indexOf('<h1>Choose a Stage');
- assert.ok(chooseStart>0&&change>chooseStart&&title>change);
+ const practice=page.indexOf('id="gcc178-practice-content"');
+ const chooser=page.indexOf('id="gcc178-change"');
+ assert.ok(report>=0&&overview>report&&practice>overview);
+ assert.ok(profile>practice&&chooser>practice);
  assert.equal((page.match(/id="gcc178-change"/g)||[]).length,1);
  assert.equal((page.match(/id="gcc170-profile-open"/g)||[]).length,1);
- assert.match(page,/overviewEl\.hidden=true/);
- assert.match(page,/overviewEl\.hidden=false/);
+ assert.match(page,/showOverview\(fromPractice=false\)/);
+ assert.match(page,/showPractice\(\)/);
 });
-
-test('academic dashboard overrides old gradient and restores legible dark-on-white metrics',()=>{
- assert.match(academic,/\.gcc170-top \.gcc170-overview\{/);
+test('archived academic CSS remains available and separate report style overrides it',()=>{
  assert.match(academic,/background:#fff;/);
- assert.match(academic,/color:#223b52;/);
- assert.match(academic,/\.gcc179-overview-stats \.gcc170-stat strong/);
  assert.match(academic,/font-variant-numeric:tabular-nums/);
- assert.match(academic,/background:#e4ebf0;/);
- assert.match(academic,/background:#365f80;/);
- assert.match(academic,/@media\(max-width:740px\)/);
- assert.match(academic,/\.gcc179-change-role/);
- assert.match(academic,/\.gcc179-profile-access/);
+ const flow=read('src/styles/practiceFlowV180.css');
+ assert.match(flow,/\.gcc180-overview-screen/);
+ assert.match(flow,/\.gcc180-report-overview/);
+ assert.match(flow,/\.gcc170-top\.gcc180-minimal-top/);
+ assert.match(flow,/\.gcc180-practice-actions/);
 });
-
 test('new labels remain bilingual without changing user profile or saved scores',()=>{
  for(const [en,ja] of [
   ['← Back to Home','← ホームに戻る'],
