@@ -65,11 +65,10 @@ BEGIN
  SELECT metadata INTO photo FROM storage.objects WHERE bucket_id='teacher-photos' AND name=p_photo_path;
  IF NOT FOUND THEN RAISE EXCEPTION 'Uploaded photo not found';END IF;
  IF COALESCE((photo.metadata->>'size')::bigint,99999999)>300000 OR
- COALESCE(photo.metadata->>'mimetype','') <> CASE lower(storage.extension(p_photo_path))
-  WHEN 'webp' THEN 'image/webp'
-  WHEN 'jpg' THEN 'image/jpeg'
-  ELSE 'unsupported'
- END THEN RAISE EXCEPTION 'Photo must be a valid WebP or JPEG under 300 KB';END IF;
+ NOT (
+   (lower(storage.extension(p_photo_path))='webp' AND COALESCE(photo.metadata->>'mimetype','')='image/webp')
+   OR (lower(storage.extension(p_photo_path))='jpg' AND COALESCE(photo.metadata->>'mimetype','')='image/jpeg')
+ ) THEN RAISE EXCEPTION 'Photo must be a valid WebP or JPEG under 300 KB';END IF;
  IF EXISTS(SELECT 1 FROM public.teachers WHERE auth_user_id=auth.uid()) THEN RAISE EXCEPTION 'This account is already an approved teacher';END IF;
  UPDATE public.gcc_v120_applications SET teacher_name=n,teacher_bio=bio,teacher_website=nullif(website,''),
  photo_path=p_photo_path,school_name=sn,school_type=kind,school_level=level,
@@ -77,7 +76,7 @@ BEGIN
  school_website=nullif(site,''),school_timezone=zone,status='pending',submitted_at=now()
  WHERE id=a.id;
  RETURN jsonb_build_object('status','pending','id',a.id);
-END $function$;
+END; $function$;
 REVOKE ALL ON FUNCTION public.gcc_v120_submit_application(jsonb,text) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gcc_v120_submit_application(jsonb,text) TO authenticated;
 COMMIT;
