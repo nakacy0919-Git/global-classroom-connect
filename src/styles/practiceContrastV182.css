@@ -1,0 +1,371 @@
+/* GCC V18.2 — high-contrast blue visual system for Practice English.
+ * Presentation-only overrides: DO NOT modify the single-screen layout,
+ * role/level/profile flow, phrase IDs, scrolling or audio/score handlers.
+ * Palette: ink #11345D, primary #0758C8, cyan #0784C9, gold #E9A527.
+ */
+#app .gcc170{
+ --gcc182-ink:#11345d;
+ --gcc182-navy:#0b3e82;
+ --gcc182-primary:#0758c8;
+ --gcc182-cyan:#0784c9;
+ --gcc182-line:#a9c4e3;
+ --gcc182-soft:#edf5ff;
+ --gcc182-muted:#385a7b;
+ color:var(--gcc182-ink);
+ background:
+  radial-gradient(circle at 4% 12%,rgba(78,166,235,.2),transparent 38%),
+  radial-gradient(circle at 100% 100%,rgba(82,144,235,.14),transparent 40%),
+  linear-gradient(135deg,#f1f8ff,#e9f3fd 60%,#f5f9ff);
+}
+#app .gcc170 :is(button,a):focus-visible{
+ outline:3px solid #0054be;
+ outline-offset:2px;
+}
+#app .gcc170 .gcc170-top .gcc179-back-home,
+#app .gcc170 .gcc179-change-role{
+ background:#fff;
+ border:1px solid #739ecf;
+ color:#0e4e9d;
+ font-weight:850;
+ box-shadow:0 2px 6px rgba(11,58,117,.12);
+}
+#app .gcc170 .gcc170-top .gcc179-back-home:hover,
+#app .gcc170 .gcc179-change-role:hover{
+ background:#e5f0ff;
+ color:#063f85;
+ border-color:#0758c8;
+}
+#app .gcc170 .gcc170-kicker{
+ color:#075fae;
+ font-weight:950;
+ letter-spacing:.1em;
+}
+#app .gcc170 .gcc170-choose h1{
+ color:#093b80;
+ font-weight:950;
+ text-shadow:none;
+}
+#app .gcc170 .gcc170-choose h1 span{
+ display:inline-block;
+ color:#0e5bb4;
+ background:#dbeaff;
+ border:1px solid #97bce9;
+ border-radius:99px;
+ padding:2px 8px;
+ margin-left:6px;
+ font-weight:850;
+}
+#app .gcc170 .gcc180-practice-actions button{
+ background:#fff!important;
+ border:1px solid #749bc9;
+ color:#0d4b91;
+ border-radius:9px;
+ font-weight:850;
+ box-shadow:0 2px 6px rgba(10,56,109,.10);
+}
+#app .gcc170 .gcc180-practice-actions #gcc170-profile-open{
+ background:#dfedff!important;
+ color:#084988;
+ border-color:#679dd9;
+}
+#app .gcc170 .gcc180-practice-actions button:hover,
+#app .gcc170 .gcc180-practice-actions #gcc170-profile-open:hover{
+ background:#d5eaff!important;
+ color:#073b7d;
+ border-color:#065ac9;
+}
+#app .gcc170 .gcc180-practice-actions #gcc180-sound-toggle[aria-pressed="false"]{
+ background:#eef2f7!important;color:#4d637a;border-color:#9fb2c5;
+}
+/* One fixed-height navigation column: more saturation, unambiguous selection. */
+#app .gcc170 .gcc173-explorer .gcc170-stage{
+ background:#f7fbff;
+ border:1px solid #a8c7e6;
+ color:var(--gcc182-ink);
+ box-shadow:0 3px 8px rgba(6,58,126,.10);
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage:nth-child(4n+2){
+ background:#edf5ff;
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage:nth-child(4n+3){
+ background:#e8f7fc;
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage:nth-child(4n+4){
+ background:#eff1ff;
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage:hover{
+ border-color:#1868cf;
+ background:#e2efff;
+ box-shadow:0 4px 12px rgba(7,82,171,.20);
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage.gcc173-selected,
+#app .gcc170 .gcc173-explorer .gcc170-stage[aria-pressed="true"]{
+ background:linear-gradient(110deg,#c9e2ff,#e2efff);
+ border:2px solid #0758c8;
+ box-shadow:inset 4px 0 0 #0645a7,0 4px 14px rgba(4,81,175,.23);
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage .gcc170-stage-icon{
+ background:#fff;
+ border:1px solid #c7d7ea;
+ box-shadow:0 2px 6px rgba(21,64,110,.10);
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage .gcc170-stage-text strong{
+ color:#103d7c;
+ font-weight:900;
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage .gcc173-stage-ja{
+ color:#345779;
+ font-weight:700;
+}
+#app .gcc170 .gcc173-explorer .gcc170-stage .gcc170-stage-right strong{
+ background:#dbeaff;
+ color:#084894;
+ border:1px solid #9cbfe8;
+ font-weight:900;
+}
+/* Model phrases: bright white surface, visible boundaries and text. */
+#app .gcc170 .gcc177-phrase-panel{
+ background:#fff;
+ border:1px solid #84b1de;
+ box-shadow:0 6px 21px rgba(21,65,121,.15);
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-preview-header{
+ border-bottom:1px solid #a6c6e7;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-preview-badge{
+ color:#0951aa;
+ font-weight:950;
+ letter-spacing:.055em;
+}
+#app .gcc170 .gcc177-preview-guide{
+ color:#3b5d7d;
+ font-weight:650;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-preview-intro{
+ border-bottom:1px solid #aecae5;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy h2{
+ color:#0a458f;
+ font-weight:950;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy p{
+ color:#3b5b7f;
+ font-weight:680;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-scene-copy small{
+ color:#4a6584;
+}
+#app .gcc170 .gcc177-phrase-panel #gcc173-preview-icon{
+ background:#e2f0ff;
+ border:1px solid #b1cde7;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc178-stage-image{
+ border:2px solid #a0c1e7;
+ box-shadow:0 3px 10px rgba(14,59,115,.21);
+}
+/* Mission keeps the original two-line/More behavior. */
+#app .gcc170 .gcc177-phrase-panel .gcc180-mission{
+ background:#e7f2ff;
+ border:1px solid #99bae2;
+ border-left:4px solid #0a65c8;
+ color:#133e70;
+ box-shadow:0 1px 4px rgba(12,73,140,.09);
+}
+#app .gcc170 .gcc180-mission-heading>span{
+ color:#0756ab;
+ font-weight:950;
+}
+#app .gcc170 .gcc180-mission>strong{
+ color:#133e70;
+ font-weight:790;
+}
+#app .gcc170 .gcc180-mission>small{color:#2e567b;font-weight:730}
+#app .gcc170 .gcc180-mission-controls{
+ background:#d3e5f8;
+ border:1px solid #a3c0df;
+}
+#app .gcc170 .gcc180-mission-controls button{
+ color:#124b86;
+ font-weight:900;
+}
+#app .gcc170 .gcc180-mission-controls button[aria-pressed="true"]{
+ color:#fff;
+ background:#0758c8;
+ box-shadow:0 2px 5px rgba(10,64,132,.18);
+}
+#app .gcc170 .gcc180-mission-controls #gcc180-mission-more{
+ border-left:1px solid #9eb9d7;
+}
+#app .gcc170 .gcc180-mission-controls button:hover{
+ background:#c0dcfc;
+ color:#093b74;
+}
+#app .gcc170 .gcc180-mission-controls button[aria-pressed="true"]:hover{
+ background:#054da9;
+ color:#fff;
+}
+/* Individual phrase rows: legible CTA and progress values, same row heights. */
+#app .gcc170 .gcc177-phrase-panel .gcc173-phrase-row{
+ background:#fff;
+ border:1px solid #a8c8e9;
+ color:#12365f;
+ box-shadow:0 1px 3px rgba(16,63,119,.06);
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-phrase-row:nth-child(even){
+ background:#f1f7ff;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-phrase-row:hover{
+ border-color:#0861cb;
+ background:#e2f1ff;
+ box-shadow:0 3px 10px rgba(5,81,168,.18);
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-phrase-number{
+ background:#d7ebff;
+ color:#074a9f;
+ border:1px solid #aac8eb;
+ font-weight:950;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-phrase-body strong{
+ color:#103a79;
+ font-weight:950;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-phrase-body small{
+ color:#3c5b7a;
+ font-weight:670;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc174-cue{
+ color:#7251a4;
+ font-weight:850;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc174-cue-ja{
+ color:#536982;
+}
+#app .gcc170 .gcc178-attempts{
+ color:#365878;
+ font-weight:700;
+}
+#app .gcc170 .gcc178-accuracy{
+ color:#0751a4;
+ font-weight:950;
+}
+#app .gcc170 .gcc178-accuracy-bar{
+ background:#cfd9e5;
+ box-shadow:inset 0 1px 2px rgba(17,56,101,.11);
+}
+#app .gcc170 .gcc178-accuracy-fill{
+ background:linear-gradient(90deg,#075bcc,#08a2dc);
+}
+#app .gcc170 .gcc178-phrase-metrics .gcc173-phrase-result{
+ background:#0758c8;
+ color:#fff;
+ border:1px solid #06479b;
+ border-radius:7px;
+ font-weight:900;
+ box-shadow:0 2px 5px rgba(8,72,148,.15);
+}
+#app .gcc170 .gcc178-phrase-metrics .gcc173-phrase-result.gcc173-phrase-passed{
+ background:#087e65;
+ border-color:#056d56;
+ color:#fff;
+}
+#app .gcc170 .gcc177-phrase-panel .gcc173-preview-hint,
+#app .gcc170 .gcc170-foot{
+ color:#3b5b7b;
+}
+/* Setup and profile get the same visual language while preserving the wizard. */
+#app .gcc170 .gcc178-step{
+ background:#fff;
+ border:1px solid #87b1dc;
+ box-shadow:0 15px 35px rgba(13,55,112,.18);
+}
+#app .gcc170 .gcc178-step-label{
+ color:#084c9c;
+ background:#dfecff;
+ border:1px solid #a4c5e7;
+}
+#app .gcc170 .gcc178-step h1{color:#0c3f85}
+#app .gcc170 .gcc178-step p{color:#315577}
+#app .gcc170 .gcc178-step p span{color:#465e7c}
+#app .gcc170 .gcc178-choice-row button{
+ background:linear-gradient(140deg,#fff,#e3f0ff);
+ border:2px solid #81b2e6;
+ box-shadow:0 5px 12px rgba(12,75,146,.12);
+}
+#app .gcc170 .gcc178-choice-row button:nth-child(2){
+ background:linear-gradient(140deg,#fff,#e5eaff);
+}
+#app .gcc170 .gcc178-choice-row button:nth-child(3){
+ background:linear-gradient(140deg,#fff,#fff1d7);
+}
+#app .gcc170 .gcc178-choice-row button:hover,
+#app .gcc170 .gcc178-choice-row button:focus-visible{
+ border-color:#0758c8;
+ background:#dcecff;
+ box-shadow:0 9px 22px rgba(14,89,182,.22);
+}
+#app .gcc170 .gcc178-choice-row strong{color:#0b408a;font-weight:950}
+#app .gcc170 .gcc178-choice-row small{color:#36597a;font-weight:720}
+#app .gcc170 .gcc178-back{
+ background:#eaf3ff;color:#0a4b9a;border:1px solid #8db9e7;
+ font-weight:850;
+}
+#app .gcc170 .gcc170-dialog-top{
+ background:linear-gradient(95deg,#064baf,#0879c9);
+ color:#fff;
+}
+#app .gcc170 .gcc170-dialog-top button{
+ background:#ffffff22;color:#fff;border:1px solid #ffffffb0;
+}
+#app .gcc170 .gcc170-profile-fields label{color:#143e70}
+#app .gcc170 .gcc170-profile-fields p{color:#36597b}
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields input,
+#app .gcc170 .gcc170-profile-dialog .gcc170-profile-fields textarea{
+ border:1px solid #8eb1d7;background:#fff;color:#153c65;
+}
+#app .gcc170 .gcc180-profile-footer{
+ background:#eff6ff;border-top:1px solid #a8c5e4;
+}
+#app .gcc170 .gcc180-profile-footer .gcc178-profile-actions button{
+ background:#fff;color:#0f4e9b;border:1px solid #8baeda;
+}
+#app .gcc170 .gcc180-profile-footer .gcc178-profile-actions #gcc171-profile-save{
+ background:linear-gradient(110deg,#0b63ce,#087fbb);
+ color:#fff;border:1px solid #0a5da8;
+}
+#app .gcc170 .gcc170-scene,
+#app .gcc170 .gcc174-dialog-cue{
+ background:#eaf3ff;border:1px solid #adc9e9;
+}
+#app .gcc170 .gcc170-scene h2{color:#0a4088}
+#app .gcc170 .gcc170-phrase{
+ background:#fff;border:2px solid #a4c5e5;
+}
+#app .gcc170 #gcc170-prompt{color:#0b3b7c}
+#app .gcc170 #gcc170-japanese{color:#3d5c7b}
+#app .gcc170 .gcc170-phrase-nav button{
+ background:#e4f0ff;color:#084d9d;border:1px solid #99bde5;
+}
+#app .gcc170 .gcc170-phrase-nav button:hover:not(:disabled){background:#d1e7ff}
+#app .gcc170 .gcc170-mic-actions #gcc170-start{
+ background:linear-gradient(105deg,#0860c9,#0789d0);
+ color:#fff;
+}
+#app .gcc170 .gcc170-mic-actions #gcc170-end{
+ background:linear-gradient(105deg,#ba384f,#d65b3f);
+ color:#fff;
+}
+#app .gcc170 .gcc170-transcript{
+ background:#eef5ff;border:1px solid #afcbe6;
+}
+#app .gcc170 .gcc170-transcript p{color:#173f6d}
+#app .gcc170 .gcc170-score-panel{
+ background:#e9f2ff;border:1px solid #a4c6e6;
+}
+#app .gcc170 .gcc170-score-value{color:#0c529e}
+#app .gcc170 .gcc170-score-value.success{color:#087b58}
+#app .gcc170 .gcc170-score-panel p{color:#245578}
+@media (prefers-contrast:more){
+ #app .gcc170 .gcc173-explorer .gcc170-stage,
+ #app .gcc170 .gcc177-phrase-panel .gcc173-phrase-row{border-width:2px}
+ #app .gcc170 .gcc177-phrase-panel .gcc173-phrase-body small{color:#173f6d}
+}
