@@ -8,7 +8,7 @@ const page=read('src/pages/public/PracticePageV170.js');
 const academic=read('src/styles/practiceAcademicV179.css');
 
 test('Practice header only has Back to Home (no Practice Mode label)',()=>{
- assert.match(page,/<header class="gcc170-top">[\s\S]*?href="#\/welcome" class="gcc179-back-home">← Back to Home<\/a>/);
+ assert.match(page,/<header class="gcc170-top gcc180-minimal-top">[\s\S]*?href="#\/welcome" class="gcc179-back-home">← Back to Home<\/a>/);
  assert.doesNotMatch(page,/<strong>🎤 PRACTICE MODE<\/strong>/);
  assert.equal((page.match(/class="gcc179-back-home"/g)||[]).length,1);
  assert.match(page,/import '\.\.\/\.\.\/styles\/practiceAcademicV179\.css'/);
