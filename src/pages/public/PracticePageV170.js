@@ -132,7 +132,7 @@ export function bindPracticePageV170(){
  function stopRecognition(){token++;recording=false;ending=false;clearTimeout(scoreTimer);if(recognition){const r=recognition;recognition=null;try{r.abort();}catch{}}$('start').disabled=!SpeechRecognition;$('end').disabled=true;root.classList.remove('gcc170-recording');}
  function paintPreview(){
   if(!previewOpen)return;
-  const s=stage(),scene=PRACTICE_SCENES_V173[role][s.id];
+  const s=stage(),scene=PRACTICE_SCENES_V174[role][s.id];
   document.getElementById('gcc173-preview-icon').textContent=s.icon;
   document.getElementById('gcc173-preview-title').textContent=s.title;
   document.getElementById('gcc173-preview-ja').textContent=scene.ja;
