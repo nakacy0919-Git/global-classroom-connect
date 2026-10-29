@@ -11,7 +11,7 @@ test('guided setup presents role, then difficulty, then optional profile with ba
  assert.match(source,/showSetup\('role'\)/);
  assert.match(source,/showSetup\('level'\)/);
  assert.match(source,/showProfile\(true\)/);
- assert.match(source,/profileSkip\.addEventListener\('click',[^\n]*showOverview\(\)/);
+ assert.match(source,/profileSkip\.addEventListener\('click',[^\n]*showPractice\(\)/);
  assert.match(source,/profileBack\.addEventListener\('click',[^\n]*showSetup\('level'\)/);
  assert.match(source,/changeButton\.addEventListener\('click',[^\n]*showSetup\('role'\)/);
  assert.doesNotMatch(source,/class="gcc170-controls"/);
