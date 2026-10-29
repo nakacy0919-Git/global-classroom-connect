@@ -49,7 +49,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
   <label class="gcc120-span">Short self-introduction (20–3000 characters) *
     <textarea id="gcc120-bio" rows="5" minlength="20" required aria-describedby="gcc141-bio-count" placeholder="Tell other teachers about your teaching and interests"></textarea>
     <small id="gcc141-bio-count" class="gcc141-bio-count" role="status" aria-live="polite">0 / 3000 characters</small></label>
-  <label class="gcc120-span">Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) *<input id="gcc120-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small>Processed privately in your browser into a WebP image, maximum 512 pixels.</small></label>
+  <label class="gcc120-span">Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) *<input id="gcc120-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small>Resized privately in your browser (WebP or JPEG, maximum 512 pixels). Works even when WebP export is unavailable.</small></label>
   <h3 class="gcc120-span">Your school</h3>
   <label>School / organization name *<input id="gcc120-school" minlength="2" maxlength="160" required></label>
   <label>School website (HTTPS, optional)<input id="gcc120-school-web" type="url" placeholder="https://... (optional)" maxlength="240"></label>

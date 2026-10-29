@@ -21,10 +21,10 @@ export const reviewApplicationV120=(id,decision,grantHost,schoolId=null)=>rpc('g
  p_id:id,p_decision:decision,p_grant_host:grantHost,p_existing_school_id:schoolId
 });
 export async function uploadApplicationPhotoV120(teacherId,file){
- const webp=await compressTeacherPhotoV116(file,{maxEdge:512,maxBytes:250000});
- const path=webpPhotoPathV116(teacherId);
- const {error}=await api().storage.from('teacher-photos').upload(path,webp,{contentType:'image/webp',cacheControl:'3600',upsert:false});
- if(error)throw error;return {path,bytes:webp.size};
+ const processed=await compressTeacherPhotoV116(file,{maxEdge:512,maxBytes:250000});
+ const path=webpPhotoPathV116(teacherId,processed.type);
+ const {error}=await api().storage.from('teacher-photos').upload(path,processed,{contentType:processed.type,cacheControl:'3600',upsert:false});
+ if(error)throw error;return {path,bytes:processed.size};
 }
 export async function previewApplicationPhotoV120(path){
  if(!path)return null;
