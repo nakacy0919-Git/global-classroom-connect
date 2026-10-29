@@ -14,18 +14,16 @@ test('Practice header only has Back to Home (no Practice Mode label)',()=>{
  assert.match(page,/import '\.\.\/\.\.\/styles\/practiceAcademicV179\.css'/);
 });
 
-test('profile is visible beside Stage heading while report lives on a separate page',()=>{
- const report=page.indexOf('id="gcc180-overview-screen"');
- const overview=page.indexOf('class="gcc170-overview gcc180-report-overview"');
+test('Practice is direct and keeps profile beside Choose a Stage, with no Overview',()=>{
  const profile=page.indexOf('id="gcc170-profile-open"');
  const practice=page.indexOf('id="gcc178-practice-content"');
  const chooser=page.indexOf('id="gcc178-change"');
- assert.ok(report>=0&&overview>report&&practice>overview);
  assert.ok(profile>practice&&chooser>practice);
  assert.equal((page.match(/id="gcc178-change"/g)||[]).length,1);
  assert.equal((page.match(/id="gcc170-profile-open"/g)||[]).length,1);
- assert.match(page,/showOverview\(fromPractice=false\)/);
- assert.match(page,/showPractice\(\)/);
+ assert.doesNotMatch(page,/id="gcc180-overview-screen"/);
+ assert.doesNotMatch(page,/id="gcc180-view-overview"/);
+ assert.match(page,/function showPractice\(\)/);
 });
 test('archived academic CSS remains available and separate report style overrides it',()=>{
  assert.match(academic,/background:#fff;/);
