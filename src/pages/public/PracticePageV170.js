@@ -8,6 +8,7 @@ import '../../styles/practiceSituationsV174.css';
 import '../../styles/practicePopupV175.css';
 import '../../styles/practiceSidebarV177.css';
 import '../../styles/practiceGuidedV178.css';
+import '../../styles/practiceAcademicV179.css';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
 const read=()=>{try{
@@ -28,15 +29,20 @@ const levelName={standard:'Standard',advanced:'Advanced',challenge:'Final Challe
 const stageArt=(role,index)=>'/practice-stages/stage-'+String(role==='student'?index+1:[3,1,4,6,7,8,2,8][index]).padStart(2,'0')+'.webp';
 export function PracticePageV170(){return `
 <main id="gcc170" class="gcc170">
- <header class="gcc170-top"><a href="#/welcome">← Global Classroom Connect</a><strong>🎤 PRACTICE MODE</strong>
- <section class="gcc170-overview" aria-label="My Practice Overview">
-  <div class="gcc170-overview-title"><span>🏆 MY PRACTICE OVERVIEW</span><strong id="gcc170-overview-role">STUDENT</strong></div>
-  <div class="gcc170-stat"><strong id="gcc170-progress">0%</strong><small>Progress</small></div>
-  <div class="gcc170-stat"><strong id="gcc170-average">—</strong><small>Average Accuracy</small></div>
-  <div class="gcc170-stat"><strong id="gcc170-completed">0 / 80</strong><small>Phrases practiced</small></div>
-  <div class="gcc170-overview-bar"><div id="gcc170-progress-bar"></div></div>
- </section>
- <div class="gcc178-top-actions"><button id="gcc178-change" type="button" hidden>← Change role / level</button><button class="gcc170-profile-button" id="gcc170-profile-open" type="button" hidden>⚙ My profile</button></div>
+ <header class="gcc170-top">
+  <a href="#/welcome" class="gcc179-back-home">← Back to Home</a>
+  <section class="gcc170-overview" aria-label="My Practice Overview" hidden>
+   <div class="gcc179-overview-heading">
+    <div class="gcc170-overview-title"><span>My Practice Overview</span><strong id="gcc170-overview-role">STUDENT</strong></div>
+    <button class="gcc170-profile-button gcc179-profile-access" id="gcc170-profile-open" type="button" hidden>⚙ My Profile</button>
+   </div>
+   <div class="gcc179-overview-stats">
+    <div class="gcc170-stat"><strong id="gcc170-progress">0%</strong><small>Progress</small></div>
+    <div class="gcc170-stat"><strong id="gcc170-average">—</strong><small>Average accuracy</small></div>
+    <div class="gcc170-stat"><strong id="gcc170-completed">0 / 80</strong><small>Phrases practiced</small></div>
+   </div>
+   <div class="gcc170-overview-bar" aria-hidden="true"><div id="gcc170-progress-bar"></div></div>
+  </section>
  </header>
  <section id="gcc178-setup" class="gcc178-setup" aria-label="Practice setup">
   <div id="gcc178-role-step" class="gcc178-step">
@@ -50,7 +56,7 @@ export function PracticePageV170(){return `
   </div>
  </section>
  <div id="gcc178-practice-content" class="gcc178-practice-content" hidden>
- <section class="gcc170-choose"><div><span class="gcc170-kicker">YOUR ZOOM CONVERSATION TOOLKIT</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Select a stage to preview all the expressions before speaking.</p></section>
+ <section class="gcc170-choose"><div class="gcc179-stage-heading"><button class="gcc179-change-role" id="gcc178-change" type="button" hidden>← Change role / level</button><span class="gcc170-kicker">YOUR ZOOM CONVERSATION TOOLKIT</span><h1>Choose a Stage <span id="gcc170-stage-total">8 stages</span></h1></div><p>Select a stage to preview all the expressions before speaking.</p></section>
  <section id="gcc173-explorer" class="gcc173-explorer" aria-label="Speaking stages and practice phrase list">
    <nav id="gcc170-stages" class="gcc170-stages" aria-label="Practice stages"></nav>
    <section id="gcc173-preview" class="gcc173-preview gcc177-phrase-panel" aria-labelledby="gcc173-preview-title">
@@ -189,15 +195,15 @@ export function bindPracticePageV170(){
  function switchLevel(l){stopRecognition();level=l;root.querySelectorAll('[data-level]').forEach(b=>{const on=b.dataset.level===l;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});updateOverview();paintStages();paintPreview();}
  const setup=document.getElementById('gcc178-setup'),practice=document.getElementById('gcc178-practice-content');
  const roleStep=document.getElementById('gcc178-role-step'),levelStep=document.getElementById('gcc178-level-step');
- const changeButton=document.getElementById('gcc178-change'),profileButton=$('profile-open');
+ const changeButton=document.getElementById('gcc178-change'),profileButton=$('profile-open'),overviewEl=root.querySelector('.gcc170-overview');
  const profileSkip=document.getElementById('gcc178-profile-skip'),profileBack=document.getElementById('gcc178-profile-back');
  function showSetup(step){
-  setupStep=step;setup.hidden=false;practice.hidden=true;
+  setupStep=step;setup.hidden=false;practice.hidden=true;overviewEl.hidden=true;
   roleStep.hidden=step!=='role';levelStep.hidden=step!=='level';
   changeButton.hidden=true;profileButton.hidden=true;
  }
  function showPractice(){
-  setupStep='practice';setup.hidden=true;practice.hidden=false;
+  setupStep='practice';setup.hidden=true;practice.hidden=false;overviewEl.hidden=false;
   changeButton.hidden=false;profileButton.hidden=false;
   updateOverview();paintStages();paintPreview();
  }
