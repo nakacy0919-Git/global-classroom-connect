@@ -14,23 +14,14 @@ test('Profile Back and Skip reside in a separate footer, preserving input fields
  assert.match(css,/overflow-y:auto/);
  assert.match(css,/\.gcc180-profile-footer/);
 });
-test('role, level, optional profile, overview, then practice is the selected flow',()=>{
- const ids=['gcc178-role-step','gcc178-level-step','gcc170-profile-dialog','gcc180-overview-screen','gcc180-overview-next','gcc178-practice-content','gcc180-view-overview'];
- for(const id of ids)assert.ok(page.includes('id="'+id+'"'),id);
- assert.match(page,/profileSkip\.addEventListener\('click',[^\n]*showOverview\(\)/);
- assert.match(page,/if\(profileFromSetup\)showOverview\(\)/);
- assert.match(page,/getElementById\('gcc180-overview-next'\)\.addEventListener\('click',[^\n]*showPractice\(\)/);
- assert.match(page,/function showOverview\(fromPractice=false\)/);
+test('role, level and optional profile lead directly to Practice, with no Overview page',()=>{
+ for(const id of ['gcc178-role-step','gcc178-level-step','gcc170-profile-dialog','gcc178-practice-content'])
+  assert.ok(page.includes('id="'+id+'"'),id);
+ assert.match(page,/profileSkip\.addEventListener\('click',\(\)=>\{tone\('next'\);profileDialog\.close\(\);showPractice\(\);\}\)/);
+ assert.match(page,/if\(profileFromSetup\)showPractice\(\)/);
  assert.match(page,/function showPractice\(\)/);
- assert.doesNotMatch(page,/<header class="gcc170-top"[\s\S]*?<section class="gcc170-overview"/);
-});
-test('learning analytics report is populated with actual persisted scores by selected role and level',()=>{
- for(const id of ['gcc170-progress','gcc170-average','gcc170-completed','gcc180-total-attempts','gcc180-stage-breakdown','gcc180-progress-description'])assert.match(page,new RegExp('id="'+id+'"'));
- assert.match(page,/const scored=allScores\(\),completed=scored\.length/);
- assert.match(page,/scoreFor\(role,level,st\.id,index\)/);
- assert.match(page,/scoreFor\(role,level,st\.id,i\)\?\.attempts/);
- assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
- assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ for(const oldId of ['gcc180-overview-screen','gcc180-overview-next','gcc180-view-overview','gcc170-progress','gcc180-stage-breakdown'])
+  assert.ok(!page.includes(oldId),oldId);
 });
 test('illustration and mission do not overlap and language/more controls preserve both texts',()=>{
  assert.match(page,/data-mission-lang="en"/);
