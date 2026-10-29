@@ -59,7 +59,9 @@ test('server rejects oversized, spoofed or owner-mismatched photos without chang
  assert.match(sql,/a\.user_id=auth\.uid\(\) AND a\.status='draft'/);
  assert.match(sql,/\(webp\|jpg\)/);
  assert.match(sql,/lower\(storage\.extension\(name\)\) IN \('webp','jpg'\)/);
- assert.match(sql,/COALESCE\(photo\.metadata->>'mimetype',''\) <> CASE/);
+ assert.match(sql,/lower\(storage\.extension\(p_photo_path\)\)='webp'/);
+ assert.match(sql,/lower\(storage\.extension\(p_photo_path\)\)='jpg'/);
+ assert.match(sql,/image\/jpeg/);
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.gcc_v120_submit_application/);
  assert.match(svc,/webpPhotoPathV116\(teacherId,processed\.type\)/);
  assert.match(svc,/contentType:processed\.type/);
