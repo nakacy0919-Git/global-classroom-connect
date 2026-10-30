@@ -35,9 +35,11 @@ test('approved core member sees Facilitator next step; pending applicants remain
  for(const marker of ['saveVolunteerV117','myTeacherProfileV116','Registration does not grant Host Admin access'])
   assert.ok(vol.includes(marker));
 });
-test('teacher requests and network are still accessible via account menu',()=>{
+test('teacher requests and network are still accessible from the teacher workspace',()=>{
  const home=read('src/pages/public/WelcomeV117.js');
- for(const view of ['requests','network']) assert.ok(home.includes('href="#/teacher-portal?view='+view+'"'));
+ assert.ok(home.includes('data-gcc-teacher-mode'));
+ const sidebar=read('src/pages/teacher/TeacherSidebar.js');
+ for(const view of ['requests','network']) assert.ok(sidebar.includes("['"+view+"',"));
  const portal=read('src/pages/teacher/TeacherPortalPage.js');
  for(const marker of ['teacherCreateSession','teacherApply','teacherReview','mountVolunteerV117','mountTeacherNetworkV116'])
   assert.ok(portal.includes(marker));

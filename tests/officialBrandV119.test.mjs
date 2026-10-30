@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 const r=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');const page=r('src/pages/public/WelcomeV117.js'),css=r('src/styles/welcomeBrandV119.css');
 test('official GCC logo, Hosted by credit, and existing host entry remain',()=>{
  assert.match(page,/gcc-v119-official\.webp/);assert.match(page,/gcc119-logo-image/);
- assert.match(page,/Hosted by Global Classroom/);assert.match(page,/My profile/);assert.match(page,/Host sign in/);
+ assert.match(page,/Hosted by Global Classroom/);assert.match(page,/My profile/);assert.match(page,/Admin Mode/);
  assert.match(css,/background:transparent/);
 });
 test('gateway has four actions, new signup/signin and guarded teacher access',()=>{

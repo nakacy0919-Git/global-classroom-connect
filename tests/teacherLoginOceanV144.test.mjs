@@ -15,8 +15,9 @@ test('teacher sign in uses the same bundled ocean backdrop as host sign in',()=>
 test('teacher access and account recovery features retain their IDs and destinations',()=>{
  for(const id of ['gcta-login','gcta-email','gcta-password','gcta-message','gcta-claim','gcta-token'])
    assert.match(page,new RegExp('id="'+id+'"'));
- for(const route of ['welcome','signup','teacher-password','login'])
+ for(const route of ['welcome','signup','teacher-password'])
    assert.match(page,new RegExp('href="#/'+route+'"'));
+ assert.match(page,/hostProfile\?\.role==='host'/);
  assert.match(page,/teacherSignIn\(/);
  assert.match(page,/claimTeacherInvite\(/);
  assert.match(page,/teacherIdentity\(/);
