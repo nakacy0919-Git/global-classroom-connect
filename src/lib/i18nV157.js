@@ -6,6 +6,12 @@ Language | 表示言語
 English | 英語
 Sign in | ログイン
 Sign up | 新規登録
+Join us | 参加登録
+My GCC Account | GCCアカウント
+Teacher Mode | 先生モード
+Admin Mode | 管理者モード
+Teacher access requires an approved profile. | 先生モードには承認済みプロフィールが必要です。
+Could not sign out. Please try again. | ログアウトに失敗しました。再度お試しください。
 Account | アカウント
 My Requests | 参加申請
 Teacher Network | 先生のネットワーク

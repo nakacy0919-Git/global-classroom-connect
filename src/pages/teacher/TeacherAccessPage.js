@@ -6,8 +6,9 @@ import '../../styles/teacherPasswordV136.css';
 import '../../styles/teacherLoginOceanV144.css';
 import {teacherSignupErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
+import {getCurrentProfile} from '../../services/authService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
-const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');if(['create','find','volunteer','network','requests'].includes(next))return '#/teacher-portal?view='+next;return '#/welcome';};
+const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');if(['create','find','volunteer','network','requests','profile'].includes(next))return '#/teacher-portal?view='+next;return '#/welcome';};
 export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page gcc144-page">
  <div class="gcc144-scene">
   <div class="gcc144-scenic-copy" aria-hidden="true">
@@ -18,7 +19,7 @@ export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page
   <section class="gcc120-join gcc120-signin-page gcc126-login gcc144-card" aria-labelledby="gcc144-teacher-heading">
    <a class="gcc120-back gcc126-back gcc144-back" href="#/welcome"><span aria-hidden="true">←</span> Back to GCC</a>
    <header class="gcc126-heading gcc144-heading"><img src="${gccOfficialBadgeV119}" width="64" height="64" alt="" aria-hidden="true"/>
-    <div class="gcc126-heading-text"><p class="gcc126-eyebrow">GLOBAL CLASSROOM CONNECT</p><h1 id="gcc144-teacher-heading">Teacher sign in</h1><p>Welcome back. Connect your classroom to the world.</p></div>
+    <div class="gcc126-heading-text"><p class="gcc126-eyebrow">GLOBAL CLASSROOM CONNECT</p><h1 id="gcc144-teacher-heading">Sign in</h1><p>Welcome back. Connect your classroom to the world.</p></div>
    </header>
    <form id="gcta-login" class="gcc120-grid gcc126-form gcc144-form">
     <label>Email address<input type="email" id="gcta-email" autocomplete="email" required></label>
@@ -34,7 +35,7 @@ export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page
     <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
     <button type="submit" class="gct-secondary">Activate access</button></form>
    </details>
-   <footer class="gcc126-footer gcc144-footer"><a href="#/login">Host sign in</a></footer>
+   
   </section>
  </div>
 </main>`;}
@@ -46,6 +47,12 @@ export function bindTeacherAccessPage(){
  const inform=(text,error=false)=>{msg.textContent=text;msg.classList.toggle('error',error);};
  $('gcta-login').addEventListener('submit',async event=>{event.preventDefault();const btn=event.currentTarget.querySelector('button');btn.disabled=true;
   try{await teacherSignIn($('gcta-email').value.trim(),$('gcta-password').value);$('gcta-password').value='';
+   const hostProfile=await getCurrentProfile();
+   if(hostProfile?.role==='host'){
+     try{await teacherIdentity();window.location.hash=destination();}
+     catch{window.location.hash='#/sessions';}
+     return;
+   }
    try{await teacherIdentity();window.location.hash=destination();return;}catch{}
    try{const draft=await beginApplicationV120();if(draft.status==='pending'){inform('Signed in. Your registration is waiting for administrator approval. Session features remain locked.');return;}
      if(draft.status==='rejected'){inform('The application was not approved. Contact the Global Classroom team.',true);return;}

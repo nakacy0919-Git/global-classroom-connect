@@ -1,0 +1,31 @@
+/* GCC V18.4: compact unified guest/identity navigation, overrides old landing controls. */
+#app .gcc117-topbar nav.gcc124-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:nowrap;gap:6px;width:auto;max-width:100%;padding:4px}
+#app .gcc117-topbar .gcc184-guest-actions{display:flex;align-items:center;gap:6px}
+#app .gcc117-topbar .gcc184-guest-actions>a{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;height:40px;min-height:40px;border:1px solid rgba(255,255,255,.9);border-radius:11px;font-size:.79rem;font-weight:800;text-decoration:none;white-space:nowrap}
+#app .gcc117-topbar .gcc184-guest-actions .gcc120-signin-top{color:#165475;background:rgba(246,252,255,.92)}
+#app .gcc117-topbar .gcc184-guest-actions .gcc120-signup-top{color:#fff;background:linear-gradient(115deg,#0c9b9e,#147db9 80%)}
+#app .gcc117-topbar .gcc184-guest-actions svg{width:16px;height:16px}
+#app .gcc117-topbar .gcc184-lang-menu{position:relative;flex:0 0 auto}
+#app .gcc117-topbar .gcc184-lang-menu>summary{display:flex;align-items:center;justify-content:center;gap:4px;list-style:none;cursor:pointer;height:40px;min-height:40px;padding:0 11px;border:1px solid rgba(255,255,255,.86);border-radius:11px;background:rgba(241,250,255,.92);color:#175777;font-size:.8rem;font-weight:850}
+#app .gcc117-topbar .gcc184-lang-menu>summary::-webkit-details-marker{display:none}
+#app .gcc117-topbar .gcc184-lang-menu>summary::marker{content:''}
+#app .gcc117-topbar .gcc184-lang-popup{position:absolute;right:0;top:calc(100% + 8px);z-index:110;min-width:150px;display:grid;gap:3px;padding:6px;border-radius:12px;border:1px solid #c4e2ee;background:#f9feff;box-shadow:0 12px 25px rgba(9,45,73,.22)}
+#app .gcc117-topbar .gcc184-lang-popup>button{display:block;text-align:left;border:0;border-radius:8px;background:transparent;color:#164965;padding:10px 12px;font-size:.83rem;font-weight:750;cursor:pointer}
+#app .gcc117-topbar .gcc184-lang-popup>button:hover,#app .gcc117-topbar .gcc184-lang-popup>button[aria-pressed="true"]{background:#dff5fb}
+#app .gcc117-topbar .gcc184-user-menu>summary{display:flex;align-items:center;justify-content:center;gap:4px;width:47px;height:40px;min-height:40px;padding:0 7px;border-radius:11px}
+#app .gcc117-topbar .gcc184-user-menu .gcc124-account-popup{min-width:225px;max-width:calc(100vw - 24px);color:#164965}
+#app .gcc117-topbar .gcc184-account-heading{margin:3px 8px 7px;font-size:.78rem;font-weight:850;color:#315e75}
+#app .gcc117-topbar .gcc124-account-popup .gcc184-signout{display:block;width:100%;text-align:left;padding:11px 12px;border:0;border-top:1px solid #deedf3;border-radius:8px;color:#17516c;background:transparent;font:inherit;font-size:.83rem;font-weight:740;cursor:pointer}
+#app .gcc117-topbar .gcc124-account-popup .gcc184-signout:hover{background:#e9f6fb}
+#app .gcc117-topbar .gcc184-account-status,#app .gcc117-topbar .gcc184-teacher-note{margin:4px 8px;color:#586e7c;font-size:.72rem;line-height:1.4}
+#app .gcc117-topbar nav.gcc124-actions :is(summary,button,a):focus-visible{outline:3px solid #0c86ba;outline-offset:2px}
+#app .gcc117-topbar :is(.gcc184-guest-actions,.gcc184-user-menu,.gcc184-teacher-note,[data-gcc-admin-mode],[data-gcc-teacher-mode],[data-gcc-profile])[hidden]{display:none!important}
+@media(max-width:620px){
+ #app .gcc117-welcome .gcc117-topbar{justify-content:space-between;gap:5px;flex-wrap:wrap}
+ #app .gcc117-topbar nav.gcc124-actions{width:auto;margin-left:auto;padding:3px;gap:5px;flex-wrap:nowrap}
+ #app .gcc117-topbar .gcc184-guest-actions{gap:5px}
+ #app .gcc117-topbar .gcc184-guest-actions>a{padding:0 9px;height:36px;min-height:36px;font-size:.72rem}
+ #app .gcc117-topbar .gcc184-lang-menu>summary,#app .gcc117-topbar .gcc184-user-menu>summary{height:36px;min-height:36px}
+ #app .gcc117-topbar .gcc184-lang-menu>summary{padding:0 9px}
+ #app .gcc117-topbar .gcc184-user-menu>summary{width:42px}
+}
