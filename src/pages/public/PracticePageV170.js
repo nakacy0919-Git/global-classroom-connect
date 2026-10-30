@@ -12,6 +12,7 @@ import '../../styles/practiceAcademicV179.css';
 import '../../styles/practiceFlowV180.css';
 import '../../styles/practiceFullscreenV181.css';
 import '../../styles/practiceContrastV182.css';
+import '../../styles/practiceRoleArtworkV185.css';
 import {getGccLanguage} from '../../lib/i18nV157.js';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
@@ -36,7 +37,16 @@ export function PracticePageV170(){return `
  <section id="gcc178-setup" class="gcc178-setup" aria-label="Practice setup">
   <div id="gcc178-role-step" class="gcc178-step">
    <span class="gcc178-step-label">STEP 1 / 3</span><h1>How would you like to practice?</h1><p>Choose your role for a real international Zoom exchange.<span lang="ja">オンライン国際交流での役割を選びましょう。</span></p>
-   <div class="gcc178-choice-row" role="group" aria-label="Choose your role"><button data-role="student" type="button">🎓 <strong>Student</strong><small>Practice as a student / 生徒として練習</small></button><button data-role="facilitator" type="button">🎙️ <strong>Host / Facilitator</strong><small>Guide an exchange / 進行役として練習</small></button></div>
+   <div class="gcc178-choice-row gcc185-role-row" role="group" aria-label="Choose your role">
+      <button data-role="student" class="gcc185-role-card" type="button">
+        <span class="gcc185-role-art" aria-hidden="true"><img src="/assets/practice-role-student.webp" alt="" width="120" height="88" decoding="async" /></span>
+        <span class="gcc185-role-copy"><strong>Student</strong><small>Practice as a student / 生徒として練習</small></span>
+      </button>
+      <button data-role="facilitator" class="gcc185-role-card" type="button">
+        <span class="gcc185-role-art" aria-hidden="true"><img src="/assets/practice-role-facilitator.webp" alt="" width="120" height="94" decoding="async" /></span>
+        <span class="gcc185-role-copy"><strong>Host / Facilitator</strong><small>Guide an exchange / 進行役として練習</small></span>
+      </button>
+    </div>
   </div>
   <div id="gcc178-level-step" class="gcc178-step" hidden>
    <span class="gcc178-step-label">STEP 2 / 3</span><h1>Choose your practice level</h1><p>Pick the challenge that is right for you.<span lang="ja">練習するレベルを選びましょう。</span></p>
