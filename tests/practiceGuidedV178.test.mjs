@@ -64,6 +64,18 @@ test('role choices use transparent illustrations and preserve existing button se
   assert.match(roleRow,/aria-hidden="true"/);
   assert.match(source,/practiceRoleArtworkV185\.css/);
 });
+test('illustrations are 2x-resolution or better and preserve transparent WebP assets',()=>{
+ const student=readFileSync(new URL('../public/assets/practice-role-student.webp',import.meta.url));
+ const facilitator=readFileSync(new URL('../public/assets/practice-role-facilitator.webp',import.meta.url));
+ for(const [name,bytes] of [['Student',student],['Facilitator',facilitator]]){
+  assert.ok(bytes.length>25000&&bytes.length<180000,name+' optimized high-resolution WebP');
+  assert.equal(bytes.toString('ascii',0,4),'RIFF',name);
+  assert.equal(bytes.toString('ascii',8,12),'WEBP',name);
+ }
+ assert.match(source,/practice-role-student\\.webp" alt="" width="520" height="387"/);
+ assert.match(source,/practice-role-facilitator\\.webp" alt="" width="520" height="410"/);
+});
+
 test('illustrated role CSS spills outside buttons but never changes level chooser',()=>{
   const cssV185=readFileSync(new URL('../src/styles/practiceRoleArtworkV185.css',import.meta.url),'utf8');
   assert.match(cssV185,/#gcc178-role-step/);
