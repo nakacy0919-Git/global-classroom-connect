@@ -72,8 +72,8 @@ test('illustrations are 2x-resolution or better and preserve transparent WebP as
   assert.equal(bytes.toString('ascii',0,4),'RIFF',name);
   assert.equal(bytes.toString('ascii',8,12),'WEBP',name);
  }
- assert.match(source,/practice-role-student\\.webp" alt="" width="520" height="387"/);
- assert.match(source,/practice-role-facilitator\\.webp" alt="" width="520" height="410"/);
+ assert.ok(source.includes('practice-role-student.webp" alt="" width="520" height="387"'));
+ assert.ok(source.includes('practice-role-facilitator.webp" alt="" width="520" height="410"'));
 });
 
 test('illustrated role CSS spills outside buttons but never changes level chooser',()=>{
