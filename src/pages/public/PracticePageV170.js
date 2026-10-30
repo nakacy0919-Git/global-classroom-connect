@@ -39,11 +39,11 @@ export function PracticePageV170(){return `
    <span class="gcc178-step-label">STEP 1 / 3</span><h1>How would you like to practice?</h1><p>Choose your role for a real international Zoom exchange.<span lang="ja">オンライン国際交流での役割を選びましょう。</span></p>
    <div class="gcc178-choice-row gcc185-role-row" role="group" aria-label="Choose your role">
       <button data-role="student" class="gcc185-role-card" type="button">
-        <span class="gcc185-role-art" aria-hidden="true"><img src="/assets/practice-role-student.webp" alt="" width="120" height="88" decoding="async" /></span>
+        <span class="gcc185-role-art" aria-hidden="true"><img src="/assets/practice-role-student.webp" alt="" width="520" height="387" decoding="async" /></span>
         <span class="gcc185-role-copy"><strong>Student</strong><small>Practice as a student / 生徒として練習</small></span>
       </button>
       <button data-role="facilitator" class="gcc185-role-card" type="button">
-        <span class="gcc185-role-art" aria-hidden="true"><img src="/assets/practice-role-facilitator.webp" alt="" width="120" height="94" decoding="async" /></span>
+        <span class="gcc185-role-art" aria-hidden="true"><img src="/assets/practice-role-facilitator.webp" alt="" width="520" height="410" decoding="async" /></span>
         <span class="gcc185-role-copy"><strong>Host / Facilitator</strong><small>Guide an exchange / 進行役として練習</small></span>
       </button>
     </div>
