@@ -5,7 +5,7 @@ const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const page=read('src/pages/teacher/TeacherAccessPage.js');
 const css=read('src/styles/teacherLoginV126.css');
 test('sign in screen presents exactly one focused login and a compact signup action',()=>{
- assert.match(page,/Teacher sign in/);
+ assert.match(page,/>Sign in<\/h1>/);
  assert.match(page,/id="gcta-login"/);
  assert.match(page,/gcc126-actions/);
  assert.match(page,/href="#\/signup"/);
@@ -18,7 +18,7 @@ test('existing approved/invitation account activation and host link remain opera
  assert.match(page,/claimTeacherInvite\(/);
  assert.match(page,/teacherIdentity\(/);
  assert.match(page,/beginApplicationV120\(/);
- assert.match(page,/href="#\/login"/);
+ assert.match(page,/hostProfile\?\.role==='host'/);
  assert.match(page,/return '#\/teacher-portal\?view='/);
 });
 test('new design follows interior palette and does not stretch actions',()=>{

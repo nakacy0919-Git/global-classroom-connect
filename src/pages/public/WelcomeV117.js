@@ -24,21 +24,17 @@ const svg=(name,cls='')=>`<svg class="${cls}" width="24" height="24" viewBox="0 
 export function WelcomeV117(){return `<section class="gcc117-welcome" aria-labelledby="gcc117-heading">
  <div class="gcc117-world" aria-hidden="true"><div class="gcc117-globe"></div><i class="gcc117-orbit gcc117-orbit-a"></i><i class="gcc117-orbit gcc117-orbit-b"></i><i class="gcc117-dot gcc117-dot-a"></i><i class="gcc117-dot gcc117-dot-b"></i><i class="gcc117-dot gcc117-dot-c"></i></div>
  <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management" class="gcc124-actions">
-    <div class="gcc157-home-lang" role="group" aria-label="Choose interface language"><span aria-hidden="true">🌐</span><button type="button" data-lang="en" aria-label="Display in English">EN</button><button type="button" data-lang="ja" aria-label="日本語で表示">日本語</button></div>
-    <a href="#/teacher-access" class="gcc120-signin-top">${svg('profile')}<span>Sign in</span></a>
-    <a href="#/signup" class="gcc120-signup-top"><span>Sign up</span>${svg('arrow')}</a>
-    <details class="gcc124-account-menu">
-      <summary aria-label="More account options" title="More account options">
-        ${svg('profile')}<span class="gcc124-menu-label">Account</span>
-      </summary>
-      <div class="gcc124-account-popup">
-        <a href="#/teacher-portal?view=requests">${svg('people')} My Requests</a>
-        <a href="#/teacher-portal?view=network">${svg('globe')} Teacher Network</a>
-        <a href="#/teacher-portal?view=profile">${svg('profile')} My profile</a>
-        <a href="#/login">Host sign in</a>
-      </div>
-    </details>
-  </nav></header>
+ <details class="gcc184-lang-menu"><summary aria-label="Choose interface language" title="Choose interface language">🌐 <span class="gcc184-current-language">EN</span> ▾</summary><div class="gcc184-lang-popup"><button type="button" data-lang="en" aria-label="Display in English">English</button><button type="button" data-lang="ja" aria-label="日本語で表示">日本語</button></div></details>
+ <div class="gcc184-guest-actions" hidden><a href="#/teacher-access" class="gcc120-signin-top">${svg('profile')} Sign in</a><a href="#/signup" class="gcc120-signup-top">Join us ${svg('arrow')}</a></div>
+ <details class="gcc124-account-menu gcc184-user-menu" hidden><summary aria-label="My GCC Account">${svg('profile')}<span aria-hidden="true">▾</span></summary><div class="gcc124-account-popup">
+ <p class="gcc184-account-heading">My GCC Account</p>
+ <a data-gcc-teacher-mode href="#/teacher-portal?view=find" hidden>${svg('people')} Teacher Mode</a>
+ <a data-gcc-admin-mode href="#/sessions" hidden>${svg('profile')} Admin Mode</a>
+ <a data-gcc-profile href="#/teacher-portal?view=profile" hidden>${svg('profile')} My profile</a>
+ <p class="gcc184-teacher-note" hidden>Teacher access requires an approved profile.</p>
+ <button class="gcc184-signout" data-gcc-signout type="button">Sign out</button><p class="gcc184-account-status" role="status" aria-live="polite"></p>
+ </div></details>
+ </nav></header>
  <div class="gcc117-intro"><span class="gcc117-kicker"><span class="gcc117-live-dot"></span> YOUR NEXT GLOBAL CLASSROOM STARTS HERE</span>
    <h1 id="gcc117-heading">One classroom.<br/><em>A world of connections.</em></h1>
    <p>Meet teachers around the globe, bring young people together, and make every exchange a new story.</p>

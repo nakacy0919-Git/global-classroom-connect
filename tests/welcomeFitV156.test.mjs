@@ -31,8 +31,8 @@ test('account actions have coherent sign-in/sign-up styles and keep accessible a
  assert.ok(page.indexOf('class="gcc120-signin-top"')<page.indexOf('class="gcc120-signup-top"'));
  assert.match(page,/href="#\/teacher-access" class="gcc120-signin-top"/);
  assert.match(page,/href="#\/signup" class="gcc120-signup-top"/);
- assert.match(page,/class="gcc124-account-menu"/);
- assert.match(page,/aria-label="More account options"/);
+ assert.match(page,/class="gcc124-account-menu gcc184-user-menu"/);
+ assert.match(page,/aria-label="My GCC Account"/);
  assert.match(page,/view=profile/);
  assert.match(css,/nav\.gcc124-actions/);
  assert.match(css,/\.gcc120-signin-top/);
@@ -52,7 +52,7 @@ test('small phones get four horizontal menu cards with explicit readable labels'
  assert.match(css,/@media\(max-height:680px\) and \(max-width:620px\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
-test('phone navigation retains obvious buttons and Account label',()=>{
+test('phone navigation retains obvious buttons and compact account icon',()=>{
  assert.match(css,/\.gcc124-menu-label\{display:inline!important\}/);
  assert.match(css,/\.gcc124-account-popup\{right:0/);
  assert.match(css,/border-radius:10px;font-size:\.77rem/);

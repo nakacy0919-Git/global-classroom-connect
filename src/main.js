@@ -7,6 +7,7 @@ import './styles/welcomeFitV156.css';
 import './styles/welcomePracticeV169.css';
 import './styles/i18nV157.css';
 import './styles/welcomeButtonsV173.css';
+import './styles/welcomeAccountV184.css';
 
 renderApp();
 window.addEventListener('hashchange', renderApp);
