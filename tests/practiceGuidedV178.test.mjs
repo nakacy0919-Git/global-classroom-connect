@@ -53,3 +53,24 @@ test('practice content and saved scores remain unchanged for all levels and role
  assert.match(source,/scorePracticePhrase\(item\.text,text,state\.profile\)/);
  assert.match(source,/attempts:\(prev\?\.attempts\|\|0\)\+1/);
 });
+
+test('role choices use transparent illustrations and preserve existing button semantics',()=>{
+  const roleRow=source.match(/<div class="gcc178-choice-row gcc185-role-row"[\s\S]*?<\/div>/)?.[0]||'';
+  assert.match(roleRow,/data-role="student"/);
+  assert.match(roleRow,/data-role="facilitator"/);
+  assert.match(roleRow,/gcc185-role-art/);
+  assert.match(roleRow,/practice-role-student\.webp/);
+  assert.match(roleRow,/practice-role-facilitator\.webp/);
+  assert.match(roleRow,/aria-hidden="true"/);
+  assert.match(source,/practiceRoleArtworkV185\.css/);
+});
+test('illustrated role CSS spills outside buttons but never changes level chooser',()=>{
+  const cssV185=readFileSync(new URL('../src/styles/practiceRoleArtworkV185.css',import.meta.url),'utf8');
+  assert.match(cssV185,/#gcc178-role-step/);
+  assert.match(cssV185,/overflow:visible/);
+  assert.match(cssV185,/bottom:-5px/);
+  assert.match(cssV185,/position:absolute/);
+  assert.match(cssV185,/@media\(max-width:740px\)/);
+  assert.match(cssV185,/@media\(prefers-reduced-motion:reduce\)/);
+  assert.doesNotMatch(cssV185,/gcc178-level-row/);
+});

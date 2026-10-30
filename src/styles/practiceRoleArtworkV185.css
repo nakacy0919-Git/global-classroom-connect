@@ -1,0 +1,150 @@
+/* GCC V18.5 — pop-out illustrated roles in Practice English.
+   Scoped to Step 1 so the level selection and all learning screens stay unchanged. */
+#app .gcc170 #gcc178-role-step{
+  overflow:visible;
+}
+#app .gcc170 #gcc178-role-step>p{
+  margin-bottom:clamp(44px,7vh,68px);
+}
+#app .gcc170 .gcc185-role-row{
+  gap:clamp(16px,2vw,24px);
+  overflow:visible;
+  padding:0 5px 6px;
+}
+#app .gcc170 .gcc185-role-row button.gcc185-role-card{
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-end;
+  min-width:0;
+  min-height:172px;
+  padding:22px clamp(15px,2vw,26px) 20px clamp(205px,20vw,230px);
+  overflow:visible;
+  text-align:left;
+  border-radius:24px;
+  border:2px solid #8ab9ed;
+  background:linear-gradient(125deg,#ffffff 0%,#e3f2ff 74%,#d9ebff 100%);
+  box-shadow:0 9px 20px rgba(25,88,156,.14);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+#app .gcc170 .gcc185-role-row button.gcc185-role-card[data-role="facilitator"]{
+  justify-content:flex-start;
+  padding:22px clamp(213px,21vw,240px) 20px clamp(17px,2vw,26px);
+  background:linear-gradient(120deg,#f3f5ff 0%,#e6efff 65%,#dcf0ff 100%);
+}
+#app .gcc170 .gcc185-role-art{
+  position:absolute;
+  z-index:2;
+  bottom:-5px;
+  left:-24px;
+  width:260px;
+  height:auto;
+  pointer-events:none;
+  filter:drop-shadow(0 9px 9px rgba(18,68,123,.16));
+  transform:translateY(-5px);
+  transition:transform .18s ease;
+}
+#app .gcc170 .gcc185-role-card[data-role="facilitator"] .gcc185-role-art{
+  left:auto;
+  right:-22px;
+  width:260px;
+}
+#app .gcc170 .gcc185-role-art img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:none;
+  object-fit:contain;
+}
+#app .gcc170 .gcc185-role-copy{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  flex:1 1 auto;
+  min-width:0;
+  position:relative;
+  z-index:3;
+  gap:8px;
+}
+#app .gcc170 .gcc185-role-row .gcc185-role-copy strong{
+  display:block;
+  color:#0b448e;
+  font-size:clamp(1.06rem,1.58vw,1.38rem);
+  line-height:1.16;
+  font-weight:950;
+  text-wrap:balance;
+}
+#app .gcc170 .gcc185-role-row .gcc185-role-copy small{
+  display:block;
+  color:#355d83;
+  font-size:clamp(.7rem,.95vw,.81rem);
+  line-height:1.4;
+  font-weight:750;
+}
+#app .gcc170 .gcc185-role-row button.gcc185-role-card:hover,
+#app .gcc170 .gcc185-role-row button.gcc185-role-card:focus-visible{
+  border-color:#1a70d3;
+  box-shadow:0 13px 26px rgba(13,92,193,.23);
+  transform:translateY(-4px);
+}
+#app .gcc170 .gcc185-role-row button.gcc185-role-card:hover .gcc185-role-art,
+#app .gcc170 .gcc185-role-row button.gcc185-role-card:focus-visible .gcc185-role-art{
+  transform:translateY(-11px);
+}
+#app .gcc170 .gcc185-role-row button.gcc185-role-card.active{
+  border-color:#095cc5;
+  box-shadow:0 0 0 3px rgba(31,116,215,.13),0 12px 25px rgba(16,92,170,.2);
+}
+@media(max-width:960px) and (min-width:741px){
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card{
+    min-height:154px;
+    padding-left:166px;
+    padding-right:12px;
+  }
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card[data-role="facilitator"]{
+    padding-left:16px;
+    padding-right:165px;
+  }
+  #app .gcc170 .gcc185-role-row .gcc185-role-art{width:210px;left:-17px}
+  #app .gcc170 .gcc185-role-card[data-role="facilitator"] .gcc185-role-art{left:auto;right:-18px;width:210px}
+}
+@media(max-width:740px){
+  #app .gcc170 #gcc178-role-step>p{margin-bottom:36px}
+  #app .gcc170 .gcc185-role-row{gap:24px;padding:0 4px 8px}
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card{
+    min-height:138px;
+    padding:14px 12px 14px clamp(130px,39vw,170px);
+    border-radius:19px;
+  }
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card[data-role="facilitator"]{
+    padding:14px clamp(130px,39vw,170px) 14px 12px;
+  }
+  #app .gcc170 .gcc185-role-row .gcc185-role-art{
+    left:-12px;
+    bottom:-3px;
+    width:clamp(157px,48vw,205px);
+  }
+  #app .gcc170 .gcc185-role-card[data-role="facilitator"] .gcc185-role-art{
+    right:-12px;
+    left:auto;
+    width:clamp(157px,48vw,205px);
+  }
+  #app .gcc170 .gcc185-role-row .gcc185-role-copy{gap:5px}
+  #app .gcc170 .gcc185-role-row .gcc185-role-copy strong{font-size:clamp(.96rem,3.6vw,1.12rem)}
+  #app .gcc170 .gcc185-role-row .gcc185-role-copy small{font-size:clamp(.68rem,2.5vw,.78rem)}
+}
+@media(max-width:380px){
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card{padding-left:124px;min-height:128px}
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card[data-role="facilitator"]{padding-left:11px;padding-right:124px}
+  #app .gcc170 .gcc185-role-row .gcc185-role-art,
+  #app .gcc170 .gcc185-role-card[data-role="facilitator"] .gcc185-role-art{width:155px}
+}
+@media(prefers-reduced-motion:reduce){
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card,
+  #app .gcc170 .gcc185-role-row .gcc185-role-art{transition:none}
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card:hover .gcc185-role-art,
+  #app .gcc170 .gcc185-role-row button.gcc185-role-card:focus-visible .gcc185-role-art{transform:none}
+}
