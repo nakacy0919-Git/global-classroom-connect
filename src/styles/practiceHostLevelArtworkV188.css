@@ -1,0 +1,55 @@
+/* GCC V18.8 — Host / Facilitator artwork only. Student level cards remain unchanged. */
+#app .gcc170 #gcc178-level-step.gcc188-host-level-mode>p{
+ margin-bottom:clamp(66px,8vh,84px);
+}
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-row button.gcc187-level-card{
+ min-height:212px;padding:10px;align-items:center;justify-content:center;
+ background:linear-gradient(138deg,#fcfeff,#e4f3ff);
+}
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-row button[data-level="advanced"]{
+ background:linear-gradient(138deg,#fffaff,#eee8ff);
+}
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-row button[data-level="challenge"]{
+ background:linear-gradient(138deg,#fffdf5,#fff0d5);
+}
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-art{
+ left:50%;bottom:-14px;width:clamp(224px,26vw,288px);
+ transform:translate(-50%,-7px);filter:drop-shadow(0 6px 9px rgba(25,67,131,.16));
+}
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-row button:hover .gcc187-level-art,
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-row button:focus-visible .gcc187-level-art{
+ transform:translate(-50%,-14px);
+}
+/* Artwork already contains each level title; keep accessible text for assistive tech, not duplicate visible copy. */
+#app .gcc170 .gcc188-host-level-mode .gcc187-level-copy{
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+ overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%);
+}
+@media(max-width:1080px) and (min-width:741px){
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-row button.gcc187-level-card{min-height:189px;padding:9px}
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-art{width:clamp(196px,25.5vw,255px);bottom:-11px}
+ #app .gcc170 #gcc178-level-step.gcc188-host-level-mode>p{margin-bottom:65px}
+}
+@media(max-width:740px){
+ #app .gcc170 #gcc178-level-step.gcc188-host-level-mode>p{margin-bottom:58px}
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-row{gap:27px}
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-row button.gcc187-level-card{
+   min-height:182px;padding:8px;border-radius:19px
+ }
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-art{
+   width:clamp(197px,61vw,225px);left:50%;bottom:-11px
+ }
+ #app .gcc170:has(#gcc178-level-step.gcc188-host-level-mode:not([hidden])){
+   overflow-y:auto;overflow-x:hidden
+ }
+}
+@media(max-width:390px){
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-art{width:194px}
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-row button.gcc187-level-card{min-height:169px}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-row button:hover .gcc187-level-art,
+ #app .gcc170 .gcc188-host-level-mode .gcc187-level-row button:focus-visible .gcc187-level-art{
+   transform:translate(-50%,-7px)
+ }
+}
