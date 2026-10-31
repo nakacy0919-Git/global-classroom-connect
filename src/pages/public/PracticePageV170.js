@@ -13,6 +13,7 @@ import '../../styles/practiceFlowV180.css';
 import '../../styles/practiceFullscreenV181.css';
 import '../../styles/practiceContrastV182.css';
 import '../../styles/practiceRoleArtworkV185.css';
+import '../../styles/practiceLevelArtworkV187.css';
 import {getGccLanguage} from '../../lib/i18nV157.js';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
@@ -50,7 +51,20 @@ export function PracticePageV170(){return `
   </div>
   <div id="gcc178-level-step" class="gcc178-step" hidden>
    <span class="gcc178-step-label">STEP 2 / 3</span><h1>Choose your practice level</h1><p>Pick the challenge that is right for you.<span lang="ja">練習するレベルを選びましょう。</span></p>
-   <div class="gcc178-choice-row gcc178-level-row" role="group" aria-label="Practice difficulty"><button data-level="standard" type="button">⭐ <strong>Standard</strong><small>Useful everyday phrases / 基本表現</small></button><button data-level="advanced" type="button">🚀 <strong>Advanced</strong><small>Deeper conversation / 発展表現</small></button><button data-level="challenge" type="button">🏆 <strong>Challenge</strong><small>Real-world missions / 実践課題</small></button></div>
+   <div class="gcc178-choice-row gcc178-level-row gcc187-level-row" role="group" aria-label="Practice difficulty">
+    <button data-level="standard" class="gcc187-level-card" type="button">
+      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-level-standard-hd.webp" alt="" width="580" height="579" decoding="async" /></span>
+      <span class="gcc187-level-copy"><span class="gcc187-level-tag">LEVEL 01</span><strong>Standard</strong><small>Useful everyday phrases / 基本表現</small></span>
+    </button>
+    <button data-level="advanced" class="gcc187-level-card" type="button">
+      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-level-advanced-hd.webp" alt="" width="580" height="576" decoding="async" /></span>
+      <span class="gcc187-level-copy"><span class="gcc187-level-tag">LEVEL 02</span><strong>Advanced</strong><small>Deeper conversation / 発展表現</small></span>
+    </button>
+    <button data-level="challenge" class="gcc187-level-card" type="button">
+      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-level-challenge-hd.webp" alt="" width="580" height="545" decoding="async" /></span>
+      <span class="gcc187-level-copy"><span class="gcc187-level-tag">LEVEL 03</span><strong>Challenge</strong><small>Real-world missions / 実践課題</small></span>
+    </button>
+   </div>
    <button id="gcc178-role-back" class="gcc178-back" type="button">← Back to roles / 役割を選び直す</button>
   </div>
  </section>
