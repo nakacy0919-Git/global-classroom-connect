@@ -54,15 +54,15 @@ export function PracticePageV170(){return `
    <span class="gcc178-step-label">STEP 2 / 3</span><h1>Choose your practice level</h1><p>Pick the challenge that is right for you.<span lang="ja">練習するレベルを選びましょう。</span></p>
    <div class="gcc178-choice-row gcc178-level-row gcc187-level-row" role="group" aria-label="Practice difficulty">
     <button data-level="standard" class="gcc187-level-card" type="button">
-      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-level-standard-hd.webp" data-student-src="/assets/practice-level-standard-hd.webp" data-host-src="/assets/practice-host-standard-hq.webp" data-student-height="579" data-host-height="576" alt="" width="580" height="579" decoding="async" /></span>
+      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-student-standard-hq.webp" data-student-src="/assets/practice-student-standard-hq.webp" data-host-src="/assets/practice-host-standard-hq.webp" data-student-height="580" data-host-height="576" alt="" width="580" height="580" decoding="async" /></span>
       <span class="gcc187-level-copy"><span class="gcc187-level-tag">LEVEL 01</span><strong>Standard</strong><small>Useful everyday phrases / 基本表現</small></span>
     </button>
     <button data-level="advanced" class="gcc187-level-card" type="button">
-      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-level-advanced-hd.webp" data-student-src="/assets/practice-level-advanced-hd.webp" data-host-src="/assets/practice-host-advanced-hq.webp" data-student-height="576" data-host-height="531" alt="" width="580" height="576" decoding="async" /></span>
+      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-student-advanced-hq.webp" data-student-src="/assets/practice-student-advanced-hq.webp" data-host-src="/assets/practice-host-advanced-hq.webp" data-student-height="580" data-host-height="531" alt="" width="580" height="580" decoding="async" /></span>
       <span class="gcc187-level-copy"><span class="gcc187-level-tag">LEVEL 02</span><strong>Advanced</strong><small>Deeper conversation / 発展表現</small></span>
     </button>
     <button data-level="challenge" class="gcc187-level-card" type="button">
-      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-level-challenge-hd.webp" data-student-src="/assets/practice-level-challenge-hd.webp" data-host-src="/assets/practice-host-challenge-hq.webp" data-student-height="545" data-host-height="569" alt="" width="580" height="545" decoding="async" /></span>
+      <span class="gcc187-level-art" aria-hidden="true"><img src="/assets/practice-student-challenge-hq.webp" data-student-src="/assets/practice-student-challenge-hq.webp" data-host-src="/assets/practice-host-challenge-hq.webp" data-student-height="580" data-host-height="569" alt="" width="580" height="580" decoding="async" /></span>
       <span class="gcc187-level-copy"><span class="gcc187-level-tag">LEVEL 03</span><strong>Challenge</strong><small>Real-world missions / 実践課題</small></span>
     </button>
    </div>
@@ -206,6 +206,7 @@ export function bindPracticePageV170(){
   const host=role==='facilitator';
   const step=document.getElementById('gcc178-level-step');
   step.classList.toggle('gcc188-host-level-mode',host);
+  step.classList.toggle('gcc189-student-level-mode',!host);
   step.querySelectorAll('.gcc187-level-art img').forEach(img=>{
     const src=host?img.dataset.hostSrc:img.dataset.studentSrc;
     if(src&&img.getAttribute('src')!==src)img.setAttribute('src',src);
