@@ -1,0 +1,70 @@
+/* GCC V19.0 — Five-step recall mission. Scoped to the speaking popup only. */
+#app .gcc170 #gcc170-prompt,
+#app .gcc170 .gcc170-stage-dialog .gcc170-phrase #gcc170-prompt{
+  text-align:left!important;
+  width:100%;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-size:clamp(1.2rem,2.6vw,2rem);
+  line-height:1.48;
+  font-weight:900;
+  letter-spacing:.01em;
+}
+#app .gcc170 .gcc170-stage-dialog .gcc170-phrase{
+  text-align:left;
+  align-items:stretch;
+}
+#app .gcc170 .gcc170-stage-dialog .gcc170-phrase #gcc170-japanese{
+  text-align:left;
+  width:100%;
+  white-space:pre-wrap;
+}
+#app .gcc170 .gcc190-mission{
+  background:linear-gradient(110deg,#f4f9ff,#eff7ff);
+  border:1px solid #b6d4f5;
+  border-radius:12px;
+  padding:9px 12px;
+  margin:7px 0 9px;
+}
+#app .gcc170 .gcc190-mission-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:8px;flex-wrap:wrap;font-size:.78rem;color:#154b83;
+}
+#app .gcc170 .gcc190-mission-head strong{font-weight:950}
+#app .gcc170 .gcc190-mission-head span{font-weight:850;color:#0e5ba2}
+#app .gcc170 .gcc190-mission-steps{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;margin:8px 0 5px;
+}
+#app .gcc170 .gcc190-mission-step{
+  text-align:center;font-size:.68rem;font-weight:900;
+  color:#6181a4;border:1px solid #b6ccdf;
+  background:white;border-radius:7px;padding:5px 3px;
+}
+#app .gcc170 .gcc190-mission-step.is-current{
+  background:#145ec4;color:#fff;border-color:#145ec4;
+  box-shadow:0 2px 5px #165cbb35;
+}
+#app .gcc170 .gcc190-mission-step.is-done{
+  background:#e5f8ee;color:#08734e;border-color:#a9dfbf;
+}
+#app .gcc170 .gcc190-mission-note{
+  margin:5px 0 0;color:#466684;font-size:.71rem;line-height:1.35;
+}
+#app .gcc170 .gcc190-mission[data-completed="true"]{
+  border-color:#54b88c;background:#eafbf1;
+}
+#app .gcc170 .gcc190-mission[data-completed="true"] .gcc190-mission-head strong{color:#08734e}
+#app .gcc170 .gcc170-phrase-nav #gcc170-next:disabled{
+  cursor:not-allowed;opacity:.45;
+}
+@media(max-width:620px){
+  #app .gcc170 .gcc190-mission{padding:7px 9px;margin:5px 0 7px}
+  #app .gcc170 .gcc190-mission-head{font-size:.7rem}
+  #app .gcc170 .gcc190-mission-step{font-size:.59rem;padding:4px 2px}
+  #app .gcc170 .gcc190-mission-note{font-size:.65rem}
+  #app .gcc170 #gcc170-prompt{font-size:clamp(1.12rem,4.4vw,1.45rem)}
+}
+@media(prefers-reduced-motion:reduce){
+  #app .gcc170 .gcc190-mission-step{transition:none}
+}

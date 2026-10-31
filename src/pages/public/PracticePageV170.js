@@ -1,4 +1,5 @@
 import {PRACTICE_STAGES,fillPracticePhrase,scorePracticePhrase} from '../../lib/practiceDataV169.js';
+import {PRACTICE_MISSION_STEPS,missionStep,requiredAccuracy,isMissionComplete,maskMissionPhrase,advanceMission} from '../../lib/practiceMissionV190.js';
 import {getPracticeItemsV174 as getPracticeItems,PRACTICE_SCENES_V174} from '../../lib/practiceCurriculumV174.js';
 import {getPracticeItemsV171} from '../../lib/practiceCurriculumV171.js';
 import '../../styles/practiceStudioV170.css';
@@ -15,6 +16,15 @@ import '../../styles/practiceContrastV182.css';
 import '../../styles/practiceRoleArtworkV185.css';
 import '../../styles/practiceLevelArtworkV187.css';
 import '../../styles/practiceHostLevelArtworkV188.css';
+import '../../styles/practiceMissionV190.css';
+import '../../styles/practiceMissionV191.css';
+import '../../styles/practiceMissionV192.css';
+import '../../styles/practiceMissionV193.css';
+import '../../styles/practiceMissionV194.css';
+import '../../styles/practiceProfileGuideV195.css';
+import {missingPracticeProfileFields,practiceProfileFieldInfo} from '../../lib/practiceProfileGuideV195.js';
+import {createLevelTransitionController} from '../../lib/practiceMissionV194.js';
+import {missionDisplayScore,newlyUnlockedLevel} from '../../lib/practiceMissionV193.js';
 import {getGccLanguage} from '../../lib/i18nV157.js';
 const KEY='gcc-practice-v170-local';
 const el=(tag,cls='',text='')=>{const x=document.createElement(tag);if(cls)x.className=cls;x.textContent=text;return x;};
@@ -94,8 +104,14 @@ export function PracticePageV170(){return `
   <div class="gcc170-dialog-top"><strong id="gcc170-dialog-heading">Practice</strong><button id="gcc170-dialog-close" type="button">✕ Close</button></div>
   <div class="gcc170-dialog-scroll">
    <div class="gcc170-scene"><div class="gcc170-scene-icon" id="gcc170-scene-icon">🎧</div><div><span id="gcc170-scene-level" class="gcc170-scene-level">STANDARD</span><h2 id="gcc170-scene-title"></h2><p id="gcc170-scene-hint"></p></div><img id="gcc178-dialog-image" src="/practice-stages/stage-01.webp" alt="Zoom practice situation"></div>
-   <div class="gcc170-phrase-nav"><button type="button" id="gcc170-prev">← Previous</button><span id="gcc170-counter">1 / 3</span><button type="button" id="gcc170-next">Next →</button></div>
+   <div class="gcc170-phrase-nav"><button type="button" id="gcc170-prev">← Previous</button><span id="gcc170-counter">1 / 3</span><button type="button" id="gcc170-next" disabled>Next →</button></div>
+    <section id="gcc190-mission" class="gcc190-mission" aria-label="Five-level reading mission" data-completed="false"><div class="gcc190-mission-head"><strong id="gcc190-mission-heading">READING MISSION 1 / 5</strong><span id="gcc190-mission-target">Target: 80%</span></div><div id="gcc190-mission-steps" class="gcc190-mission-steps" aria-label="Mission progress"></div><p id="gcc190-mission-note" class="gcc190-mission-note">Read aloud to unlock the next level.</p></section>
    <div class="gcc174-dialog-cue" id="gcc174-dialog-cue" hidden><span>📍 SITUATION / 場面</span><strong id="gcc174-dialog-cue-en"></strong><small id="gcc174-dialog-cue-ja" lang="ja"></small></div>
+   <section id="gcc195-profile-guide" class="gcc195-profile-guide" hidden aria-label="Complete your profile before speaking">
+    <div><strong id="gcc195-profile-title" class="gcc195-profile-guide-title">🎯 プロフィールを入力しましょう</strong><p id="gcc195-profile-desc" class="gcc195-profile-guide-desc">This phrase needs one detail from your profile. / この英文に必要な項目を入力してください。</p></div>
+    <div class="gcc195-profile-guide-controls"><label id="gcc195-profile-label" for="gcc195-profile-input">Profile / プロフィール</label><input id="gcc195-profile-input" type="text" autocomplete="off" maxlength="120"/><button id="gcc195-profile-save" type="button">✓ 保存して音読へ</button></div>
+    <small id="gcc195-profile-feedback" class="gcc195-profile-guide-feedback" role="status"></small>
+   </section>
    <div class="gcc170-phrase"><div class="gcc171-phrase-top"><span class="gcc175-read-label">📣 READ THIS ALOUD <small lang="ja">ここを声に出して読もう</small></span><button id="gcc170-listen" class="gcc171-listen-icon" type="button" aria-label="Listen to the model phrase" title="Listen / お手本を聞く">🔊</button></div><p id="gcc170-prompt"></p><p id="gcc170-japanese" lang="ja"></p></div>
    <div class="gcc170-mic-actions"><button id="gcc170-start" type="button">🎙️ Start Speaking</button><button id="gcc170-end" type="button" disabled>■ End & Score</button></div>
    <p id="gcc170-status" class="gcc170-status" role="status"></p>
@@ -121,7 +137,7 @@ export function bindPracticePageV170(){
  function paintStages(){
   const list=$('stages');list.replaceChildren();
   stages().forEach((s,i)=>{
-   const done=getPracticeItems(role,s.id,level).filter((_,n)=>scoreFor(role,level,s.id,n)).length;
+   const done=getPracticeItems(role,s.id,level).filter((_,n)=>isMissionComplete(scoreFor(role,level,s.id,n))).length;
    const b=el('button','gcc170-stage'+(stageIndex===i?' gcc173-selected':''));
    b.type='button';b.setAttribute('aria-pressed',String(stageIndex===i));b.append(el('span','gcc170-stage-icon',s.icon));
    const text=el('span','gcc170-stage-text');text.append(el('strong','',String(i+1).padStart(2,'0')+' · '+s.title),el('small','',s.scene),el('em','gcc173-stage-ja',PRACTICE_SCENES_V174[role][s.id].ja));b.append(text);
@@ -129,15 +145,187 @@ export function bindPracticePageV170(){
    b.addEventListener('click',()=>selectStage(i));list.append(b);
   });
  }
- function paintScore(value,best){
+ function paintScore(value,best,threshold=80){
   $('score-value').textContent=value==null?'—%':value+'%';
   $('score-fill').style.strokeDasharray=(value??0)+' 100';$('score-fill').closest('.gcc171-gauge').setAttribute('aria-valuenow',String(value??0));
-  $('score-fill').classList.toggle('success',value>=80);
-  $('score-value').classList.toggle('success',value>=80);
+  $('score-fill').classList.toggle('success',value!=null&&value>=threshold);
+  $('score-value').classList.toggle('success',value!=null&&value>=threshold);
   $('best').textContent='Best Score: '+(best==null?'—':best+'%');
-  $('score-message').textContent=value==null?'Aim for 80% or higher! 🎯':value===100?'🏆 PERFECT! 100% accuracy!':value>=90?'🌟 Excellent! 90%+ achieved!':value>=80?'🎉 Great! 80%+ achieved!':'🌱 Keep going! Listen and try again.';
+  $('score-message').textContent=value==null?'Target: '+threshold+'% to advance 🎯':value>=threshold?'✅ Target '+threshold+'% reached!':'Aim for '+threshold+'% or higher. Try again!';
  }
- function paintItem(){
+ function renderMissionBlanks(model,n){
+  const prompt=$('prompt');
+  const fragments=maskMissionPhrase(model,n).split('_____');
+  const result=document.createDocumentFragment();
+  // Preserve one separate gray box per hidden word, never reveal spelling length.
+  fragments.forEach((part,index)=>{
+   if(index){
+    const block=document.createElement('span');
+    block.className='gcc192-mask-block';
+    block.setAttribute('aria-hidden','true');
+    result.append(block);
+   }
+   if(part)result.append(document.createTextNode(part));
+  });
+  prompt.replaceChildren(result);
+  prompt.setAttribute('aria-label',n===1?model:'English words are hidden one by one. Use the Japanese translation to recall the sentence.');
+ }
+ function showMissionClearConfetti(){
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return;
+  stageDialog.querySelector('.gcc191-luxury-confetti')?.remove();
+  const overlay=document.createElement('div');
+  overlay.className='gcc191-luxury-confetti';overlay.setAttribute('aria-hidden','true');
+  const palette=['#fff5b0','#ffd84d','#eeb647','#ffffff','#70d9ff','#007ce0','#9768ff','#ff7498','#5be3ad'];
+  const count=window.innerWidth<700?180:270;
+  const fragment=document.createDocumentFragment();
+  for(let i=0;i<count;i++){
+   const piece=document.createElement('i');
+   piece.className='gcc191-confetti-particle'+(i%7===0?' is-circle':i%5===0?' is-streamer':'');
+   piece.style.setProperty('--x',(Math.random()*100).toFixed(2)+'%');
+   piece.style.setProperty('--y',(-5-Math.random()*65).toFixed(2)+'%');
+   piece.style.setProperty('--dx',((Math.random()-.5)*320).toFixed(0)+'px');
+   piece.style.setProperty('--turn',((Math.random()-.5)*1900).toFixed(0)+'deg');
+   piece.style.setProperty('--duration',(3000+Math.random()*2200).toFixed(0)+'ms');
+   piece.style.setProperty('--delay',(Math.random()*650).toFixed(0)+'ms');
+   piece.style.setProperty('--size',(3+Math.random()*7).toFixed(1)+'px');
+   piece.style.setProperty('--color',palette[i%palette.length]);
+   fragment.append(piece);
+  }
+  overlay.append(fragment);
+  stageDialog.append(overlay); // Inside the modal's top layer, never behind the dialog.
+  setTimeout(()=>overlay.remove(),6400);
+ }
+ const levelTransition=createLevelTransitionController();
+ function cancelLevelTransition(){
+  levelTransition.cancel();
+  stageDialog.querySelector('.gcc193-level-transition')?.remove();
+ }
+ function scheduleMissionTransition(item,saved,k,progress){
+  const startingRole=role,startingLevel=level,startingStage=stage().id,startingIndex=itemIndex;
+  // Prevent speaking, clicking another phrase, or restarting while a score is being reviewed.
+  $('start').disabled=true;
+  $('prev').disabled=true;
+  $('next').disabled=true;
+  levelTransition.schedule({
+   isActive:()=>stageDialog.open&&role===startingRole&&level===startingLevel&&stage().id===startingStage&&itemIndex===startingIndex&&state.scores[k]===saved,
+   onBanner:()=>{tone('next');showMissionLevelStart(progress.step);},
+   onAdvance:()=>{
+    stageDialog.querySelector('.gcc193-level-transition')?.remove();
+    renderMission(item,saved);
+    const nextLevelView=missionDisplayScore(missionViewScore(saved));
+    paintScore(0,nextLevelView.best,nextLevelView.threshold);
+    $('best').textContent='Level '+nextLevelView.step+' Best: '+nextLevelView.best+'%';
+    $('transcript').textContent='Your words will appear here…';
+    $('status').textContent='LEVEL '+nextLevelView.step+' START! Target: '+nextLevelView.threshold+'% / 次のレベルに挑戦！';
+    $('start').disabled=!SpeechRecognition;
+    $('prev').disabled=itemIndex===0;
+   },
+  });
+ }
+ function showMissionLevelStart(step){
+  const old=stageDialog.querySelector('.gcc193-level-transition');
+  if(old)old.remove();
+  const panel=document.createElement('div');
+  panel.className='gcc193-level-transition';
+  panel.setAttribute('role','status');
+  panel.setAttribute('aria-live','polite');
+  panel.setAttribute('aria-atomic','true');
+  const card=document.createElement('div');card.className='gcc193-level-start-card';
+  const kicker=document.createElement('span');kicker.className='gcc193-level-small';kicker.textContent='READING MISSION';
+  const heading=document.createElement('strong');heading.textContent='LEVEL '+step+' START!';
+  const subtitle=document.createElement('span');subtitle.className='gcc193-level-ja';
+  subtitle.textContent='目標 '+requiredAccuracy(step)+'% · 次のチャレンジへ！';
+  card.append(kicker,heading,subtitle);panel.append(card);
+  stageDialog.append(panel);
+  setTimeout(()=>panel.remove(),1450);
+ }
+ function missionViewScore(saved){
+  if(saved?.missionReplay?.active)return {...saved,mission:saved.missionReplay};
+  return saved;
+ }
+ function toggleMissionReplay(){
+  const s=stage(),current=scoreFor(role,level,s.id,itemIndex);
+  if(!current||!isMissionComplete(current))return;
+  stopRecognition();
+  const k=key(role,level,s.id,itemIndex),active=Boolean(current.missionReplay?.active);
+  state.scores[k]={...current,missionReplay:active?null:{step:1,completed:false,active:true,bestByStep:[0,0,0,0,0],lastByStep:[null,null,null,null,null]}};
+  save();paintItem();paintStages();paintPreview();
+  $('status').textContent=active?'クリア記録に戻りました。':'↻ 再挑戦スタート！Level 1から音読しましょう。';
+ }
+ function renderMission(item,saved){
+  const view=missionViewScore(saved),replaying=Boolean(saved?.missionReplay?.active);
+  const n=replaying?missionStep(view):missionStep(saved),done=isMissionComplete(view),model=fillPracticePhrase(item.text,state.profile);
+  renderMissionBlanks(model,n);
+  const panel=document.getElementById('gcc190-mission');
+  panel.dataset.completed=String(done);
+  let retry=document.getElementById('gcc192-mission-retry');
+  if(!retry){
+   retry=document.createElement('button');retry.id='gcc192-mission-retry';retry.type='button';
+   retry.className='gcc192-retry-mission';retry.addEventListener('click',toggleMissionReplay);
+   panel.append(retry);
+  }
+  retry.hidden=!isMissionComplete(saved);
+  retry.textContent=replaying?'↩ 以前のクリア記録に戻る':'↻ もう一度挑戦（Level 1から）';
+  document.getElementById('gcc190-mission-heading').textContent=done?'🏆 PHRASE MISSION CLEAR!':(replaying?'↻ REPLAY MISSION ':'READING MISSION ')+n+' / 5';
+  document.getElementById('gcc190-mission-target').textContent=done?'100% COMPLETE':'Target: '+requiredAccuracy(n)+'%';
+  document.getElementById('gcc190-mission-note').textContent=done?'5/5 cleared! 次のフレーズへ進めます。':PRACTICE_MISSION_STEPS[n-1].label+' · 日本語訳は表示されたままです。';
+  const track=document.getElementById('gcc190-mission-steps');track.replaceChildren();
+  for(const rule of PRACTICE_MISSION_STEPS){
+   const passed=done||rule.step<n,active=!done&&rule.step===n;
+   const block=el('span','gcc190-mission-step'+(passed?' is-done':'')+(active?' is-current':''),(passed?'✓ ':'')+'L'+rule.step+' · '+rule.accuracy+'%');
+   block.setAttribute('aria-label','Level '+rule.step+', '+rule.accuracy+'% required'+(passed?', passed':active?', current':''));
+   track.append(block);
+  }
+  const last=itemIndex===items().length-1;
+  const stageDone=items().every((_,i)=>isMissionComplete(scoreFor(role,level,stage().id,i)));
+  $('next').disabled=!done||(last&&!stageDone);
+  $('next').title=done?(last&&!stageDone?'Clear every phrase in this stage first / 他のフレーズもクリアしてください':'Go to next phrase / 次へ進む'):'Clear all five levels first / 5段階をクリアして進む';
+ }
+  function syncPracticeProfileGuide(){
+  const item=items()[itemIndex];
+  const missing=missingPracticeProfileFields(item?.text,state.profile);
+  const field=missing[0];
+  const guide=document.getElementById('gcc195-profile-guide');
+  const input=document.getElementById('gcc195-profile-input');
+  guide.hidden=!field;
+  $('listen').disabled=Boolean(field);
+  $('prompt').classList.toggle('gcc195-waiting-prompt',Boolean(field));
+  if(!field){delete guide.dataset.field;return;}
+  const info=practiceProfileFieldInfo(field);
+  guide.dataset.field=field;
+  document.getElementById('gcc195-profile-title').textContent='🎯 '+info.prompt;
+  document.getElementById('gcc195-profile-desc').textContent='Before reading, register your '+info.label+'. / この英文には'+info.ja+'が必要です。登録すると英文が表示されます。';
+  document.getElementById('gcc195-profile-label').textContent=info.label;
+  document.getElementById('gcc195-profile-feedback').textContent='';
+  input.value='';input.placeholder=info.example;input.maxLength=info.maxLength;
+  $('prompt').textContent='📝 '+info.ja+'を登録すると、音読する英文が表示されます。';
+  $('prompt').setAttribute('aria-label',info.ja+'を登録してから音読してください。');
+  $('start').disabled=true;
+  $('status').textContent='先に'+info.ja+'を登録してください。/ Complete your profile to start speaking.';
+ }
+ function savePracticeProfileGuide(){
+  const guide=document.getElementById('gcc195-profile-guide');
+  const field=guide.dataset.field;
+  const info=practiceProfileFieldInfo(field);
+  if(!info)return;
+  const input=document.getElementById('gcc195-profile-input');
+  const value=input.value.trim();
+  if(!value){
+   document.getElementById('gcc195-profile-feedback').textContent=info.ja+'を入力してください。/ Please enter a value.';
+   input.focus();return;
+  }
+  state.profile[field]=value;
+  const profileInput=$(field);
+  if(profileInput)profileInput.value=value;
+  save();paintItem();paintPreview();
+  if(missingPracticeProfileFields(items()[itemIndex].text,state.profile).length){
+    document.getElementById('gcc195-profile-input').focus();
+  }else{
+    $('status').textContent='✅ '+info.ja+'を保存しました。音読を始めましょう！';
+    if(!$('start').disabled)$('start').focus();
+  }
+ }
+ function paintItem(){cancelLevelTransition();
   const s=stage(),arr=items(),item=arr[itemIndex],saved=scoreFor(role,level,s.id,itemIndex);
   $('dialog-heading').textContent=s.icon+' '+s.title;
   $('scene-icon').textContent=s.icon;$('scene-title').textContent=s.scene;$('scene-hint').textContent=s.hint;document.getElementById('gcc178-dialog-image').src=stageArt(role,stageIndex);
@@ -148,15 +336,18 @@ export function bindPracticePageV170(){
   cue.hidden=!(item.cue||item.context);
   document.getElementById('gcc174-dialog-cue-en').textContent=item.cue||item.context||'';
   document.getElementById('gcc174-dialog-cue-ja').textContent=item.cueJa||item.contextJa||'';
-  $('prompt').textContent=fillPracticePhrase(item.text,state.profile);
+   renderMission(item,saved);
   $('japanese').textContent=fillPracticePhrase(item.ja,state.profile);
   $('transcript').textContent=saved?.transcript||'Your words will appear here…';
-  paintScore(saved?.last,saved?.best);
+  const view=missionViewScore(saved),currentLevel=missionDisplayScore(view);
+  paintScore(currentLevel.score,currentLevel.best,currentLevel.threshold);
+  $('best').textContent='Level '+currentLevel.step+' Best: '+currentLevel.best+'%';
   $('status').textContent=SpeechRecognition?'':'Speech recognition unavailable. Try Chrome or Safari.';
   $('start').disabled=!SpeechRecognition;$('end').disabled=true;
+  syncPracticeProfileGuide();
   $('confetti').replaceChildren();
  }
- function stopRecognition(){token++;recording=false;ending=false;clearTimeout(scoreTimer);if(recognition){const r=recognition;recognition=null;try{r.abort();}catch{}}$('start').disabled=!SpeechRecognition;$('end').disabled=true;root.classList.remove('gcc170-recording');}
+ function stopRecognition(){cancelLevelTransition();token++;recording=false;ending=false;clearTimeout(scoreTimer);if(recognition){const r=recognition;recognition=null;try{r.abort();}catch{}}$('start').disabled=!SpeechRecognition;$('end').disabled=true;root.classList.remove('gcc170-recording');}
  function paintPreview(){
   const s=stage(),scene=PRACTICE_SCENES_V174[role][s.id];
   document.getElementById('gcc173-preview-icon').textContent=s.icon;
@@ -175,7 +366,9 @@ export function bindPracticePageV170(){
     const number=el('span','gcc173-phrase-number',String(i+1).padStart(2,'0'));
     const body=el('span','gcc173-phrase-body');
     if(item.cue)body.append(el('span','gcc174-cue',item.cue),el('span','gcc174-cue-ja',item.cueJa||''));
-    body.append(el('strong','',fillPracticePhrase(item.text,state.profile)),el('small','',fillPracticePhrase(item.ja,state.profile)));
+    const missingProfile=missingPracticeProfileFields(item.text,state.profile);
+    const previewText=missingProfile.length?'📝 '+practiceProfileFieldInfo(missingProfile[0]).ja+'を登録して音読':fillPracticePhrase(item.text,state.profile);
+    body.append(el('strong','',previewText),el('small','',missingProfile.length?'登録すると、この英文を練習できます。':fillPracticePhrase(item.ja,state.profile)));
     const metrics=el('span','gcc178-phrase-metrics');
   const attempts=el('small','gcc178-attempts',(score?.attempts||0)+' tries');
   const accuracy=el('strong','gcc178-accuracy',score?score.best+'%':'—%');
@@ -186,8 +379,8 @@ export function bindPracticePageV170(){
   bar.setAttribute('aria-valuenow',String(value));
   const fill=el('span','gcc178-accuracy-fill');fill.style.width=value+'%';
   bar.append(fill);metrics.append(attempts,accuracy,bar);
-  const result=el('span','gcc173-phrase-result',score?'Practice ↗':'Start ↗');
-  if(score?.best>=80)result.classList.add('gcc173-phrase-passed');
+  const result=el('span','gcc173-phrase-result',isMissionComplete(score)?'✓ CLEAR':score?.mission?'L'+missionStep(score)+'/5 ↗':'Start 1/5 ↗');
+  if(isMissionComplete(score))result.classList.add('gcc173-phrase-passed');
   metrics.append(result);button.append(number,body,metrics);
   button.addEventListener('click',()=>openStage(stageIndex,i));
     list.append(button);
@@ -295,8 +488,8 @@ export function bindPracticePageV170(){
  });
  stageDialog.addEventListener('cancel',()=>stopRecognition());
  $('prev').addEventListener('click',()=>{tone();stopRecognition();itemIndex=Math.max(0,itemIndex-1);paintItem();});
- $('next').addEventListener('click',()=>{tone();stopRecognition();if(itemIndex<items().length-1)itemIndex++;else{stageIndex=(stageIndex+1)%stages().length;itemIndex=0;}paintItem();});
- $('listen').addEventListener('click',()=>{if(!window.speechSynthesis){$('status').textContent='Text-to-speech unavailable.';return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('prompt').textContent);u.lang='en-US';u.rate=.88;speechSynthesis.speak(u);});
+ $('next').addEventListener('click',()=>{if($('next').disabled)return;tone();stopRecognition();if(itemIndex<items().length-1)itemIndex++;else{stageIndex=(stageIndex+1)%stages().length;itemIndex=0;}paintItem();});
+ $('listen').addEventListener('click',()=>{if(!window.speechSynthesis){$('status').textContent='Text-to-speech unavailable.';return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(fillPracticePhrase(items()[itemIndex].text,state.profile));u.lang='en-US';u.rate=.88;speechSynthesis.speak(u);});
  function playSuccess(accuracy){tone(accuracy===100?'100':accuracy>=90?'90':'80');}
  function celebrate(accuracy){
   const area=$('confetti');area.replaceChildren();clearTimeout(confettiTimer);
@@ -319,6 +512,11 @@ export function bindPracticePageV170(){
   $('transcript').textContent=(segments.join(' ')+' '+interim).trim()||'Listening…';
  }
  function begin(){
+  if(missingPracticeProfileFields(items()[itemIndex]?.text,state.profile).length){
+    syncPracticeProfileGuide();
+    document.getElementById('gcc195-profile-input').focus();
+    return;
+  }
   if(!SpeechRecognition||recording)return;
   tone('tap');
   window.speechSynthesis?.cancel();stopRecognition();recording=true;ending=false;segments=[];interim='';const myToken=token;
@@ -341,13 +539,44 @@ export function bindPracticePageV170(){
   ending=false;recording=false;root.classList.remove('gcc170-recording');$('start').disabled=!SpeechRecognition;$('end').disabled=true;
   const text=(segments.join(' ')+' '+interim).trim();$('transcript').textContent=text||'No speech was recognized.';
   if(!text){$('status').textContent='No speech recognized. Please try again.';tone('retry');return;}
-  const s=stage(),item=items()[itemIndex],result=scorePracticePhrase(item.text,text,state.profile),k=key(role,level,s.id,itemIndex),prev=state.scores[k];
+  const s=stage(),item=items()[itemIndex],result=scorePracticePhrase(item.text,text,state.profile),k=key(role,level,s.id,itemIndex),prev=scoreFor(role,level,s.id,itemIndex);
+  const replaying=Boolean(prev?.missionReplay?.active);
+  const current=missionViewScore(prev),attemptedStep=missionStep(current),threshold=requiredAccuracy(attemptedStep);
+  const progress=advanceMission(current?.mission,result.accuracy);
   const best=Math.max(prev?.best||0,result.accuracy);
-  state.scores[k]={best,last:result.accuracy,transcript:text,template:item.text,attempts:(prev?.attempts||0)+1};
-  save();paintScore(result.accuracy,best);updateStageCount();paintStages();paintPreview();
-  $('status').textContent=result.accuracy===100?'🏆 Perfect! 100% / 満点！':result.accuracy>=90?'🌟 Excellent! 90%+ / 素晴らしい！':result.accuracy>=80?'🎉 Great! 80%+ / 合格！':'💪 Almost there! Try again! / もう一度挑戦！';
-  if(result.accuracy>=80)celebrate(result.accuracy);else tone('retry');
+  const saved={...prev,best,last:result.accuracy,transcript:text,template:item.text,attempts:(prev?.attempts||0)+1,
+   mission:replaying?prev.mission:progress,
+   missionReplay:replaying?{...progress,active:!progress.completed}:prev?.missionReplay};
+  state.scores[k]=saved;
+  const nextLevelUnlocked=newlyUnlockedLevel(attemptedStep,progress,result.accuracy);
+  save();
+  if(nextLevelUnlocked){
+   // Keep the JUST EARNED accuracy visible for two seconds (before Level 2..5 appears).
+   // Persist progress now, but do not change the phrase, transcript or gauge yet.
+   paintScore(result.accuracy,progress.bestByStep[attemptedStep-1],threshold);
+   $('best').textContent='Level '+attemptedStep+' Best: '+progress.bestByStep[attemptedStep-1]+'%';
+   scheduleMissionTransition(item,saved,k,progress);
+  }else{
+   renderMission(item,saved);
+   paintScore(result.accuracy,progress.bestByStep[attemptedStep-1],threshold);
+   $('best').textContent='Level '+attemptedStep+' Best: '+progress.bestByStep[attemptedStep-1]+'%';
+  }
+  updateStageCount();paintStages();paintPreview();
+  const phraseDone=progress.completed,stageDone=items().every((_,i)=>isMissionComplete(scoreFor(role,level,s.id,i)));
+  const passed=result.accuracy>=threshold;
+  $('status').textContent=!passed?'🔄 '+result.accuracy+'%. Level '+attemptedStep+' needs '+threshold+'% / 同じレベルでもう一度！':
+   stageDone&&!replaying&&phraseDone?'🏆 STAGE MISSION CLEAR! 全フレーズの5段階を達成！':
+   phraseDone?(replaying?'🏆 REPLAY CLEAR! 再挑戦も5/5達成！':'🎉 PHRASE CLEAR! Level 5: 100%! 次のフレーズへ進もう！'):
+   '✅ Level '+attemptedStep+' clear ('+result.accuracy+'%)! Next: Level '+progress.step+' / 次のレベルに挑戦！';
+  if(nextLevelUnlocked){
+   $('status').textContent='✅ Level '+attemptedStep+' CLEAR! Accuracy: '+result.accuracy+'%. Level '+progress.step+' starts in 2 seconds. / 合格スコアを確認しましょう！';
+   tone(result.accuracy===100?'100':result.accuracy>=90?'90':'80');
+  }else if(passed){if(phraseDone&&!isMissionComplete(prev)){tone('100');showMissionClearConfetti();}else if(phraseDone&&replaying){tone('100');showMissionClearConfetti();}else celebrate(result.accuracy);}else tone('retry');
  }
+ document.getElementById('gcc195-profile-save').addEventListener('click',savePracticeProfileGuide);
+ document.getElementById('gcc195-profile-input').addEventListener('keydown',event=>{
+  if(event.key==='Enter'&&!event.isComposing){event.preventDefault();savePracticeProfileGuide();}
+ });
  $('start').addEventListener('click',begin);
  $('end').addEventListener('click',()=>{
   if(!recording||ending)return;
