@@ -1,0 +1,59 @@
+/* GCC V19.3: pale level-start transition over the existing speaking dialog. */
+#app .gcc170 .gcc170-stage-dialog .gcc193-level-transition {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  z-index:60;
+  padding:16px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:rgba(236,247,255,.35);
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+  animation:gcc193-transition-fade 1.45s ease-in-out forwards;
+}
+#app .gcc170 .gcc193-level-start-card {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:9px;
+  text-align:center;
+  max-width:min(86vw,480px);
+  min-width:min(82vw,300px);
+  border:1px solid rgba(105,161,223,.6);
+  border-radius:20px;
+  padding:24px 30px 27px;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 18px 50px rgba(32,90,165,.16),inset 0 1px 0 rgba(255,255,255,.95);
+}
+#app .gcc170 .gcc193-level-start-card .gcc193-level-small {
+  color:#326ca7;
+  font-weight:900;
+  font-size:clamp(.75rem,1.7vw,1rem);
+  letter-spacing:.12em;
+}
+#app .gcc170 .gcc193-level-start-card strong {
+  color:#0a4ca4;
+  font-weight:950;
+  font-size:clamp(2.0rem,5.4vw,3.5rem);
+  line-height:1.03;
+  letter-spacing:.04em;
+}
+#app .gcc170 .gcc193-level-start-card .gcc193-level-ja {
+  color:#37628e;
+  font-weight:800;
+  font-size:clamp(.75rem,2vw,1rem);
+}
+@keyframes gcc193-transition-fade {
+  0% {opacity:0;}
+  18% {opacity:1;}
+  72% {opacity:1;}
+  100% {opacity:0;}
+}
+@media (prefers-reduced-motion:reduce) {
+  #app .gcc170 .gcc170-stage-dialog .gcc193-level-transition {
+    animation:none;
+    background:rgba(236,247,255,.25);
+  }
+}

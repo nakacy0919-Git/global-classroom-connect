@@ -16,15 +16,14 @@ test('three accessible level choices retain their existing data-level and progre
 });
 test('each level uses high-resolution transparent WebP, not emoji',()=>{
   for(const level of ['standard','advanced','challenge']){
-    const b=file('public/assets/practice-level-'+level+'-hd.webp');
+    const b=file('public/assets/practice-student-'+level+'-hq.webp');
     assert.ok(b.byteLength>25000 && b.byteLength<180000,level+' optimized WebP');
     assert.equal(b.toString('ascii',0,4),'RIFF');
     assert.equal(b.toString('ascii',8,12),'WEBP');
-    assert.ok(page.includes('/assets/practice-level-'+level+'-hd.webp'));
+    assert.ok(page.includes('/assets/practice-student-'+level+'-hq.webp'));
   }
-  assert.match(page,/width="580" height="579"/);
-  assert.match(page,/width="580" height="576"/);
-  assert.match(page,/width="580" height="545"/);
+  assert.equal((page.match(/data-student-height="580"/g)||[]).length,3);
+  assert.equal((page.match(/width="580" height="580"/g)||[]).length,3);
 });
 test('artwork rises outside the level cards, with large legible labels and mobile rules',()=>{
   assert.match(css,/#gcc178-level-step/);

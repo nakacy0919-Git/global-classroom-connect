@@ -1,0 +1,9 @@
+/* V19.4: start transition runs from 1s to 2s; 0-1s shows the achieved score. */
+#app .gcc170 .gcc170-stage-dialog .gcc193-level-transition{
+ animation-duration:1s;
+}
+@media (prefers-reduced-motion:reduce){
+ #app .gcc170 .gcc170-stage-dialog .gcc193-level-transition{
+  animation:none;
+ }
+}
