@@ -43,6 +43,8 @@ test('new labels remain bilingual without changing user profile or saved scores'
  ])assert.equal(translateUiText(en,'ja'),ja);
  assert.match(page,/const KEY='gcc-practice-v170-local'/);
  assert.match(page,/scorePracticePhrase\(item\.text,text,state\.profile\)/);
- assert.match(page,/save\(\);paintScore/);
+ assert.match(page,/save\(\);/);
+ assert.match(page,/paintScore\(result\.accuracy/);
+ assert.match(page,/mission:replaying\?prev\.mission:progress/);
  assert.match(page,/stageArt\(role,stageIndex\)/);
 });

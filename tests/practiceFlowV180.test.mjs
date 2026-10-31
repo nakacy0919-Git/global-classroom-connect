@@ -44,7 +44,10 @@ test('practice sound can be muted, browser audio problems cannot block work, 80/
  assert.match(page,/accuracy===100\?130:accuracy>=90\?70:28/);
  assert.match(page,/accuracy===100\?'100':accuracy>=90\?'90':'80'/);
  assert.match(page,/window\.matchMedia\?\.\('\(prefers-reduced-motion: reduce\)'\)/);
- assert.match(page,/if\(result\.accuracy>=80\)celebrate\(result\.accuracy\);else tone\('retry'\)/);
+ assert.match(page,/threshold=requiredAccuracy\(attemptedStep\)/);
+ assert.match(page,/result\.accuracy>=threshold/);
+ assert.match(page,/else celebrate\(result\.accuracy\)/);
+ assert.match(page,/else tone\('retry'\)/);
  assert.match(page,/attempts:\(prev\?\.attempts\|\|0\)\+1/);
 });
 test('curriculum unchanged for both roles',()=>{
