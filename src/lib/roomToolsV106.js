@@ -1,6 +1,8 @@
 import '../styles/teacherRoomsV106.css';
 import '../styles/teacherRoomsV108.css';
-import {openTeacherEditorV106,applyTeacherRoomEditV106} from '../services/teacherRoomEditV106.js';
+import {openTeacherEditorV106,applyTeacherRoomEditV106,renameTeacherStudentV196} from '../services/teacherRoomEditV106.js';
+import {cleanStudentNameV196} from './teacherStudentNamesV196.js';
+import '../styles/teacherStudentNamesV196.css';
 import {overviewColumnsV106,roomChoiceLabelV106,buildEditorDiffV106} from './roomOverviewV106.js';
 import {sortUnpairedV110,roomCandidatesV110,formatPlacementV110} from './roomPlacementV110.js';
 import '../styles/teacherRoomsV110.css';
@@ -70,6 +72,31 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   const byId=new Map(students.map(s=>[String(s.id),s]));
   const summary=elt('div','gcc-v108-identity');summary.append(elt('strong','',editorData.teacher||'Teacher'),elt('span','',`${editorData.school||'Your school'} · ${students.length} students you can edit`));editing.append(summary);
   editing.append(elt('p','gcc-v106-note','Other schools are view-only. Only the students below can be moved or paired. Your registered teacher name is recorded automatically.'));
+  // Names are edited within this PIN's approved signup; room and pair IDs stay untouched.
+  const namePanel=elt('section','gcc-v196-names');
+  namePanel.setAttribute('aria-label','Correct student names');
+  namePanel.append(elt('h4','','Correct student names'),
+    elt('p','gcc-v196-help','Find a student from your school and select Edit. Names must use English letters. Room placements and fixed pairs stay the same.'));
+  const nameList=elt('div','gcc-v196-name-list');
+  for(const student of students){
+    const row=elt('div','gcc-v196-name-row');
+    const label=elt('span','',student.name);
+    const start=button('Edit',()=>{
+      const input=elt('input');input.type='text';input.value=student.name;
+      input.maxLength=120;input.autocomplete='off';
+      input.setAttribute('aria-label','Correct name for '+student.name);
+      const confirm=button('Save',()=>saveName(String(student.id),student.name,input.value),'gcc-v196-confirm');
+      const cancel=button('Cancel',()=>{row.replaceChildren(label,start);});
+      input.addEventListener('keydown',event=>{
+        if(event.key==='Enter'){event.preventDefault();confirm.click();}
+        if(event.key==='Escape'){event.preventDefault();cancel.click();}
+      });
+      row.replaceChildren(input,confirm,cancel);input.focus();input.select();
+    });
+    start.setAttribute('aria-label','Edit student name: '+student.name);
+    row.append(label,start);nameList.append(row);
+  }
+  namePanel.append(nameList);editing.append(namePanel);
   const tabs=elt('div','gcc-v108-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Edit action');
   const pairTab=button('1. Keep two together',()=>{mode='pair';renderEditor();},'gcc-v108-tab');
   const moveTab=button('2. Move to a room',()=>{mode='move';renderEditor();},'gcc-v108-tab');
@@ -140,6 +167,23 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   }
   editing.append(locked);
   editing.append(button('Exit Teacher Mode',()=>{panel.hidden=true;clearEditor();}));
+ }
+ async function saveName(studentId,expectedName,rawName){
+  if(busy||!credentials||!editorData)return;
+  let newName;
+  try{newName=cleanStudentNameV196(rawName);}
+  catch(error){setStatus(error.message,true);return;}
+  if(newName===expectedName){setStatus('The student name is unchanged.');return;}
+  busy=true;setStatus('Saving corrected student name…');
+  try{
+    const result=await renameTeacherStudentV196(credentials,studentId,expectedName,newName);
+    editorData=await openTeacherEditorV106(credentials);
+    renderEditor();
+    const fresh=await onRefresh(getCode());if(fresh)onDraw(fresh);
+    setStatus(result.message||'Student name saved. Room assignments and pairs are unchanged.');
+  }catch(error){
+    setStatus('Could not complete the name update: '+(error.message||'Please retry.'),true);
+  }finally{busy=false;}
  }
  async function saveEdit(action,aId,bId,room){
   if(busy||!credentials||!editorData)return;

@@ -21,3 +21,10 @@ export const applyTeacherRoomEditV106=(credentials,change)=>rpc('gcc_v108_edit_r
  p_action:change.action,p_student_a:change.a,p_student_b:change.b||null,
  p_target_room:change.room||null,p_expected_revision:change.revision,
 });
+
+// V19.6: update only the display name of a student from this PIN's approved signup.
+// The server checks teacher ownership, the previous value and the existing access codes.
+export const renameTeacherStudentV196=(credentials,studentId,previousName,newName)=>rpc('gcc_v196_rename_student',{
+ p_token:credentials.token,p_code:credentials.code,p_pin:credentials.pin,
+ p_student_id:studentId,p_expected_name:previousName,p_new_name:newName,
+});
