@@ -1,0 +1,13 @@
+/* GCC V19.6 — school-scoped, touch-friendly student name editor. */
+.gcc-v196-names{margin:18px 0;padding:clamp(12px,2vw,19px);background:#fff;border:1px solid #cce4df;border-radius:15px}
+.gcc-v196-names h4{margin:0 0 5px;font-size:1.05rem;color:#235967}
+.gcc-v196-names .gcc-v196-help{margin:0 0 12px;color:#58757c;font-size:.83rem;line-height:1.5}
+.gcc-v196-name-list{display:grid;gap:7px;max-height:350px;overflow-y:auto}
+.gcc-v196-name-row{display:flex;align-items:center;gap:10px;min-width:0;padding:9px 10px;border:1px solid #e0eeeb;border-radius:10px;background:#f8fbfa}
+.gcc-v196-name-row>span{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.9rem;font-weight:650}
+.gcc-v196-name-row input{flex:1;min-width:0;max-width:100%;min-height:44px;padding:9px 11px;border:1px solid #8fbdb6;border-radius:9px;font:inherit;font-size:16px}
+.gcc-v196-name-row button{border:1px solid #93c6bd;background:#fff;color:#246875;border-radius:9px;padding:8px 13px;font:inherit;font-size:.84rem;font-weight:750;min-height:44px;cursor:pointer}
+.gcc-v196-name-row button.gcc-v196-confirm{background:#237f87;color:#fff;border-color:#237f87}
+.gcc-v196-name-row button:disabled{opacity:.5;cursor:wait}
+@media(max-width:480px){.gcc-v196-name-row{flex-wrap:wrap}.gcc-v196-name-row input{flex-basis:100%}.gcc-v196-name-row>span{flex-basis:60%}.gcc-v196-name-row button{flex-shrink:0}}
+@media print{.gcc-v196-names{display:none!important}}
