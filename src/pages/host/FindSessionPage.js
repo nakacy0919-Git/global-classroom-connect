@@ -36,7 +36,6 @@ export function FindSessionPage() {
       <a href="#/register-session" class="gcf-side-link">＋ Register a Session <span aria-hidden="true">↗</span></a>
     </header>
     <div class="gcc-v166-find" id="gcc-v166-public-calendar"><p class="gcf-intro">Loading published session calendar…</p></div>
-    <section id="gcc203-published-list" class="gcc203-published-results" aria-label="All published sessions"></section>
     <div class="gcf-main">
       <form class="gcf-filter-panel" id="gcf-form" novalidate>
         <div class="gcf-subhead"><span class="gcf-step">01 · YOUR AVAILABILITY</span><h3>When can you join?</h3></div>
@@ -88,6 +87,7 @@ export function FindSessionPage() {
 
 export function bindFindSessionPage() {
   const root=document.querySelector('.gcf-page');if(!root)return;
+  let publicEvents=[];
   // GCC_WORKFLOW_POLISH_V41: one title, a visible search CTA, optional advanced filters.
   // Move existing elements, retaining the original IDs, listeners and form submission.
   const findHero=root.querySelector('.gcf-hero');
@@ -170,7 +170,7 @@ export function bindFindSessionPage() {
   async function loadPublishedCalendarV166(){
     const mount=root.querySelector('#gcc-v166-public-calendar');
     try{
-      const events=await listPublicSessionOverviews();publishedEvents=events||[];renderPublishedList();
+      const events=await listPublicSessionOverviews();publicEvents=Array.isArray(events)?events:[];show();
       mount.replaceChildren();
       mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
         initialMonth:new Date().toISOString().slice(0,7),
@@ -183,7 +183,7 @@ export function bindFindSessionPage() {
   const $=id=>root.querySelector('#'+id);
   let state={teachers:[],offers:[],shortlists:[]};let master=[];let selectedWindow={from:null,to:null};
   let joinRequests=[];let activeOffer=null; // GCC_JOIN_V4
-  let applied={country:'',level:'',query:''};
+  let applied={country:'',level:'',type:'',age:'',query:''};
   const zone=$('gcf-zone');
   const detected=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
   const timezones=new Set([detected,'Asia/Tokyo','Asia/Manila','Asia/Bangkok','Asia/Jakarta',
@@ -194,6 +194,7 @@ export function bindFindSessionPage() {
     const option=el('option','',value);option.value=value;zone.append(option);
   }
   zone.value=detected;
+  for(const [id,name] of SESSION_TYPES_V203){const option=el('option','',name);option.value=id;$('gcf-type').append(option);}
   const teacherById=()=>new Map(state.teachers.map(t=>[t.id,t]));
   function openRequest(offer){
     activeOffer=offer;
@@ -231,7 +232,8 @@ export function bindFindSessionPage() {
     info.append(item('Host local time',`${timeRangeV112(offer.starts_at,offer.ends_at,offer.timezone)} (${offer.timezone})`));
     if(offer.topic)info.append(item('Topic',offer.topic));
     if(offer.notes)info.append(item('Notes',offer.notes));
-    const received=joinRequests.filter(r=>r.offer_id===offer.id);
+    const planner=el('div','gcc203-result-body');renderSessionDetailsV203(planner,offer.session_details);info.append(planner);
+   const received=joinRequests.filter(r=>r.offer_id===offer.id);
     if(received.length)info.append(el('p','gcf-request-count',String(received.length)+' join request(s) received'));
     const request=el('button','gcf-request-cta','＋ Request to Join →');request.type='button';
     request.addEventListener('click',()=>openRequest(offer));
@@ -255,17 +257,48 @@ export function bindFindSessionPage() {
     card.append(header,when,sub,facts,buildDetails(offer,teacher));
     return card;
   }
+  function publicSessionsFiltered(){
+    const term=String(applied.query||'').trim().toLowerCase();
+    return publicEvents.filter(e=>{
+      const d=e.session_details||{};
+      if(applied.type&&d.session_type!==applied.type)return false;
+      if(applied.age&&!(Number(d.min_age)<=Number(applied.age)&&Number(applied.age)<=Number(d.max_age)))return false;
+      if(applied.level&&d.accepted_grades&&!String(d.accepted_grades).toLowerCase().includes(String(applied.level).toLowerCase()))return false;
+      if(applied.country){
+        const wanted=[String(applied.country).toLowerCase(),countryName(applied.country).toLowerCase()];
+        const countryValues=[...(e.countries||[]),d.preferred_countries||''].join(' ').toLowerCase();
+        if(!wanted.some(t=>countryValues.includes(t)))return false;
+      }
+      if(term&&![e.title,d.description,d.preferred_countries,d.accepted_grades].join(' ').toLowerCase().includes(term))return false;
+      if(selectedWindow.from&&selectedWindow.to){
+        const overlap=Math.min(Date.parse(e.ends_at),Date.parse(selectedWindow.to))-Math.max(Date.parse(e.starts_at),Date.parse(selectedWindow.from));
+        if(overlap<30*60000)return false;
+      }
+      return true;
+    });
+  }
+  function publicSessionCard(e){
+    const card=el('article','gcc203-published-card');
+    card.append(el('h4','',e.title||'International classroom exchange'),el('p','',timeRangeV112(e.starts_at,e.ends_at,zone.value)));
+    if(e.session_details?.session_type)card.append(el('strong','',TYPE_LABEL_V203(e.session_details.session_type)));
+    const btn=el('button','gcf-request-cta','View flyer, agenda and register →');btn.type='button';
+    btn.addEventListener('click',()=>showPublicSessionOverviewV168(e));card.append(btn);
+    return card;
+  }
   function show() {
     const list=$('gcf-list');list.replaceChildren();
     const results=filterSessionOffers(state.offers,{...selectedWindow,...applied},state.teachers);
-    $('gcf-count').textContent=`${results.length} session${results.length===1?'':'s'}`;
+    const combined=[...results.map(data=>({kind:'teacher',data})),
+      ...publicSessionsFiltered().map(data=>({kind:'host',data}))]
+      .sort((a,b)=>Date.parse(a.data.starts_at)-Date.parse(b.data.starts_at));
+    $('gcf-count').textContent=combined.length+' session'+(combined.length===1?'':'s');
     $('gcf-summary').textContent=selectedWindow.from
-      ?`Showing availability overlapping your selected time · ${zone.value}`
-      :'Showing all upcoming open sessions · Use the filters to narrow your search';
-    if(results.length){
+      ?'Showing sessions overlapping your selected hours · '+zone.value
+      :'All upcoming sessions, earliest first. Adjust filters to narrow the list.';
+    if(combined.length){
       const teachers=teacherById();
-      for(const offer of results.slice(0,100))list.append(offerCard(offer,teachers));
-      if(results.length>100)list.append(el('p','gcf-intro',`Showing first 100 of ${results.length} results. Refine your search.`));
+      for(const entry of combined.slice(0,100))list.append(entry.kind==='host'?publicSessionCard(entry.data):offerCard(entry.data,teachers));
+      if(combined.length>100)list.append(el('p','gcf-intro','Showing first 100 of '+combined.length+' results. Refine the filters.'));
     } else {
       const empty=el('div','gcf-empty');
       empty.append(el('span','gcf-empty-icon','🌱'),el('h4','','No sessions match these conditions'),
@@ -278,7 +311,7 @@ export function bindFindSessionPage() {
   }
   function clear() {
     $('gcf-form').reset();zone.value=detected;
-    selectedWindow={from:null,to:null};applied={country:'',level:'',query:''};
+    selectedWindow={from:null,to:null};applied={country:'',level:'',type:'',age:'',query:''};
     $('gcf-error').hidden=true;show();
   }
   function search(event){
@@ -287,7 +320,7 @@ export function bindFindSessionPage() {
       startTime:$('gcf-from').value,endTime:$('gcf-until').value,timezone:zone.value});
     if(window.error){$('gcf-error').textContent=window.error;$('gcf-error').hidden=false;return;}
     $('gcf-error').hidden=true;selectedWindow=window;
-    applied={country:$('gcf-country').value,level:$('gcf-level').value,query:$('gcf-query').value};
+    applied={country:$('gcf-country').value,level:$('gcf-level').value,type:$('gcf-type').value,age:$('gcf-age').value,query:$('gcf-query').value};
     show();
   }
   $('gcf-request-cancel').addEventListener('click',()=>{ $('gcf-join-dialog').close(); });
@@ -311,6 +344,7 @@ export function bindFindSessionPage() {
     finally{button.disabled=false;button.textContent='Send request →';}
   });
   $('gcf-form').addEventListener('submit',search);
+  for(const id of ['gcf-date','gcf-zone','gcf-from','gcf-until','gcf-country','gcf-level','gcf-type','gcf-age','gcf-query'])$(id).addEventListener(['gcf-query','gcf-age'].includes(id)?'input':'change',search);
   $('gcf-clear').addEventListener('click',clear);
   (async()=>{
     try{
