@@ -40,13 +40,6 @@ export function Header(route) {
       </div>
 
       <div class="topbar-actions">
-        <div class="topbar-pill">
-          <span class="pill-label">Language</span>
-          <strong id="current-language">English</strong>
-        </div>
-
-        <button type="button" class="lang-button" data-lang="en" aria-label="Display in English">EN</button>
-        <button type="button" class="lang-button" data-lang="ja" aria-label="日本語で表示">日本語</button>
         <select class="gcc204-language-select" data-lang-select aria-label="Select interface language"><option value="en">English</option><option value="ja">日本語</option></select>
       </div>
     </header>
