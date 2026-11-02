@@ -29,3 +29,18 @@
  .gct-portal .gct-fields :is(input,select),.gcc-v8-host .gcc-v8-fields :is(input,select){font-size:16px}
  .topbar-actions select[data-lang-select]{min-width:0;max-width:160px}
 }
+
+/* Keep the existing EN / 日本語 shortcuts; dropdown exposes six additional languages. */
+#app [data-lang-select]{appearance:auto;color:#174e65;background:#fff;border:1px solid #a9d1df;border-radius:9px;padding:7px 9px;min-height:38px;min-width:100px;max-width:180px;font:inherit;font-size:.82rem;font-weight:700}
+#app [data-lang-select]:focus-visible{outline:3px solid #54b2ce;outline-offset:2px}
+#app .topbar-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#app .gcc157-public-lang{flex-wrap:wrap;max-width:min(95vw,460px);justify-content:center}
+#app .gcc157-public-lang [data-lang-select]{min-width:110px;max-width:160px}
+#app .gcc157-home-lang{flex-wrap:wrap;height:auto;min-height:42px}
+#app .gcc157-home-lang [data-lang-select]{max-width:145px;min-height:32px;padding:4px 7px}
+@media(max-width:600px){
+ #app .topbar-actions .topbar-pill{display:none}
+ #app [data-lang-select]{min-width:102px;max-width:140px;font-size:.8rem}
+ #app .gcc157-public-lang{gap:3px;right:max(5px,env(safe-area-inset-right))}
+ #app .gcc157-public-lang>button{padding:6px}
+}
