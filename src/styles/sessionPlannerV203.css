@@ -30,3 +30,9 @@
 .gcc203-public-panel{margin:12px 0}
 @media(max-width:560px){.gcc203-fields{padding:13px}.gcc203-metadata{grid-template-columns:1fr}}
 @media print{.gcc203-host-editor form{display:none!important}}
+
+/* V20.7: clear status and a restrained preview of the compressed WebP. */
+.gcc207-flyer-status{padding:8px 10px;border-radius:9px;background:#effafa;color:#205a69;font-size:.83rem;font-weight:650;overflow-wrap:anywhere}
+.gcc207-flyer-error{color:#b92b3c;background:#fff1f1;border-left:3px solid #ce3345}
+.gcc207-flyer-preview{display:block;max-width:min(100%,380px);max-height:290px;width:auto;height:auto;object-fit:contain;margin:8px auto 12px;border:1px solid #d0e5e5;border-radius:10px;box-shadow:0 2px 12px #09252a13}
+.gcc207-flyer-preview[hidden]{display:none}
