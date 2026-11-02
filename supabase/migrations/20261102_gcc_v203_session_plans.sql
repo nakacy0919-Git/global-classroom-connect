@@ -57,7 +57,7 @@ BEGIN
     RAISE EXCEPTION 'Each timetable stage requires HH:MM and a 5–250 character activity';
   END IF;
   this_time := (row->>'time')::time;
-  IF last_time IS NULL AND this_time<>date_trunc('minute',began)::time THEN
+  IF last_time IS NULL AND this_time<>left(began::text,5)::time THEN
     RAISE EXCEPTION 'First agenda step must start when the session begins';
   END IF;
   IF last_time IS NOT NULL AND this_time<=last_time THEN RAISE EXCEPTION 'Agenda times must increase';END IF;
