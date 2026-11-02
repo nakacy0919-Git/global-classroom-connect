@@ -289,8 +289,7 @@ BEGIN
  RETURN jsonb_build_object('ok',true,'revision',v_draft.revision,
   'teacher',v_auth->>'teacher','school',v_auth->>'school',
   'students',v_members,'pairs',v_pairs,'room_stats',v_room_stats,'room_count',jsonb_array_length(v_draft.draft->'rooms'));
-END $function$
-
+END $function$;
 
 REVOKE ALL ON FUNCTION public.gcc_v202_edit_student(
   text,text,text,text,uuid,text,text,text
