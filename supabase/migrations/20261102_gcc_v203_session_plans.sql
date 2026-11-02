@@ -15,16 +15,16 @@ BEGIN
  IF p IS NULL OR jsonb_typeof(p)<>'object' OR octet_length(p::text)>13000 THEN
   RAISE EXCEPTION 'Detailed session plan must be provided (max 13 KB)';
  END IF;
- IF p->>'session_type' NOT IN
+ IF coalesce(p->>'session_type','') NOT IN
  ('cultural_exchange','guided_discussion','structured_debate','conversation_practice','language_exchange',
   'collaborative_project','presentation_qa','global_issues','icebreaking','other')
- OR p->>'platform' NOT IN ('zoom','google_meet','teams','webex','other')
- OR p->>'breakout_mode' NOT IN ('manual','automatic','self_select','none') THEN
+ OR coalesce(p->>'platform','') NOT IN ('zoom','google_meet','teams','webex','other')
+ OR coalesce(p->>'breakout_mode','') NOT IN ('manual','automatic','self_select','none') THEN
   RAISE EXCEPTION 'Choose a valid educational format, platform, and breakout mode';
  END IF;
- IF (p->>'preferred_students') !~ '^[0-9]{1,4}$' OR (p->>'preferred_students')::int NOT BETWEEN 1 AND 2000
-  OR (p->>'min_age') !~ '^[0-9]{1,2}$' OR (p->>'min_age')::int NOT BETWEEN 5 AND 30
-  OR (p->>'max_age') !~ '^[0-9]{1,2}$' OR (p->>'max_age')::int NOT BETWEEN (p->>'min_age')::int AND 30 THEN
+ IF (coalesce(p->>'preferred_students','')) !~ '^[0-9]{1,4}$' OR (p->>'preferred_students')::int NOT BETWEEN 1 AND 2000
+  OR (coalesce(p->>'min_age','')) !~ '^[0-9]{1,2}$' OR (p->>'min_age')::int NOT BETWEEN 5 AND 30
+  OR (coalesce(p->>'max_age','')) !~ '^[0-9]{1,2}$' OR (p->>'max_age')::int NOT BETWEEN (p->>'min_age')::int AND 30 THEN
   RAISE EXCEPTION 'Invalid desired participants or acceptable age range';
  END IF;
  IF char_length(btrim(coalesce(p->>'description',''))) NOT BETWEEN 25 AND 1200 THEN
@@ -47,7 +47,8 @@ BEGIN
   RAISE EXCEPTION 'Flyer URL must use HTTPS';
  END IF;
  flow:=p->'flow';
- IF jsonb_typeof(flow)<>'array' OR jsonb_array_length(flow) NOT BETWEEN 2 AND 20 THEN
+ IF coalesce(jsonb_typeof(flow),'')<>'array' THEN RAISE EXCEPTION 'A complete timetable with at least two activities is required'; END IF;
+ IF jsonb_array_length(flow) NOT BETWEEN 2 AND 20 THEN
   RAISE EXCEPTION 'A complete timetable with at least two activities is required';
  END IF;
  began := (p_start AT TIME ZONE p_zone)::time;
