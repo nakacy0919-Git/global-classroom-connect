@@ -1,0 +1,101 @@
+/* GCC V20.5 — Teacher Create Session should use the available workspace width.
+   Older gcs150-create CSS reserves an empty second grid column for an aside that
+   V20.4 deliberately removed. Apply this after the legacy and responsive styles. */
+
+.gct-portal [data-gct-view="create"]{
+  display:block;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+.gct-portal [data-gct-view="create"] > .gcs150-create{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:start;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  gap:0;
+}
+.gct-portal [data-gct-view="create"] #gctp-create.gcs150-wizard.gct-form{
+  box-sizing:border-box;
+  width:100%;
+  max-width:1120px;
+  min-width:0;
+  justify-self:center;
+  margin-inline:auto;
+  padding:clamp(20px,2.4vw,34px);
+}
+.gct-portal #gctp-create .gct-form-section,
+.gct-portal #gctp-create .gcc203-fields,
+.gct-portal #gctp-create .gct-section-head{
+  min-width:0;
+  width:100%;
+}
+.gct-portal #gctp-create .gct-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(12px,1.5vw,20px);
+  min-width:0;
+}
+.gct-portal #gctp-create .gct-fields>label{
+  min-width:0;
+  width:100%;
+}
+.gct-portal #gctp-create :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+}
+.gct-portal #gctp-create .gcs150-steps{
+  width:100%;
+  max-width:980px;
+  margin-inline:auto;
+}
+.gct-portal #gctp-create .gct-form-actions{
+  justify-content:flex-end;
+  gap:12px;
+  width:100%;
+}
+.gct-portal #gctp-create .gct-form-actions :is(#gctp-back,#gctp-next,#gctp-publish){
+  box-sizing:border-box;
+  flex:0 0 auto;
+  width:auto;
+  min-width:142px;
+  max-width:220px;
+  padding-inline:22px;
+  white-space:nowrap;
+  justify-self:end;
+}
+.gct-portal #gctp-create .gct-form-actions #gctp-back:not([hidden]){
+  margin-right:auto;
+}
+
+/* Responsive behavior is based on the remaining screen space, not device identity.
+   iPads in landscape keep two spacious columns; phones stack naturally. */
+@media(max-width:710px){
+  .gct-portal [data-gct-view="create"] #gctp-create.gcs150-wizard.gct-form{
+    padding:16px 14px;
+  }
+  .gct-portal #gctp-create .gct-fields{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .gct-portal #gctp-create .gct-form-actions :is(#gctp-back,#gctp-next,#gctp-publish){
+    min-width:116px;
+    max-width:190px;
+    width:auto;
+    padding-inline:14px;
+  }
+}
+@media(max-width:430px){
+  .gct-portal #gctp-create .gcs150-steps{gap:4px}
+  .gct-portal #gctp-create .gct-form-actions{
+    gap:8px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .gct-portal #gctp-create .gct-form-actions :is(#gctp-back,#gctp-next,#gctp-publish){
+    min-width:0;
+    max-width:100%;
+    width:100%;
+  }
+}
