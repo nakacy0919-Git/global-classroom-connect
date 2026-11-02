@@ -177,6 +177,38 @@ BEGIN
  'timezone',coalesce(v_zone,'Asia/Tokyo'),'session_details',v_details);
 END $fn$;
 
+-- No new student registrations after the host's specified deadline.
+CREATE OR REPLACE FUNCTION public.gcc_v203_enforce_event_deadline()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE d jsonb; begins timestamptz;
+BEGIN
+ SELECT session_details,starts_at INTO d,begins FROM public.events WHERE id=NEW.event_id;
+ IF (d->>'registration_closes_at') IS NOT NULL AND
+    ((d->>'registration_closes_at')::timestamptz<=now() OR begins<=now()) THEN
+  RAISE EXCEPTION 'Registration is closed for this session';
+ END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v203_event_deadline ON public.gcc_session_signups;
+CREATE TRIGGER gcc_v203_event_deadline BEFORE INSERT ON public.gcc_session_signups
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v203_enforce_event_deadline();
+
+-- Teacher-to-teacher applications use the same cutoff principle.
+CREATE OR REPLACE FUNCTION public.gcc_v203_enforce_offer_deadline()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE d jsonb; begins timestamptz;
+BEGIN
+ SELECT session_details,starts_at INTO d,begins FROM public.exchange_availability WHERE id=NEW.offer_id;
+ IF (d->>'registration_closes_at') IS NOT NULL AND
+    ((d->>'registration_closes_at')::timestamptz<=now() OR begins<=now()) THEN
+  RAISE EXCEPTION 'This session is no longer accepting join requests';
+ END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v203_offer_deadline ON public.session_join_requests;
+CREATE TRIGGER gcc_v203_offer_deadline BEFORE INSERT ON public.session_join_requests
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v203_enforce_offer_deadline();
+
 REVOKE ALL ON FUNCTION public.gcc_v203_save_event_plan(uuid,jsonb) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.gcc_v203_save_event_plan(uuid,jsonb) TO authenticated;
 REVOKE ALL ON FUNCTION public.gcc_v203_teacher_register_session(timestamptz,timestamptz,text,integer,integer,text,text,text,jsonb) FROM PUBLIC,anon;
