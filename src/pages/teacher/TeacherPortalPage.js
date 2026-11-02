@@ -246,7 +246,7 @@ export function bindTeacherPortalPage(){
   return filterOffersV150(upcoming(),{date:discoverMode==='time'?$('gctp-find-date').value:'',
    from:discoverMode==='time'?from:'',to:discoverMode==='time'?to:'',
    country:discoverMode==='map'?$('gctp-find-country').value:'',band:$('gctp-find-band').value,topic:$('gctp-find-topic').value,
-   sdg:$('gctp-find-sdg').value,mode:$('gctp-find-mode').value,kind:$('gctp-find-type').value,compatible:$('gctp-find-compatible').checked},identity);
+   sdg:$('gctp-find-sdg').value,mode:$('gctp-find-mode').value,kind:$('gctp-find-type').value,age:$('gctp-find-age').value,compatible:$('gctp-find-compatible').checked},identity);
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
