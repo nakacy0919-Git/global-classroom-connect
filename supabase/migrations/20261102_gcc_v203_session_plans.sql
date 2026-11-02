@@ -79,7 +79,7 @@ CREATE OR REPLACE FUNCTION public.gcc_v203_require_published_event_plan()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
 BEGIN
  IF NEW.status='published' AND
-   (TG_OP='INSERT' OR OLD.status IS DISTINCT FROM 'published') THEN
+   (TG_OP='INSERT' OR coalesce(to_jsonb(OLD)->>'status','')<>'published') THEN
    PERFORM public.gcc_v203_validate_plan(NEW.session_details,NEW.starts_at,NEW.ends_at,NEW.timezone);
  END IF;
  RETURN NEW;
