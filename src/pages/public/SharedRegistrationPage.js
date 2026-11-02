@@ -1,3 +1,5 @@
+import {renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
+import '../../styles/sessionPlannerV203.css';
 import {bindRegistrationPairsV165} from '../../lib/registrationPairsV165.js';
 import '../../styles/simpleSessionsV8.css';
 import {parseSimpleRoster,parseSimpleFacilitators,englishName} from '../../lib/simpleRoster.js';
@@ -19,6 +21,7 @@ export function SharedRegistrationPage(){return `
   <div class="gcc-v8-stage" data-v8-stage="0">
     <label>Available sessions <select id="gcc-v8-event"><option value="">Loading sessions…</option></select></label>
     <p id="gcc-v8-session-date" class="gcc-v8-help"></p>
+    <div id="gcc203-registration-details" class="gcc203-public-panel" aria-live="polite"></div>
   </div>
   <div class="gcc-v8-stage" data-v8-stage="1" hidden>
     <label>Country * <select id="gcc-v8-country"><option value="">Choose your country</option></select></label>
@@ -57,6 +60,7 @@ export function bindSharedRegistrationPage(){
  const roster=()=>parseSimpleRoster($('gcc-v8-roster').value);
  const facs=()=>parseSimpleFacilitators($('gcc-v8-facilitators').value);
  const current=()=>events.find(s=>s.id===$('gcc-v8-event').value);
+ const details=()=>{const target=$('gcc203-registration-details');target.replaceChildren();const event=current();if(event){target.append(el('h3','','About this session'));renderSessionDetailsV203(target,event.session_details);}};
  const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>roster().records,getSession:()=>current()});
  function preview(){const r=roster();$('gcc-v8-roster-count').textContent=`${r.records.length} students${r.errors.length?` · ${r.errors.length} lines to fix`:''}`;
    const p=$('gcc-v8-preview');p.replaceChildren();
@@ -87,7 +91,7 @@ export function bindSharedRegistrationPage(){
  $('gcc-v8-back').addEventListener('click',()=>show(Math.max(0,step-1)));
  $('gcc-v8-next').addEventListener('click',()=>{const err=validate(step);if(err){message(err);return;}if(step===0){if(!timeGate.show())message('Session time is unavailable.');return;}show(step+1);});
  $('gcc-v8-roster').addEventListener('input',preview);
- $('gcc-v8-event').addEventListener('change',()=>{$('gcc-v8-session-date').textContent=current()?`📅 ${format(current().starts_at)} · Your local time`:'';});
+ $('gcc-v8-event').addEventListener('change',()=>{$('gcc-v8-session-date').textContent=current()?`📅 ${format(current().starts_at)} · Your local time`:'';details();});
  $('gcc-v8-submit').addEventListener('click',async()=>{
    if(sending)return;for(let i=0;i<4;i++){const err=validate(i);if(err){show(i);message(err);return;}}
    sending=true;const b=$('gcc-v8-submit');b.disabled=true;message('Submitting…');
@@ -109,5 +113,6 @@ export function bindSharedRegistrationPage(){
    const requested=new URLSearchParams(window.location.hash.split('?')[1]||'').get('session');
    const chosen=events.find(e=>e.id===requested)||(events.length===1?events[0]:null);
    if(chosen){picker.value=chosen.id;$('gcc-v8-session-date').textContent=`📅 ${format(chosen.starts_at)} · Your local time`;}
+   details();
  }catch(err){message('Could not load sessions: '+err.message);}})();
 }
