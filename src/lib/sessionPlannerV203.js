@@ -45,7 +45,26 @@ export function mountPlanFieldsV203(root,prefix){
  add('description','Objectives and preparation details *','textarea',{rows:3,maxLength:1200,required:true,placeholder:'Explain what students do, language level and preparation needed.'});
  const platform=choose('platform','Video meeting platform *',PLATFORMS_V203);
  const hint=node('p','gcc203-hint');section.append(hint);
- const updateHint=()=>{hint.textContent=hints[platform.value]||'';};platform.addEventListener('change',updateHint);updateHint();
+ const breakoutOption=choose('platform-option','Platform-specific breakout setup *',[['standard','Standard host controls']]);
+ const choices={
+  zoom:[['manual','Assign in Zoom during meeting'],['preassign','Zoom pre-assignment (signed-in emails required)'],['standard','Standard Zoom breakout controls']],
+  google_meet:[['workspace','Eligible Workspace host uses Meet breakout rooms'],['standard','Meet main room only; no breakout']],
+  teams:[['organizer','Teams organizer manages breakout rooms'],['manager','Appointed breakout rooms manager'],['standard','Teams main meeting only']],
+  webex:[['enabled','Webex account supports breakout sessions'],['standard','No breakout rooms']],
+  other:[['verified','Platform breakout features verified'],['standard','Whole-group meeting only']]
+ };
+ const updateHint=()=>{
+  hint.textContent=hints[platform.value]||'';
+  breakoutOption.replaceChildren();
+  for(const [value,label] of choices[platform.value]||choices.other){const o=node('option','',label);o.value=value;breakoutOption.append(o);}
+  const mode=section.querySelector('#'+prefix+'-breakout');
+  if(mode){const self=mode.querySelector('option[value="self_select"]');
+   if(self)self.disabled=platform.value!=='zoom';
+   if(self&&self.disabled&&mode.value==='self_select')mode.value='manual';
+  }
+ };
+ platform.addEventListener('change',updateHint);
+ updateHint();
  add('meeting','Meeting link (optional, only shown after room access verification)','input',{type:'url',maxLength:600,placeholder:'https://...'});
  choose('breakout','Breakout room assignment *',[
  ['manual','Host manually assigns'],['automatic','Platform assigns automatically'],
@@ -53,7 +72,7 @@ export function mountPlanFieldsV203(root,prefix){
  ]);
  add('breakoutnotes','Breakout room instructions (optional)','textarea',{rows:2,maxLength:600});
  add('deadline','Registration deadline in host local time *','input',{type:'datetime-local',required:true});
- section.append(node('h3','','Optional flyer'));
+ updateHint();section.append(node('h3','','Optional flyer'));
  add('flyerfile','Upload a JPG, PNG or WebP flyer (up to 3 MB)','input',{type:'file'});
  root.append(section);return section;
 }
@@ -86,7 +105,7 @@ export function readPlanV203(root,prefix,slot,deadlineIso){
  if(value('description').length<25)throw Error('Write at least 25 characters describing objectives and preparations.');
  const d={session_type:value('type'),preferred_students:preferred,preferred_countries:value('countries'),
   min_age:min,max_age:max,accepted_grades:value('grades'),flow:parseFlowV203(value('flow'),slot.startTime,slot.endTime),
-  description:value('description'),platform:value('platform'),meeting_url:safeUrl(value('meeting')),
+  description:value('description'),platform:value('platform'),platform_option:value('platform-option'),meeting_url:safeUrl(value('meeting')),
   breakout_mode:value('breakout'),breakout_notes:value('breakoutnotes'),registration_closes_at:deadlineIso,
   flyer_url:''};
  if(!SESSION_TYPES_V203.some(x=>x[0]===d.session_type)||!PLATFORMS_V203.some(x=>x[0]===d.platform))throw Error('Choose a valid session type and platform.');
@@ -100,6 +119,7 @@ export function renderSessionDetailsV203(root,details,{privateLink=false}={}){
  const add=(title,value)=>{if(value!==undefined&&value!==null&&value!==''){const row=node('div','gcc203-meta');row.append(node('strong','',title),node('span','',value));meta.append(row);}};
  add('Format',d.session_type?TYPE_LABEL_V203(d.session_type):'Not specified');
  add('Platform',d.platform?PLATFORM_LABEL_V203(d.platform):'Not specified');
+ add('Platform controls',d.platform_option);
  add('Desired participants',d.preferred_students);
  add('Accepted ages',d.min_age&&d.max_age?d.min_age+'–'+d.max_age:'');
  add('Grades',d.accepted_grades);
