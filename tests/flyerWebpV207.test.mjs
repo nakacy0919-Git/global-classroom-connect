@@ -61,7 +61,8 @@ test('only optimized WebP Blob is passed to authenticated Supabase Storage',()=>
  assert.match(service,/key=auth\.user\.id\+'\/'\+crypto\.randomUUID\(\)\+'\.webp'/);
  assert.match(service,/upload\([\s\S]*?compressed\.blob,\{contentType:'image\/webp'/);
  assert.doesNotMatch(service,/\.upload\([^)]*key,file,/);
- assert.match(service,/WeakMap\(\)/);
+ assert.match(read('src/lib/flyerWebpV207.js'),/new WeakMap\(\)/);
+ assert.match(service,/prepareFlyerOnceV207/);
  const sql=read('supabase/migrations/20261103_gcc_v207_flyer_webp_only.sql');
  assert.match(sql,/allowed_mime_types=ARRAY\['image\/webp'\]/);
  assert.match(sql,/file_size_limit=819200/);
@@ -71,8 +72,8 @@ test('all 3 forms reuse compressed flyers, show clear preview and status',()=>{
  const teacher=read('src/pages/teacher/TeacherPortalPage.js');
  const host=read('src/pages/host/SimpleSessionsPage.js');
  const editor=read('src/lib/hostPlanEditorV203.js');
- assert.match(planner,/prepareSessionFlyerV207\(original\)/);
- assert.match(planner,/describeSessionFlyerV207\(result\)/);
+ assert.match(planner,/prepareFlyerOnceV207\(original\)/);
+ assert.match(planner,/describeFlyerV207\(result\)/);
  assert.match(planner,/preview\.src=localUrl/);
  assert.match(planner,/flyer\.files\?\.\[0\]!==original/);
  for(const file of [teacher,host,editor])assert.match(file,/uploadSessionFlyerV203\(file|uploadSessionFlyerV203\(flyer/);
