@@ -22,6 +22,7 @@ export function mountHostPlanEditorV203(panel,event,onSaved,onError){
   if(value!==undefined&&value!==null)get(key).value=String(value);
  }
  if(Array.isArray(plan.flow))get('flow').value=plan.flow.map(x=>x.time+' | '+x.activity).join('\n');
+ if(plan.platform){get('platform').dispatchEvent(new Event('change'));if(plan.platform_option)get('platform-option').value=plan.platform_option;}
  if(plan.registration_closes_at)get('deadline').value=localTime(plan.registration_closes_at,event.timezone||'Asia/Tokyo');
  const save=el('button','Save session plan');save.type='submit';save.className='gcc-v8-primary';form.append(save);
  form.addEventListener('submit',async e=>{
