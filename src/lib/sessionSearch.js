@@ -21,13 +21,15 @@ export function buildSearchWindow({date,startTime='09:00',endTime='12:00',timezo
   return {from:start.iso,to:end.iso};
 }
 
-export function filterSessionOffers(offers,{from=null,to=null,country='',level='',query='',now=Date.now()}={},teachers=[]) {
+export function filterSessionOffers(offers,{from=null,to=null,country='',level='',type='',age='',query='',now=Date.now()}={},teachers=[]) {
   const byTeacher=new Map(teachers.map(t=>[t.id,t]));
   const term=query.trim().toLocaleLowerCase();
   return (offers||[]).filter(o=>{
     const start=Date.parse(o.starts_at),end=Date.parse(o.ends_at);
     if(o.status!=='open'||!Number.isFinite(start)||!Number.isFinite(end)||end<=now||end<=start)return false;
     if(country && o.country_code!==country)return false;
+    if(type && o.session_details?.session_type!==type)return false;
+    if(age && !(Number(o.session_details?.min_age)<=Number(age)&&Number(age)<=Number(o.session_details?.max_age)))return false;
     if(level && o.age_band!==level)return false;
     if(from && to && (Math.min(end,Date.parse(to))-Math.max(start,Date.parse(from)))<30*60000)return false;
     const teacher=byTeacher.get(o.teacher_id);
