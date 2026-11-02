@@ -98,3 +98,24 @@ export async function optimizeFlyerV207(file,{decode=loadFlyerImageV207,encode=e
   throw Error('Flyer conversion failed. Please choose another JPEG, PNG or WebP image.');
  }finally{source?.close?.();}
 }
+
+// Shared by the upload service and the local preview: compress a selected File once.
+const cachedFlyersV207=new WeakMap();
+export function prepareFlyerOnceV207(file){
+ if(!file)return Promise.reject(Error('Choose a flyer image.'));
+ let task=cachedFlyersV207.get(file);
+ if(!task){
+  task=optimizeFlyerV207(file).catch(error=>{
+   cachedFlyersV207.delete(file);
+   throw error;
+  });
+  cachedFlyersV207.set(file,task);
+ }
+ return task;
+}
+export function describeFlyerV207(result){
+ const saved=Math.max(0,result.reductionPercent);
+ return 'WebP ready: '+flyerSizeLabelV207(result.originalBytes)+' → '+
+  flyerSizeLabelV207(result.compressedBytes)+' ('+saved+'% smaller) · '+
+  result.width+' × '+result.height+' px';
+}
