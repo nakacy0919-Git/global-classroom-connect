@@ -6,6 +6,8 @@ import {myTeacherProfileV116} from '../../services/teacherNetworkV116.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
 import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
+import {createFieldGuideV204} from '../../lib/sessionFieldGuideV204.js';
+import '../../styles/sessionUxV204.css';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
 import {uploadSessionFlyerV203} from '../../services/sessionPlanServiceV203.js';
 import '../../styles/sessionPlannerV203.css';
@@ -37,7 +39,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
    <a href="#/teacher-portal?view=requests" class="gct-home-summary-card-v200"><strong id="gctp-home-requests-count">0</strong><span>Pending requests</span></a>
   </div>
-  <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section>
+  <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
  </section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
@@ -74,7 +76,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <p class="gct-hint">Publishing makes this session visible to approved teachers. It does not automatically create a Zoom meeting or send invitations.</p>
   </section>
   <div class="gct-form-actions"><button type="button" id="gctp-back" class="gct-secondary" hidden>← Back</button><button type="button" id="gctp-next" class="gct-primary">Continue →</button><button class="gct-primary" id="gctp-publish" type="submit" hidden>Publish session ✓</button></div>
- </form><aside class="gct-panel"><div class="gct-section-head"><span>02</span><div><h3>Your upcoming sessions</h3><p>Sessions you can manage.</p></div></div><div id="gctp-mine" class="gct-card-list"></div></aside>
+ </form>
  </div></div>
  <div class="gct-section gcs151-find" data-gct-view="find" hidden>
   <header class="gcs151-find-hero">
@@ -148,6 +150,7 @@ export function bindTeacherPortalPage(){
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
+ const guide=createFieldGuideV204(root,$('gctp-create'));
  const selectedLevels=()=>[...root.querySelectorAll('input[name="gctp-target-level"]:checked')].map(x=>x.value);
  const selectedMode=()=>root.querySelector('input[name="gctp-mode"]:checked')?.value||'classroom';
  const sessionTopic=()=>[$('gctp-theme').value,$('gctp-topic').value.trim()].filter(Boolean).join(' · ').slice(0,120);
@@ -204,8 +207,8 @@ export function bindTeacherPortalPage(){
   if(option.value==='classroom'&&$('gctp-rooms').value==='4')$('gctp-rooms').value='1';
   if(option.value==='device'&&$('gctp-rooms').value==='1')$('gctp-rooms').value='4';
  });
- $('gctp-next').addEventListener('click',()=>{const error=validateFormStep(formStep);if(error){inform(error,true);return;}inform('');showFormStep(Math.min(3,formStep+1));});
- $('gctp-back').addEventListener('click',()=>{inform('');showFormStep(Math.max(0,formStep-1));});
+ $('gctp-next').addEventListener('click',()=>{const error=validateFormStep(formStep);if(error){inform(error,true);guide.show(error,formStep);return;}guide.clear();inform('');showFormStep(Math.min(3,formStep+1));});
+ $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
   const [mine,applications,publicEvents]=await Promise.all([teacherSessions(),teacherRequests(),listPublicSessionOverviews()]);
@@ -345,11 +348,11 @@ export function bindTeacherPortalPage(){
   if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
  $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
-   if(slot.error){inform(slot.error,true);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);return;}
-   for(let step=0;step<3;step++){const error=validateFormStep(step);if(error){showFormStep(step);inform(error,true);return;}}
-   let plan;try{plan=detailsPayload();}catch(err){showFormStep(2);inform(err.message,true);return;}
+   if(slot.error){inform(slot.error,true);guide.show(slot.error,0);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);guide.show('Choose a future date and time.',0);return;}
+   for(let step=0;step<3;step++){const error=validateFormStep(step);if(error){showFormStep(step);inform(error,true);guide.show(error,step);return;}}
+   let plan;try{plan=detailsPayload();}catch(err){showFormStep(2);inform(err.message,true);guide.show(err.message,2);return;}
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:plan};
-   if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){inform('Check student and room counts.',true);return;}
+   if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){showFormStep(1);inform('Check student and room counts.',true);guide.show('Check student count',1);return;}
    const btn=$('gctp-publish');btn.disabled=true;
    try{
     const flyer=$('gctp-flyerfile').files?.[0];if(flyer)data.details.flyer_url=await uploadSessionFlyerV203(flyer);
@@ -364,7 +367,7 @@ export function bindTeacherPortalPage(){
     showFormStep(0);display('create');
     showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});
    }
-   catch(err){inform(err.message||'Could not publish the session.',true);}finally{btn.disabled=false;}
+   catch(err){const msg=err.message||'Could not publish the session.';inform(msg,true);showFormStep(2);guide.show(msg,2);}finally{btn.disabled=false;}
  });
  const setDiscoverMode=(mode)=>{
   discoverMode=mode==='map'?'map':'time';
