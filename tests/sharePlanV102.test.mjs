@@ -23,7 +23,9 @@ test('host has an intentional two-step invitation flow',()=>{
  assert.match(host,/One session\. One code\. All rooms/);
  assert.match(host,/Publish your rooms/);
  assert.match(host,/Share one invitation/);
- assert.match(host,/Create 6-digit session code/);
+ assert.match(host,/Create permanent invitation/);
+ assert.match(host,/getHostInvitation\(eventId\)/);
+ assert.match(host,/issueHostInvitation\(eventId,replaceLost\)/);
  assert.match(host,/Copy invitation \(link \+ code\)/);
  assert.doesNotMatch(host,/Generate private student codes|Regenerate ALL student codes|Copy codes for this school/);
 });

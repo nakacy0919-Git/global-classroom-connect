@@ -8,7 +8,7 @@ const sql=read('supabase/migrations/20261028_teacher_profile_edit_v153.sql');
 const css=read('src/styles/teacherProfileV153.css');
 test('approved teacher gets direct My Profile route from account and menu',()=>{
  assert.match(read('src/pages/public/WelcomeV117.js'),/view=profile"[^>]*>.*My profile/);
- assert.match(read('src/pages/teacher/TeacherSidebar.js'),/profile','✎ My Profile'/);
+ assert.match(read('src/pages/teacher/TeacherSidebar.js'),/\['profile','My Profile'\]/);
  assert.match(portal,/data-gct-view="profile"/);
  assert.match(portal,/mountTeacherProfileV153\(root/);
  assert.match(portal,/['"]profile['"]\]\.includes\(view\)/);

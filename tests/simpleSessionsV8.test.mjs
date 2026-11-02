@@ -72,7 +72,7 @@ test('host wizard supports rooms, cap, register/review, and does not fabricate s
 
  for(const key of ['name="rooms"','name="capacity"','name="facs"','reviewSessionSignup','updateRegistrationNames','mountRoomPlannerV9','No saved rooms yet'])assert.match(host,new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
 
- assert.match(host,/Create 6-digit session code/);
+ assert.match(host,/Create permanent invitation/);
  assert.match(host,/Copy invitation \(link \+ code\)/);
  assert.doesNotMatch(host,/Generate invite code|issueSessionCode/);
 
