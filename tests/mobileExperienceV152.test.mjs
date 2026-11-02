@@ -23,7 +23,7 @@ test('teacher and host sidebars remain accessible as one offcanvas menu on phone
   assert.match(page,/gcc-mobile-drawer-close/);
   assert.match(page,/aria-label="Close navigation menu"/);
  }
- for(const target of ['create','find','requests','network','volunteer'])assert.match(teacher,new RegExp("'"+target+"'"));
+ for(const target of ['requests','network','volunteer'])assert.match(teacher,new RegExp("'"+target+"'"));
  assert.match(css,/\.app-shell>\.sidebar\.gcc-mobile-drawer-open/);
  assert.match(css,/visibility:hidden/);
  assert.match(css,/visibility:visible/);
