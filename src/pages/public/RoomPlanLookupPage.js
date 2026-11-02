@@ -6,6 +6,8 @@ import {openSharedRoomChart} from '../../services/sharePlanV102.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
 import {countryFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
+import {renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
+import '../../styles/sessionPlannerV203.css';
 import {bindRoomFinderV161} from '../../lib/roomFinderV161.js';
 
 const $=id=>document.getElementById(id);
@@ -40,13 +42,14 @@ export function RoomPlanLookupPage(){return `
   ${netiquetteGuideMarkupV145()}
   <div id="gcc-v145-room-access">
   <header class="gcc-v104-brand"><span aria-hidden="true">✦</span><div><strong>Global Classroom Connect</strong><small>Meet the world, one room at a time</small></div></header>
-  <div class="gcc-v104-hero"><span class="gcc-v104-eyebrow">SESSION ROOM CHART</span><h1>Find your breakout room</h1><p>Enter the 6-digit code from your teacher first. After verification, check five Zoom guidelines to open your breakout room chart.</p></div>
+  <div class="gcc-v104-hero"><span class="gcc-v104-eyebrow">SESSION ROOM CHART</span><h1>Find your breakout room</h1><p>Enter the 6-digit code from your teacher first. After verification, check the meeting guidelines to open your breakout room chart.</p></div>
   <form class="gcc-v104-unlock" id="gcc-v104-unlock" autocomplete="off">
     <label for="gcc-v104-code">Session access code</label>
     <div class="gcc-v104-unlock-row"><input id="gcc-v104-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6-digit code" aria-label="6-digit session access code" autocomplete="off" required /><button type="submit" class="gcc-v104-primary" id="gcc-v104-open">Verify code →</button></div>
   </form>
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
   <div id="gcc-v104-chart" hidden>
+    <section class="gcc203-private-plan" aria-label="Session information"><h2>Session details</h2><div id="gcc203-room-session-details"></div></section>
     <section id="gcc-v161-choice" class="gcc-v161-choice" hidden aria-labelledby="gcc-v161-choice-title">
       <span class="gcc-v161-eyebrow">YOUR BREAKOUT ROOM</span>
       <h2 id="gcc-v161-choice-title">What would you like to check?</h2>
@@ -106,12 +109,13 @@ export function bindRoomPlanLookupPage(){
  function draw(data){
    result.hidden=false;
    $('gcc-v104-session-name').textContent=data.session||'Breakout rooms';
+   const plan=$('gcc203-room-session-details');renderSessionDetailsV203(plan,data.session_details,{privateLink:true});
    const rooms=Array.isArray(data.rooms)?data.rooms:[];
    const total=rooms.reduce((count,room)=>count+(room.students||[]).length,0);
    $('gcc-v104-count').textContent=`${rooms.length} rooms · ${total} students`;
    renderWorldSessionClocksV112($('gcc-v112-world'),data);
    const zoom=$('gcc-v104-zoom');zoom.replaceChildren();const url=safeZoom(data.zoom_url);
-   if(url){
+   if(url&&!data.session_details?.meeting_url){
      const a=make('a','gcc-v104-primary gcc-v104-zoom');
      a.href=url;a.target='_blank';a.rel='noopener noreferrer';
      const cam=make('span','gcc-v104-zoom-icon');cam.setAttribute('aria-hidden','true');
