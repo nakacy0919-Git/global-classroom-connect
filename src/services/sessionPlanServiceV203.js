@@ -1,27 +1,7 @@
 import {supabase} from './supabase.js';
-import {optimizeFlyerV207,flyerSizeLabelV207} from '../lib/flyerWebpV207.js';
-
-// Cache the exact selected File so the upload reuses the preview's compressed blob.
-// A WeakMap also allows garbage collection after the teacher replaces their file.
-const preparedFlyers=new WeakMap();
-export function prepareSessionFlyerV207(file){
- if(!file)return Promise.reject(Error('Choose a flyer image.'));
- let task=preparedFlyers.get(file);
- if(!task){
-  task=optimizeFlyerV207(file).catch(error=>{
-   preparedFlyers.delete(file);
-   throw error;
-  });
-  preparedFlyers.set(file,task);
- }
- return task;
-}
-export function describeSessionFlyerV207(result){
- const saved=Math.max(0,result.reductionPercent);
- return 'WebP ready: '+flyerSizeLabelV207(result.originalBytes)+' → '+
-  flyerSizeLabelV207(result.compressedBytes)+' ('+saved+'% smaller) · '+
-  result.width+' × '+result.height+' px';
-}
+import {prepareFlyerOnceV207,describeFlyerV207} from '../lib/flyerWebpV207.js';
+export const prepareSessionFlyerV207=prepareFlyerOnceV207;
+export const describeSessionFlyerV207=describeFlyerV207;
 export async function uploadSessionFlyerV203(file){
  if(!file)return '';
  if(!supabase)throw Error('GCC is not connected to Supabase.');
