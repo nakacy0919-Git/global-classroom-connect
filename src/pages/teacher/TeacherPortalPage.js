@@ -346,7 +346,8 @@ export function bindTeacherPortalPage(){
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
    if(slot.error){inform(slot.error,true);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);return;}
    for(let step=0;step<3;step++){const error=validateFormStep(step);if(error){showFormStep(step);inform(error,true);return;}}
-   const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:(()=>{try{return detailsPayload();}catch(e){showFormStep(2);throw e;}})()};
+   let plan;try{plan=detailsPayload();}catch(err){showFormStep(2);inform(err.message,true);return;}
+   const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:plan};
    if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){inform('Check student and room counts.',true);return;}
    const btn=$('gctp-publish');btn.disabled=true;
    try{
