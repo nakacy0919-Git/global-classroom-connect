@@ -85,7 +85,7 @@ export function bindSessionSignupPage(){
  ...identity(),countryName:master.get(identity().country)?.name||'',students:students().records,facilitators:parseFacilitators($('gcc-v6-facilitators').value),pairs:pairPicker.getPairs()});
  root.querySelector('.gcc-v6-form').hidden=true;root.querySelector('.gcc-v6-actions').hidden=true;root.querySelector('.gcc-v6-intro').hidden=true;root.querySelector('.gcc-v6-progress').hidden=true;
  msg(`✓ Registration received. Your host will review your ${students().records.length} students. Reference: ${String(id).slice(0,8)}. After approval, you can edit pairs and rooms in Teacher Mode using your 4-digit Teacher Code. You may close this page.`);
- }catch(e){msg(e.message||'Could not submit registration.',true);submitting=false;$('gcc-v6-submit').disabled=false;}});
+ }catch(e){const original=e.message||'Could not submit registration.';msg(/already registered|duplicate key|associated with another teacher/i.test(original)?'This session already has a registration for this teacher. Open the breakout room chart and choose Teacher Mode to update your own students with your personal 4-digit Teacher Code; ask the host for the code if necessary.':original,true);submitting=false;$('gcc-v6-submit').disabled=false;}});
  showStep(0);
  (async()=>{try{const [events,response]=await Promise.all([publicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
  if(!response.ok)throw Error('Country master is unavailable');const data=await response.json();
