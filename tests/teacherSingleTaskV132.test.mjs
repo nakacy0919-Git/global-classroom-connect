@@ -16,7 +16,7 @@ test('the public home remains the entry point and teacher sidebar returns to it'
  for(const view of ['create','find','volunteer']) assert.ok(home.includes('href="#/teacher-portal?view='+view+'"'));
  const sidebar=read('src/pages/teacher/TeacherSidebar.js');
  assert.ok(sidebar.includes('href="#/welcome"'));
- assert.ok(sidebar.includes("['home','Teacher Home']"));
+ assert.ok(sidebar.includes("const primary=")); assert.ok(sidebar.includes("My Requests"));
 });
 test('teacher sign-in returns to selected feature, with teacher home as default',()=>{
  const access=read('src/pages/teacher/TeacherAccessPage.js');

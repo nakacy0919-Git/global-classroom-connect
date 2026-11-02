@@ -11,9 +11,10 @@ const module=read('src/lib/i18nV157.js');
 const css=read('src/styles/i18nV157.css');
 
 test('language dictionary covers key GCC flows and uses English for unknown locales',()=>{
- assert.deepEqual([...LOCALES],['en','ja']);
+ assert.deepEqual([...LOCALES],['en','ja','ko','vi','id','es','pt','zh']);
  assert.equal(safeLocale('ja'),'ja');assert.equal(safeLocale('en'),'en');assert.equal(safeLocale('fr'),'en');
  assert.equal(getGccLanguage(),'en');
+ assert.equal(safeLocale('ko'),'ko');assert.equal(safeLocale('vi'),'vi');assert.equal(safeLocale('zh'),'zh');
  assert.ok(Object.keys(JA_UI).length>=450);
  for(const en of [
   'Sign in','Sign up','Account','Create Session','Find Session','Continue →',
@@ -27,6 +28,10 @@ test('localize fixed labels but never change user-entered data, identifiers or f
  assert.equal(translateUiText('Sign in','ja'),'ログイン');
  assert.equal(translateUiText(' Sign in  ','ja'),' ログイン  ');
  assert.equal(translateUiText('Sign in','en'),'Sign in');
+ assert.equal(translateUiText('Educational session type *','ko'),'교육 활동 유형 *');
+ assert.equal(translateUiText('Session name *','vi'),'Tên buổi giao lưu *');
+ assert.equal(translateUiText('Session type','zh'),'活动类型');
+ assert.equal(translateUiText('Anjo Gakuen High School','es'),'Anjo Gakuen High School');
  assert.equal(translateUiText('My Teacher Profile','ja'),'先生のプロフィール');
  for(const v of ['Tiffany Pan','Anjo Gakuen High School','2026-10-28','Asia/Tokyo','955070','abc123','https://example.org','Name: Sakura','13:10']){
   assert.equal(translateUiText(v,'ja'),v);
@@ -42,7 +47,7 @@ test('language buttons now actually translate after every SPA route render',()=>
  assert.match(app,/bindGccLanguage\(app,isPublicRoute\)[\s\S]*bindMobileNavigationV152\(\)/);
  assert.doesNotMatch(app,/langLabel\.textContent\s*=\s*lang === 'ja'/);
  assert.match(welcome,/data-lang="en"/);assert.match(welcome,/data-lang="ja"/);
- assert.match(header,/data-lang="en"/);assert.match(header,/data-lang="ja"/);
+ assert.match(header,/data-lang="en"/);assert.match(header,/data-lang="ja"/);assert.match(header,/data-lang-select/);
  assert.match(module,/localStorage\.setItem\(STORAGE_KEY,locale\)/);
  assert.match(module,/document\.documentElement\.lang=locale/);
  assert.match(module,/aria-pressed/);

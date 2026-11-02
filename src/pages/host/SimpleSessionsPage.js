@@ -12,6 +12,8 @@ import {fetchRoomDraft} from '../../services/roomDraftV91.js';
 import {getRoomShareStatus,publishRoomShare,getSharedCodeStatus,issueSharedCode,disableSharedCode,getHostInvitation,issueHostInvitation} from '../../services/sharePlanV102.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
 import {mountPlanFieldsV203,readPlanV203} from '../../lib/sessionPlannerV203.js';
+import {createFieldGuideV204} from '../../lib/sessionFieldGuideV204.js';
+import '../../styles/sessionUxV204.css';
 import {mountHostPlanEditorV203} from '../../lib/hostPlanEditorV203.js';
 import {uploadSessionFlyerV203,saveHostPlanV203} from '../../services/sessionPlanServiceV203.js';
 import '../../styles/sessionPlannerV203.css';
@@ -109,6 +111,7 @@ export function bindSimpleSessionsPage(){
  let shareToken='',shareEvent='';
  let deletingSessionV105=null;
  mountPlanFieldsV203($('gcc-v8-create-plan'),'gcc-v8');
+ const createGuide=createFieldGuideV204(root,$('gcc-v8-create'));
  const current=()=>events.find(x=>x.id===activeEventId);
  const conf=()=>settings.find(s=>s.event_id===activeEventId)||defaultSettings();
  const party=()=>signups.filter(s=>s.event_id===activeEventId);
@@ -523,11 +526,13 @@ export function bindSimpleSessionsPage(){
    }catch(error){$('gcc-v105-delete-error').textContent=error.message||'Could not delete session.';}
    finally{submit.disabled=false;}
  });
- $('gcc-v8-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=false;$('gcc-v8-create').querySelector('[name=title]').focus();});
- $('gcc-v8-cancel-new').addEventListener('click',()=>{$('gcc-v8-create-wrap').hidden=true;});
- $('gcc-v8-create').addEventListener('submit',async evt=>{evt.preventDefault();prepareSuccessChime();const f=evt.currentTarget;const d=new FormData(f);
+ $('gcc-v8-new').addEventListener('click',()=>{createGuide.clear();$('gcc-v8-create-wrap').hidden=false;$('gcc-v8-create').querySelector('[name=title]').focus();});
+ $('gcc-v8-cancel-new').addEventListener('click',()=>{createGuide.clear();$('gcc-v8-create-wrap').hidden=true;});
+ $('gcc-v8-create').addEventListener('submit',async evt=>{evt.preventDefault();createGuide.clear();const f=evt.currentTarget;const d=new FormData(f);
+   const invalid=[...f.querySelectorAll('input,select,textarea')].find(x=>x.required&&!x.checkValidity());
+   if(invalid){const msg='Complete or correct this required field.';notify(msg,true);createGuide.show(msg,0,'gcc-v8');return;}
    const date=String(d.get('date')||''),time=String(d.get('time')||''),endTime=String(d.get('endTime')||''),timezone=String(d.get('timezone')||'Asia/Tokyo'),title=String(d.get('title')||'').trim();
-   const stamp=makeSlot({date,startTime:time,endTime,timezone});if(stamp.error){notify(stamp.error,true);return;}if(Date.parse(stamp.startsAt)<=Date.now()){notify('Choose a future time.',true);return;}
+   const stamp=makeSlot({date,startTime:time,endTime,timezone});if(stamp.error){notify(stamp.error,true);createGuide.show(stamp.error,0,'gcc-v8');return;}if(Date.parse(stamp.startsAt)<=Date.now()){notify('Choose a future time.',true);createGuide.show('future date',0,'gcc-v8');return;}
    let plan;
    try{
     const local=$('gcc-v8-deadline').value;
@@ -535,15 +540,16 @@ export function bindSimpleSessionsPage(){
     const deadline=toUtc(local.slice(0,10),local.slice(11),timezone);
     if(deadline.error)throw Error(deadline.error);
     plan=readPlanV203(root,'gcc-v8',{...stamp,startTime:time,endTime},deadline.iso);
-   }catch(err){notify(err.message,true);return;}
+   }catch(err){notify(err.message,true);createGuide.show(err.message,0,'gcc-v8');return;}
    const button=f.querySelector('[type=submit]');button.disabled=true;
    try{
+    prepareSuccessChime();
     const flyer=$('gcc-v8-flyerfile').files?.[0];if(flyer)plan.flyer_url=await uploadSessionFlyerV203(flyer);
     const created=await addEvent({title,startsAt:stamp.startsAt,endsAt:stamp.endsAt,timezone,status:'draft'});activeEventId=created.id;activeStage=0;
      await saveHostPlanV203(created.id,plan);
      await saveSessionSettings({eventId:created.id,rooms:Number(d.get('rooms')),maxStudents:Number(d.get('capacity')),facilitatorsPerRoom:Number(d.get('facs'))});
      $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');showSuccessCelebration({title:'Session created!',detail:'Your session is saved as a draft. Publish it when ready.'});}
-   catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}
+   catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);createGuide.show(err.message,0,'gcc-v8');}finally{button.disabled=false;}
  });
  $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();const chosen=current();if(chosen)openCalendarSessionV166(chosen);notify('');});
  $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);notify('');});

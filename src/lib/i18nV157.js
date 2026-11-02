@@ -1,5 +1,6 @@
 // GCC V15.7 — Japanese / English interface. Source strings are English UI copy.
 // Never translate free-form user content, stored form values, IDs, dates or URLs.
+import {EXTRA_LANGUAGE_OPTIONS_V204,EXTRA_LANGUAGE_LABEL_V204,SESSION_TRANSLATIONS_V204,JA_SESSION_UI_V204} from './sessionTranslationsV204.js';
 const STORAGE_KEY='gcc-ui-language-v157';
 const pairs=String.raw`
 Teacher Home | 先生のホーム
@@ -604,26 +605,26 @@ export const JA_UI=Object.freeze(Object.fromEntries(
   return [line.slice(0,pivot),line.slice(pivot+3)];
  })
 ));
-export const LOCALES=Object.freeze(['en','ja']);
-export function safeLocale(value){return value==='ja'?'ja':'en';}
+export const LOCALES=Object.freeze(['en','ja',...EXTRA_LANGUAGE_OPTIONS_V204.map(([code])=>code)]);
+export function safeLocale(value){return LOCALES.includes(value)?value:'en';}
 export function translateUiText(text,locale='ja'){
- if(safeLocale(locale)!=='ja'||typeof text!=='string')return text;
+ if(safeLocale(locale)==='en'||typeof text!=='string')return text;
  const trimmed=text.trim();
  if(!trimmed)return text;
- let translated=JA_UI[trimmed];
+ let translated=locale==='ja'?(JA_UI[trimmed]||JA_SESSION_UI_V204[trimmed]):SESSION_TRANSLATIONS_V204[locale]?.[trimmed];
  if(!translated){
   let match=trimmed.match(/^(\d+)\s+rooms?\s*[·•]\s*(\d+)\s+students?$/i);
-  if(match)translated=`${match[1]}室 · ${match[2]}人の生徒`;
+  if(locale==='ja'&&match)translated=`${match[1]}室 · ${match[2]}人の生徒`;
   match=trimmed.match(/^(\d+)\s+sessions?$/i);
-  if(!translated&&match)translated=`${match[1]}件のセッション`;
+  if(locale==='ja'&&!translated&&match)translated=`${match[1]}件のセッション`;
   match=trimmed.match(/^(\d+)\s+students?$/i);
-  if(!translated&&match)translated=`${match[1]}人の生徒`;
+  if(locale==='ja'&&!translated&&match)translated=`${match[1]}人の生徒`;
   match=trimmed.match(/^Room\s+(\d+)$/i);
-  if(!translated&&match)translated=`ルーム ${match[1]}`;
+  if(locale==='ja'&&!translated&&match)translated=`ルーム ${match[1]}`;
   match=trimmed.match(/^Step\s+(\d+)\s+of\s+4(?:\s*[·•]\s*(.+))?$/i);
-  if(!translated&&match)translated=`ステップ${match[1]} / 4${match[2]?' · '+(JA_UI[match[2]]||match[2]):''}`;
+  if(locale==='ja'&&!translated&&match)translated=`ステップ${match[1]} / 4${match[2]?' · '+(JA_UI[match[2]]||match[2]):''}`;
   match=trimmed.match(/^(\d+)\s+countries?\s+with\s+available\s+sessions?.*$/i);
-  if(!translated&&match)translated=`募集中の国：${match[1]}か国 · 地図のピンを選択`;
+  if(locale==='ja'&&!translated&&match)translated=`募集中の国：${match[1]}か国 · 地図のピンを選択`;
  }
  if(!translated)return text;
  const left=text.match(/^\s*/)?.[0]||'';
@@ -698,9 +699,29 @@ export function bindGccLanguage(root=document.getElementById('app'),isPublic=fal
   const bar=document.createElement('div');
   bar.className='gcc157-public-lang';
   bar.setAttribute('role','group');bar.setAttribute('aria-label','Language');
-  bar.innerHTML='<span aria-hidden="true">🌐</span><button type="button" data-lang="en">EN</button><button type="button" data-lang="ja">日本語</button>';
+  bar.innerHTML='<span aria-hidden="true">🌐</span><button type="button" data-lang="en">EN</button><button type="button" data-lang="ja">日本語</button><select data-lang-select aria-label="Select interface language"><option value="en">English</option><option value="ja">日本語</option></select>';
   root.append(bar);
  }
+ const makeOptions=select=>{
+   const present=new Set([...select.options].map(option=>option.value));
+   for(const [code,label] of EXTRA_LANGUAGE_OPTIONS_V204){
+     if(present.has(code))continue;
+     const option=document.createElement('option');option.value=code;option.textContent=label;select.append(option);
+   }
+ };
+ if(root.querySelector('.gcc157-home-lang')&&!root.querySelector('.gcc157-home-lang [data-lang-select]')){
+   const chooser=document.createElement('select');chooser.setAttribute('data-lang-select','');
+   chooser.setAttribute('aria-label','Select interface language');
+   for(const [code,label] of [['en','English'],['ja','日本語']]){
+     const option=document.createElement('option');option.value=code;option.textContent=label;chooser.append(option);
+   }
+   root.querySelector('.gcc157-home-lang').append(chooser);
+ }
+ root.querySelectorAll('[data-lang-select]').forEach(select=>{
+  makeOptions(select);select.addEventListener('change',()=>{
+   setGccLanguage(select.value);refresh();
+  },{signal});
+ });
  root.querySelectorAll('[data-lang]').forEach(button=>{
   button.type='button';
   button.addEventListener('click',()=>{
@@ -717,7 +738,8 @@ export function bindGccLanguage(root=document.getElementById('app'),isPublic=fal
    button.classList.toggle('gcc157-lang-active',active);
   }
   const label=root.querySelector('#current-language');
-  if(label)label.textContent=locale==='ja'?'日本語':'English';
+  if(label)label.textContent=locale==='ja'?'日本語':locale==='en'?'English':EXTRA_LANGUAGE_LABEL_V204[locale]||'English';
+  root.querySelectorAll('[data-lang-select]').forEach(select=>{select.value=locale;});
   const group=root.querySelector('.gcc157-public-lang');
   if(group)group.setAttribute('aria-label',locale==='ja'?'表示言語を選択':'Choose interface language');
  }

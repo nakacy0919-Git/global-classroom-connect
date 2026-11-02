@@ -7,9 +7,11 @@ test('teacher home has primary discovery and creation actions, live summary and 
  for(const id of ['data-gct-view="home"','gctp-home-sessions-count','gctp-home-requests-count','gctp-home-mine'])assert.ok(portal.includes(id),id);
  assert.match(portal,/function renderHome\(\)/);
  assert.match(portal,/renderMine\(\);renderHome\(\)/);
- for(const view of ['find','create','requests'])assert.ok(sidebar.includes("'"+view+"'"),view);
+ assert.ok(sidebar.includes("'requests'"));
+ assert.doesNotMatch(sidebar,/\['find','Find a Session'\]|\['create','Host a Session'\]|\['home','Teacher Home'\]/);
+ assert.match(sidebar,/GCC Home/);
 });
-test('advanced teacher links are separated from the four core actions',()=>{
+test('advanced teacher links are collapsed under optional navigation',()=>{
  assert.match(sidebar,/gcc-teacher-more-v200/);
  for(const item of ['profile','network','volunteer'])assert.ok(sidebar.includes("'"+item+"'"),item);
  assert.doesNotMatch(sidebar,/teacher-approvals|teacher-invites|Teacher Database|Admin Mode/);
