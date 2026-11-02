@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8'),welcome=read('src/pages/public/WelcomeV117.js'),css=read('src/styles/welcomeControlsV124.css');
 test('four illustrated gateway actions keep routes',()=>{assert.equal((welcome.match(/class="gcc117-choice gcc117-choice-/g)||[]).length,4);for(const view of ['create','find','volunteer'])assert.ok(welcome.includes('href="#/teacher-portal?view='+view+'"'));});
-test('header has state-aware actions and modes',()=>{for(const key of ['gcc184-guest-actions" hidden','gcc184-user-menu" hidden','gcc184-lang-menu','data-gcc-admin-mode','data-gcc-teacher-mode','data-gcc-signout','href="#/signup"','href="#/teacher-access"'])assert.ok(welcome.includes(key),key);assert.doesNotMatch(welcome,/Host sign in/);});
+test('header has state-aware actions and modes',()=>{for(const key of ['gcc184-guest-actions" hidden','gcc184-user-menu" hidden','gcc184-language-select','data-gcc-admin-mode','data-gcc-teacher-mode','data-gcc-signout','href="#/signup"','href="#/teacher-access"'])assert.ok(welcome.includes(key),key);assert.doesNotMatch(welcome,/Host sign in/);});
 test('card interaction and reduced motion preserved',()=>{assert.match(css,/gcc117-choice:active/);assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);});

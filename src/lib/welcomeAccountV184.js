@@ -1,7 +1,6 @@
 // GCC V18.4 — landing state only; protected pages still verify authorization.
 import {getCurrentUser,getCurrentProfile,signOut} from '../services/authService.js';
 import {teacherIdentity} from '../services/teacherSelfService.js';
-import {getGccLanguage} from './i18nV157.js';
 export const menuAccess=({signedIn=false,host=false,teacher=false}={})=>({guest:!signedIn,account:!!signedIn,admin:!!signedIn&&!!host,teacher:!!signedIn&&!!teacher});
 export function bindWelcomeAccountNavV184(){
  const root=document.querySelector('.gcc117-welcome');if(!root)return;
@@ -10,11 +9,7 @@ export function bindWelcomeAccountNavV184(){
  const admin=root.querySelector('[data-gcc-admin-mode]'),teacher=root.querySelector('[data-gcc-teacher-mode]');
  teacher.setAttribute('href','#/teacher-portal?view=home');
  const profile=root.querySelector('[data-gcc-profile]'),note=root.querySelector('.gcc184-teacher-note');
- const language=root.querySelector('.gcc184-current-language');language.textContent=getGccLanguage().toUpperCase();
- root.querySelectorAll('.gcc184-lang-popup [data-lang]').forEach(b=>b.addEventListener('click',()=>{
-   language.textContent=b.dataset.lang.toUpperCase();b.closest('details')?.removeAttribute('open');
- }));
- async function refresh(){
+async function refresh(){
    guest.hidden=true;menu.hidden=true;
    let user=null;try{user=await getCurrentUser();}catch{}
    if(!root.isConnected)return;

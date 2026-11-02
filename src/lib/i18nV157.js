@@ -1,6 +1,6 @@
 // GCC V15.7 — Japanese / English interface. Source strings are English UI copy.
 // Never translate free-form user content, stored form values, IDs, dates or URLs.
-import {EXTRA_LANGUAGE_OPTIONS_V204,EXTRA_LANGUAGE_LABEL_V204,SESSION_TRANSLATIONS_V204,JA_SESSION_UI_V204} from './sessionTranslationsV204.js';
+import {EXTRA_LANGUAGE_OPTIONS_V204,SESSION_TRANSLATIONS_V204,JA_SESSION_UI_V204} from './sessionTranslationsV204.js';
 const STORAGE_KEY='gcc-ui-language-v157';
 const pairs=String.raw`
 Teacher Home | 先生のホーム
@@ -698,8 +698,7 @@ export function bindGccLanguage(root=document.getElementById('app'),isPublic=fal
  if(isPublic&&!root.querySelector('.gcc117-welcome')){
   const bar=document.createElement('div');
   bar.className='gcc157-public-lang';
-  bar.setAttribute('role','group');bar.setAttribute('aria-label','Language');
-  bar.innerHTML='<span aria-hidden="true">🌐</span><button type="button" data-lang="en">EN</button><button type="button" data-lang="ja">日本語</button><select data-lang-select aria-label="Select interface language"><option value="en">English</option><option value="ja">日本語</option></select>';
+  bar.innerHTML='<select data-lang-select aria-label="Select interface language"><option value="en">English</option><option value="ja">日本語</option></select>';
   root.append(bar);
  }
  const makeOptions=select=>{
@@ -709,36 +708,26 @@ export function bindGccLanguage(root=document.getElementById('app'),isPublic=fal
      const option=document.createElement('option');option.value=code;option.textContent=label;select.append(option);
    }
  };
- if(root.querySelector('.gcc157-home-lang')&&!root.querySelector('.gcc157-home-lang [data-lang-select]')){
+ // Legacy home header may still render old EN/日本語 buttons.
+ // Replace them with one selector instead of appending a third control.
+ const home=root.querySelector('.gcc157-home-lang');
+ if(home){
+   home.replaceChildren();
    const chooser=document.createElement('select');chooser.setAttribute('data-lang-select','');
    chooser.setAttribute('aria-label','Select interface language');
    for(const [code,label] of [['en','English'],['ja','日本語']]){
      const option=document.createElement('option');option.value=code;option.textContent=label;chooser.append(option);
    }
-   root.querySelector('.gcc157-home-lang').append(chooser);
+   home.append(chooser);
  }
  root.querySelectorAll('[data-lang-select]').forEach(select=>{
   makeOptions(select);select.addEventListener('change',()=>{
    setGccLanguage(select.value);refresh();
   },{signal});
  });
- root.querySelectorAll('[data-lang]').forEach(button=>{
-  button.type='button';
-  button.addEventListener('click',()=>{
-   setGccLanguage(button.dataset.lang);
-   refresh();
-  },{signal});
- });
- function refresh(){
+function refresh(){
   document.documentElement.lang=locale;
   translateTree(root);
-  for(const button of root.querySelectorAll('[data-lang]')){
-   const active=button.dataset.lang===locale;
-   button.setAttribute('aria-pressed',String(active));
-   button.classList.toggle('gcc157-lang-active',active);
-  }
-  const label=root.querySelector('#current-language');
-  if(label)label.textContent=locale==='ja'?'日本語':locale==='en'?'English':EXTRA_LANGUAGE_LABEL_V204[locale]||'English';
   root.querySelectorAll('[data-lang-select]').forEach(select=>{select.value=locale;});
   const group=root.querySelector('.gcc157-public-lang');
   if(group)group.setAttribute('aria-label',locale==='ja'?'表示言語を選択':'Choose interface language');

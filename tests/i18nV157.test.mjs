@@ -41,16 +41,18 @@ test('localize fixed labels but never change user-entered data, identifiers or f
  assert.equal(translateUiText('4 sessions','ja'),'4件のセッション');
  assert.equal(translateUiText('7 students','ja'),'7人の生徒');
 });
-test('language buttons now actually translate after every SPA route render',()=>{
+test('single dropdown translates after each SPA route render',()=>{
  assert.match(app,/import \{bindGccLanguage\} from '\.\/lib\/i18nV157\.js'/);
  assert.match(app,/bindGccLanguage\(app,isPublicRoute\)/);
  assert.match(app,/bindGccLanguage\(app,isPublicRoute\)[\s\S]*bindMobileNavigationV152\(\)/);
  assert.doesNotMatch(app,/langLabel\.textContent\s*=\s*lang === 'ja'/);
- assert.match(welcome,/data-lang="en"/);assert.match(welcome,/data-lang="ja"/);
- assert.match(header,/data-lang="en"/);assert.match(header,/data-lang="ja"/);assert.match(header,/data-lang-select/);
+ assert.match(welcome,/data-lang-select/);
+ assert.doesNotMatch(welcome,/data-lang="en"|data-lang="ja"/);
+ assert.match(header,/data-lang-select/);
+ assert.doesNotMatch(header,/data-lang="en"|data-lang="ja"|id="current-language"/);
  assert.match(module,/localStorage\.setItem\(STORAGE_KEY,locale\)/);
  assert.match(module,/document\.documentElement\.lang=locale/);
- assert.match(module,/aria-pressed/);
+ assert.match(module,/root\.querySelectorAll\('\[data-lang-select\]'\)/);
  assert.match(module,/MutationObserver/);
 });
 test('language toggles preserve original English text and ARIA attributes on every switch',()=>{
