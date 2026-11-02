@@ -131,6 +131,6 @@ export function renderSessionDetailsV203(root,details,{privateLink=false}={}){
   const section=node('section','gcc203-flow');section.append(node('h3','','Session flow'));
   for(const item of d.flow){const row=node('div','gcc203-flow-row');row.append(node('time','',item.time),node('p','',item.activity));section.append(row);}root.append(section);
  }else root.append(node('p','gcc203-missing','Detailed session flow has not yet been entered by the host.'));
- if(d.breakout_mode)add('Breakout setup',d.breakout_mode.replace('_',' ')+' · '+(d.breakout_notes||''));
+ if(d.breakout_mode)root.append(node('p','gcc203-description','Breakout setup: '+d.breakout_mode.replace('_',' ')+(d.breakout_notes?' · '+d.breakout_notes:'')));
  if(privateLink&&d.meeting_url){try{const u=new URL(d.meeting_url);if(u.protocol==='https:'){const a=node('a','gcc203-join','Join '+PLATFORM_LABEL_V203(d.platform));a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';root.append(a);}}catch{/* ignored */}}
 }
