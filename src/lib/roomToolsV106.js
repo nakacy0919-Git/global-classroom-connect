@@ -1,6 +1,6 @@
 import '../styles/teacherRoomsV106.css';
 import '../styles/teacherRoomsV108.css';
-import {openTeacherEditorV106,applyTeacherRoomEditV106,renameTeacherStudentV196} from '../services/teacherRoomEditV106.js';
+import {openTeacherEditorV106,applyTeacherRoomEditV106,changeTeacherStudentV202} from '../services/teacherRoomEditV106.js';
 import {cleanStudentNameV196} from './teacherStudentNamesV196.js';
 import '../styles/teacherStudentNamesV196.css';
 import {overviewColumnsV106,roomChoiceLabelV106,buildEditorDiffV106} from './roomOverviewV106.js';
@@ -72,31 +72,51 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   const byId=new Map(students.map(s=>[String(s.id),s]));
   const summary=elt('div','gcc-v108-identity');summary.append(elt('strong','',editorData.teacher||'Teacher'),elt('span','',`${editorData.school||'Your school'} · ${students.length} students you can edit`));editing.append(summary);
   editing.append(elt('p','gcc-v106-note','Other schools are view-only. Only the students below can be moved or paired. Your registered teacher name is recorded automatically.'));
-  // Names are edited within this PIN's approved signup; room and pair IDs stay untouched.
+
+  // The verified session link, 6-digit code, and school PIN scope all roster changes.
   const namePanel=elt('section','gcc-v196-names');
-  namePanel.setAttribute('aria-label','Correct student names');
-  namePanel.append(elt('h4','','Correct student names'),
-    elt('p','gcc-v196-help','Find a student from your school and select Edit. Names must use English letters. Room placements and fixed pairs stay the same.'));
+  namePanel.setAttribute('aria-label','Manage student list');
+  namePanel.append(elt('h4','','Manage your student list'),
+    elt('p','gcc-v196-help','Add a student, correct a name or grade, or remove someone who cannot attend. Only your school can be changed. Existing breakout room placements are kept.'));
   const nameList=elt('div','gcc-v196-name-list');
   for(const student of students){
     const row=elt('div','gcc-v196-name-row');
-    const label=elt('span','',student.name);
+    const label=elt('span','',student.name+(student.grade?' · Grade '+student.grade:''));
     const start=button('Edit',()=>{
       const input=elt('input');input.type='text';input.value=student.name;
-      input.maxLength=120;input.autocomplete='off';
-      input.setAttribute('aria-label','Correct name for '+student.name);
-      const confirm=button('Save',()=>saveName(String(student.id),student.name,input.value),'gcc-v196-confirm');
-      const cancel=button('Cancel',()=>{row.replaceChildren(label,start);});
-      input.addEventListener('keydown',event=>{
+      input.maxLength=120;input.autocomplete='off';input.setAttribute('aria-label','Student name for '+student.name);
+      const grade=elt('input');grade.type='text';grade.value=student.grade||'';grade.maxLength=40;
+      grade.placeholder='Grade';grade.setAttribute('aria-label','Grade for '+student.name);
+      const confirm=button('Save',()=>saveStudentChange('edit',student.id,student.name,input.value,grade.value),'gcc-v196-confirm');
+      const cancel=button('Cancel',()=>row.replaceChildren(label,start,remove));
+      for(const field of [input,grade])field.addEventListener('keydown',event=>{
         if(event.key==='Enter'){event.preventDefault();confirm.click();}
         if(event.key==='Escape'){event.preventDefault();cancel.click();}
       });
-      row.replaceChildren(input,confirm,cancel);input.focus();input.select();
+      row.replaceChildren(input,grade,confirm,cancel);input.focus();input.select();
     });
-    start.setAttribute('aria-label','Edit student name: '+student.name);
-    row.append(label,start);nameList.append(row);
+    start.setAttribute('aria-label','Edit student: '+student.name);
+    const remove=button('Remove',()=>{
+      if(!confirm('Remove '+student.name+' from this session? A fixed pair involving this student will also be released.'))return;
+      saveStudentChange('remove',student.id,student.name,'','');
+    });
+    remove.setAttribute('aria-label','Remove student: '+student.name);
+    row.append(label,start,remove);nameList.append(row);
   }
-  namePanel.append(nameList);editing.append(namePanel);
+  namePanel.append(nameList);
+  const addForm=elt('form','gcc-v202-add-form');
+  const addName=elt('input');addName.placeholder='New student name';addName.required=true;addName.maxLength=120;
+  addName.autocomplete='off';addName.setAttribute('aria-label','New student name');
+  const addGrade=elt('input');addGrade.placeholder='Grade (optional)';addGrade.maxLength=40;
+  addGrade.setAttribute('aria-label','Grade of new student');
+  const addButton=elt('button','gcc-v196-confirm','+ Add student');addButton.type='submit';
+  addForm.addEventListener('submit',event=>{event.preventDefault();
+    saveStudentChange('add',null,'',addName.value,addGrade.value);
+  });
+  addForm.append(addName,addGrade,addButton);
+  if(students.length>=500)addButton.disabled=true;
+  namePanel.append(addForm);
+  editing.append(namePanel);
   const tabs=elt('div','gcc-v108-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Edit action');
   const pairTab=button('1. Keep two together',()=>{mode='pair';renderEditor();},'gcc-v108-tab');
   const moveTab=button('2. Move to a room',()=>{mode='move';renderEditor();},'gcc-v108-tab');
@@ -168,21 +188,33 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
   editing.append(locked);
   editing.append(button('Exit Teacher Mode',()=>{panel.hidden=true;clearEditor();}));
  }
- async function saveName(studentId,expectedName,rawName){
+
+ async function saveStudentChange(action,studentId,expectedName,rawName,rawGrade){
   if(busy||!credentials||!editorData)return;
-  let newName;
-  try{newName=cleanStudentNameV196(rawName);}
-  catch(error){setStatus(error.message,true);return;}
-  if(newName===expectedName){setStatus('The student name is unchanged.');return;}
-  busy=true;setStatus('Saving corrected student name…');
+  let name='';
+  if(action!=='remove'){
+    try{name=cleanStudentNameV196(rawName);}
+    catch(error){setStatus(error.message,true);return;}
+  }
+  const grade=String(rawGrade??'').trim();
+  if(grade.length>40){setStatus('Grade must be 40 characters or fewer.',true);return;}
+  const previous=editorData.students.find(s=>String(s.id)===String(studentId));
+  if(action==='edit'&&name===expectedName&&grade===String(previous?.grade||'')){
+    setStatus('The student details are unchanged.');return;
+  }
+  busy=true;
+  setStatus(action==='add'?'Adding student and updating rooms…':action==='remove'?'Removing student…':'Saving student details…');
   try{
-    const result=await renameTeacherStudentV196(credentials,studentId,expectedName,newName);
+    const result=await changeTeacherStudentV202(credentials,{
+      action,studentId,expectedName,name,grade
+    });
     editorData=await openTeacherEditorV106(credentials);
     renderEditor();
     const fresh=await onRefresh(getCode());if(fresh)onDraw(fresh);
-    setStatus(result.message||'Student name saved. Room assignments and pairs are unchanged.');
+    setStatus(result.message||'Student list updated.');
   }catch(error){
-    setStatus('Could not complete the name update: '+(error.message||'Please retry.'),true);
+    setStatus('Could not save your change: '+(error.message||'Please retry.'),true);
+    try{editorData=await openTeacherEditorV106(credentials);renderEditor();}catch{/* show latest safe local view */}
   }finally{busy=false;}
  }
  async function saveEdit(action,aId,bId,room){
