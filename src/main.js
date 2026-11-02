@@ -10,6 +10,7 @@ import './styles/welcomeButtonsV173.css';
 import './styles/welcomeAccountV184.css';
 // Keep the Create Session width fix last, after legacy two-column/mobile layouts.
 import './styles/sessionFormWideV205.css';
+import './styles/singleLanguageSwitcherV206.css';
 
 renderApp();
 window.addEventListener('hashchange', renderApp);
