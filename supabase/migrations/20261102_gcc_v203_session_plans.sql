@@ -73,6 +73,41 @@ BEGIN
  END IF;
 END $fn$;
 
+-- Publishing is enforced in PostgreSQL as well as in the UI.
+-- Existing published November sessions remain valid even without a newly supplied agenda.
+CREATE OR REPLACE FUNCTION public.gcc_v203_require_published_event_plan()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+BEGIN
+ IF NEW.status='published' AND
+   (TG_OP='INSERT' OR OLD.status IS DISTINCT FROM 'published') THEN
+   PERFORM public.gcc_v203_validate_plan(NEW.session_details,NEW.starts_at,NEW.ends_at,NEW.timezone);
+ END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v203_require_published_plan ON public.events;
+CREATE TRIGGER gcc_v203_require_published_plan
+ BEFORE INSERT OR UPDATE OF status ON public.events
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v203_require_published_event_plan();
+
+-- Teacher session creation previously inserted first and stored details second.
+-- A deferred constraint validates the *final* row at transaction commit.
+CREATE OR REPLACE FUNCTION public.gcc_v203_require_open_offer_plan()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE d jsonb; begins timestamptz; finish timestamptz; zone text; state text;
+BEGIN
+ SELECT session_details,starts_at,ends_at,timezone,status
+ INTO d,begins,finish,zone,state FROM public.exchange_availability WHERE id=NEW.id;
+ IF state='open' THEN
+   PERFORM public.gcc_v203_validate_plan(d,begins,finish,zone);
+ END IF;
+ RETURN NULL;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v203_require_open_offer_plan ON public.exchange_availability;
+CREATE CONSTRAINT TRIGGER gcc_v203_require_open_offer_plan
+ AFTER INSERT OR UPDATE OF status ON public.exchange_availability
+ DEFERRABLE INITIALLY DEFERRED
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v203_require_open_offer_plan();
+
 CREATE OR REPLACE FUNCTION public.gcc_v203_save_event_plan(p_event_id uuid,p_plan jsonb)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
 DECLARE e record;
