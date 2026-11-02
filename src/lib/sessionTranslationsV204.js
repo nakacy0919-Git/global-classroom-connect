@@ -99,3 +99,25 @@ export const SESSION_TRANSLATIONS_V204=Object.freeze(Object.fromEntries(
  Object.entries(PACKS).map(([lang,values])=>[lang,Object.freeze(Object.fromEntries(KEY.map((key,i)=>[key,values[i]])))])
 ));
 export const EXTRA_LANGUAGE_LABEL_V204=Object.freeze(Object.fromEntries(EXTRA_LANGUAGE_OPTIONS_V204));
+
+export const JA_SESSION_UI_V204=Object.freeze({
+ '← GCC Home':'← GCCホーム','My Requests':'自分の参加申請','Profile & Community':'プロフィール・コミュニティ',
+ 'Manage my hosted sessions':'自分の開催セッションを管理','Educational session type *':'授業・交流の形式 *',
+ 'Preferred students *':'希望参加生徒数 *','Preferred partner countries (optional)':'希望する参加国（任意）',
+ 'Minimum acceptable age *':'対象年齢の下限 *','Maximum acceptable age *':'対象年齢の上限 *',
+ 'Accepted grades (optional)':'受け入れ可能な学年（任意）',
+ 'Detailed schedule * (HH:MM | activity, one line per stage)':'セッションの詳細な進行表 *（HH:MM | 活動内容、1行ずつ）',
+ 'Objectives and preparation details *':'学習目標・事前準備 *','Video meeting platform *':'オンライン会議プラットフォーム *',
+ 'Platform-specific breakout setup *':'プラットフォーム別のブレイクアウト設定 *',
+ 'Meeting link (optional, only shown after room access verification)':'会議URL（任意、アクセス認証後のみ表示）',
+ 'Breakout room assignment *':'ブレイクアウトルームの割り当て *',
+ 'Breakout room instructions (optional)':'ブレイクアウトルームの詳細（任意）',
+ 'Registration deadline in host local time *':'参加申込の締切日時（学校の現地時間） *',
+ 'Optional flyer':'フライヤー（任意）','Upload a JPG, PNG or WebP flyer (up to 3 MB)':'フライヤーをアップロード（JPG・PNG・WebP、3MB以下）',
+ 'Student age':'生徒の年齢','Session type':'セッション形式','Any session type':'すべての形式',
+ 'Full session details and flyer':'セッションの詳細・フライヤー',
+ 'Format':'形式','Platform':'会議サービス','Desired participants':'希望参加人数','Accepted ages':'対象年齢',
+ 'Grades':'学年','Preferred countries':'希望国','Registration closes':'受付締切',
+ 'Session flow':'セッションの流れ','Session details':'セッション詳細',
+ 'Save session plan':'セッション計画を保存','Create session →':'セッションを作成 →'
+});
