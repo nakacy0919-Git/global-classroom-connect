@@ -9,7 +9,7 @@ import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCeleb
 import {mountRoomPlannerV9} from '../../components/RoomPlannerV9.js';
 import {getEvents,addEvent,updateEvent} from '../../services/eventService.js';
 import {fetchRoomDraft} from '../../services/roomDraftV91.js';
-import {getRoomShareStatus,publishRoomShare,getSharedCodeStatus,issueSharedCode,disableSharedCode} from '../../services/sharePlanV102.js';
+import {getRoomShareStatus,publishRoomShare,getSharedCodeStatus,issueSharedCode,disableSharedCode,getHostInvitation,issueHostInvitation} from '../../services/sharePlanV102.js';
 import {makeSlot} from '../../lib/matching.js';
 import {timePartsV112,timeRangeV112} from '../../lib/sessionTimeV112.js';
 import '../../styles/sessionTimeV112.css';
@@ -317,13 +317,13 @@ export function bindSimpleSessionsPage(){
    let liveToken=shareEvent===eventId?shareToken:'';
    let liveCode='';let busy=false;
    const alertMsg=(text,bad=false)=>notify(text,bad);
-   const buildInvite=(code)=>`${session?.title||'Global Classroom'}\nBreakout room chart: ${location.origin}${location.pathname}#/room-plan?key=${liveToken}\nSession code: ${code}\nKeep this invitation within the participating schools.`;
+   const buildInvite=(code,token)=>`${session?.title||'Global Classroom'}\nBreakout room chart: ${location.origin}${location.pathname}#/room-plan?key=${token}\nSession code: ${code}\nKeep this invitation within the participating schools.`;
    const copy=async(value,what)=>{try{await navigator.clipboard.writeText(value);alertMsg(`${what} copied.`);}
       catch{alertMsg('Clipboard not available. Please select and copy the information.',true);}};
    async function refresh(){
      body.replaceChildren(el('p','gcc-v104-loading','Checking your published room chart…'));
      try{
-       const [draft,pub,gate]=await Promise.all([fetchRoomDraft(eventId),getRoomShareStatus(eventId),getSharedCodeStatus(eventId).catch(()=>({needsDatabase:true,ready:false}))]);
+       const [draft,pub,gate,invite]=await Promise.all([fetchRoomDraft(eventId),getRoomShareStatus(eventId),getSharedCodeStatus(eventId).catch(()=>({needsDatabase:true,ready:false})),getHostInvitation(eventId)]);
        if(!body.isConnected||current()?.id!==eventId)return;
        body.replaceChildren();
        const revision=Number(draft?.revision||0);
@@ -334,14 +334,12 @@ export function bindSimpleSessionsPage(){
        const sectionOne=el('section','gcc-v104-host-card');
        const oneHead=el('div','gcc-v104-card-title');oneHead.append(el('span','gcc-v104-number','1'),el('h4','','Publish your rooms'));
        sectionOne.append(oneHead);
-       if(upToDate && liveToken){
+       if(upToDate){
          sectionOne.append(el('p','gcc-v104-good','✓ Current room arrangement is published.'));
          sectionOne.append(el('p','gcc-v104-meta',`Saved revision ${revision} · Zoom link connected`));
-         const details=el('details','gcc-v104-secondary-details');details.append(el('summary','','Update the Zoom link (keep the same invitation)'));
+         const details=el('details','gcc-v104-secondary-details');
+         details.append(el('summary','','Update the Zoom link (keep the same invitation)'));
          addPublishForm(details,pub,revision);sectionOne.append(details);
-       }else if(upToDate){
-         sectionOne.append(el('p','gcc-v104-note','This session already has a permanent invitation link. It cannot be regenerated. Use the originally shared invitation; updating Zoom will not change it.'));
-         addPublishForm(sectionOne,pub,revision);
        }else{
          if(pub?.is_active) sectionOne.append(el('p','gcc-v130-publish-warning',`⚠ Your saved room plan is revision ${revision}, but the published version is ${pub?.revision||'older'}. New participants will not appear in the shared chart until the current plan is published again. The original invitation link and access code remain unchanged when you publish the updated arrangement.`));
          sectionOne.append(el('p','gcc-v104-note',pub?.is_active?'Rooms have changed. Publish the current arrangement.':'A saved room chart is ready to publish.'));
@@ -351,22 +349,49 @@ export function bindSimpleSessionsPage(){
        const sectionTwo=el('section','gcc-v104-host-card');
        const twoHead=el('div','gcc-v104-card-title');twoHead.append(el('span','gcc-v104-number','2'),el('h4','','Share one invitation'));
        sectionTwo.append(twoHead);
-       if(gate?.needsDatabase){sectionTwo.append(el('p','gcc-v104-note','V10.4 database update is not installed yet. Finish the SQL update before sharing.'));}
-       else if(!upToDate){sectionTwo.append(el('p','gcc-v104-muted','Publish the current room arrangement in Step 1. Your original link and code will remain unchanged.'));}
-       else if(!ready){
-         sectionTwo.append(el('p','gcc-v104-muted',alreadyIssued?'The original code is disabled, expired or not currently available. It will not be replaced automatically.':'Create the session’s only 6-digit code. Save the invitation when it is first displayed.'));
-         if(!alreadyIssued && liveToken)sectionTwo.append(btn('Create 6-digit session code →','gcc-v104-primary',async()=>{await createCode();}));
+       if(gate?.needsDatabase){
+         sectionTwo.append(el('p','gcc-v104-note','The session database update is not installed. Contact the administrator.'));
+       }else if(!upToDate){
+         sectionTwo.append(el('p','gcc-v104-muted','Publish the latest room arrangement in Step 1. Your invitation will stay unchanged.'));
+       }else if(invite?.saved){
+         sectionTwo.append(el('p',invite.ready?'gcc-v104-good':'gcc-v104-note',
+           invite.ready?'✓ Permanent invitation is active. You can reopen and copy this same invitation at any time.':
+             invite.disabled?'The session code is disabled.':'The code expired or the room plan needs updating.'));
+         if(invite.expires_at){
+           const until=new Date(invite.expires_at);
+           sectionTwo.append(el('p','gcc-v104-meta',`Valid until ${Number.isNaN(until.getTime())?'the scheduled expiry':until.toLocaleString()}`));
+         }
+         const summary=el('div','gcc-v104-invitation');
+         summary.append(el('p','gcc-v104-meta','PERMANENT ROOM CHART LINK'));
+         const url=`${location.origin}${location.pathname}#/room-plan?key=${invite.token}`;
+         const linkInput=el('input','gcc-v197-invite-link');
+         linkInput.type='text';linkInput.value=url;linkInput.readOnly=true;
+         linkInput.setAttribute('aria-label','Permanent room chart invitation URL');
+         linkInput.style.width='100%';linkInput.style.boxSizing='border-box';
+         linkInput.style.padding='10px';linkInput.style.border='1px solid #bfd9d6';
+         linkInput.style.borderRadius='9px';linkInput.style.fontSize='14px';
+         linkInput.addEventListener('focus',()=>linkInput.select());
+         summary.append(linkInput);
+         summary.append(el('p','gcc-v104-meta','6-DIGIT SESSION CODE'));
+         summary.append(el('strong','gcc-v104-bigcode',invite.code));
+         const actions=el('div','gcc-v104-small-actions');
+         actions.append(
+           btn('Copy invitation (link + code)','gcc-v104-primary',()=>copy(buildInvite(invite.code,invite.token),'Invitation')),
+           btn('Copy link','gcc-v8-secondary',()=>copy(url,'Room link')),
+           btn('Copy code','gcc-v8-secondary',()=>copy(invite.code,'6-digit code'))
+         );
+         summary.append(actions);sectionTwo.append(summary);
+       }else if(invite?.needs_replacement){
+         sectionTwo.append(el('p','gcc-v104-note','The old link and code were issued before secure re-display was available. They cannot be recovered. Since you have not shared them, replace them once; the new invitation will remain available here.'));
+         sectionTwo.append(btn('Replace lost invitation once →','gcc-v104-primary',async()=>{
+           if(!confirm('Replace the previously issued invitation? The old link and code will stop working. Only continue if they have not been shared.'))return;
+           await createCode(true);
+         }));
+       }else if(invite?.can_issue){
+         sectionTwo.append(el('p','gcc-v104-muted','Create the permanent session invitation. You can return later and copy the same link and code.'));
+         sectionTwo.append(btn('Create permanent invitation →','gcc-v104-primary',async()=>{await createCode(false);}));
        }else{
-         sectionTwo.append(el('p','gcc-v104-good','✓ Session code is active.'));
-         if(gate?.expires_at){const until=new Date(gate.expires_at);sectionTwo.append(el('p','gcc-v104-meta',`Valid until ${Number.isNaN(until.getTime())?'the scheduled expiry':until.toLocaleString()}`));}
-       }
-       if(liveToken && liveCode && ready){
-         const summary=el('div','gcc-v104-invitation');summary.append(el('p','gcc-v104-meta','ONE CODE FOR THE WHOLE SESSION'));
-         summary.append(el('strong','gcc-v104-bigcode',liveCode));
-         summary.append(btn('Copy invitation (link + code)','gcc-v104-primary',()=>copy(buildInvite(liveCode),'Invitation')));
-         sectionTwo.append(summary);
-       }else if(ready){
-         sectionTwo.append(el('p','gcc-v104-muted','The original invitation remains valid. For security, the link and code are shown only when first issued. Use the copy saved or sent to participating schools.'));
+         sectionTwo.append(el('p','gcc-v104-note',invite?.expired?'The previous code expired. Contact an administrator.':invite?.disabled?'Session access was disabled. Contact an administrator.':'Invitation is not available yet. Check the saved room plan.'));
        }
        if(upToDate && alreadyIssued){
          const extra=el('details','gcc-v104-secondary-details');extra.append(el('summary','','Emergency access control'));
@@ -397,16 +422,19 @@ export function bindSimpleSessionsPage(){
            finally{busy=false;}
          });parent.append(form);
        }
-       async function createCode(){
+       async function createCode(replaceLost=false){
          if(busy)return;
          busy=true;
-         try{const r=await issueSharedCode(eventId);
-           if(r?.already_issued){alertMsg('The original session code is already active. It was not changed. Use your previously saved invitation.');await refresh();return;}
-           liveCode=String(r?.code||'');
-           if(!/^[0-9]{6}$/.test(liveCode))throw Error('The database did not return a 6-digit code.');
-           alertMsg(liveToken?'Shared code ready. Copy one invitation for all schools.':'Code created. Your existing private link is not recoverable here; replace the link to create a new invitation.');await refresh();}
-         catch(err){alertMsg(`Cannot issue code: ${err.message}`,true);}
-         finally{busy=false;}
+         try{
+           const r=await issueHostInvitation(eventId,replaceLost);
+           if(!r?.saved || !r?.ready || !/^[0-9]{6}$/.test(r.code||'') || !/^[a-f0-9]{64}$/.test(r.token||'')){
+             throw Error('The server did not return a usable permanent invitation.');
+           }
+           alertMsg('Permanent invitation ready. The same link and code will appear whenever you reopen this page.');
+           await refresh();
+         }catch(err){
+           alertMsg(`Could not create invitation: ${err.message}`,true);
+         }finally{busy=false;}
        }
      }catch(err){if(body.isConnected){body.replaceChildren(el('p','gcc-v104-note',`Could not load sharing status: ${err.message}. Check the V10.4 SQL setup.`));}}
    }

@@ -19,3 +19,12 @@ export const disableSharedCode=eventId=>runRpc('gcc_v104_disable_shared_code',{p
 export const openSharedRoomChart=(token,code)=>runRpc('gcc_v112_open_room_chart',{
  p_token:token,p_access_code:code,
 });
+
+
+// V19.7: securely recover a stable invitation; only authenticated hosts can call this RPC.
+export const getHostInvitation=eventId=>runRpc('gcc_v197_host_invitation',{
+ p_event_id:eventId,p_issue:false,p_replace_lost:false,
+});
+export const issueHostInvitation=(eventId,replaceLost=false)=>runRpc('gcc_v197_host_invitation',{
+ p_event_id:eventId,p_issue:true,p_replace_lost:replaceLost,
+});
