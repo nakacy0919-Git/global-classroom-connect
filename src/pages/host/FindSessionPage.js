@@ -36,7 +36,6 @@ export function FindSessionPage() {
       <a href="#/register-session" class="gcf-side-link">＋ Register a Session <span aria-hidden="true">↗</span></a>
     </header>
     <div class="gcc-v166-find" id="gcc-v166-public-calendar"><p class="gcf-intro">Loading published session calendar…</p></div>
-    <section id="gcc203-published-list" class="gcc203-published-results" aria-label="All published sessions"></section>
     <div class="gcf-main">
       <form class="gcf-filter-panel" id="gcf-form" novalidate>
         <div class="gcf-subhead"><span class="gcf-step">01 · YOUR AVAILABILITY</span><h3>When can you join?</h3></div>
@@ -88,6 +87,7 @@ export function FindSessionPage() {
 
 export function bindFindSessionPage() {
   const root=document.querySelector('.gcf-page');if(!root)return;
+  let publicEvents=[];
   // GCC_WORKFLOW_POLISH_V41: one title, a visible search CTA, optional advanced filters.
   // Move existing elements, retaining the original IDs, listeners and form submission.
   const findHero=root.querySelector('.gcf-hero');
@@ -170,7 +170,7 @@ export function bindFindSessionPage() {
   async function loadPublishedCalendarV166(){
     const mount=root.querySelector('#gcc-v166-public-calendar');
     try{
-      const events=await listPublicSessionOverviews();publishedEvents=events||[];renderPublishedList();
+      const events=await listPublicSessionOverviews();publicEvents=Array.isArray(events)?events:[];show();
       mount.replaceChildren();
       mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
         initialMonth:new Date().toISOString().slice(0,7),
@@ -183,7 +183,7 @@ export function bindFindSessionPage() {
   const $=id=>root.querySelector('#'+id);
   let state={teachers:[],offers:[],shortlists:[]};let master=[];let selectedWindow={from:null,to:null};
   let joinRequests=[];let activeOffer=null; // GCC_JOIN_V4
-  let applied={country:'',level:'',query:''};
+  let applied={country:'',level:'',type:'',age:'',query:''};
   const zone=$('gcf-zone');
   const detected=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
   const timezones=new Set([detected,'Asia/Tokyo','Asia/Manila','Asia/Bangkok','Asia/Jakarta',
@@ -194,6 +194,7 @@ export function bindFindSessionPage() {
     const option=el('option','',value);option.value=value;zone.append(option);
   }
   zone.value=detected;
+  for(const [id,name] of SESSION_TYPES_V203){const option=el('option','',name);option.value=id;$('gcf-type').append(option);}
   const teacherById=()=>new Map(state.teachers.map(t=>[t.id,t]));
   function openRequest(offer){
     activeOffer=offer;
