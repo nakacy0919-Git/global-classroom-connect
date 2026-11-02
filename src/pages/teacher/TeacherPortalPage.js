@@ -246,7 +246,7 @@ export function bindTeacherPortalPage(){
   return filterOffersV150(upcoming(),{date:discoverMode==='time'?$('gctp-find-date').value:'',
    from:discoverMode==='time'?from:'',to:discoverMode==='time'?to:'',
    country:discoverMode==='map'?$('gctp-find-country').value:'',band:$('gctp-find-band').value,topic:$('gctp-find-topic').value,
-   sdg:$('gctp-find-sdg').value,mode:$('gctp-find-mode').value,kind:$('gctp-find-type').value,compatible:$('gctp-find-compatible').checked},identity);
+   sdg:$('gctp-find-sdg').value,mode:$('gctp-find-mode').value,kind:$('gctp-find-type').value,age:$('gctp-find-age').value,compatible:$('gctp-find-compatible').checked},identity);
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
@@ -272,7 +272,7 @@ export function bindTeacherPortalPage(){
   if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
   const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
   for(const o of results){
-   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result'),top=element('div','gcs150-result-top');
+   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result'),top=element('div','gcs150-result-top');card.dataset.startsAt=o.starts_at;
    top.append(element('span','gct-eyebrow',`${flag(o.country_code)} ${o.country_name}`));
    if(GCC_MODES_V150[d.mode])top.append(element('span','gcs150-format',GCC_MODES_V150[d.mode].name));
    card.append(top,element('h3','',sessionTitleV150(o)),element('p','',`${o.school_name} · ${o.teacher_name}`));
@@ -297,12 +297,13 @@ export function bindTeacherPortalPage(){
    list.append(card);
   }
   for(const e of published){
-   const card=element('article','gct-session-card gcs150-result');
+   const card=element('article','gct-session-card gcs150-result');card.dataset.startsAt=e.starts_at;
    card.append(element('h3','',e.title),element('p','',timeRangeV112(e.starts_at,e.ends_at,identity.timezone)));
    const info=element('div','gcc203-result-body');renderSessionDetailsV203(info,e.session_details);card.append(info);
    const a=element('a','gct-primary','Register students →');a.href='#/session-register?session='+encodeURIComponent(e.id);
    card.append(a);list.append(card);
   }
+  list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
  }
  function renderRequests(){const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');incoming.replaceChildren();outgoing.replaceChildren();
   const dirs={incoming,outgoing};for(const [direction,list] of Object.entries(dirs)){

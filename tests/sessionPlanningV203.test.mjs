@@ -38,7 +38,7 @@ test('public and private pages show appropriate details',()=>{
  const rooms=read('src/pages/public/RoomPlanLookupPage.js');
  assert.match(teacher,/mountPlanFieldsV203/);assert.match(teacher,/readPlanV203/);
  assert.match(host,/mountHostPlanEditorV203/);assert.match(host,/saveHostPlanV203/);
- assert.match(find,/showPublicSessionOverviewV168/);assert.match(find,/gcc203-published-list/);
+ assert.match(find,/showPublicSessionOverviewV168/);assert.match(find,/publicSessionsFiltered/);assert.match(find,/combined/);
  assert.match(register,/gcc203-registration-details/);
  assert.match(rooms,/renderSessionDetailsV203\(plan,data\.session_details,\{privateLink:true\}\)/);
 });
