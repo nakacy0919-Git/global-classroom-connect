@@ -1,3 +1,4 @@
+import {prepareSessionFlyerV207,describeSessionFlyerV207} from '../services/sessionPlanServiceV203.js';
 // GCC V20.3 session pedagogy, planning and public detail presentation.
 export const SESSION_TYPES_V203=[
  ['cultural_exchange','Cultural Exchange'],['guided_discussion','Guided Discussion'],
@@ -73,7 +74,34 @@ export function mountPlanFieldsV203(root,prefix){
  add('breakoutnotes','Breakout room instructions (optional)','textarea',{rows:2,maxLength:600});
  add('deadline','Registration deadline in host local time *','input',{type:'datetime-local',required:true});
  updateHint();section.append(node('h3','','Optional flyer'));
- add('flyerfile','Upload a JPG, PNG or WebP flyer (up to 3 MB)','input',{type:'file'});
+ const flyer=add('flyerfile','Upload a JPG, PNG or WebP flyer (up to 24 MB original)','input',{type:'file'});
+ flyer.accept='image/jpeg,image/png,image/webp';
+ const flyerMessage=node('p','gcc203-hint gcc207-flyer-status','Images are compressed to WebP on your device before uploading (target 500 KB, maximum 800 KB).');
+ flyerMessage.setAttribute('role','status');flyer.setAttribute('aria-describedby',prefix+'-flyer-status');
+ flyerMessage.id=prefix+'-flyer-status';
+ const preview=node('img','gcc207-flyer-preview');preview.alt='Optimized WebP flyer preview';preview.hidden=true;
+ flyer.addEventListener('change',async()=>{
+  const original=flyer.files?.[0];
+  preview.hidden=true;preview.removeAttribute('src');
+  flyer.removeAttribute('aria-invalid');flyerMessage.classList.remove('gcc207-flyer-error');
+  if(!original){flyerMessage.textContent='No flyer selected (optional).';return;}
+  flyerMessage.textContent='Optimizing flyer image on this device…';
+  try{
+   const result=await prepareSessionFlyerV207(original);
+   if(flyer.files?.[0]!==original)return;
+   flyerMessage.textContent=describeSessionFlyerV207(result);
+   const localUrl=URL.createObjectURL(result.blob);
+   preview.onload=()=>URL.revokeObjectURL(localUrl);
+   preview.onerror=()=>{URL.revokeObjectURL(localUrl);preview.hidden=true;};
+   preview.src=localUrl;preview.hidden=false;
+  }catch(error){
+   if(flyer.files?.[0]!==original)return;
+   flyerMessage.textContent=error.message||'Could not optimize the flyer. Choose another image.';
+   flyerMessage.classList.add('gcc207-flyer-error');
+   flyer.setAttribute('aria-invalid','true');
+  }
+ });
+ section.append(flyerMessage,preview);
  root.append(section);return section;
 }
 export const TYPE_LABEL_V203=id=>SESSION_TYPES_V203.find(x=>x[0]===id)?.[1]||'International Exchange';
