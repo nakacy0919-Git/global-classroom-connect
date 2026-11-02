@@ -4,6 +4,7 @@ ALTER TABLE public.events ADD COLUMN IF NOT EXISTS session_details jsonb NOT NUL
 INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
  VALUES('gcc-session-flyers','gcc-session-flyers',true,3145728,
  ARRAY['image/jpeg','image/png','image/webp']) ON CONFLICT(id) DO NOTHING;
+DROP POLICY IF EXISTS gcc203_flyer_upload ON storage.objects;
 CREATE POLICY gcc203_flyer_upload ON storage.objects FOR INSERT TO authenticated
  WITH CHECK(bucket_id='gcc-session-flyers' AND (storage.foldername(name))[1]=auth.uid()::text);
 
