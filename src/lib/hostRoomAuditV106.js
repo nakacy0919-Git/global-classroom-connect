@@ -8,7 +8,7 @@ export function mountHostRoomAuditV106(panel,eventId){
  const box=el('section','gcc-v104-host-card gcc-v108-host');
  box.append(el('div','gcc-v108-eyebrow','TEACHER ACCESS'));
  box.append(el('h3','','Individual editing codes'));
- box.append(el('p','gcc-v106-note','Each approved teacher gets a different 4-digit code. They can edit only students from their registered school. The 6-digit session viewing code stays the same.'));
+ box.append(el('p','gcc-v106-note','Each approved teacher gets a different 4-digit code. They can add, correct, or remove students only from their own approved school list, as well as manage rooms. Give each teacher their private 4-digit PIN along with the session chart invitation and 6-digit viewing code. The viewing code stays the same.'));
  const banner=el('p','gcc-v108-host-status','Loading approved schools…');box.append(banner);
  const toolbar=el('div','gcc-v108-host-toolbar');
  const all=action('Generate missing teacher codes',()=>generate(null,false),'gcc-v108-main');
