@@ -96,7 +96,7 @@ export function bindSharedRegistrationPage(){
      for(const e of root.querySelectorAll('.gcc-v8-stage'))e.hidden=true;
      $('gcc-v8-footer').hidden=true;
      $('gcc-v8-title').textContent='Your class is registered!';
-     message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, you can use your 4-digit Teacher Code in Teacher Mode to adjust pairs or rooms.`);$('gcc-v8-error').after(ok);
+     message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, open the session room chart and use your 4-digit Teacher Code in Teacher Mode to add, correct, or remove students and adjust rooms.`);$('gcc-v8-error').after(ok);
    }catch(err){const original=err.message||'Please try again.';message(/already registered for this session/i.test(original)?'Your school is already registered. To edit or add students, open the breakout room chart and use Teacher Mode with your personal 4-digit code. Ask the host for the code if needed.':original);sending=false;b.disabled=false;}
  });
  show(0);
