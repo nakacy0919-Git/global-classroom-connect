@@ -30,7 +30,8 @@ export async function getEvents() {
         timezone,
         status,
         created_by,
-        created_at
+        created_at,
+        session_details
       `)
       .order(
         'starts_at',
