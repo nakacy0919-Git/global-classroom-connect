@@ -1,3 +1,5 @@
+import {renderSessionDetailsV203,SESSION_TYPES_V203,TYPE_LABEL_V203} from '../../lib/sessionPlannerV203.js';
+import '../../styles/sessionPlannerV203.css';
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
 import '../../styles/publicSessionOverviewV168.css';
@@ -34,6 +36,7 @@ export function FindSessionPage() {
       <a href="#/register-session" class="gcf-side-link">＋ Register a Session <span aria-hidden="true">↗</span></a>
     </header>
     <div class="gcc-v166-find" id="gcc-v166-public-calendar"><p class="gcf-intro">Loading published session calendar…</p></div>
+    <section id="gcc203-published-list" class="gcc203-published-results" aria-label="All published sessions"></section>
     <div class="gcf-main">
       <form class="gcf-filter-panel" id="gcf-form" novalidate>
         <div class="gcf-subhead"><span class="gcf-step">01 · YOUR AVAILABILITY</span><h3>When can you join?</h3></div>
@@ -53,6 +56,8 @@ export function FindSessionPage() {
           <option value="Upper Secondary">High school</option>
           <option value="University">University</option>
           <option value="Mixed">Mixed ages</option></select></label>
+        <label class="gcf-field"><span>Session type</span><select id="gcf-type"><option value="">All formats</option></select></label>
+        <label class="gcf-field"><span>Student age</span><input id="gcf-age" type="number" min="5" max="30" placeholder="Any age"></label>
         <label class="gcf-field"><span>Topic, country or school</span><input id="gcf-query" type="search" placeholder="e.g. Food, Culture, Philippines"></label>
         <p id="gcf-error" role="alert" class="gcf-error" hidden></p>
         <button id="gcf-submit" type="submit" class="gcf-primary"><span>⌕</span> Search Sessions <span aria-hidden="true">→</span></button>
@@ -97,7 +102,7 @@ export function bindFindSessionPage() {
   const clearButton=findForm?.querySelector('#gcf-clear');
   const feedback=findForm?.querySelector('#gcf-error');
   const optionalHeading=findForm?.querySelector('.gcf-optional-head');
-  const advancedIds=['gcf-country','gcf-level','gcf-query'];
+  const advancedIds=['gcf-country','gcf-level','gcf-type','gcf-age','gcf-query'];
   const advancedFields=advancedIds.map(id=>findForm?.querySelector('#'+id)?.closest('.gcf-field'));
   if(!timeFields||!searchButton||!clearButton||!feedback||!optionalHeading||advancedFields.some(e=>!e))
     throw Error('Find search controls are not where expected.');
@@ -147,7 +152,8 @@ export function bindFindSessionPage() {
       const box=el('div','gcc-v168-stat');box.append(el('strong','',String(value)),el('span','',label));stats.append(box);
     }
     body.append(stats);
-    const countriesBox=el('section','gcc-v168-countries');
+    const details=el('section','gcc203-public-panel');renderSessionDetailsV203(details,e.session_details);body.append(details);
+     const countriesBox=el('section','gcc-v168-countries');
     countriesBox.append(el('h3','','🌍 Participating countries'),
       el('p','',countries.length?countries.join(' · '):'Countries will appear after registrations are approved.'));
     body.append(countriesBox);
@@ -164,7 +170,7 @@ export function bindFindSessionPage() {
   async function loadPublishedCalendarV166(){
     const mount=root.querySelector('#gcc-v166-public-calendar');
     try{
-      const events=await listPublicSessionOverviews();
+      const events=await listPublicSessionOverviews();publishedEvents=events||[];renderPublishedList();
       mount.replaceChildren();
       mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
         initialMonth:new Date().toISOString().slice(0,7),

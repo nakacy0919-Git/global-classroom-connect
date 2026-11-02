@@ -11,7 +11,7 @@ const sql=read('supabase/migrations/20261028_session_studio_v150.sql');
 test('four-step wizard automatically uses verified teacher/school data and safely saves all details',()=>{
  for(const s of ['gctp-name','gctp-host-school','gctp-host-identity','gctp-from','gctp-to','gctp-theme','gctp-sdg','gctp-language','gctp-english','gctp-goals','gctp-form-step','gctp-review','data-gctp-form-section="3"'])assert.ok(portal.includes(s),s);
  assert.match(portal,/identity\.school/);assert.match(portal,/identity\.country/);assert.match(portal,/identity\.name/);
- assert.match(portal,/details:detailsPayload\(\)/);
+ assert.match(portal,/details:plan/);
  assert.match(portal,/teacherCreateSession\(slot,data\)/);
  assert.equal(GCC_SDG_V150.length,17);
  assert.equal(GCC_LEVELS_V150.length,5);
@@ -28,7 +28,8 @@ test('server retains secure old RPC and adds validated V15.0 RPC with no unappro
  assert.match(sql,/a\.session_details/);
  assert.doesNotMatch(sql,/t\.email|a\.notes|auth\.users/);
  const svc=read('src/services/teacherSelfService.js');
- assert.match(svc,/gcc_v150_teacher_register_session/);
+ assert.match(svc,/gcc_v203_teacher_register_session/);
+ assert.match(read('supabase/migrations/20261102_gcc_v203_session_plans.sql'),/gcc_v150_teacher_register_session/);
  assert.match(svc,/gcc_teacher_register_session/);
 });
 test('legacy sessions remain visible with sensible defaults',()=>{

@@ -52,7 +52,7 @@ export function overlapsLocalTimeV150(offer,zone,from,to){
  }catch{return false;}
 }
 export function filterOffersV150(offers,filters,identity,now=Date.now()){
- const {country='',band='',topic='',sdg='',mode='',from='',to='',date='',compatible=false}=filters;
+ const {country='',band='',topic='',sdg='',mode='',kind='',from='',to='',date='',compatible=false}=filters;
  const zone=identity?.timezone||'UTC',language=String(topic||'').toLocaleLowerCase().trim();
  return (offers||[]).filter(o=>{
   if(o.is_mine||o.status!=='open'||Date.parse(o.ends_at)<=now)return false;
@@ -61,6 +61,7 @@ export function filterOffersV150(offers,filters,identity,now=Date.now()){
   if(band&&!partnerLevelsV150(o).includes(band))return false;
   if(compatible&&identity?.school_level&&!partnerLevelsV150(o).includes(identity.school_level)&&!partnerLevelsV150(o).includes('Mixed'))return false;
   if(mode&&d.mode!==mode)return false;
+  if(kind&&d.session_type!==kind)return false;
   if(sdg&&String(d.sdg||'')!==String(sdg))return false;
   if(language&&![sessionTitleV150(o),o.topic,o.school_name,o.country_name,d.goals,d.language].join(' ').toLocaleLowerCase().includes(language))return false;
   if(date){

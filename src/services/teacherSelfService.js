@@ -12,7 +12,7 @@ export async function teacherSessions(){return rpc('gcc_teacher_browse_sessions'
 export async function teacherRequests(){return rpc('gcc_teacher_list_requests');}
 export async function teacherCreateSession(slot,data){
   const enhanced=Boolean(data.details);
-  return rpc(enhanced?'gcc_v150_teacher_register_session':'gcc_teacher_register_session',{
+  return rpc(enhanced?'gcc_v203_teacher_register_session':'gcc_teacher_register_session',{
     p_starts_at:slot.startsAt,p_ends_at:slot.endsAt,p_timezone:data.zone,
     p_student_count:data.students,p_room_count:data.rooms,p_age_band:data.band,
     p_topic:data.topic,p_notes:data.notes,

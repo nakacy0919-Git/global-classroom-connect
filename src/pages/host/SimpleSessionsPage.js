@@ -10,7 +10,11 @@ import {mountRoomPlannerV9} from '../../components/RoomPlannerV9.js';
 import {getEvents,addEvent,updateEvent} from '../../services/eventService.js';
 import {fetchRoomDraft} from '../../services/roomDraftV91.js';
 import {getRoomShareStatus,publishRoomShare,getSharedCodeStatus,issueSharedCode,disableSharedCode,getHostInvitation,issueHostInvitation} from '../../services/sharePlanV102.js';
-import {makeSlot} from '../../lib/matching.js';
+import {makeSlot,toUtc} from '../../lib/matching.js';
+import {mountPlanFieldsV203,readPlanV203} from '../../lib/sessionPlannerV203.js';
+import {mountHostPlanEditorV203} from '../../lib/hostPlanEditorV203.js';
+import {uploadSessionFlyerV203,saveHostPlanV203} from '../../services/sessionPlanServiceV203.js';
+import '../../styles/sessionPlannerV203.css';
 import {timePartsV112,timeRangeV112} from '../../lib/sessionTimeV112.js';
 import '../../styles/sessionTimeV112.css';
 import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessionService.js';
@@ -60,6 +64,7 @@ export function SimpleSessionsPage(){return `
         <label>Maximum students <input type="number" name="capacity" min="1" max="2000" value="150" required /></label>
         <label>Facilitators per room <select name="facs"><option value="1">1 person</option><option value="2">2 people</option><option value="0">No facilitator required</option></select></label>
       </div>
+      <div id="gcc-v8-create-plan"></div>
       <div class="gcc-v8-actions"><button type="button" id="gcc-v8-cancel-new" class="gcc-v8-secondary">Cancel</button><button type="submit" class="gcc-v8-primary">Create session →</button></div>
     </form>
   </div>
@@ -103,6 +108,7 @@ export function bindSimpleSessionsPage(){
  let dialogV167=null;
  let shareToken='',shareEvent='';
  let deletingSessionV105=null;
+ mountPlanFieldsV203($('gcc-v8-create-plan'),'gcc-v8');
  const current=()=>events.find(x=>x.id===activeEventId);
  const conf=()=>settings.find(s=>s.event_id===activeEventId)||defaultSettings();
  const party=()=>signups.filter(s=>s.event_id===activeEventId);
@@ -233,7 +239,7 @@ export function bindSimpleSessionsPage(){
    if(e.status==='draft'){
      panel.append(el('p','gcc-v8-info-box','This session is a draft. Publish it when the details are ready.'));
      panel.append(btn('Publish session →','gcc-v8-primary',async()=>{if(Date.parse(e.starts_at)<=Date.now()){notify('Choose a future date first.',true);return;}
-       try{prepareSuccessChime();await updateEvent(e.id,{status:'published'});await reload(false);notify('Published. You can now share the registration link.');showSuccessCelebration({title:'Session published!',detail:'Teachers can now use the registration link.'});}catch(err){notify(err.message,true);}}));
+       try{if(!Array.isArray(e.session_details?.flow)||e.session_details.flow.length<2)throw Error('Save a complete session plan before publishing. Open the Registrations tab to enter it.');prepareSuccessChime();await updateEvent(e.id,{status:'published'});await reload(false);notify('Published. You can now share the registration link.');showSuccessCelebration({title:'Session published!',detail:'Teachers can now use the registration link.'});}catch(err){notify(err.message,true);}}));
    }else if(e.status==='published'){
      panel.append(el('h3','','Share one link with all teachers'));
      const url=el('input','gcc-v8-url');url.value=link();url.readOnly=true;url.setAttribute('aria-label','Teacher registration link');panel.append(url);
@@ -257,6 +263,7 @@ export function bindSimpleSessionsPage(){
      const stat=el('div','gcc-v130-roster-stat');stat.append(el('strong','',number),el('span','',label));summary.append(stat);
    }
    panel.append(summary);
+   mountHostPlanEditorV203(panel,e,async()=>{await reload(false);notify('Session details updated.');},err=>notify(err.message,true));
    const refresh=btn('↻ Refresh registrations','gcc-v8-secondary gcc-v130-refresh',async()=>{refresh.disabled=true;try{await reload(false);}finally{refresh.disabled=false;}});
    panel.append(refresh);
    const sync=el('div','gcc-v130-plan-sync','Checking saved room plan…');sync.setAttribute('role','status');panel.append(sync);
@@ -521,8 +528,19 @@ export function bindSimpleSessionsPage(){
  $('gcc-v8-create').addEventListener('submit',async evt=>{evt.preventDefault();prepareSuccessChime();const f=evt.currentTarget;const d=new FormData(f);
    const date=String(d.get('date')||''),time=String(d.get('time')||''),endTime=String(d.get('endTime')||''),timezone=String(d.get('timezone')||'Asia/Tokyo'),title=String(d.get('title')||'').trim();
    const stamp=makeSlot({date,startTime:time,endTime,timezone});if(stamp.error){notify(stamp.error,true);return;}if(Date.parse(stamp.startsAt)<=Date.now()){notify('Choose a future time.',true);return;}
+   let plan;
+   try{
+    const local=$('gcc-v8-deadline').value;
+    if(!local||local.length!==16)throw Error('Choose a registration deadline.');
+    const deadline=toUtc(local.slice(0,10),local.slice(11),timezone);
+    if(deadline.error)throw Error(deadline.error);
+    plan=readPlanV203(root,'gcc-v8',{...stamp,startTime:time,endTime},deadline.iso);
+   }catch(err){notify(err.message,true);return;}
    const button=f.querySelector('[type=submit]');button.disabled=true;
-   try{const created=await addEvent({title,startsAt:stamp.startsAt,endsAt:stamp.endsAt,timezone,status:'draft'});activeEventId=created.id;activeStage=0;
+   try{
+    const flyer=$('gcc-v8-flyerfile').files?.[0];if(flyer)plan.flyer_url=await uploadSessionFlyerV203(flyer);
+    const created=await addEvent({title,startsAt:stamp.startsAt,endsAt:stamp.endsAt,timezone,status:'draft'});activeEventId=created.id;activeStage=0;
+     await saveHostPlanV203(created.id,plan);
      await saveSessionSettings({eventId:created.id,rooms:Number(d.get('rooms')),maxStudents:Number(d.get('capacity')),facilitatorsPerRoom:Number(d.get('facs'))});
      $('gcc-v8-create-wrap').hidden=true;f.reset();await reload(false);notify('Session created. Publish it when ready.');showSuccessCelebration({title:'Session created!',detail:'Your session is saved as a draft. Publish it when ready.'});}
    catch(err){await reload(false);notify('Could not finish creating session: '+err.message,true);}finally{button.disabled=false;}
