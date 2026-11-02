@@ -23,8 +23,10 @@ export function errorFieldV204(message,root,prefix){
  const text=String(message||'');
  for(const [regex,key] of ruleList){
   if(!regex.test(text))continue;
-  const id=key==='levels'?'input[name="gctp-target-level"]':'#'+prefix+'-'+key;
-  const node=root.querySelector(id);
+  const hostNames={name:'title',date:'date',from:'time',to:'endTime',students:'capacity',rooms:'rooms',zone:'timezone'};
+  const selector=key==='levels'?'input[name="gctp-target-level"]':
+   prefix==='gcc-v8'&&hostNames[key]?'[name="'+hostNames[key]+'"]':'#'+prefix+'-'+key;
+  const node=root.querySelector(selector);
   if(node)return node;
  }
  return null;
