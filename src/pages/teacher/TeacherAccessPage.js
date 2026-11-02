@@ -8,7 +8,7 @@ import {teacherSignupErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
 import {getCurrentProfile} from '../../services/authService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
-const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');if(['create','find','volunteer','network','requests','profile'].includes(next))return '#/teacher-portal?view='+next;return '#/welcome';};
+const destination=()=>{const next=new URLSearchParams(window.location.hash.split('?')[1]||'').get('next');if(['home','create','find','volunteer','network','requests','profile'].includes(next))return '#/teacher-portal?view='+next;return '#/teacher-portal?view=home';};
 export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page gcc144-page">
  <div class="gcc144-scene">
   <div class="gcc144-scenic-copy" aria-hidden="true">
