@@ -4,6 +4,7 @@ ALTER TABLE public.events ADD COLUMN IF NOT EXISTS session_details jsonb NOT NUL
 INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
  VALUES('gcc-session-flyers','gcc-session-flyers',true,3145728,
  ARRAY['image/jpeg','image/png','image/webp']) ON CONFLICT(id) DO NOTHING;
+DROP POLICY IF EXISTS gcc203_flyer_upload ON storage.objects;
 CREATE POLICY gcc203_flyer_upload ON storage.objects FOR INSERT TO authenticated
  WITH CHECK(bucket_id='gcc-session-flyers' AND (storage.foldername(name))[1]=auth.uid()::text);
 
@@ -72,6 +73,41 @@ BEGIN
   RAISE EXCEPTION 'Include a closing activity within 25 minutes of the session end';
  END IF;
 END $fn$;
+
+-- Publishing is enforced in PostgreSQL as well as in the UI.
+-- Existing published November sessions remain valid even without a newly supplied agenda.
+CREATE OR REPLACE FUNCTION public.gcc_v203_require_published_event_plan()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+BEGIN
+ IF NEW.status='published' AND
+   (TG_OP='INSERT' OR coalesce(to_jsonb(OLD)->>'status','')<>'published') THEN
+   PERFORM public.gcc_v203_validate_plan(NEW.session_details,NEW.starts_at,NEW.ends_at,NEW.timezone);
+ END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v203_require_published_plan ON public.events;
+CREATE TRIGGER gcc_v203_require_published_plan
+ BEFORE INSERT OR UPDATE OF status ON public.events
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v203_require_published_event_plan();
+
+-- Teacher session creation previously inserted first and stored details second.
+-- A deferred constraint validates the *final* row at transaction commit.
+CREATE OR REPLACE FUNCTION public.gcc_v203_require_open_offer_plan()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE d jsonb; begins timestamptz; finish timestamptz; zone text; state text;
+BEGIN
+ SELECT session_details,starts_at,ends_at,timezone,status
+ INTO d,begins,finish,zone,state FROM public.exchange_availability WHERE id=NEW.id;
+ IF state='open' THEN
+   PERFORM public.gcc_v203_validate_plan(d,begins,finish,zone);
+ END IF;
+ RETURN NULL;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v203_require_open_offer_plan ON public.exchange_availability;
+CREATE CONSTRAINT TRIGGER gcc_v203_require_open_offer_plan
+ AFTER INSERT OR UPDATE OF status ON public.exchange_availability
+ DEFERRABLE INITIALLY DEFERRED
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v203_require_open_offer_plan();
 
 CREATE OR REPLACE FUNCTION public.gcc_v203_save_event_plan(p_event_id uuid,p_plan jsonb)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
