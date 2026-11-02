@@ -1,0 +1,31 @@
+/* GCC V20.0 — teacher-first home. No admin controls are rendered here. */
+.gct-home-v200{display:grid;gap:18px;min-width:0}
+.gct-home-v200[hidden]{display:none!important}
+.gct-home-intro-v200{padding:14px 6px 4px}
+.gct-home-intro-v200 h3{font-size:clamp(1.5rem,3vw,2.1rem);color:#173f5a;margin:8px 0;letter-spacing:-.03em}
+.gct-home-intro-v200 p:last-child{font-size:.92rem;line-height:1.6;color:#56798a;margin:0}
+.gct-home-actions-v200{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.gct-home-action-v200{display:flex;align-items:center;gap:14px;min-height:142px;border:1px solid #bbdfe7;border-radius:20px;padding:22px 18px;text-decoration:none;color:#194e6b;background:#fff;box-shadow:0 8px 23px #336c8911}
+.gct-home-action-v200:focus-visible,.gct-home-summary-card-v200:focus-visible{outline:3px solid #35a6c1;outline-offset:3px}
+.gct-home-action-v200:hover{border-color:#51afc0;background:#f4fcff}
+.gct-home-action-find-v200{background:linear-gradient(125deg,#f2fbff,#fff)}
+.gct-home-action-create-v200{background:linear-gradient(125deg,#f3fff9,#fff)}
+.gct-home-action-icon-v200{flex:0 0 54px;width:54px;height:54px;display:grid;place-items:center;font-size:1.7rem;border-radius:15px;background:#e1f2f8}
+.gct-home-action-create-v200 .gct-home-action-icon-v200{background:#dff5ea}
+.gct-home-action-v200 span:nth-child(2){flex:1;display:grid;gap:7px;min-width:0}
+.gct-home-action-v200 strong{font-size:1.2rem}
+.gct-home-action-v200 small{font-size:.81rem;line-height:1.4;color:#638598}
+.gct-home-action-v200>span:last-child{font-size:1.5rem;color:#279cae}
+.gct-home-summary-v200{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.gct-home-summary-card-v200{display:flex;gap:12px;align-items:center;padding:14px 18px;background:#fff;border:1px solid #d6e6ed;border-radius:15px;color:#245873;text-decoration:none}
+.gct-home-summary-card-v200 strong{font-size:1.55rem;min-width:24px}
+.gct-home-summary-card-v200 span{font-size:.85rem}
+.gct-home-list-v200{padding:17px}
+.gct-home-list-heading-v200{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;flex-wrap:wrap}
+.gct-home-list-heading-v200 h4{margin:0;font-size:1rem}
+.gct-home-list-heading-v200 a{font-weight:700;font-size:.82rem;color:#187fa0}
+.gcc-teacher-more-v200{margin-top:12px;border-top:1px solid #d5e4eb;padding-top:10px}
+.gcc-teacher-more-v200 summary{cursor:pointer;list-style-position:inside;font-size:.87rem;font-weight:700;padding:11px 12px;border-radius:10px}
+.gcc-teacher-more-v200 .route-link{padding-left:26px}
+@media(max-width:760px){.gct-home-actions-v200{grid-template-columns:1fr}.gct-home-action-v200{min-height:108px}.gct-home-summary-card-v200{padding:12px}}
+@media(max-width:450px){.gct-home-action-v200{gap:10px;padding:15px 12px}.gct-home-action-icon-v200{flex-basis:45px;width:45px;height:45px}.gct-home-action-v200 strong{font-size:1.04rem}.gct-home-summary-card-v200{gap:9px}}

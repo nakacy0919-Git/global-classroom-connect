@@ -2,6 +2,17 @@
 // Never translate free-form user content, stored form values, IDs, dates or URLs.
 const STORAGE_KEY='gcc-ui-language-v157';
 const pairs=String.raw`
+Teacher Home | 先生のホーム
+YOUR TEACHER SPACE | 先生のワークスペース
+Your next global exchange starts here. | 次の国際交流を、ここから始めましょう。
+Choose a starting point. Everything else stays in your workspace. | 最初の操作を選びましょう。そのほかの機能はメニューから利用できます。
+Search sessions by time or country | 日時や国からセッションを探す
+Publish a session for partner teachers | 世界の先生に向けてセッションを公開する
+Pending requests | 未対応の参加申請
+Create Session → | セッションを作成 →
+No upcoming sessions yet. Create one to meet classrooms worldwide. | 開催予定はまだありません。セッションを作成して世界の教室とつながりましょう。
+Open for partner teachers | 参加校を募集中
+Profile & Community | プロフィール・交流
 Language | 表示言語
 English | 英語
 Sign in | ログイン

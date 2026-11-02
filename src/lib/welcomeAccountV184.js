@@ -8,6 +8,7 @@ export function bindWelcomeAccountNavV184(){
  const guest=root.querySelector('.gcc184-guest-actions'),menu=root.querySelector('.gcc184-user-menu');
  const status=root.querySelector('.gcc184-account-status'),signout=root.querySelector('[data-gcc-signout]');
  const admin=root.querySelector('[data-gcc-admin-mode]'),teacher=root.querySelector('[data-gcc-teacher-mode]');
+ teacher.setAttribute('href','#/teacher-portal?view=home');
  const profile=root.querySelector('[data-gcc-profile]'),note=root.querySelector('.gcc184-teacher-note');
  const language=root.querySelector('.gcc184-current-language');language.textContent=getGccLanguage().toUpperCase();
  root.querySelectorAll('.gcc184-lang-popup [data-lang]').forEach(b=>b.addEventListener('click',()=>{

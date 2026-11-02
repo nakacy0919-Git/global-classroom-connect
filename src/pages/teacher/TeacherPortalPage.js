@@ -11,6 +11,7 @@ import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
 import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
+import '../../styles/teacherHubV200.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut} from '../../services/teacherSelfService.js';
 
@@ -21,6 +22,19 @@ function tomorrow(zone){const x=new Date(Date.now()+86400000);try{const parts=Ob
 export function TeacherPortalPage(){return `<section class="gct-workspace gct-portal">
  <header class="gct-banner"><div class="gct-banner-icon">🌍</div><div><p class="gct-eyebrow">GLOBAL CLASSROOM · TEACHER SPACE</p><h2>Explore. Connect. Inspire.</h2><p id="gctp-greeting">Loading your school…</p></div><button id="gctp-logout" type="button" class="gct-secondary gct-logout">Sign out</button></header>
  <p id="gctp-message" class="gct-feedback" role="status" aria-live="polite"></p>
+
+ <section class="gct-section gct-home-v200" data-gct-view="home" hidden>
+  <div class="gct-home-intro-v200"><p class="gct-eyebrow">YOUR TEACHER SPACE</p><h3>Your next global exchange starts here.</h3><p>Choose a starting point. Everything else stays in your workspace.</p></div>
+  <div class="gct-home-actions-v200">
+   <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Session</strong><small>Search sessions by time or country</small></span><span aria-hidden="true">→</span></a>
+   <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Host a Session</strong><small>Publish a session for partner teachers</small></span><span aria-hidden="true">→</span></a>
+  </div>
+  <div class="gct-home-summary-v200" aria-label="Teacher activity overview">
+   <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
+   <a href="#/teacher-portal?view=requests" class="gct-home-summary-card-v200"><strong id="gctp-home-requests-count">0</strong><span>Pending requests</span></a>
+  </div>
+  <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section>
+ </section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
   <div class="gct-section-head"><span>✦</span><div><h3>Create a global classroom session</h3><p>Four quick steps to bring the world into your classroom.</p></div></div>
@@ -178,7 +192,22 @@ export function bindTeacherPortalPage(){
  async function refresh(){
   const [mine,applications]=await Promise.all([teacherSessions(),teacherRequests()]);
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  renderMine();updateFindCountries();countryExplorer.update(upcoming(),$('gctp-find-country').value);renderResults();renderRequests();
+  renderMine();renderHome();updateFindCountries();countryExplorer.update(upcoming(),$('gctp-find-country').value);renderResults();renderRequests();
+ }
+ function renderHome(){
+  const mine=upcoming().filter(o=>o.is_mine);
+  const pending=requests.filter(r=>r.status==='pending');
+  $('gctp-home-sessions-count').textContent=String(mine.length);
+  $('gctp-home-requests-count').textContent=String(pending.length);
+  const list=$('gctp-home-mine');list.replaceChildren();
+  if(!mine.length){list.append(element('p','gct-empty','No upcoming sessions yet. Create one to meet classrooms worldwide.'));return;}
+  for(const o of mine.slice(0,3)){
+   const card=element('article','gct-session-card');
+   card.append(element('strong','',sessionTitleV150(o)),
+     element('p','',timeRangeV112(o.starts_at,o.ends_at,identity.timezone)),
+     element('small','',o.status==='open'?'Open for partner teachers':String(o.status||'')));
+   list.append(card);
+  }
  }
  function renderMine(){const list=$('gctp-mine');list.replaceChildren();
   const mine=upcoming().filter(o=>o.is_mine);if(!mine.length){list.append(element('p','gct-empty','No sessions yet. Choose a date and publish your first session.'));return;}
@@ -324,7 +353,7 @@ export function bindTeacherPortalPage(){
   });
  }
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
- const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
- if(!['create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/welcome';return;}
+ const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
+ if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
  showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
 }
