@@ -232,7 +232,8 @@ export function bindFindSessionPage() {
     info.append(item('Host local time',`${timeRangeV112(offer.starts_at,offer.ends_at,offer.timezone)} (${offer.timezone})`));
     if(offer.topic)info.append(item('Topic',offer.topic));
     if(offer.notes)info.append(item('Notes',offer.notes));
-    const received=joinRequests.filter(r=>r.offer_id===offer.id);
+    const planner=el('div','gcc203-result-body');renderSessionDetailsV203(planner,offer.session_details);info.append(planner);
+   const received=joinRequests.filter(r=>r.offer_id===offer.id);
     if(received.length)info.append(el('p','gcf-request-count',String(received.length)+' join request(s) received'));
     const request=el('button','gcf-request-cta','＋ Request to Join →');request.type='button';
     request.addEventListener('click',()=>openRequest(offer));
