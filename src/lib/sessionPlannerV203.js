@@ -1,4 +1,4 @@
-import {prepareSessionFlyerV207,describeSessionFlyerV207} from '../services/sessionPlanServiceV203.js';
+import {prepareFlyerOnceV207,describeFlyerV207} from './flyerWebpV207.js';
 // GCC V20.3 session pedagogy, planning and public detail presentation.
 export const SESSION_TYPES_V203=[
  ['cultural_exchange','Cultural Exchange'],['guided_discussion','Guided Discussion'],
@@ -87,9 +87,9 @@ export function mountPlanFieldsV203(root,prefix){
   if(!original){flyerMessage.textContent='No flyer selected (optional).';return;}
   flyerMessage.textContent='Optimizing flyer image on this device…';
   try{
-   const result=await prepareSessionFlyerV207(original);
+   const result=await prepareFlyerOnceV207(original);
    if(flyer.files?.[0]!==original)return;
-   flyerMessage.textContent=describeSessionFlyerV207(result);
+   flyerMessage.textContent=describeFlyerV207(result);
    const localUrl=URL.createObjectURL(result.blob);
    preview.onload=()=>URL.revokeObjectURL(localUrl);
    preview.onerror=()=>{URL.revokeObjectURL(localUrl);preview.hidden=true;};
