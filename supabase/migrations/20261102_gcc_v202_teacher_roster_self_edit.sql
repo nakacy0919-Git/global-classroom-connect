@@ -56,7 +56,7 @@ BEGIN
   IF v_auth->>'ok'<>'true' THEN RETURN v_auth; END IF;
   v_event := (v_auth->>'event_id')::uuid;
   v_signup := (v_auth->>'signup_id')::uuid;
-  IF p_action NOT IN ('add','edit','remove') THEN
+  IF p_action IS NULL OR p_action NOT IN ('add','edit','remove') THEN
     RETURN jsonb_build_object('ok',false,'error','Unknown roster action.');
   END IF;
   -- Registration closes when the event begins. Teacher room edits are separate.
@@ -130,8 +130,10 @@ BEGIN
       OR v_saved.draft->>'version'<>'1' THEN
     RAISE EXCEPTION 'Room plan is not valid; changes were not saved';
   END IF;
-  SELECT count(*) INTO v_old_count FROM jsonb_array_elements(v_rooms) r(room)
+  SELECT count(*),count(distinct x.member) INTO v_old_count,v_count
+  FROM jsonb_array_elements(v_rooms) r(room)
     CROSS JOIN LATERAL jsonb_array_elements_text(r.room->'students') x(member);
+  IF v_old_count<>v_count THEN RAISE EXCEPTION 'Room chart contains duplicated student IDs';END IF;
   SELECT count(*) INTO v_total FROM public.gcc_session_signup_students st
     JOIN public.gcc_session_signups s ON s.id=st.signup_id
     WHERE s.event_id=v_event AND s.status='approved';
@@ -242,6 +244,53 @@ BEGIN
       WHEN v_pair_removed THEN 'Student removed and their fixed pair released.'
       ELSE 'Student removed. Existing assignments remain unchanged.' END);
 END $fn$;
+
+-- The existing Teacher Mode code retains its original authorization checks.
+-- Return grade alongside each approved student's name for inline corrections.
+CREATE OR REPLACE FUNCTION public.gcc_v108_open_editor(p_token text, p_code text, p_pin text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+DECLARE v_auth jsonb;v_draft record;v_members jsonb;v_pairs jsonb;v_room_stats jsonb;
+BEGIN
+ v_auth:=public.gcc_v108_check_teacher(p_token,p_code,p_pin);
+ IF v_auth->>'ok'<>'true' THEN RETURN v_auth;END IF;
+ SELECT revision,draft INTO v_draft FROM public.gcc_v91_room_drafts
+  WHERE event_id=(v_auth->>'event_id')::uuid;
+ SELECT COALESCE(jsonb_agg(jsonb_build_object('id',st.id,'name',st.display_name,
+   'school',s.school_name,'country',s.country_name,'grade',st.grade,'room',(r.room->>'number')::int)
+   ORDER BY (r.room->>'number')::int,st.display_name),'[]'::jsonb) INTO v_members
+ FROM jsonb_array_elements(v_draft.draft->'rooms') r(room),
+ LATERAL jsonb_array_elements_text(r.room->'students') x(id)
+ JOIN public.gcc_session_signup_students st ON st.id::text=x.id
+ JOIN public.gcc_session_signups s ON s.id=st.signup_id
+ WHERE s.event_id=(v_auth->>'event_id')::uuid AND s.status='approved'
+  AND s.id=(v_auth->>'signup_id')::uuid;
+ SELECT COALESCE(jsonb_agg(jsonb_build_object('a',student_a,'b',student_b)),'[]'::jsonb)
+ INTO v_pairs FROM public.gcc_v106_locked_pairs p
+ JOIN public.gcc_session_signup_students sa ON sa.id=p.student_a
+ JOIN public.gcc_session_signup_students sb ON sb.id=p.student_b
+ WHERE p.event_id=(v_auth->>'event_id')::uuid
+  AND sa.signup_id=(v_auth->>'signup_id')::uuid AND sb.signup_id=sa.signup_id;
+
+ SELECT COALESCE(jsonb_agg(jsonb_build_object(
+  'room',(rr.room->>'number')::int,
+  'total',jsonb_array_length(rr.room->'students'),
+  'school_students',sc.n
+ ) ORDER BY (rr.room->>'number')::int),'[]'::jsonb) INTO v_room_stats
+ FROM jsonb_array_elements(v_draft.draft->'rooms') rr(room)
+ CROSS JOIN LATERAL (
+   SELECT count(*)::int AS n FROM jsonb_array_elements_text(rr.room->'students') x(id)
+   JOIN public.gcc_session_signup_students st ON st.id::text=x.id
+   WHERE st.signup_id=(v_auth->>'signup_id')::uuid
+ ) sc;
+ RETURN jsonb_build_object('ok',true,'revision',v_draft.revision,
+  'teacher',v_auth->>'teacher','school',v_auth->>'school',
+  'students',v_members,'pairs',v_pairs,'room_stats',v_room_stats,'room_count',jsonb_array_length(v_draft.draft->'rooms'));
+END $function$
+
 
 REVOKE ALL ON FUNCTION public.gcc_v202_edit_student(
   text,text,text,text,uuid,text,text,text
