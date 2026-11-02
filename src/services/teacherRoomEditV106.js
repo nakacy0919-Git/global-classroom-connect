@@ -28,3 +28,10 @@ export const renameTeacherStudentV196=(credentials,studentId,previousName,newNam
  p_token:credentials.token,p_code:credentials.code,p_pin:credentials.pin,
  p_student_id:studentId,p_expected_name:previousName,p_new_name:newName,
 });
+
+/** V20.2 — authorized, school-scoped teacher self-service. */
+export const changeTeacherStudentV202=(credentials,change)=>rpc('gcc_v202_edit_student',{
+ p_token:credentials.token,p_code:credentials.code,p_pin:credentials.pin,
+ p_action:change.action,p_student_id:change.studentId||null,
+ p_expected_name:change.expectedName||null,p_name:change.name||null,p_grade:change.grade||''
+});
