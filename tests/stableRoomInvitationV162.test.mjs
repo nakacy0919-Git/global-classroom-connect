@@ -21,7 +21,11 @@ test('existing issued code cannot be replaced by another six-digit number',()=>{
 test('host cannot accidentally rotate existing link or code',()=>{
  assert.match(host,/Update published rooms \/ Zoom \(keep same link\)/);
  assert.match(host,/if\(saved\.token\)/);
- assert.match(host,/if\(r\?\.already_issued\)/);
+ assert.match(host,/if\(!r\?\.saved \|\| !r\?\.ready/);
+ assert.match(host,/getHostInvitation\(eventId\)/);
+ assert.match(host,/issueHostInvitation\(eventId,replaceLost\)/);
+ assert.match(host,/Replace lost invitation once/);
+ assert.match(host,/if\(!confirm\('Replace the previously issued invitation\?/);
  assert.doesNotMatch(host,/Replace 6-digit code|Replace private link|Create fresh invitation link/);
  assert.match(host,/The original invitation link and access code remain unchanged/);
 });

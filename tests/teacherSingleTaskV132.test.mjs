@@ -2,12 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
-test('duplicate teacher tabs and duplicate workspace home have been removed',()=>{
+test('legacy duplicate teacher tabs are removed and the new dedicated teacher home is singular',()=>{
  const page=read('src/pages/teacher/TeacherPortalPage.js');
  for(const removed of ['class="gct-tabs"','data-gct-tab=','gcc117-teacher-home','data-gct-open=']) assert.ok(!page.includes(removed),removed);
  for(const view of ['create','find','requests','network','volunteer']) assert.ok(page.includes('data-gct-view="'+view+'"'),view);
  assert.ok(page.includes('display(view)'));
- assert.ok(page.includes("window.location.hash='#/welcome'"));
+ assert.ok(page.includes("window.location.hash='#/teacher-portal?view=home'"));
+ assert.equal((page.match(/data-gct-view="home"/g)||[]).length,1);
 });
 test('the public home remains the entry point and teacher sidebar returns to it',()=>{
  const home=read('src/pages/public/WelcomeV117.js');
@@ -15,13 +16,13 @@ test('the public home remains the entry point and teacher sidebar returns to it'
  for(const view of ['create','find','volunteer']) assert.ok(home.includes('href="#/teacher-portal?view='+view+'"'));
  const sidebar=read('src/pages/teacher/TeacherSidebar.js');
  assert.ok(sidebar.includes('href="#/welcome"'));
- assert.ok(!sidebar.includes('view=home'));
+ assert.ok(sidebar.includes("['home','Teacher Home']"));
 });
-test('teacher sign-in returns to selected feature, with public home as default',()=>{
+test('teacher sign-in returns to selected feature, with teacher home as default',()=>{
  const access=read('src/pages/teacher/TeacherAccessPage.js');
- assert.ok(access.includes("'#/welcome'"));
+ assert.ok(access.includes("'#/teacher-portal?view=home'"));
  assert.ok(access.includes("'#/teacher-portal?view='+next"));
- assert.ok(!access.includes("['home','create'"));
+ assert.ok(access.includes("['home','create'"));
  const app=read('src/app.js');
  assert.ok(app.includes('gcc_teacher_identity'));
  assert.ok(app.includes('teacher-access?next='));
