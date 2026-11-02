@@ -16,13 +16,13 @@ test('English names are validated identically to the existing server rule',()=>{
   assert.throws(()=>cleanStudentNameV196(name),/English letters/);
 });
 
-test('teacher mode shows current school roster with inline Save and Cancel',()=>{
- assert.match(ui,/Correct student names/);
+test('teacher mode shows school roster with inline editing and adding',()=>{
+ assert.match(ui,/Manage your student list/);
  assert.match(ui,/for\(const student of students\)/);
- assert.match(ui,/Edit student name:/);
- assert.match(ui,/renameTeacherStudentV196\(credentials,studentId,expectedName,newName\)/);
+ assert.match(ui,/Edit student:/);
+ assert.match(ui,/changeTeacherStudentV202\(credentials/);
  assert.match(ui,/const fresh=await onRefresh\(getCode\(\)\)/);
- assert.match(ui,/row\.replaceChildren\(input,confirm,cancel\)/);
+ assert.match(ui,/row\.replaceChildren\(input,grade,confirm,cancel\)/);
  assert.match(ui,/textContent=String\(label\)/);
 });
 

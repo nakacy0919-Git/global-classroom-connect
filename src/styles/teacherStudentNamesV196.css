@@ -11,3 +11,11 @@
 .gcc-v196-name-row button:disabled{opacity:.5;cursor:wait}
 @media(max-width:480px){.gcc-v196-name-row{flex-wrap:wrap}.gcc-v196-name-row input{flex-basis:100%}.gcc-v196-name-row>span{flex-basis:60%}.gcc-v196-name-row button{flex-shrink:0}}
 @media print{.gcc-v196-names{display:none!important}}
+
+/* V20.2: accessible add/remove controls on mobile-sized Teacher Mode. */
+.gcc-v202-add-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(88px,130px) auto;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #d6e9e5}
+.gcc-v202-add-form input{min-width:0;min-height:44px;padding:9px 11px;border:1px solid #8fbdb6;border-radius:9px;font:inherit;font-size:16px}
+.gcc-v202-add-form button{min-height:44px;padding:8px 12px;border:1px solid #237f87;background:#237f87;color:white;border-radius:9px;font:inherit;font-weight:750;cursor:pointer}
+.gcc-v202-add-form button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:560px){.gcc-v202-add-form{grid-template-columns:minmax(0,1fr) minmax(90px,32%)}.gcc-v202-add-form button{grid-column:1/-1}}
+@media print{.gcc-v202-add-form{display:none!important}}

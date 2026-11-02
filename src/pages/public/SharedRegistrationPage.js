@@ -43,6 +43,7 @@ export function SharedRegistrationPage(){return `
     <button type="button" id="gcc-v8-submit" class="gcc-v8-primary" hidden>Submit registration ✓</button>
   </footer>
   <p class="gcc-v8-privacy">Your student list is visible to the host only. Other schools cannot view or change it.</p>
+  <details class="gcc-v202-existing"><summary>Already registered? Need to add or correct students?</summary><p>Open your session's breakout room chart, enter the 6-digit session code, choose Teacher Mode, then enter your personal 4-digit Teacher Code. You can edit your own school list without registering again. Ask your host for your code if you have not received one.</p></details>
   </div>
 </section>`;}
 export function bindSharedRegistrationPage(){
@@ -95,8 +96,8 @@ export function bindSharedRegistrationPage(){
      for(const e of root.querySelectorAll('.gcc-v8-stage'))e.hidden=true;
      $('gcc-v8-footer').hidden=true;
      $('gcc-v8-title').textContent='Your class is registered!';
-     message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, you can use your 4-digit Teacher Code in Teacher Mode to adjust pairs or rooms.`);$('gcc-v8-error').after(ok);
-   }catch(err){message(err.message||'Please try again.');sending=false;b.disabled=false;}
+     message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, open the session room chart and use your 4-digit Teacher Code in Teacher Mode to add, correct, or remove students and adjust rooms.`);$('gcc-v8-error').after(ok);
+   }catch(err){const original=err.message||'Please try again.';message(/already registered for this session/i.test(original)?'Your school is already registered. To edit or add students, open the breakout room chart and use Teacher Mode with your personal 4-digit code. Ask the host for the code if needed.':original);sending=false;b.disabled=false;}
  });
  show(0);
  (async()=>{try{const [sessions,res]=await Promise.all([listPublicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
