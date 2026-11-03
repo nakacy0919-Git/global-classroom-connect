@@ -444,16 +444,22 @@ export function bindTeacherPortalPage(){
   }
   for(const o of mine)list.append(makeManageCard(o));
  }
- function searchFiltered(){
-  if(!identity)return [];
-  const preset=$('gctp-find-preset').value,range={
-   morning:['08:00','12:00'],afternoon:['12:00','17:00'],evening:['17:00','22:00']
-  };
-  const [from,to]=preset==='custom'?[$('gctp-find-from').value,$('gctp-find-to').value]:(range[preset]||['','']);
-  return filterOffersV150(upcoming(),{date:discoverMode==='time'?$('gctp-find-date').value:'',
+ function currentSearchFilters(){
+  const preset=$('gctp-find-preset').value;
+  const times={morning:['08:00','12:00'],afternoon:['12:00','17:00'],evening:['17:00','22:00']};
+  const [from,to]=preset==='custom'?[$('gctp-find-from').value,$('gctp-find-to').value]:
+    times[preset]||['',''];
+  return {
+   date:discoverMode==='time'?$('gctp-find-date').value:'',
    from:discoverMode==='time'?from:'',to:discoverMode==='time'?to:'',
-   country:discoverMode==='map'?$('gctp-find-country').value:'',band:$('gctp-find-band').value,topic:$('gctp-find-topic').value,
-   sdg:$('gctp-find-sdg').value,mode:$('gctp-find-mode').value,kind:$('gctp-find-type').value,age:$('gctp-find-age').value,compatible:$('gctp-find-compatible').checked},identity);
+   country:discoverMode==='map'?$('gctp-find-country').value:'',
+   band:$('gctp-find-band').value,mode:$('gctp-find-mode').value,
+   kind:$('gctp-find-type').value,sdg:$('gctp-find-sdg').value,
+   age:$('gctp-find-age').value,query:$('gctp-find-topic').value,
+   compatible:$('gctp-find-compatible').checked,
+   sort:$('gcs213-sort').value,favoritesOnly:$('gcs213-favorites-only').checked,
+   favoriteKeys:favorites
+  };
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
@@ -465,97 +471,105 @@ export function bindTeacherPortalPage(){
  }
  function renderResults(){
   if(!identity)return;
-  const list=$('gctp-results');list.replaceChildren();const results=searchFiltered();
-   const kind=$('gctp-find-type').value,age=$('gctp-find-age').value,term=$('gctp-find-topic').value.toLowerCase();
-   const published=hostEvents.filter(e=>{
-     const d=e.session_details||{};
-     if(discoverMode==='map'&&!publishedByCountryV208(e,$('gctp-find-country').value))return false;
-     if(kind&&d.session_type!==kind)return false;
-     if(age&&!(Number(d.min_age)<=Number(age)&&Number(age)<=Number(d.max_age)))return false;
-     if(term&&![e.title,d.description,d.preferred_countries].join(' ').toLowerCase().includes(term))return false;
-     if(discoverMode==='time'){
-      const selectedDate=$('gctp-find-date').value;
-      if(selectedDate&&timePartsV112(e.starts_at,identity.timezone).date!==selectedDate&&timePartsV112(e.ends_at,identity.timezone).date!==selectedDate)return false;
-      const ranges={morning:['08:00','12:00'],afternoon:['12:00','17:00'],evening:['17:00','22:00']};
-      const preset=$('gctp-find-preset').value;
-      const hours=preset==='custom'?[$('gctp-find-from').value,$('gctp-find-to').value]:ranges[preset]||['',''];
-      if(!overlapsLocalTimeV150(e,identity.timezone,...hours))return false;
-     }
-     return true;
-   });
-  $('gctp-search-count').textContent=(results.length+published.length)+' sessions';
-  if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
+  const list=$('gctp-results');list.replaceChildren();
+  const records=sessionSearchRecordsV213(upcoming(),hostEvents);
+  const filtered=filterSessionRecordsV213(records,currentSearchFilters(),identity);
+  const page=sessionResultsPageV213(filtered,visibleCount);
+  $('gctp-search-count').textContent=page.total+' sessions · '+page.items.length+' shown';
+  const more=$('gcs213-show-more');
+  more.hidden=!page.hasMore;
+  more.textContent='Show '+Math.min(12,page.remaining)+' more sessions ↓ ('+page.remaining+' remaining)';
+  if(!page.total){
+   list.append(element('p','gct-empty',
+    'No sessions match your filters. Try another date, level, or show all sessions.'));
+   return;
+  }
   const previously=new Map(requests.filter(r=>r.direction==='outgoing').map(r=>[r.offer_id,r]));
-  for(const o of results){
-   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
-   card.dataset.startsAt=o.starts_at;
-   appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),start:o.starts_at,end:o.ends_at,
-    zone:identity.timezone,host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},schoolLevel:schoolLevelV209(o)});
-   card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
-   if(GCC_MODES_V150[d.mode])card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
-   if(o.timezone&&o.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
-   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · '+
-    (availableSeatsV212(o)===null?'Capacity not set':availableSeatsV212(o)+' seats remaining')));
-   const full=element('details','gcs208-compact-details gcs209-details');
-   full.append(element('summary','','🔎 View details'));
-   const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,d);full.append(body);card.append(full);
-   const previous=previously.get(o.id);
-   if(o.is_mine){
-    const edit=element('button','gcs209-register','✎ Manage my session');edit.type='button';
-    edit.addEventListener('click',async()=>{
-     edit.disabled=true;try{await manager.open(o);}
-     catch(e){inform(e.message||'Could not edit this session',true);}
-     finally{edit.disabled=false;}
-    });card.append(edit);
-   }else if(previous){
-    card.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
-   }else if(!canRequestV212(o)){
-    card.append(element('span','gcs212-status gcs212-incomplete',
-     availableSeatsV212(o)===0?'Fully booked':'Host must complete the capacity setting'));
+  for(const item of page.items){
+   if(item.source==='offer'){
+    const o=item.item,d=detailsV150(o);
+    const card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
+    card.dataset.startsAt=o.starts_at;
+    appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),start:o.starts_at,end:o.ends_at,
+     zone:identity.timezone,host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},
+     schoolLevel:schoolLevelV209(o)});
+    card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
+    card.append(favoriteControl('offer',o.id));
+    if(GCC_MODES_V150[d.mode])
+     card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
+    if(o.timezone&&o.timezone!==identity.timezone)
+     card.append(element('small','gcs209-host-time','Host local time: '+
+       timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
+    card.append(element('small','gcs209-capacity','👥 '+o.student_count+
+      ' host-school students · '+(availableSeatsV212(o)===null?'Capacity not set':
+      availableSeatsV212(o)+' seats remaining')));
+    const full=element('details','gcs208-compact-details gcs209-details');
+    full.append(element('summary','','🔎 View details'));
+    const body=element('div','gcc203-result-body');
+    renderSessionDetailsV203(body,d);full.append(body);card.append(full);
+    const previous=previously.get(o.id);
+    if(o.is_mine){
+     const edit=element('button','gcs209-register','✎ Manage my session');edit.type='button';
+     edit.addEventListener('click',async()=>{
+      edit.disabled=true;try{await manager.open(o);}
+      catch(e){inform(e.message||'Could not edit this session',true);}
+      finally{edit.disabled=false;}
+     });card.append(edit);
+    }else if(previous){
+     card.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
+    }else if(!canRequestV212(o)){
+     card.append(element('span','gcs212-status gcs212-incomplete',
+      availableSeatsV212(o)===0?'Fully booked':'Host must complete the capacity setting'));
+    }else{
+     const detail=element('details','gct-request-form gcs209-join');
+     detail.append(element('summary','','🤝 Request Join'));
+     const countLabel=element('label','gcs212-request-count','Students joining from your school *');
+     const count=element('input');count.type='number';count.min='1';
+     count.max=String(Math.min(500,availableSeatsV212(o)));count.value='1';
+     count.required=true;count.setAttribute('aria-label','Number of students joining your school');
+     countLabel.append(count);
+     const message=element('textarea');message.rows=2;message.maxLength=500;
+     message.placeholder='Optional message to the host teacher';
+     message.setAttribute('aria-label','Message to the session host');
+     const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
+     submit.addEventListener('click',async()=>{
+      const number=Number(count.value);
+      if(!count.checkValidity()||!Number.isInteger(number)){
+       count.focus();inform('Enter a student count within the available seats.',true);return;
+      }
+      submit.disabled=true;prepareSuccessChime();
+      try{
+       await teacherApply(o.id,message.value.trim(),number);await refresh();
+       inform('Request sent! The host received an in-app notification.');
+       showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
+      }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
+     });
+     detail.append(countLabel,message,submit);card.append(detail);
+    }
+    list.append(card);
    }else{
-    const detail=element('details','gct-request-form gcs209-join');
-    detail.append(element('summary','','🤝 Request Join'));
-    const countLabel=element('label','gcs212-request-count','Students joining from your school *');
-    const count=element('input');count.type='number';count.min='1';
-    count.max=String(Math.min(500,availableSeatsV212(o)));count.value='1';
-    count.required=true;count.setAttribute('aria-label','Number of students joining your school');
-    countLabel.append(count);
-    const input=element('textarea');input.rows=2;input.maxLength=500;
-    input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
-    const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
-    submit.addEventListener('click',async()=>{
-     const number=Number(count.value);
-     if(!count.checkValidity()||!Number.isInteger(number)){
-      count.focus();inform('Enter the number of students joining (within available seats).',true);return;
-     }
-     submit.disabled=true;prepareSuccessChime();
-     try{
-      await teacherApply(o.id,input.value.trim(),number);await refresh();
-      inform('Request sent! The host received an in-app notification.');
-      showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
-     }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
-    });
-    detail.append(countLabel,input,submit);card.append(detail);
+    const e=item.item;
+    const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card');
+    card.dataset.startsAt=e.starts_at;
+    appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
+     zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
+    card.append(favoriteControl('event',e.id));
+    if(e.timezone&&e.timezone!==identity.timezone)
+     card.append(element('small','gcs209-host-time','Host local time: '+
+       timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
+    if(totalCapacityV208(e))
+     card.append(element('small','gcs209-capacity','👥 Up to '+
+       totalCapacityV208(e)+' students (including host school)'));
+    const info=element('details','gcs208-compact-details gcs209-details');
+    info.append(element('summary','','🔎 View details'));
+    const body=element('div','gcc203-result-body');
+    renderSessionDetailsV203(body,e.session_details);info.append(body);card.append(info);
+    // Published host-managed events retain the student-roster registration flow.
+    const register=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students');
+    register.href='#/session-register?session='+encodeURIComponent(e.id);
+    card.append(register);list.append(card);
    }
-   list.append(card);
   }
-  for(const e of published){
-   const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card');
-   card.dataset.startsAt=e.starts_at;
-   appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
-    zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
-   if(e.timezone&&e.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
-   if(totalCapacityV208(e))card.append(element('small','gcs209-capacity','👥 Up to '+totalCapacityV208(e)+' students (including host school)'));
-   const info=element('details','gcs208-compact-details gcs209-details');
-   info.append(element('summary','','🔎 View details'));
-   const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,e.session_details);info.append(body);card.append(info);
-   // These published events use the separate approved student-roster registration flow.
-   // Teachers' offers above use the genuine request/approval workflow.
-   const a=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students');
-   a.href='#/session-register?session='+encodeURIComponent(e.id);
-   card.append(a);list.append(card);
-  }
-  list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
  }
  function renderRequests(){
   const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');
