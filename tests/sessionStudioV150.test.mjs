@@ -60,7 +60,7 @@ test('session payload trims optional details and excludes arbitrary identity fie
  assert.equal(payload.teacherId,undefined);
 });
 test('Find Session makes local time prominent and adds concise optional filters',()=>{
- for(const s of ['gctp-find-preset','gctp-find-date','gctp-find-mode','gctp-find-sdg','gctp-find-compatible','gctp-find-zone-label','gcs150-clock-pair','filterOffersV150'])assert.ok(portal.includes(s),s);
+ for(const s of ['gctp-find-preset','gctp-find-date','gctp-find-mode','gctp-find-sdg','gctp-find-compatible','gctp-find-zone-label','appendVisualBasicsV209','filterOffersV150'])assert.ok(portal.includes(s),s);
  assert.match(portal,/timeRangeV112\(o\.starts_at,o\.ends_at,zone\)/);
  const css=read('src/styles/sessionStudioV150.css');
  assert.match(css,/@media\(max-width:720px\)/);
