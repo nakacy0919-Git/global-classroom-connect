@@ -15,6 +15,7 @@ import {mountPlanFieldsV203,readPlanV203} from '../../lib/sessionPlannerV203.js'
 import {createFieldGuideV204} from '../../lib/sessionFieldGuideV204.js';
 import '../../styles/sessionUxV204.css';
 import {mountHostPlanEditorV203} from '../../lib/hostPlanEditorV203.js';
+import {populateHostCountriesV208,selectedHostCountryV208} from '../../lib/sessionDiscoveryV208.js';
 import {uploadSessionFlyerV203,saveHostPlanV203} from '../../services/sessionPlanServiceV203.js';
 import '../../styles/sessionPlannerV203.css';
 import {timePartsV112,timeRangeV112} from '../../lib/sessionTimeV112.js';
@@ -540,9 +541,9 @@ export function bindSimpleSessionsPage(){
     const deadline=toUtc(local.slice(0,10),local.slice(11),timezone);
     if(deadline.error)throw Error(deadline.error);
     plan=readPlanV203(root,'gcc-v8',{...stamp,startTime:time,endTime},deadline.iso,Number(d.get('capacity')));
-   const hostCountry=f.querySelector('[name="host-country"]');
-   plan.host_country_code=hostCountry.value;
-   plan.host_country_name=hostCountry.selectedOptions[0]?.textContent.replace(/^[^A-Za-z]+/u,'').trim()||'Japan';
+   const host=selectedHostCountryV208(f.querySelector('[name="host-country"]'));
+   plan.host_country_code=host.code;
+   plan.host_country_name=host.name;
    }catch(err){notify(err.message,true);createGuide.show(err.message,0,'gcc-v8');return;}
    const button=f.querySelector('[type=submit]');button.disabled=true;
    try{
