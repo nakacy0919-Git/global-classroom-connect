@@ -47,7 +47,7 @@ test('teacher editing is host-scoped and manages all pedagogical session fields'
 });
 test('teacher join request includes student count and never approves own session',()=>{
  assert.match(portal,/count.type='number'/);
- assert.match(portal,/teacherApply\(o.id,input.value.trim\(\),number\)/);
+ assert.match(portal,/teacherApply\(o.id,message.value.trim\(\),number\)/);
  assert.match(portal,/if\(o.is_mine\)/);
  assert.match(portal,/canRequestV212\(o\)/);
  assert.match(portal,/Approve & reserve seats/);
