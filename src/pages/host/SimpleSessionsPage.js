@@ -61,9 +61,9 @@ export function SimpleSessionsPage(){return `
         <label>Date * <input name="date" required type="date" /></label>
         <label>Start time * <input name="time" required type="time" /></label>
         <label>End time * <input name="endTime" required type="time" /></label>
-        <label>Time zone <select name="timezone"><option value="Asia/Tokyo">Japan (JST)</option><option value="Asia/Manila">Philippines</option><option value="Asia/Ho_Chi_Minh">Vietnam</option><option value="Asia/Jakarta">Indonesia</option><option value="Asia/Kuala_Lumpur">Malaysia</option><option value="Asia/Colombo">Sri Lanka</option><option value="Europe/London">United Kingdom</option><option value="America/New_York">USA Eastern</option></select></label>
+        <label>Host country * <select name="host-country" required><option value="JP">🇯🇵 Japan</option><option value="PH">🇵🇭 Philippines</option><option value="EG">🇪🇬 Egypt</option></select></label><label>Time zone <select name="timezone"><option value="Asia/Tokyo">Japan (JST)</option><option value="Asia/Manila">Philippines</option><option value="Asia/Ho_Chi_Minh">Vietnam</option><option value="Asia/Jakarta">Indonesia</option><option value="Asia/Kuala_Lumpur">Malaysia</option><option value="Asia/Colombo">Sri Lanka</option><option value="Europe/London">United Kingdom</option><option value="America/New_York">USA Eastern</option></select></label>
         <label>Breakout rooms <input type="number" name="rooms" min="1" max="60" value="10" required /></label>
-        <label>Maximum students <input type="number" name="capacity" min="1" max="2000" value="150" required /></label>
+        <label>Maximum total participants (including the host school) *<input type="number" name="capacity" min="1" max="2000" value="150" required /></label>
         <label>Facilitators per room <select name="facs"><option value="1">1 person</option><option value="2">2 people</option><option value="0">No facilitator required</option></select></label>
       </div>
       <div id="gcc-v8-create-plan"></div>
@@ -266,7 +266,7 @@ export function bindSimpleSessionsPage(){
      const stat=el('div','gcc-v130-roster-stat');stat.append(el('strong','',number),el('span','',label));summary.append(stat);
    }
    panel.append(summary);
-   mountHostPlanEditorV203(panel,e,async()=>{await reload(false);notify('Session details updated.');},err=>notify(err.message,true));
+   mountHostPlanEditorV203(panel,{...e,max_students:(settings.find(s=>s.event_id===e.id)?.max_students||150)},async()=>{await reload(false);notify('Session details updated.');},err=>notify(err.message,true));
    const refresh=btn('↻ Refresh registrations','gcc-v8-secondary gcc-v130-refresh',async()=>{refresh.disabled=true;try{await reload(false);}finally{refresh.disabled=false;}});
    panel.append(refresh);
    const sync=el('div','gcc-v130-plan-sync','Checking saved room plan…');sync.setAttribute('role','status');panel.append(sync);
@@ -539,7 +539,10 @@ export function bindSimpleSessionsPage(){
     if(!local||local.length!==16)throw Error('Choose a registration deadline.');
     const deadline=toUtc(local.slice(0,10),local.slice(11),timezone);
     if(deadline.error)throw Error(deadline.error);
-    plan=readPlanV203(root,'gcc-v8',{...stamp,startTime:time,endTime},deadline.iso);
+    plan=readPlanV203(root,'gcc-v8',{...stamp,startTime:time,endTime},deadline.iso,Number(d.get('capacity')));
+   const hostCountry=f.querySelector('[name="host-country"]');
+   plan.host_country_code=hostCountry.value;
+   plan.host_country_name=hostCountry.selectedOptions[0]?.textContent.replace(/^[^A-Za-z]+/u,'').trim()||'Japan';
    }catch(err){notify(err.message,true);createGuide.show(err.message,0,'gcc-v8');return;}
    const button=f.querySelector('[type=submit]');button.disabled=true;
    try{
