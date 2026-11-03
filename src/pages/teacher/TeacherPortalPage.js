@@ -170,6 +170,69 @@ export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
  let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
+  let favorites=new Set(),visibleCount=12,draftReady=false,draftDirty=false;
+  let draftTimer=null,draftChain=Promise.resolve(),draftRevision=0;
+  let savedDraftPresent=false,cloneFlyerUrl='',publishing=false;
+ const draftStatus=value=>{$('gcs213-draft-status').textContent=value;};
+ const captureDraft=()=>captureSessionDraftV213($('gctp-create'),formStep,cloneFlyerUrl);
+ async function saveDraft(force=false){
+  if(!identity||!draftReady||publishing||(!draftDirty&&!force))return false;
+  if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}
+  const snapshot=captureDraft(),revision=draftRevision;
+  draftDirty=false;draftStatus('Saving draft…');
+  const task=async()=>{
+   try{
+    const stamped=await teacherSaveDraftV213(snapshot);
+    if(revision===draftRevision){draftStatus('✓ Draft saved · '+new Date(stamped).toLocaleTimeString());}
+    savedDraftPresent=true;$('gcs213-discard-draft').hidden=false;
+    return true;
+   }catch(e){
+    draftDirty=true;draftStatus('Draft not saved — '+(e.message||'connection error'));
+    return false;
+   }
+  };
+  draftChain=draftChain.then(task,task);
+  return draftChain;
+ }
+ const scheduleDraft=()=>{
+  if(!draftReady||!identity||publishing)return;
+  draftDirty=true;draftRevision++;draftStatus('Unsaved changes…');
+  if(draftTimer)clearTimeout(draftTimer);
+  draftTimer=setTimeout(()=>{saveDraft();},1400);
+ };
+ async function loadTeacherWorkspace(){
+  try{
+   const workspace=await teacherWorkspaceV213();
+   favorites=new Set((workspace?.favorites||[]).map(f=>favoriteKeyV213(f.source,f.id)).filter(Boolean));
+   if(workspace?.draft?.version===1){
+    draftReady=false;
+    const restored=applySessionDraftV213($('gctp-create'),workspace.draft);
+    if(restored){
+     cloneFlyerUrl=workspace.draft.source_flyer_url||'';
+     showFormStep(Math.min(2,Number(workspace.draft.step)||0));
+     savedDraftPresent=true;
+     $('gcs213-discard-draft').hidden=false;
+     draftStatus('✓ Restored draft from '+(workspace.draft_updated_at?new Date(workspace.draft_updated_at).toLocaleString():'your previous session'));
+    }
+   }else draftStatus('Draft autosave is ready');
+  }catch(e){draftStatus('Draft sync unavailable: '+(e.message||'please sign in again'));}
+  finally{draftReady=true;renderResults();}
+ }
+ function favoriteControl(source,id){
+  const key=favoriteKeyV213(source,id),saved=favorites.has(key);
+  const button=element('button','gcs213-favorite'+(saved?' gcs213-favorite-active':''),saved?'★ Saved':'☆ Save');
+  button.type='button';button.setAttribute('aria-pressed',String(saved));
+  button.setAttribute('aria-label',saved?'Remove session from favorites':'Save session as favorite');
+  button.addEventListener('click',async()=>{
+   button.disabled=true;
+   try{
+    await teacherSetFavoriteV213(source,id,!favorites.has(key));
+    if(favorites.has(key))favorites.delete(key);else favorites.add(key);
+    renderResults();
+   }catch(e){inform('Could not update favorite: '+(e.message||'Please try again.'),true);button.disabled=false;}
+  });
+  return button;
+ }
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
   if($('gctp-find-map-panel').open)$('gctp-find-map-panel').close();
