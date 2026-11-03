@@ -871,7 +871,7 @@ export function bindTeacherPortalPage(){
  },60000);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
- if(!['home','create','find','volunteer','network','requests','profile','messages'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
+ if(!['home','create','find','volunteer','network','requests','messages','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
  showFormStep(0);display(view);if(view==='find')openSearchModal('gctp-search-choice');
  init().then(()=>{if(view==='messages')messages.open().catch(e=>inform(e.message,true));})
   .catch(e=>inform(e.message,true));
