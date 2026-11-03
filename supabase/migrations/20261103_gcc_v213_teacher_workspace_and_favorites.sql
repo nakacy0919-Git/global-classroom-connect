@@ -49,7 +49,7 @@ DECLARE tid uuid:=public.gcc_current_teacher_id(); stamp timestamptz:=clock_time
 BEGIN
  IF tid IS NULL THEN RAISE EXCEPTION 'Teacher sign-in is required';END IF;
  IF p_draft IS NULL OR jsonb_typeof(p_draft)<>'object'
-  OR p_draft->>'version'<>'1' OR jsonb_typeof(p_draft->'fields')<>'object'
+  OR (p_draft->>'version') IS DISTINCT FROM '1' OR jsonb_typeof(p_draft->'fields') IS DISTINCT FROM 'object'
   OR octet_length(p_draft::text)>24000
   OR (SELECT count(*) FROM jsonb_object_keys(p_draft->'fields'))>80
   OR EXISTS (
