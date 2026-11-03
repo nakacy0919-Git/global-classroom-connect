@@ -6,6 +6,8 @@ import {myTeacherProfileV116} from '../../services/teacherNetworkV116.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
 import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
+import {hostCountryV208,hostEventsAsOffersV208,publishedByCountryV208,totalCapacityV208,scrollToCountryResultsV208} from '../../lib/sessionDiscoveryV208.js';
+import '../../styles/findSessionCompactV208.css';
 import {createFieldGuideV204} from '../../lib/sessionFieldGuideV204.js';
 import '../../styles/sessionUxV204.css';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
@@ -57,7 +59,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <section class="gct-form-section" data-gctp-form-section="1" hidden>
    <div class="gcs150-intro"><h4>Choose your exchange format</h4><p>Pick one illustration, then choose the students you would like to meet.</p></div>
    <div class="gcs150-mode-grid" role="group" aria-label="Session format"><label class="gcs150-mode"><input type="radio" name="gctp-mode" value="device" ><span class="gcs150-mode-art" aria-hidden="true"><img src="/assets/session-formats/device.svg" width="110" height="80" alt="" loading="lazy"></span><strong>Individual devices</strong><small>Each student connects on a device</small></label><label class="gcs150-mode"><input type="radio" name="gctp-mode" value="classroom" checked><span class="gcs150-mode-art" aria-hidden="true"><img src="/assets/session-formats/classroom.svg" width="110" height="80" alt="" loading="lazy"></span><strong>Classroom to classroom</strong><small>One shared screen for the class</small></label><label class="gcs150-mode"><input type="radio" name="gctp-mode" value="hybrid" ><span class="gcs150-mode-art" aria-hidden="true"><img src="/assets/session-formats/hybrid.svg" width="110" height="80" alt="" loading="lazy"></span><strong>Flexible / hybrid</strong><small>Mix both formats</small></label></div>
-   <div class="gct-fields"><label>Students *<input id="gctp-students" type="number" min="1" max="500" value="20" required></label><label>Breakout rooms *<input id="gctp-rooms" type="number" min="1" max="100" value="1" required></label></div>
+   <div class="gct-fields"><label>Students from your school *<input id="gctp-students" type="number" min="1" max="500" value="20" required></label><label>Maximum total participants (including your school) *<input id="gctp-capacity" type="number" min="1" max="2000" value="150" required></label><label>Breakout rooms *<input id="gctp-rooms" type="number" min="1" max="100" value="1" required></label></div>
    <label>Your school level *<select id="gctp-band"><option value="Upper Secondary">High school</option><option value="Lower Secondary">Junior high</option><option value="Primary">Elementary</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
    <fieldset class="gcs150-targets"><legend>Partner school levels you welcome *</legend><p class="gct-hint">You can select several grades, such as junior high and high school.</p><div class="gcs150-levels"><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Primary"><span>Elementary</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Lower Secondary"><span>Junior high</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Upper Secondary"><span>High school</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="University"><span>University</span></label><label class="gcs150-check"><input type="checkbox" name="gctp-target-level" value="Mixed"><span>Mixed ages</span></label></div></fieldset>
   </section>
@@ -67,7 +69,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <label id="gctp-sdg-wrap" hidden>SDG goal<select id="gctp-sdg"><option value="">Any SDG goal</option><option value="1">1. No Poverty</option><option value="2">2. Zero Hunger</option><option value="3">3. Good Health and Well-being</option><option value="4">4. Quality Education</option><option value="5">5. Gender Equality</option><option value="6">6. Clean Water and Sanitation</option><option value="7">7. Affordable and Clean Energy</option><option value="8">8. Decent Work and Economic Growth</option><option value="9">9. Industry, Innovation and Infrastructure</option><option value="10">10. Reduced Inequalities</option><option value="11">11. Sustainable Cities and Communities</option><option value="12">12. Responsible Consumption and Production</option><option value="13">13. Climate Action</option><option value="14">14. Life Below Water</option><option value="15">15. Life on Land</option><option value="16">16. Peace, Justice and Strong Institutions</option><option value="17">17. Partnerships for the Goals</option></select></label>
    <label>Specific topic (optional)<input id="gctp-topic" maxlength="90" placeholder="e.g. Climate, local food, school traditions"></label>
    <div class="gct-fields"><label>Languages spoken (optional)<input id="gctp-language" maxlength="100" placeholder="e.g. Japanese, English"></label><label>English level (optional)<select id="gctp-english"><option value="">Not specified</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Mixed levels</option></select></label></div>
-   <label>Activities / goals (optional)<textarea id="gctp-goals" rows="2" maxlength="400" placeholder="What should students do during the exchange?"></textarea></label>
+
    <label>Notes to partner teachers (optional)<textarea id="gctp-notes" rows="2" maxlength="500" placeholder="Preparation and other details"></textarea></label>
    <div id="gctp-plan-slot"></div>
   </section>
@@ -142,8 +144,9 @@ export function bindTeacherPortalPage(){
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
   $('gctp-find-country').value=code;
-  countryExplorer.update(upcoming(),code);
+  countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],code);
   renderResults();
+  scrollToCountryResultsV208($('gctp-results'));
  });
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
@@ -163,8 +166,9 @@ export function bindTeacherPortalPage(){
   if(deadline.error)throw Error(deadline.error);
   return {...sessionDetailsPayloadV150({name:$('gctp-name').value,mode:selectedMode(),targetLevels:selectedLevels(),
    sdg:$('gctp-theme').value==='SDGs'?$('gctp-sdg').value:'',language:$('gctp-language').value,
-   englishLevel:$('gctp-english').value,goals:$('gctp-goals').value}),
-   ...readPlanV203(root,'gctp',{...stamp,startTime:$('gctp-from').value,endTime:$('gctp-to').value},deadline.iso)};
+   englishLevel:$('gctp-english').value,goals:$('gctp-description').value}),
+   ...readPlanV203(root,'gctp',{...stamp,startTime:$('gctp-from').value,endTime:$('gctp-to').value},deadline.iso,Number($('gctp-capacity').value)),
+   host_country_code:identity.country_code,host_country_name:identity.country};
  };
  function showFormStep(index){
   formStep=index;
@@ -181,12 +185,12 @@ export function bindTeacherPortalPage(){
     ['School / country',`${identity?.school||''} · ${identity?.country||''}`],
     ['When',`${$('gctp-date').value} · ${$('gctp-from').value}–${$('gctp-to').value} (${identity?.timezone||''})`],
     ['Format',GCC_MODES_V150[selectedMode()].name],
-    ['Participants',`${$('gctp-students').value} students · ${$('gctp-rooms').value} rooms`],
+    ['Participants',`${$('gctp-students').value} host-school students · ${$('gctp-capacity').value} total maximum · ${$('gctp-rooms').value} rooms`],
     ['My school level',$('gctp-band').selectedOptions[0]?.textContent||''],
     ['Partner levels',selectedLevels().join(', ')],['Theme',sessionTopic()],
     ['SDG',$('gctp-theme').value==='SDGs'&&$('gctp-sdg').value?`SDG ${$('gctp-sdg').value} · ${GCC_SDG_V150[Number($('gctp-sdg').value)-1]}`:''],
     ['Languages',$('gctp-language').value.trim()],['English level',$('gctp-english').value],
-    ['Activities',$('gctp-goals').value.trim()],['Type',TYPE_LABEL_V203($('gctp-type').value)],['Platform',$('gctp-platform').selectedOptions[0]?.textContent],['Full agenda',$('gctp-flow').value]
+    ['Type',TYPE_LABEL_V203($('gctp-type').value)],['Platform',$('gctp-platform').selectedOptions[0]?.textContent],['Full agenda',$('gctp-flow').value]
    ].filter(([,v])=>v)){const row=element('div','gct-review-line');row.append(element('span','',label),element('strong','',value));review.append(row);}
   }
  }
@@ -196,7 +200,9 @@ export function bindTeacherPortalPage(){
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
    if(slot.error)return slot.error;if(Date.parse(slot.startsAt)<=Date.now())return 'Choose a future date and time.';
   }else if(i===1){const n=Number($('gctp-students').value),rooms=Number($('gctp-rooms').value);
-   if(!Number.isInteger(n)||n<1||n>500)return 'Enter 1 to 500 students.';
+   if(!Number.isInteger(n)||n<1||n>500)return 'Enter 1 to 500 students from your own school.';
+   const cap=Number($('gctp-capacity').value);
+   if(!Number.isInteger(cap)||cap<n||cap>2000)return 'Maximum total participants must include your own students (up to 2000).';
    if(!Number.isInteger(rooms)||rooms<1||rooms>100)return 'Enter 1 to 100 breakout rooms.';
    if(selectedLevels().length===0)return 'Please choose at least one partner school level.';
   }else if(i===2){try{detailsPayload();}catch(e){return e.message;}}return '';
@@ -214,7 +220,7 @@ export function bindTeacherPortalPage(){
   const [mine,applications,publicEvents]=await Promise.all([teacherSessions(),teacherRequests(),listPublicSessionOverviews()]);
   hostEvents=Array.isArray(publicEvents)?publicEvents:[];
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  renderMine();renderHome();updateFindCountries();countryExplorer.update(upcoming(),$('gctp-find-country').value);renderResults();renderRequests();
+  renderMine();renderHome();updateFindCountries();countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);renderResults();renderRequests();
  }
  function renderHome(){
   const mine=upcoming().filter(o=>o.is_mine);
@@ -253,7 +259,7 @@ export function bindTeacherPortalPage(){
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
-  const codes=new Map(upcoming().filter(o=>!o.is_mine&&o.status==='open'&&o.country_code).map(o=>[o.country_code,o.country_name]));
+  const codes=new Map([...upcoming().filter(o=>!o.is_mine&&o.status==='open'),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
   select.replaceChildren(new Option('Any country',''));
   for(const [code,name] of [...codes].sort((a,b)=>a[1].localeCompare(b[1])))select.add(new Option(name,code));
   if(codes.has(current))select.value=current;
@@ -265,6 +271,7 @@ export function bindTeacherPortalPage(){
    const kind=$('gctp-find-type').value,age=$('gctp-find-age').value,term=$('gctp-find-topic').value.toLowerCase();
    const published=hostEvents.filter(e=>{
      const d=e.session_details||{};
+     if(discoverMode==='map'&&!publishedByCountryV208(e,$('gctp-find-country').value))return false;
      if(kind&&d.session_type!==kind)return false;
      if(age&&!(Number(d.min_age)<=Number(age)&&Number(age)<=Number(d.max_age)))return false;
      if(term&&![e.title,d.description,d.preferred_countries].join(' ').toLowerCase().includes(term))return false;
@@ -275,18 +282,18 @@ export function bindTeacherPortalPage(){
   if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
   const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
   for(const o of results){
-   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result'),top=element('div','gcs150-result-top');card.dataset.startsAt=o.starts_at;
-   top.append(element('span','gct-eyebrow',`${flag(o.country_code)} ${o.country_name}`));
+   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact'),top=element('div','gcs150-result-top');card.dataset.startsAt=o.starts_at;
+   top.append(element('span','gcs208-host-country',`${flag(o.country_code)} ${o.country_name} · HOST`));
    if(GCC_MODES_V150[d.mode])top.append(element('span','gcs150-format',GCC_MODES_V150[d.mode].name));
    card.append(top,element('h3','',sessionTitleV150(o)),element('p','',`${o.school_name} · ${o.teacher_name}`));
    const clocks=element('div','gcs150-clock-pair');
    for(const [label,zone] of [['YOUR TIME',identity.timezone],['HOST TIME',o.timezone||'UTC']]){
     const block=element('div');block.append(element('small','',label),element('strong','',timeRangeV112(o.starts_at,o.ends_at,zone)),element('small','',zone));clocks.append(block);
    }
-   card.append(clocks,element('small','',`${o.student_count} students · ${o.room_count} rooms · Partner levels: ${partnerLevelsV150(o).join(', ')}`));
+   card.append(clocks,element('small','',`${o.student_count} host-school students · Maximum ${totalCapacityV208(o)||'ask host'} · ${o.room_count} rooms`));
    if(d.sdg)card.append(element('small','gcs150-sdg-tag',`SDG ${d.sdg} · ${GCC_SDG_V150[Number(d.sdg)-1]||''}`));
    if(d.language)card.append(element('small','',`Languages: ${d.language}${d.english_level?' · English level: '+d.english_level:''}`));
-   if(d.goals)card.append(element('p','',d.goals));
+
    if(d.session_type)card.append(element('strong','',TYPE_LABEL_V203(d.session_type)));
    const full=element('details','gcc203-result-details');full.append(element('summary','','Full session details and flyer'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,d);full.append(body);card.append(full);
@@ -300,10 +307,14 @@ export function bindTeacherPortalPage(){
    list.append(card);
   }
   for(const e of published){
-   const card=element('article','gct-session-card gcs150-result');card.dataset.startsAt=e.starts_at;
+   const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted');card.dataset.startsAt=e.starts_at;
+   const host=hostCountryV208(e);
+   card.append(element('div','gcs208-host-country',`${host.flag} ${host.name} · HOST COUNTRY`));
    card.append(element('h3','',e.title),element('p','',timeRangeV112(e.starts_at,e.ends_at,identity.timezone)));
-   const info=element('div','gcc203-result-body');renderSessionDetailsV203(info,e.session_details);card.append(info);
-   const a=element('a','gct-primary','Register students →');a.href='#/session-register?session='+encodeURIComponent(e.id);
+   const info=element('details','gcs208-compact-details');info.append(element('summary','','Session details and flyer'));
+   const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,e.session_details);info.append(body);card.append(info);
+   if(totalCapacityV208(e))card.append(element('small','',`Maximum participants (including host school): ${totalCapacityV208(e)}`));
+   const a=element('a','gct-primary gcs208-register','Register students →');a.href='#/session-register?session='+encodeURIComponent(e.id);
    card.append(a);list.append(card);
   }
   list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
@@ -326,7 +337,14 @@ export function bindTeacherPortalPage(){
    }
   }
  }
- async function init(){try{identity=await teacherIdentity();$('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
+ async function init(){try{identity=await teacherIdentity();
+   if(!identity.timezone){
+    inform('Your school timezone is missing. Ask your school administrator to set it before creating or browsing sessions; GCC will not assume Japan time.',true);
+    $('gctp-create').hidden=true;$('gctp-next').disabled=true;
+    $('gctp-find-zone-label').textContent='School timezone not configured';
+    return;
+   }
+   $('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
   $('gctp-zone').value=identity.timezone;$('gctp-date').value=tomorrow(identity.timezone);
   $('gctp-host-school').textContent=identity.school||'School not linked';
   $('gctp-host-identity').textContent=`${identity.name} · ${identity.country}`;
@@ -387,13 +405,14 @@ export function bindTeacherPortalPage(){
   $('gctp-find-custom').hidden=true;$('gctp-find-country').value='';
   for(const id of ['gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-topic'])$(id).value='';
   $('gctp-find-compatible').checked=false;
-  countryExplorer.update(upcoming(),'');renderResults();
+  countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],'');renderResults();
  });
  $('gctp-find-preset').addEventListener('change',()=>{$('gctp-find-custom').hidden=$('gctp-find-preset').value!=='custom';renderResults();});
  for(const id of ['gctp-find-date','gctp-find-from','gctp-find-to','gctp-find-country','gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-compatible','gctp-find-topic']){
   $(id).addEventListener(id==='gctp-find-topic'?'input':'change',()=>{
-   if(id==='gctp-find-country')countryExplorer.update(upcoming(),$('gctp-find-country').value);
+   if(id==='gctp-find-country')countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
    renderResults();
+   if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value)scrollToCountryResultsV208($('gctp-results'));
   });
  }
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});

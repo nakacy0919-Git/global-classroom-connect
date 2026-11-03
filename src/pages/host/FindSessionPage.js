@@ -1,4 +1,6 @@
 import {renderSessionDetailsV203,SESSION_TYPES_V203,TYPE_LABEL_V203} from '../../lib/sessionPlannerV203.js';
+import {hostCountryV208,publishedByCountryV208,totalCapacityV208} from '../../lib/sessionDiscoveryV208.js';
+import '../../styles/findSessionCompactV208.css';
 import '../../styles/sessionPlannerV203.css';
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
@@ -132,6 +134,8 @@ export function bindFindSessionPage() {
     header.append(eyebrow,close);
     const body=el('div','gcc-v168-body');
     body.append(el('h2','',e.title||'International classroom exchange'));
+    const hostCountry=hostCountryV208(e);
+    body.append(el('div','gcs208-host-country',`${hostCountry.flag} ${hostCountry.name} · HOST COUNTRY`));
     const status=el('span','gcc-v168-badge','● Open for registration');
     body.append(status);
     const zone=e.timezone||'Asia/Tokyo';
@@ -170,7 +174,7 @@ export function bindFindSessionPage() {
   async function loadPublishedCalendarV166(){
     const mount=root.querySelector('#gcc-v166-public-calendar');
     try{
-      const events=await listPublicSessionOverviews();publicEvents=Array.isArray(events)?events:[];show();
+      const events=await listPublicSessionOverviews();publicEvents=Array.isArray(events)?events:[];refreshCountryOptionsV208();show();
       mount.replaceChildren();
       mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
         initialMonth:new Date().toISOString().slice(0,7),
@@ -222,6 +226,20 @@ export function bindFindSessionPage() {
   const countryName=code=>master.find(c=>c.code===code)?.name||
     state.teachers.find(t=>t.schools?.country_code===code)?.schools?.country_name||code;
 
+  function refreshCountryOptionsV208(){
+    const select=$('gcf-country');if(!select)return;
+    const selected=select.value;
+    const codes=new Set([...state.offers.map(o=>o.country_code),
+      ...publicEvents.map(e=>hostCountryV208(e).code)].filter(Boolean));
+    select.replaceChildren(new Option('Any country',''));
+    for(const code of [...codes].sort((a,b)=>countryName(a).localeCompare(countryName(b)))){
+      const title=countryName(code);
+      const host=publicEvents.find(e=>hostCountryV208(e).code===code);
+      const label=title===code?(hostCountryV208(host).name||code):title;
+      select.add(new Option(flag(code)+' '+label,code));
+    }
+    if(codes.has(selected))select.value=selected;
+  }
   function buildDetails(offer,teacher){
     const details=el('details','gcf-details');
     details.append(el('summary','','View session details'));
@@ -264,11 +282,7 @@ export function bindFindSessionPage() {
       if(applied.type&&d.session_type!==applied.type)return false;
       if(applied.age&&!(Number(d.min_age)<=Number(applied.age)&&Number(applied.age)<=Number(d.max_age)))return false;
       if(applied.level&&d.accepted_grades&&!String(d.accepted_grades).toLowerCase().includes(String(applied.level).toLowerCase()))return false;
-      if(applied.country){
-        const wanted=[String(applied.country).toLowerCase(),countryName(applied.country).toLowerCase()];
-        const countryValues=[...(e.countries||[]),d.preferred_countries||''].join(' ').toLowerCase();
-        if(!wanted.some(t=>countryValues.includes(t)))return false;
-      }
+      if(applied.country&&!publishedByCountryV208(e,applied.country))return false;
       if(term&&![e.title,d.description,d.preferred_countries,d.accepted_grades].join(' ').toLowerCase().includes(term))return false;
       if(selectedWindow.from&&selectedWindow.to){
         const overlap=Math.min(Date.parse(e.ends_at),Date.parse(selectedWindow.to))-Math.max(Date.parse(e.starts_at),Date.parse(selectedWindow.from));
@@ -278,10 +292,13 @@ export function bindFindSessionPage() {
     });
   }
   function publicSessionCard(e){
-    const card=el('article','gcc203-published-card');
+    const card=el('article','gcc203-published-card gcs208-compact');
+    const host=hostCountryV208(e);
+    card.append(el('div','gcs208-host-country',`${host.flag} ${host.name} · HOST COUNTRY`));
     card.append(el('h4','',e.title||'International classroom exchange'),el('p','',timeRangeV112(e.starts_at,e.ends_at,zone.value)));
+    if(totalCapacityV208(e))card.append(el('small','',`Maximum participants (including host school): ${totalCapacityV208(e)}`));
     if(e.session_details?.session_type)card.append(el('strong','',TYPE_LABEL_V203(e.session_details.session_type)));
-    const btn=el('button','gcf-request-cta','View flyer, agenda and register →');btn.type='button';
+    const btn=el('button','gcf-request-cta gcs208-register','View details →');btn.type='button';
     btn.addEventListener('click',()=>showPublicSessionOverviewV168(e));card.append(btn);
     return card;
   }
@@ -353,10 +370,7 @@ export function bindFindSessionPage() {
       ]);
       state=data;joinRequests=requests;
       if(countryResponse.ok){const countryData=await countryResponse.json();master=countryData.countries||[];}
-      const select=$('gcf-country');
-      const codes=[...new Set(state.offers.map(o=>o.country_code).filter(Boolean))]
-        .sort((a,b)=>countryName(a).localeCompare(countryName(b)));
-      for(const code of codes){const option=el('option','',`${flag(code)} ${countryName(code)}`);option.value=code;select.append(option);}
+      refreshCountryOptionsV208();
       show();
     }catch(e){$('gcf-count').textContent='Could not load';$('gcf-list').replaceChildren(el('p','gcf-error',e?.message||'Data could not be loaded.'));}
   })();

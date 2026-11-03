@@ -6,6 +6,7 @@ const ruleList=[
  [/school time zone|time zone is missing/i,'zone'],
  [/start time|session start|from time|session hours/i,'from'],
  [/end time|until|after its start|end must/i,'to'],
+ [/maximum total|total maximum|maximum.*participants|capacity/i,'capacity'],
  [/students|student count/i,'students'],
  [/breakout rooms|room count/i,'rooms'],
  [/partner school level|school level/i,'levels'],

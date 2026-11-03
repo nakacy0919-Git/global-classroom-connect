@@ -2,6 +2,7 @@ import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203} from './sessi
 import {uploadSessionFlyerV203,saveHostPlanV203} from '../services/sessionPlanServiceV203.js';
 import {toUtc} from './matching.js';
 import {timePartsV112} from './sessionTimeV112.js';
+import {populateHostCountriesV208,selectedHostCountryV208} from './sessionDiscoveryV208.js';
 const el=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
 const localTime=(iso,zone)=>{
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(iso)).map(p=>[p.type,p.value]));
@@ -12,11 +13,16 @@ export function mountHostPlanEditorV203(panel,event,onSaved,onError){
  wrap.append(el('h3','Session details and flyer'));
  const overview=el('div');renderSessionDetailsV203(overview,event.session_details||{},{privateLink:true});wrap.append(overview);
  const toggle=el('button','Edit session plan');toggle.type='button';toggle.className='gcc-v8-secondary';wrap.append(toggle);
- const form=el('form');form.hidden=true;mountPlanFieldsV203(form,'gcc203edit');wrap.append(form);
+ const form=el('form');form.hidden=true;mountPlanFieldsV203(form,'gcc203edit');
+ const hostLabel=el('label','Host country *');hostLabel.className='gcc203-label';
+ const hostCountry=el('select');hostCountry.id='gcc203edit-hostcountry';hostCountry.required=true;
+ hostLabel.append(hostCountry);form.prepend(hostLabel);
+ populateHostCountriesV208(hostCountry,event.session_details?.host_country_code||'JP');
+ wrap.append(form);
  toggle.addEventListener('click',()=>{form.hidden=!form.hidden;});
  const get=k=>form.querySelector('#gcc203edit-'+k);
  const plan=event.session_details||{};
- for(const [key,value] of [['type',plan.session_type],['preferred',plan.preferred_students],['countries',plan.preferred_countries],
+ for(const [key,value] of [['type',plan.session_type],['countries',plan.preferred_countries],
  ['minage',plan.min_age],['maxage',plan.max_age],['grades',plan.accepted_grades],['description',plan.description],
  ['platform',plan.platform],['meeting',plan.meeting_url],['breakout',plan.breakout_mode],['breakoutnotes',plan.breakout_notes]]){
   if(value!==undefined&&value!==null)get(key).value=String(value);
@@ -36,7 +42,10 @@ export function mountHostPlanEditorV203(panel,event,onSaved,onError){
     startsAt:event.starts_at,endsAt:event.ends_at,
     startTime:timePartsV112(event.starts_at,zone).time,
     endTime:timePartsV112(event.ends_at,zone).time
-   },deadline.iso);
+   },deadline.iso,Number(plan.max_participants||plan.preferred_students||event.max_students));
+   const selected=selectedHostCountryV208(hostCountry);
+   data.host_country_code=selected.code;
+   data.host_country_name=selected.name;
    const file=get('flyerfile').files?.[0];
    data.flyer_url=file?await uploadSessionFlyerV203(file):plan.flyer_url||'';
    await saveHostPlanV203(event.id,data);await onSaved();
