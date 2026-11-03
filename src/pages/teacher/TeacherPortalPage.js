@@ -448,21 +448,52 @@ export function bindTeacherPortalPage(){
   }
   list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
  }
- function renderRequests(){const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');incoming.replaceChildren();outgoing.replaceChildren();
-  const dirs={incoming,outgoing};for(const [direction,list] of Object.entries(dirs)){
+ function renderRequests(){
+  const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');
+  incoming.replaceChildren();outgoing.replaceChildren();
+  for(const [direction,list] of Object.entries({incoming,outgoing})){
    const matches=requests.filter(r=>r.direction===direction);
-   if(!matches.length){list.append(element('p','gct-empty','No requests yet.'));continue;}
-   for(const r of matches){const card=element('article','gct-session-card');card.append(element('span',`gct-status ${r.status}`,r.status.toUpperCase()),
-     element('strong','',direction==='incoming'?`${r.guest_name} would like to join`:`${r.host_name} · ${r.topic||'Open exchange'}`),
-     element('small','',fmt(r.starts_at,identity.timezone)));
-     if(r.message)card.append(element('p','',r.message));
-     if(direction==='incoming'&&r.status==='pending'){
-      const actions=element('div','gct-card-actions');for(const [decision,label] of [['approved','Approve interest'],['declined','Decline']]){
-       const btn=element('button',decision==='approved'?'gct-primary':'gct-secondary',label);btn.type='button';
-       btn.addEventListener('click',async()=>{if(!confirm(`${label}? This does not send a notification.`))return;btn.disabled=true;
-         try{await teacherReview(r.id,decision);await refresh();inform(`Request ${decision}.`);}catch(e){inform(e.message,true);btn.disabled=false;}
-       });actions.append(btn);}card.append(actions);
-     }list.append(card);
+   if(!matches.length){
+    list.append(element('p','gct-empty','No requests yet.'));continue;
+   }
+   for(const r of matches){
+    const card=element('article','gct-session-card gcs212-request');
+    card.append(element('span','gct-status '+r.status,requestStatusLabelV212(r)),
+     element('strong','',direction==='incoming'?
+      r.guest_name+' requested to join':r.host_name+' · '+(r.topic||'Open exchange')),
+     element('small','',fmt(r.starts_at,identity.timezone)),
+     element('span','gcs212-students','👥 '+r.requested_students+' student'+
+      (Number(r.requested_students)===1?'':'s')+' requested'));
+    if(r.message)card.append(element('p','',r.message));
+    if(direction==='incoming'&&r.status==='pending'){
+     const actions=element('div','gct-card-actions');
+     for(const [decision,label] of [['approved','Approve & reserve seats'],['declined','Decline']]){
+      const btn=element('button',decision==='approved'?'gct-primary':'gct-secondary',label);
+      btn.type='button';
+      btn.addEventListener('click',async()=>{
+       if(!confirm(decision==='approved'?
+        'Approve '+r.requested_students+' students? The seats will be reserved and the teacher notified inside GCC.':
+        'Decline the request? The teacher will be notified inside GCC.'))return;
+       btn.disabled=true;
+       try{
+        await teacherReview(r.id,decision);await refresh();
+        inform(decision==='approved'?'Seats reserved and teacher notified inside GCC.':'Request declined; teacher notified inside GCC.');
+       }catch(e){inform(e.message,true);btn.disabled=false;}
+      });actions.append(btn);
+     }
+     card.append(actions);
+    }
+    if(direction==='outgoing'&&r.status==='approved'&&r.reconfirmation_required){
+     const ack=element('button','gct-primary','✓ Confirm the new session time');ack.type='button';
+     ack.addEventListener('click',async()=>{
+      ack.disabled=true;
+      try{await teacherConfirmSchedule(r.id);await refresh();
+       inform('New session time confirmed. The host was notified.');}
+      catch(e){inform(e.message||'Could not confirm the new time',true);ack.disabled=false;}
+     });
+     card.append(ack);
+    }
+    list.append(card);
    }
   }
  }
