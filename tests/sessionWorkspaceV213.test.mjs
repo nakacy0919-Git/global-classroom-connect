@@ -92,6 +92,13 @@ test('duplicate copies pedagogy, not meeting dates/deadlines or confirmed regist
  assert.equal(copy.fields['gctp-platform'],'');
  assert.equal(copy.source_flyer_url,'');
 });
+test('host-assisted join requests carry the actual school-size count to capacity checks',()=>{
+ const host=read('src/pages/host/FindSessionPage.js');
+ const service=read('src/services/sessionJoinRequestService.js');
+ assert.match(host,/id="gcf-request-students"/);
+ assert.match(host,/requestSessionJoin\(activeOffer.id,id,msg,count\)/);
+ assert.match(service,/requested_students:studentCount/);
+});
 test('SQL grants teacher-only draft and favorite access, never modifies session rosters',()=>{
  const sql=read('supabase/migrations/20261103_gcc_v213_teacher_workspace_and_favorites.sql');
  assert.match(sql,/CREATE TABLE IF NOT EXISTS public.gcc_teacher_workspace_v213/);
@@ -99,7 +106,7 @@ test('SQL grants teacher-only draft and favorite access, never modifies session 
  assert.match(sql,/ALTER TABLE public.gcc_teacher_workspace_v213 ENABLE ROW LEVEL SECURITY/);
  assert.match(sql,/REVOKE ALL ON TABLE public.gcc_teacher_workspace_v213 FROM PUBLIC,anon,authenticated/);
  assert.match(sql,/WHERE w.teacher_id=tid/);
- assert.match(sql,/p_draft->>'version'<>'1'/);
+ assert.match(sql,/p_draft->>'version'\) IS DISTINCT FROM '1'/);
  assert.match(sql,/REVOKE ALL ON FUNCTION public.gcc_v213_set_teacher_favorite\(text,uuid,boolean\) FROM PUBLIC,anon/);
  assert.doesNotMatch(sql,/(?:UPDATE|DELETE FROM)\s+public\.(?:events|gcc_v91_room_drafts|gcc_v102_shared_plans|gcc_v104_shared_access|gcc_session_signup_students)\b/i);
 });
