@@ -236,7 +236,7 @@ export function bindTeacherPortalPage(){
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
   if($('gctp-find-map-panel').open)$('gctp-find-map-panel').close();
-  $('gctp-find-country').value=code;
+  $('gctp-find-country').value=code;visibleCount=12;
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],code);
   renderResults();
   scrollToCountryResultsV208($('gctp-results'));
@@ -719,6 +719,9 @@ export function bindTeacherPortalPage(){
     if(!created){showFormStep(2);guide.show(msg,2);}
    }finally{publishing=false;btn.disabled=false;}
  });
+ $('gcs213-show-more').addEventListener('click',()=>{visibleCount=Math.min(500,visibleCount+12);renderResults();});
+ $('gcs213-sort').addEventListener('change',()=>{visibleCount=12;renderResults();});
+ $('gcs213-favorites-only').addEventListener('change',()=>{visibleCount=12;renderResults();});
  const searchDialogs=['gctp-search-choice','gctp-find-time-panel','gctp-find-map-panel'];
  const openSearchModal=(id)=>{
   for(const other of searchDialogs){if($(other)?.open)$(other).close();}
@@ -727,7 +730,7 @@ export function bindTeacherPortalPage(){
   else dlg.setAttribute('open','');
  };
  const setDiscoverMode=(mode)=>{
-  discoverMode=mode==='map'?'map':'time';
+  discoverMode=mode==='map'?'map':'time';visibleCount=12;
   for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
    button.setAttribute('aria-pressed',String(button.dataset.gcs151Discovery===discoverMode));
   }
@@ -740,18 +743,18 @@ export function bindTeacherPortalPage(){
  }
  $('gctp-open-search').addEventListener('click',()=>openSearchModal('gctp-search-choice'));
  $('gctp-show-all').addEventListener('click',()=>{
-  $('gctp-search-choice').close();discoverMode='time';
+  $('gctp-search-choice').close();discoverMode='time';visibleCount=12;
   $('gctp-reset-filters').click();
   $('gctp-search-summary').textContent='All upcoming sessions';
   scrollToCountryResultsV208($('gctp-results'));
  });
  $('gctp-apply-time').addEventListener('click',()=>{
-  $('gctp-find-time-panel').close();
+  $('gctp-find-time-panel').close();visibleCount=12;
   $('gctp-search-summary').textContent='🕒 Time and date preferences applied';
   renderResults();scrollToCountryResultsV208($('gctp-results'));
  });
  $('gctp-apply-map').addEventListener('click',()=>{
-  $('gctp-find-map-panel').close();
+  $('gctp-find-map-panel').close();visibleCount=12;
   const selected=$('gctp-find-country');
   $('gctp-search-summary').textContent=selected.value?'🌐 '+selected.selectedOptions[0].textContent:'🌐 All host countries';
   renderResults();scrollToCountryResultsV208($('gctp-results'));
@@ -760,15 +763,17 @@ export function bindTeacherPortalPage(){
   cancel.addEventListener('click',()=>cancel.closest('dialog')?.close());
  }
  $('gctp-reset-filters').addEventListener('click',()=>{
+  visibleCount=12;$('gcs213-sort').value='soonest';$('gcs213-favorites-only').checked=false;
   $('gctp-find-preset').value='any';$('gctp-find-date').value='';
   $('gctp-find-custom').hidden=true;$('gctp-find-country').value='';
   for(const id of ['gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-topic'])$(id).value='';
   $('gctp-find-compatible').checked=false;
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],'');renderResults();
  });
- $('gctp-find-preset').addEventListener('change',()=>{$('gctp-find-custom').hidden=$('gctp-find-preset').value!=='custom';renderResults();});
+ $('gctp-find-preset').addEventListener('change',()=>{visibleCount=12;$('gctp-find-custom').hidden=$('gctp-find-preset').value!=='custom';renderResults();});
  for(const id of ['gctp-find-date','gctp-find-from','gctp-find-to','gctp-find-country','gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-compatible','gctp-find-topic']){
   $(id).addEventListener(id==='gctp-find-topic'?'input':'change',()=>{
+   visibleCount=12;
    if(id==='gctp-find-country')countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
    renderResults();
    if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value){$('gctp-find-map-panel').close();$('gctp-search-summary').textContent='🌐 '+$('gctp-find-country').selectedOptions[0].textContent;scrollToCountryResultsV208($('gctp-results'));}
