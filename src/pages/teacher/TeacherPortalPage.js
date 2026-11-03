@@ -357,6 +357,27 @@ export function bindTeacherPortalPage(){
    }
   }
  }
+ async function duplicateOwnSession(o){
+  if(!identity||!o.is_mine)throw Error('Only your own sessions can be duplicated.');
+  if((savedDraftPresent||draftDirty)&&!confirm('Replace your current saved draft with a copy of this session?'))return;
+  const start=timePartsV112(o.starts_at,identity.timezone).time;
+  const end=timePartsV112(o.ends_at,identity.timezone).time;
+  // A copy never inherits the old date/deadline. The teacher must choose both.
+  const copied=copiedSessionDraftV213(o,{date:'',from:start,to:end,deadline:''});
+  draftReady=false;
+  try{
+   applySessionDraftV213($('gctp-create'),copied);
+   cloneFlyerUrl=copied.source_flyer_url||'';
+   savedDraftPresent=true;draftDirty=true;draftRevision++;
+   $('gcs213-discard-draft').hidden=false;
+   showFormStep(0);display('create');
+   draftReady=true;
+   const persisted=await saveDraft(true);
+   if(!persisted)inform('Copy loaded, but it has not synced to your account yet.',true);
+   else inform('Session copied. Choose a new date and registration deadline before publishing.');
+   window.history.replaceState(null,'','#/teacher-portal?view=create');
+  }finally{draftReady=true;}
+ }
  function makeManageCard(o,{compact=false}={}){
   const card=element('article','gct-session-card gcs212-offer');
   const ready=sessionReadinessV212(o);
@@ -379,6 +400,15 @@ export function bindTeacherPortalPage(){
    finally{edit.disabled=false;}
   });
   row.append(edit);
+  const duplicate=element('button','gct-secondary','⧉ Duplicate');
+  duplicate.type='button';
+  duplicate.addEventListener('click',async()=>{
+   duplicate.disabled=true;
+   try{await duplicateOwnSession(o);}
+   catch(e){inform(e.message||'Could not duplicate session',true);}
+   finally{duplicate.disabled=false;}
+  });
+  row.append(duplicate);
   if(!compact){
    const status=element('button','gct-secondary',o.status==='open'?'Close to requests':'Reopen session');
    status.type='button';
