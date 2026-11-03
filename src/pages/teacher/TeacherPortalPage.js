@@ -19,6 +19,8 @@ import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV20
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {calendarMenuV214} from '../../lib/sessionCalendarExportV214.js';
+import '../../styles/sessionCalendarV214.css';
 import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
 import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213,favoriteKeyV213} from '../../lib/sessionSearchV213.js';
 import {captureSessionDraftV213,applySessionDraftV213,copiedSessionDraftV213} from '../../lib/sessionDraftV213.js';
@@ -158,7 +160,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
   <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
- <p class="gct-hint">Requests and approvals now appear in GCC notifications. Approved schools still need to agree on meeting links and final arrangements with their host. Automated email is not yet enabled.</p></div>
+ <p class="gct-hint">Requests and approvals appear in GCC notifications. Coordinate with your approved partner through a mutually agreed external service such as WhatsApp, LINE, or Messenger. GCC does not store chat messages. Automated email is not yet enabled.</p></div>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
  <section class="gct-section" data-gct-view="network" hidden>
   <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
@@ -423,7 +425,9 @@ export function bindTeacherPortalPage(){
     }catch(e){inform(e.message||'Could not change status',true);status.disabled=false;}
    });row.append(status);
   }
-  card.append(row);return card;
+  card.append(row);
+  card.append(calendarMenuV214({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone}));
+  return card;
  }
  function renderHome(){
   const mine=upcoming().filter(o=>o.is_mine);
@@ -495,6 +499,7 @@ export function bindTeacherPortalPage(){
      schoolLevel:schoolLevelV209(o)});
     card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
     card.append(favoriteControl('offer',o.id));
+    card.append(calendarMenuV214({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone}));
     if(GCC_MODES_V150[d.mode])
      card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
     if(o.timezone&&o.timezone!==identity.timezone)
@@ -554,6 +559,7 @@ export function bindTeacherPortalPage(){
     appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
      zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
     card.append(favoriteControl('event',e.id));
+    card.append(calendarMenuV214({...e,viewer_zone:identity.timezone}));
     if(e.timezone&&e.timezone!==identity.timezone)
      card.append(element('small','gcs209-host-time','Host local time: '+
        timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
@@ -588,6 +594,16 @@ export function bindTeacherPortalPage(){
      element('span','gcs212-students','👥 '+r.requested_students+' student'+
       (Number(r.requested_students)===1?'':'s')+' requested'));
     if(r.message)card.append(element('p','',r.message));
+    if(r.status==='approved'){
+     const contact=element('div','gcs214-request-calendar');
+     contact.append(calendarMenuV214({id:r.offer_id,title:r.topic||'Global Classroom Exchange',
+      starts_at:r.starts_at,ends_at:r.ends_at,viewer_zone:identity.timezone}));
+     const directory=element('a','gcs214-partner-dir','Find partner in verified Teacher Network');
+     directory.href='#/teacher-portal?view=network';contact.append(directory);
+     const help=element('p','gcs214-contact-note',
+      'After approval, agree on WhatsApp, LINE, or Messenger using a school-managed account where possible. Only voluntarily listed teacher profiles appear in the directory. Keep student information and private meeting links out of public profiles.');
+     card.append(contact,help);
+    }
     if(direction==='incoming'&&r.status==='pending'){
      const actions=element('div','gct-card-actions');
      for(const [decision,label] of [['approved','Approve & reserve seats'],['declined','Decline']]){
