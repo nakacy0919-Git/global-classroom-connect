@@ -602,6 +602,25 @@ export function bindTeacherPortalPage(){
    if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value){$('gctp-find-map-panel').close();$('gctp-search-summary').textContent='🌐 '+$('gctp-find-country').selectedOptions[0].textContent;scrollToCountryResultsV208($('gctp-results'));}
   });
  }
+ $('gcs212-refresh-notices').addEventListener('click',async()=>{
+  const button=$('gcs212-refresh-notices');button.disabled=true;
+  try{
+   const inbox=await teacherNotifications();
+   notifications=Array.isArray(inbox)?inbox:[];
+   renderNotifications();inform('Notifications refreshed.');
+  }catch(e){inform(e.message||'Could not refresh notifications.',true);}
+  finally{button.disabled=false;}
+ });
+ // Lightweight refresh for active teacher workspaces; automatically stops on navigation.
+ const notificationPoll=setInterval(async()=>{
+  if(!root.isConnected){clearInterval(notificationPoll);return;}
+  if(!identity||document.hidden)return;
+  try{
+   const inbox=await teacherNotifications();
+   notifications=Array.isArray(inbox)?inbox:[];
+   renderNotifications();
+  }catch{/* A failed poll never disrupts creating or joining a session. */}
+ },60000);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
