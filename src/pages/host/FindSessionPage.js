@@ -174,7 +174,7 @@ export function bindFindSessionPage() {
   async function loadPublishedCalendarV166(){
     const mount=root.querySelector('#gcc-v166-public-calendar');
     try{
-      const events=await listPublicSessionOverviews();publicEvents=Array.isArray(events)?events:[];show();
+      const events=await listPublicSessionOverviews();publicEvents=Array.isArray(events)?events:[];refreshCountryOptionsV208();show();
       mount.replaceChildren();
       mountSessionCalendarV166(mount,{events,heading:'Published sessions · Calendar',
         initialMonth:new Date().toISOString().slice(0,7),
@@ -226,6 +226,20 @@ export function bindFindSessionPage() {
   const countryName=code=>master.find(c=>c.code===code)?.name||
     state.teachers.find(t=>t.schools?.country_code===code)?.schools?.country_name||code;
 
+  function refreshCountryOptionsV208(){
+    const select=$('gcf-country');if(!select)return;
+    const selected=select.value;
+    const codes=new Set([...state.offers.map(o=>o.country_code),
+      ...publicEvents.map(e=>hostCountryV208(e).code)].filter(Boolean));
+    select.replaceChildren(new Option('Any country',''));
+    for(const code of [...codes].sort((a,b)=>countryName(a).localeCompare(countryName(b)))){
+      const title=countryName(code);
+      const host=publicEvents.find(e=>hostCountryV208(e).code===code);
+      const label=title===code?(hostCountryV208(host).name||code):title;
+      select.add(new Option(flag(code)+' '+label,code));
+    }
+    if(codes.has(selected))select.value=selected;
+  }
   function buildDetails(offer,teacher){
     const details=el('details','gcf-details');
     details.append(el('summary','','View session details'));
@@ -356,10 +370,7 @@ export function bindFindSessionPage() {
       ]);
       state=data;joinRequests=requests;
       if(countryResponse.ok){const countryData=await countryResponse.json();master=countryData.countries||[];}
-      const select=$('gcf-country');
-      const codes=[...new Set([...state.offers.map(o=>o.country_code),...publicEvents.map(e=>hostCountryV208(e).code)].filter(Boolean))]
-        .sort((a,b)=>countryName(a).localeCompare(countryName(b)));
-      for(const code of codes){const option=el('option','',`${flag(code)} ${countryName(code)===code?(hostCountryV208(publicEvents.find(e=>hostCountryV208(e).code===code)).name||code):countryName(code)}`);option.value=code;select.append(option);}
+      refreshCountryOptionsV208();
       show();
     }catch(e){$('gcf-count').textContent='Could not load';$('gcf-list').replaceChildren(el('p','gcf-error',e?.message||'Data could not be loaded.'));}
   })();
