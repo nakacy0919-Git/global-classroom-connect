@@ -19,6 +19,9 @@ import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV20
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {mountTeacherMessagesV214} from '../../lib/teacherMessagesV214.js';
+import {calendarMenuV214} from '../../lib/sessionCalendarExportV214.js';
+import '../../styles/teacherMessagesV214.css';
 import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
 import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213,favoriteKeyV213} from '../../lib/sessionSearchV213.js';
 import {captureSessionDraftV213,applySessionDraftV213,copiedSessionDraftV213} from '../../lib/sessionDraftV213.js';
@@ -38,6 +41,7 @@ function fmt(iso,zone){try{return new Intl.DateTimeFormat('en-GB',{timeZone:zone
 function tomorrow(zone){const x=new Date(Date.now()+86400000);try{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(x).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`;}catch{return x.toISOString().slice(0,10);}}
 export function TeacherPortalPage(){return `<section class="gct-workspace gct-portal">
  <header class="gct-banner"><div class="gct-banner-icon">🌍</div><div><p class="gct-eyebrow">GLOBAL CLASSROOM · TEACHER SPACE</p><h2>Explore. Connect. Inspire.</h2><p id="gctp-greeting">Loading your school…</p></div><button id="gctp-logout" type="button" class="gct-secondary gct-logout">Sign out</button></header>
+ <a class="gcs214-header-mail" href="#/teacher-portal?view=messages">✉ Messages <span id="gcs214-badge-header" class="gcs214-badge" hidden aria-label="Unread messages"></span></a>
  <p id="gctp-message" class="gct-feedback" role="status" aria-live="polite"></p>
 
  <section class="gct-section gct-home-v200" data-gct-view="home" hidden>
@@ -45,6 +49,11 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <div class="gct-home-actions-v200">
    <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Session</strong><small>Search sessions by time or country</small></span><span aria-hidden="true">→</span></a>
    <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Host a Session</strong><small>Publish a session for partner teachers</small></span><span aria-hidden="true">→</span></a>
+   <a class="gct-home-action-v200 gcs214-home-link" href="#/teacher-portal?view=messages">
+    <span class="gct-home-action-icon-v200" aria-hidden="true">✉</span>
+    <span><strong>Teacher Messages</strong><small>Chat privately with approved partner teachers</small></span>
+    <span id="gcs214-badge-home" class="gcs214-badge" hidden aria-label="Unread messages"></span>
+   </a>
   </div>
   <div class="gct-home-summary-v200" aria-label="Teacher activity overview">
    <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
@@ -159,6 +168,26 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
   <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
  <p class="gct-hint">Requests and approvals now appear in GCC notifications. Approved schools still need to agree on meeting links and final arrangements with their host. Automated email is not yet enabled.</p></div>
+ <section class="gct-section gcs214-messages" data-gct-view="messages" id="gcs214-messages-view" hidden>
+  <div class="gcs214-title-row">
+   <div><h3>✉ Teacher Messages <span id="gcs214-badge-messages" class="gcs214-badge" hidden aria-label="Unread messages"></span></h3>
+    <p>Private text conversations with approved partner teachers. No email notifications or paid messaging service.</p></div>
+  </div>
+  <div class="gcs214-chat-layout">
+   <aside class="gcs214-chat-sidebar" aria-label="Partner conversations">
+    <div class="gcs214-side-head"><strong>Conversations</strong><button id="gcs214-refresh" type="button">Refresh</button></div>
+    <div id="gcs214-thread-list" class="gcs214-thread-list"></div>
+   </aside>
+   <div class="gcs214-chat-main">
+    <div id="gcs214-chat-heading" class="gcs214-chat-heading"></div>
+    <div id="gcs214-chat-history" class="gcs214-chat-history" role="log" aria-live="polite" aria-label="Teacher messages"></div>
+    <form id="gcs214-compose" class="gcs214-compose" hidden>
+     <label>Your message <textarea id="gcs214-chat-input" maxlength="2000" rows="3" placeholder="Discuss the agenda, breakout rooms, or meeting details…" required></textarea></label>
+     <div class="gcs214-compose-actions"><small>Teachers only · No student information · Ctrl/⌘ + Enter to send</small><button id="gcs214-send" class="gcs214-send" type="submit">Send message</button></div>
+    </form>
+   </div>
+  </div>
+ </section>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
  <section class="gct-section" data-gct-view="network" hidden>
   <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
