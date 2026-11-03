@@ -27,3 +27,35 @@ export function scrollToCountryResultsV208(element){
  const reduce=typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
  element.scrollIntoView?.({behavior:reduce?'auto':'smooth',block:'start'});
 }
+
+// Populate the country selector from GCC's shared 197-country master. The fallback
+// covers the most frequent host countries when static data is unavailable offline.
+export async function populateHostCountriesV208(select,initial='JP'){
+ if(!select)return;
+ const fallback=[['JP','Japan'],['PH','Philippines'],['EG','Egypt'],['VN','Vietnam'],['KR','South Korea'],['IN','India']];
+ let countries=fallback.map(([code,name])=>({code,name}));
+ try{
+  const response=await fetch('/country-master.json',{credentials:'same-origin'});
+  if(response.ok){
+   const payload=await response.json();
+   if(Array.isArray(payload?.countries)&&payload.countries.length>100){
+    countries=payload.countries.filter(x=>/^[A-Z]{2}$/.test(x.code||'')&&x.name);
+   }
+  }
+ }catch{/* Offline/admin fallback remains available. */}
+ const chosen=select.value||initial||'JP';
+ select.replaceChildren();
+ for(const country of countries.sort((a,b)=>a.name.localeCompare(b.name))){
+  const option=document.createElement('option');
+  option.value=country.code;option.textContent=country.name;option.dataset.countryName=country.name;
+  select.append(option);
+ }
+ select.value=[...select.options].some(o=>o.value===chosen)?chosen:(initial||'JP');
+}
+export function selectedHostCountryV208(select){
+ const code=String(select?.value||'').toUpperCase();
+ if(!/^[A-Z]{2}$/.test(code))throw Error('Please select the country hosting this session.');
+ const name=select?.selectedOptions?.[0]?.dataset?.countryName||
+   select?.selectedOptions?.[0]?.textContent?.replace(/^[^A-Za-z]+/u,'').trim()||code;
+ return {code,name};
+}
