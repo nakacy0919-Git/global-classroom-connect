@@ -86,6 +86,12 @@ RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO '' AS $fn$
    JOIN public.gcc_session_signups s ON s.id=st.signup_id
    WHERE s.event_id=e.id AND s.status='approved') st ON true;
 $fn$;
+-- Japan and the Philippines each use one national time zone. Repair known
+-- incomplete school profiles; never infer a default for multi-zone countries.
+UPDATE public.schools
+SET timezone=CASE country_code WHEN 'JP' THEN 'Asia/Tokyo' WHEN 'PH' THEN 'Asia/Manila' END
+WHERE timezone IS NULL AND country_code IN ('JP','PH');
+
 -- Do not silently pretend an overseas school is on Japan time if its timezone is missing.
 CREATE OR REPLACE FUNCTION public.gcc_teacher_identity()
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
