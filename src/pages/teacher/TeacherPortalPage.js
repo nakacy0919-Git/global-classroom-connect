@@ -299,39 +299,51 @@ export function bindTeacherPortalPage(){
   if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
   const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
   for(const o of results){
-   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact'),top=element('div','gcs150-result-top');card.dataset.startsAt=o.starts_at;
-   top.append(element('span','gcs208-host-country',`${flag(o.country_code)} ${o.country_name} · HOST`));
-   if(GCC_MODES_V150[d.mode])top.append(element('span','gcs150-format',GCC_MODES_V150[d.mode].name));
-   card.append(top,element('h3','',sessionTitleV150(o)),element('p','',`${o.school_name} · ${o.teacher_name}`));
-   const clocks=element('div','gcs150-clock-pair');
-   for(const [label,zone] of [['YOUR TIME',identity.timezone],['HOST TIME',o.timezone||'UTC']]){
-    const block=element('div');block.append(element('small','',label),element('strong','',timeRangeV112(o.starts_at,o.ends_at,zone)),element('small','',zone));clocks.append(block);
-   }
-   card.append(clocks,element('small','',`${o.student_count} host-school students · Maximum ${totalCapacityV208(o)||'ask host'} · ${o.room_count} rooms`));
-   if(d.sdg)card.append(element('small','gcs150-sdg-tag',`SDG ${d.sdg} · ${GCC_SDG_V150[Number(d.sdg)-1]||''}`));
-   if(d.language)card.append(element('small','',`Languages: ${d.language}${d.english_level?' · English level: '+d.english_level:''}`));
-
-   if(d.session_type)card.append(element('strong','',TYPE_LABEL_V203(d.session_type)));
-   const full=element('details','gcc203-result-details');full.append(element('summary','','Full session details and flyer'));
+   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
+   card.dataset.startsAt=o.starts_at;
+   appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),start:o.starts_at,end:o.ends_at,
+    zone:identity.timezone,host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},schoolLevel:schoolLevelV209(o)});
+   card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
+   if(GCC_MODES_V150[d.mode])card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
+   if(o.timezone&&o.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
+   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · Total capacity '+(totalCapacityV208(o)||'ask host')));
+   const full=element('details','gcs208-compact-details gcs209-details');
+   full.append(element('summary','','🔎 View details'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,d);full.append(body);card.append(full);
-   if(previously.has(o.id))card.append(element('span','gct-status approved','✓ Request already submitted'));
-   else{const detail=element('details','gct-request-form');detail.append(element('summary','','Request to Join →'));
-    const input=element('textarea');input.rows=2;input.maxLength=500;input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
-    const submit=element('button','gct-primary','Send join request →');submit.type='button';submit.addEventListener('click',async()=>{
-     submit.disabled=true;prepareSuccessChime();try{await teacherApply(o.id,input.value.trim());await refresh();inform('Request sent! Track it in My Requests. No email was sent.');showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});}
-     catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
-    });detail.append(input,submit);card.append(detail);}
+   if(previously.has(o.id)){
+    card.append(element('span','gct-status approved','✓ Join request submitted'));
+   }else{
+    const detail=element('details','gct-request-form gcs209-join');
+    detail.append(element('summary','','🤝 Request Join'));
+    const input=element('textarea');input.rows=2;input.maxLength=500;
+    input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
+    const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
+    submit.addEventListener('click',async()=>{
+     submit.disabled=true;prepareSuccessChime();
+     try{
+      await teacherApply(o.id,input.value.trim());await refresh();
+      inform('Request sent! Track it in My Requests. No email was sent.');
+      showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
+     }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
+    });
+    detail.append(input,submit);card.append(detail);
+   }
    list.append(card);
   }
   for(const e of published){
-   const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted');card.dataset.startsAt=e.starts_at;
-   const host=hostCountryV208(e);
-   card.append(element('div','gcs208-host-country',`${host.flag} ${host.name} · HOST COUNTRY`));
-   card.append(element('h3','',e.title),element('p','',timeRangeV112(e.starts_at,e.ends_at,identity.timezone)));
-   const info=element('details','gcs208-compact-details');info.append(element('summary','','Session details and flyer'));
+   const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card');
+   card.dataset.startsAt=e.starts_at;
+   appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
+    zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
+   if(e.timezone&&e.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
+   if(totalCapacityV208(e))card.append(element('small','gcs209-capacity','👥 Up to '+totalCapacityV208(e)+' students (including host school)'));
+   const info=element('details','gcs208-compact-details gcs209-details');
+   info.append(element('summary','','🔎 View details'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,e.session_details);info.append(body);card.append(info);
-   if(totalCapacityV208(e))card.append(element('small','',`Maximum participants (including host school): ${totalCapacityV208(e)}`));
-   const a=element('a','gct-primary gcs208-register','Register students →');a.href='#/session-register?session='+encodeURIComponent(e.id);
+   // These published events use the separate approved student-roster registration flow.
+   // Teachers' offers above use the genuine request/approval workflow.
+   const a=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students');
+   a.href='#/session-register?session='+encodeURIComponent(e.id);
    card.append(a);list.append(card);
   }
   list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
