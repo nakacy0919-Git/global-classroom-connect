@@ -109,13 +109,11 @@ export function mountTeacherMessagesV214(root,{getIdentity,onUnread,onError,onOp
     lastRendered=signature;
    }
    // Read only messages returned from the server and actually displayed.
-   if(messages.length){
+   const thread=threadById(requested);
+   if(messages.length&&Number(thread?.unread_count)>0){
     await teacherMarkMessageReadV214(requested,messages[messages.length-1].id);
-    const thread=threadById(requested);
-    if(thread&&Number(thread.unread_count)>0){
-     thread.unread_count=0;
-     onUnread?.(unreadTotalV214(threads));renderThreads();
-    }
+    thread.unread_count=0;
+    onUnread?.(unreadTotalV214(threads));renderThreads();
    }
   }catch(e){if(!quiet)report(e);}
   finally{loadingMessages=false;}
