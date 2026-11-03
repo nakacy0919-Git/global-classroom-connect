@@ -13,7 +13,10 @@ import '../../styles/sessionUxV204.css';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
 import {uploadSessionFlyerV203} from '../../services/sessionPlanServiceV203.js';
 import '../../styles/sessionPlannerV203.css';
-import {timeRangeV112} from '../../lib/sessionTimeV112.js';
+import {timeRangeV112,timePartsV112} from '../../lib/sessionTimeV112.js';
+import {overlapsLocalTimeV150} from '../../lib/sessionStudioV150.js';
+import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV209.js';
+import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
@@ -88,31 +91,36 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
    <div class="gcs151-hero-world" aria-hidden="true"><span>✦</span><span>🌏</span><span>✦</span></div>
   </header>
-  <div class="gcs151-discover-modes" role="group" aria-label="Choose how to find a session">
+  <div class="gcs209-search-tools"><button id="gctp-open-search" type="button" class="gcs209-open-search">🔎 Search options</button><span id="gctp-search-summary" role="status">Showing all upcoming sessions</span></div>
+  <dialog id="gctp-search-choice" class="gcs209-search-dialog gcs209-search-choice" aria-labelledby="gctp-search-choice-title">
+   <h3 id="gctp-search-choice-title">How would you like to find a session?</h3><p>Choose a method, then set your preferences.</p>
+   <div class="gcs151-discover-modes" role="group" aria-label="Choose how to find a session">
    <button id="gctp-discover-time" class="gcs151-discover-card" type="button" aria-pressed="true" data-gcs151-discovery="time">
     <span class="gcs151-discover-icon" aria-hidden="true">🕒</span><span class="gcs151-discover-label"><strong>Find by time</strong><small>Start with the hours you're available</small></span><span aria-hidden="true">→</span>
    </button>
    <button id="gctp-discover-map" class="gcs151-discover-card" type="button" aria-pressed="false" data-gcs151-discovery="map">
     <span class="gcs151-discover-icon" aria-hidden="true">🌐</span><span class="gcs151-discover-label"><strong>Explore world map</strong><small>Choose a country with an open session</small></span><span aria-hidden="true">→</span>
    </button>
-  </div>
-  <section id="gctp-find-time-panel" class="gcs151-discover-panel" aria-label="Find by available time">
+  </div><button id="gctp-show-all" class="gcs209-show-all" type="button">Show all sessions</button></dialog>
+  <dialog id="gctp-find-time-panel" class="gcs151-discover-panel gcs209-search-dialog" aria-label="Find by available time">
    <h4>When can your class join?</h4>
    <div class="gct-filterbar gcs150-main-filters">
     <label>Available time (your school time)<select id="gctp-find-preset"><option value="any">Any time</option><option value="morning">Morning · 08:00–12:00</option><option value="afternoon">Afternoon · 12:00–17:00</option><option value="evening">Evening · 17:00–22:00</option><option value="custom">Choose hours</option></select></label>
     <label>Date (optional)<input id="gctp-find-date" type="date"></label>
     <div id="gctp-find-custom" class="gcs150-custom" hidden><label>From<input id="gctp-find-from" type="time" value="09:00"></label><label>Until<input id="gctp-find-to" type="time" value="12:00"></label></div>
    </div>
-   <p class="gcs151-small-help">Results update automatically. Time zones and daylight saving are calculated for each session date.</p>
-  </section>
-  <section id="gctp-find-map-panel" class="gcs151-discover-panel" aria-label="Find by country" hidden>
+   <p class="gcs151-small-help">All times use your school's time zone, with daylight saving calculated for each session date.</p>
+   <div class="gcs209-dialog-actions"><button type="button" data-gcs209-cancel class="gct-secondary">Cancel</button><button id="gctp-apply-time" type="button" class="gcs209-apply">Show matching sessions →</button></div>
+  </dialog>
+  <dialog id="gctp-find-map-panel" class="gcs151-discover-panel gcs209-search-dialog gcs209-map-dialog" aria-label="Find by country">
    <div class="gcs151-map-heading"><div><h4>Explore available countries</h4><p>Only countries with currently open sessions are marked on the map.</p></div><span id="gctp-map-status" role="status" aria-live="polite">Select the map to explore</span></div>
    <div id="gctp-country-map" class="gcs151-map-stage" aria-label="Interactive world map"></div>
    <label class="gcs151-country-select-label">Choose from the list instead
     <select id="gctp-find-country"><option value="">All available countries</option></select>
    </label>
    <div id="gctp-country-list" class="gcs151-country-list" aria-label="Countries with open sessions"></div>
-  </section>
+   <div class="gcs209-dialog-actions"><button type="button" data-gcs209-cancel class="gct-secondary">Cancel</button><button id="gctp-apply-map" type="button" class="gcs209-apply">Show matching sessions →</button></div>
+  </dialog>
   <details class="gcs150-advanced"><summary>More options · school level, SDGs, format &amp; topic</summary>
    <div class="gct-filterbar">
     <label>Partner school level<select id="gctp-find-band"><option value="">Any level</option><option value="Primary">Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
