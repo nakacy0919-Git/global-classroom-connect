@@ -2,7 +2,7 @@ import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203} from './sessi
 import {uploadSessionFlyerV203,saveHostPlanV203} from '../services/sessionPlanServiceV203.js';
 import {toUtc} from './matching.js';
 import {timePartsV112} from './sessionTimeV112.js';
-import {populateHostCountriesV208} from './sessionDiscoveryV208.js';
+import {populateHostCountriesV208,selectedHostCountryV208} from './sessionDiscoveryV208.js';
 const el=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
 const localTime=(iso,zone)=>{
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(iso)).map(p=>[p.type,p.value]));
@@ -43,8 +43,9 @@ export function mountHostPlanEditorV203(panel,event,onSaved,onError){
     startTime:timePartsV112(event.starts_at,zone).time,
     endTime:timePartsV112(event.ends_at,zone).time
    },deadline.iso,Number(plan.max_participants||plan.preferred_students||event.max_students));
-   data.host_country_code=hostCountry.value;
-   data.host_country_name=hostCountry.selectedOptions[0]?.textContent.replace(/^[^A-Za-z]+/u,'').trim()||plan.host_country_name||'Japan';
+   const selected=selectedHostCountryV208(hostCountry);
+   data.host_country_code=selected.code;
+   data.host_country_name=selected.name;
    const file=get('flyerfile').files?.[0];
    data.flyer_url=file?await uploadSessionFlyerV203(file):plan.flyer_url||'';
    await saveHostPlanV203(event.id,data);await onSaved();
