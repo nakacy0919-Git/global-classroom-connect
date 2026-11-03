@@ -18,13 +18,16 @@ import {overlapsLocalTimeV150} from '../../lib/sessionStudioV150.js';
 import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV209.js';
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
+import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
+import '../../styles/sessionManagementV212.css';
 
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
 import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
- teacherApply,teacherReview,teacherSignOut} from '../../services/teacherSelfService.js';
+ teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule} from '../../services/teacherSelfService.js';
 
 const element=(name,cls='',text='')=>{const n=document.createElement(name);n.className=cls;n.textContent=text;return n;};
 const flag=code=>/^[A-Z]{2}$/.test(code||'')?[...code].map(c=>String.fromCodePoint(127397+c.charCodeAt())).join(''):'🌐';
@@ -44,7 +47,8 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
    <a href="#/teacher-portal?view=requests" class="gct-home-summary-card-v200"><strong id="gctp-home-requests-count">0</strong><span>Pending requests</span></a>
   </div>
-  <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
+  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><div class="gcs212-inbox-head"><h3>🔔 Notifications <span id="gcs212-notice-count-home"></span></h3><button id="gcs212-refresh-notices" type="button" class="gct-secondary">Refresh</button></div><div id="gcs212-notices-home"></div></section>
+   <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
  </section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
@@ -136,8 +140,9 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <div id="gctp-results" class="gct-results"></div>
  </div>
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
- <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
- <p class="gct-hint">Approval records interest only. Agree on the final arrangements separately; no notification, Zoom link, or event is automatically sent.</p></div>
+ <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
+  <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
+ <p class="gct-hint">Requests and approvals now appear in GCC notifications. Approved schools still need to agree on meeting links and final arrangements with their host. Automated email is not yet enabled.</p></div>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
  <section class="gct-section" data-gct-view="network" hidden>
   <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
@@ -148,7 +153,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
 export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
- let identity=null,offers=[],requests=[],hostEvents=[],formStep=0,discoverMode='time';
+ let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
   if($('gctp-find-map-panel').open)$('gctp-find-map-panel').close();
@@ -158,6 +163,11 @@ export function bindTeacherPortalPage(){
   scrollToCountryResultsV208($('gctp-results'));
  });
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
+ const manager=mountSessionManagerV212(root,{
+  identity:()=>identity,
+  onSaved:async()=>{await refresh();inform('Session changes saved. Partner teachers can review the latest details.');},
+  onError:()=>{}
+ });
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
    root.classList.toggle('gcs209-finding',id==='find');
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
