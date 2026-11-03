@@ -84,6 +84,7 @@ export function FindSessionPage() {
         <p id="gcf-request-session">Choose a teacher who wants to participate.</p>
         <p class="gcf-request-helper">Host-assisted request: choose the applicant teacher. No email or invitation is sent.</p>
         <label class="gcf-request-label">Applicant teacher / school *<select id="gcf-request-teacher" required></select></label>
+        <label class="gcf-request-label">Students from applicant school *<input id="gcf-request-students" type="number" min="1" max="500" value="1" required></label>
         <label class="gcf-request-label">Message (optional)<textarea id="gcf-request-message" maxlength="500" placeholder="e.g. We have 20 students and would love to join your exchange."></textarea></label>
         <p id="gcf-request-error" class="gcf-request-error" role="alert" hidden></p>
         <div class="gcf-request-actions"><button type="button" id="gcf-request-cancel" class="gcf-request-cancel">Cancel</button>
@@ -220,7 +221,7 @@ export function bindFindSessionPage() {
       opt.value=teacher.id;select.append(opt);
     }
     const error=$('gcf-request-error');error.hidden=true;
-    $('gcf-request-message').value='';
+    $('gcf-request-message').value='';$('gcf-request-students').value='1';
     $('gcf-request-send').disabled=!eligible.length;
     if(!eligible.length){
       error.textContent=all.length
@@ -355,14 +356,19 @@ export function bindFindSessionPage() {
     event.preventDefault();
     const id=$('gcf-request-teacher').value;
     const msg=$('gcf-request-message').value.trim();
+    const count=Number($('gcf-request-students').value);
     const err=$('gcf-request-error'),button=$('gcf-request-send');
     if(!activeOffer||!id){err.textContent='Select an applicant teacher.';err.hidden=false;return;}
+    if(!Number.isInteger(count)||!$('gcf-request-students').checkValidity()){
+      err.textContent='Enter how many students are joining (1–500).';err.hidden=false;
+      $('gcf-request-students').focus();return;
+    }
     if(!eligibleRequesters(state.teachers,activeOffer).some(t=>t.id===id)){
       err.textContent='Invalid applicant selection.';err.hidden=false;return;
     }
     button.disabled=true;button.textContent='Saving request…';
     try{
-      await requestSessionJoin(activeOffer.id,id,msg);
+      await requestSessionJoin(activeOffer.id,id,msg,count);
       joinRequests=await loadSessionJoinRequests();
       $('gcf-join-dialog').close();
       show();
