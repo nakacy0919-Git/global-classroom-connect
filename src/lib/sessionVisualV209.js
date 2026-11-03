@@ -43,6 +43,7 @@ export function sessionTimeLabelsV209(start,end,zone){
 }
 export function appendVisualBasicsV209(doc,card,info){
  card.append(countryBadgeV209(doc,info.host));
+ if(info.title){const title=doc.createElement('h3');title.className='gcs209-title';title.textContent=info.title;card.append(title);}
  const badges=doc.createElement('div');badges.className='gcs209-badges';
  const school=doc.createElement('span');school.className='gcs209-school-level';
  const level=info.schoolLevel||{icon:'🏫',label:'School level not specified'};
