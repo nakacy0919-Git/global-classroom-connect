@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {sessionCalendarDataV214,calendarIcsV214,googleCalendarUrlV214,outlookCalendarUrlV214}
  from '../src/lib/sessionCalendarExportV214.js';
-import {unreadTotalV214,chatBadgeV214} from '../src/lib/teacherMessagesV214.js';
+import {unreadTotalV214,chatBadgeV214} from '../src/lib/messageUnreadV214.js';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const record={
  id:'543184ab-29d9-467e-a8cd-8e0d49b4fe04',
