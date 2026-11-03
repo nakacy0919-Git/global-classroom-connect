@@ -26,7 +26,8 @@ export function mountTeacherMessagesV214(root,{getIdentity,onUnread,onError,onOp
  const submit=root.querySelector('#gcs214-send');
  const refreshButton=root.querySelector('#gcs214-refresh');
  let threads=[],activeId='',lastRendered='',loading=false,loadingMessages=false;
- let activeEpoch=0;
+ let activeEpoch=0,queuedLoad=false;
+ const drafts=new Map();
  const report=err=>onError?.(err?.message||String(err||'Message service is unavailable'));
  const ready=()=>Boolean(getIdentity?.())&&root.isConnected;
  function threadById(id){return threads.find(t=>t.request_id===id);}
@@ -88,7 +89,9 @@ export function mountTeacherMessagesV214(root,{getIdentity,onUnread,onError,onOp
   finally{loading=false;}
  }
  async function loadMessages({quiet=false}={}){
-  if(!ready()||!activeId||loadingMessages||panel.hidden||document.hidden)return;
+  if(!ready()||!activeId||panel.hidden||document.hidden)return;
+  // A rapid conversation switch must not be dropped while another fetch is running.
+  if(loadingMessages){queuedLoad=true;return;}
   const requested=activeId,epoch=activeEpoch;loadingMessages=true;
   try{
    const entries=await teacherThreadMessagesV214(requested);
@@ -116,28 +119,38 @@ export function mountTeacherMessagesV214(root,{getIdentity,onUnread,onError,onOp
     onUnread?.(unreadTotalV214(threads));renderThreads();
    }
   }catch(e){if(!quiet)report(e);}
-  finally{loadingMessages=false;}
+  finally{
+   loadingMessages=false;
+   if(queuedLoad){queuedLoad=false;void loadMessages({quiet:true});}
+  }
  }
  async function selectThread(id){
   if(!threadById(id)){await refreshThreads();if(!threadById(id))return;}
-  if(activeId!==id){activeId=id;activeEpoch++;lastRendered='';history.replaceChildren();}
+  if(activeId!==id){
+   if(activeId)drafts.set(activeId,textarea.value);
+   activeId=id;activeEpoch++;lastRendered='';history.replaceChildren();
+   textarea.value=drafts.get(id)||'';
+  }
   renderHeading(threadById(id));renderThreads();
   onOpenView?.();
   await loadMessages();
  }
  compose.addEventListener('submit',async event=>{
   event.preventDefault();
-  const body=textarea.value.trim();
-  if(!activeId||!body){textarea.focus();return;}
+  const body=textarea.value.trim(),sendingThread=activeId;
+  if(!sendingThread||!body){textarea.focus();return;}
   if(body.length>2000){report('Message must be 2000 characters or less');return;}
   submit.disabled=true;
   try{
-   await teacherSendMessageV214(activeId,body);
-   textarea.value='';
-   lastRendered='';
-   await loadMessages();
+   await teacherSendMessageV214(sendingThread,body);
+   drafts.delete(sendingThread);
+   if(activeId===sendingThread){
+    if(textarea.value.trim()===body)textarea.value='';
+    lastRendered='';
+    await loadMessages();
+   }
    await refreshThreads({quiet:true});
-   textarea.focus();
+   if(activeId===sendingThread)textarea.focus();
   }catch(e){report(e);}
   finally{submit.disabled=false;}
  });
