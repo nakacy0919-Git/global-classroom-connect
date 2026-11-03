@@ -337,7 +337,14 @@ export function bindTeacherPortalPage(){
    }
   }
  }
- async function init(){try{identity=await teacherIdentity();$('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
+ async function init(){try{identity=await teacherIdentity();
+   if(!identity.timezone){
+    inform('Your school timezone is missing. Ask your school administrator to set it before creating or browsing sessions; GCC will not assume Japan time.',true);
+    $('gctp-create').hidden=true;$('gctp-next').disabled=true;
+    $('gctp-find-zone-label').textContent='School timezone not configured';
+    return;
+   }
+   $('gctp-greeting').textContent=`${flag(identity.country_code)} ${identity.name} · ${identity.school}`;
   $('gctp-zone').value=identity.timezone;$('gctp-date').value=tomorrow(identity.timezone);
   $('gctp-host-school').textContent=identity.school||'School not linked';
   $('gctp-host-identity').textContent=`${identity.name} · ${identity.country}`;
