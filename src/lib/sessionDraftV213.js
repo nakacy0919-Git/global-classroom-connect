@@ -1,7 +1,7 @@
 // Session draft serialization. Plain field values only — never binary/photo data.
 // Drafts are scoped server-side to the signed-in teacher (not browser shared storage).
 export const DRAFT_VERSION_V213=1;
-const isField=e=>e?.id?.startsWith('gctp-')&&
+const isField=e=>(e?.id?.startsWith('gctp-')||['gctp-mode','gctp-target-level'].includes(e?.name))&&
  !['gctp-publish','gctp-next','gctp-back','gctp-flyerfile','gctp-zone'].includes(e.id)&&
  !['file','button','submit','hidden'].includes(e.type);
 export function captureSessionDraftV213(form,step=0,sourceFlyerUrl=''){
