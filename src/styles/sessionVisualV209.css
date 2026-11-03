@@ -1,0 +1,78 @@
+/* GCC V20.9 — Find a Session: image-backed countries, high-contrast time and simple search dialogs. */
+.gct-portal.gcs209-finding>.gct-banner{display:none!important}
+.gct-portal.gcs209-finding .gcs151-find-hero{min-height:120px;padding:20px 25px}
+.gct-portal.gcs209-finding .gcs151-find-hero .gcs151-kicker{display:none}
+.gct-portal.gcs209-finding .gcs151-find-hero h3{margin:0 0 9px}
+.gct-portal.gcs209-finding .gcs151-discover-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:100%}
+.gct-portal.gcs209-finding .gcs151-discover-card{width:100%;max-width:none;min-height:104px}
+.gcs209-search-tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:-3px}
+.gcs209-search-tools>span{font-size:.79rem;color:#5b8597}
+.gcs209-open-search,.gcs209-apply,.gcs209-show-all{
+ border:1px solid #65b4cd;background:linear-gradient(120deg,#dff7ff,#e6f9f0);color:#1b6682;
+ font:inherit;font-weight:800;font-size:.87rem;min-height:42px;padding:9px 18px;
+ border-radius:11px;cursor:pointer;box-shadow:0 3px 10px #126f8c0f
+}
+.gcs209-open-search:hover,.gcs209-apply:hover{border-color:#328fa7;background:linear-gradient(120deg,#c9f2fd,#d6f3e8)}
+.gcs209-search-dialog{
+ position:fixed;inset:0;margin:auto;border:1px solid #b4dce7;border-radius:20px;
+ width:min(92vw,720px);min-width:0;max-height:min(90vh,860px);overflow:auto;
+ padding:24px;background:#fff;box-shadow:0 28px 95px #123e5570;color:#204b63
+}
+.gcs209-search-dialog:not([open]){display:none!important}
+.gcs209-search-dialog::backdrop{background:rgba(11,41,59,.58);backdrop-filter:blur(3px)}
+.gcs209-search-dialog h3,.gcs209-search-dialog h4{font-size:1.25rem;font-weight:850;color:#184a67;margin:0 0 10px}
+.gcs209-search-dialog p{font-size:.9rem;line-height:1.5;color:#537c8d}
+.gcs209-search-choice{width:min(90vw,620px)}
+.gcs209-search-choice .gcs151-discover-card{padding:13px;gap:9px;min-height:120px;flex-direction:column;align-items:flex-start;justify-content:center}
+.gcs209-search-choice .gcs151-discover-card .gcs151-discover-icon{width:45px;height:45px;flex:0 0 45px;font-size:1.6rem}
+.gcs209-search-choice .gcs151-discover-label{display:grid;gap:3px}
+.gcs209-search-choice .gcs151-discover-label small{font-size:.72rem}
+.gcs209-search-choice .gcs151-discover-card>span:last-child{display:none}
+.gcs209-show-all{margin-top:16px;background:#f7fafb;border-color:#d9e9ec;color:#36728a}
+.gcs209-dialog-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.gcs209-dialog-actions :is(button){flex:0 0 auto;max-width:230px;white-space:normal}
+.gcs209-map-dialog{width:min(94vw,950px)}
+.gcs209-map-dialog .gcs151-map-stage{max-height:430px;aspect-ratio:2/1}
+.gcs209-search-dialog :is(input,select){max-width:100%;min-width:0}
+.gcs209-session-card{gap:9px!important;background:linear-gradient(155deg,#fff,#f7fbfc 93%);border-color:#d1e8ec!important}
+.gcs209-country{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:0;min-width:0}
+.gcs209-country strong{font-size:1rem;font-weight:900;color:#185b82}
+.gcs209-country small{font-size:.6rem;font-weight:800;letter-spacing:.08em;color:#588ba2;background:#e7f5fa;padding:5px 7px;border-radius:7px}
+.gcs209-flag-frame{display:grid;place-items:center;width:52px;height:37px;flex:0 0 52px;padding:3px;border-radius:7px;border:1px solid #d5e4e8;background:white;box-shadow:0 2px 6px #11365418}
+.gcs209-flag-frame img{width:100%;height:100%;object-fit:cover;border-radius:3px}
+.gcs209-flag-fallback{display:none;font-size:1.55rem}
+.gcs209-flag-error img{display:none}
+.gcs209-flag-error .gcs209-flag-fallback{display:inline}
+.gcs209-session-card .gcs209-title{font-size:.97rem!important;font-weight:840;line-height:1.34;margin:1px 0!important;max-width:100%;overflow-wrap:anywhere}
+.gcs209-badges{display:flex;gap:5px;flex-wrap:wrap}
+.gcs209-school-level,.gcs209-format{display:inline-flex;align-self:flex-start;align-items:center;font-size:.78rem;line-height:1.35;padding:5px 9px;border-radius:8px;font-weight:800;background:#f2edf9;color:#655295;border:1px solid #e5dbf1}
+.gcs209-format{background:#eaf8f2;color:#36765d;border-color:#d6e9de}
+.gcs209-datetime{display:grid;gap:4px;padding:10px 12px;border:1px solid #c9e7ef;border-radius:12px;background:linear-gradient(110deg,#ebf9ff,#f3fcfa)}
+.gcs209-date{font-size:1rem;font-weight:850;color:#205b7c}
+.gcs209-hours{font-size:1.35rem;line-height:1.2;font-weight:900;color:#166d96;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.gcs209-datetime>small{font-size:.72rem;font-weight:700;color:#5b8598}
+.gcs209-subline,.gcs209-host-time,.gcs209-capacity{font-size:.76rem!important;color:#4f7588;line-height:1.45}
+.gcs209-details{margin-top:auto!important;padding:4px 0!important}
+.gcs209-details>summary{color:#237ca0;font-weight:800;font-size:.82rem}
+.gcs209-session-card .gct-request-form.gcs209-join{margin:0;align-self:flex-start;width:auto;max-width:100%;border:0;background:transparent}
+.gcs209-join>summary,.gcs209-register,.gcs209-submit{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;max-width:100%!important;width:max-content!important;
+ min-height:39px;padding:9px 15px!important;border-radius:10px!important;
+ font-size:.81rem!important;font-weight:800!important;text-decoration:none!important;
+ cursor:pointer;border:1px solid #7db5a6!important;
+ color:#1d6253!important;background:linear-gradient(120deg,#d8f6e7,#d9f2fb)!important;
+ box-shadow:0 3px 9px #2f7b6716!important
+}
+.gcs209-register{border-color:#82bbda!important;color:#1a6288!important;background:linear-gradient(115deg,#d7f3ff,#ebf9f8)!important}
+.gcs209-session-card .gcs209-join textarea{display:block;min-width:220px;max-width:min(100%,360px);margin:9px 0}
+.gcs209-submit{margin:5px 0 0!important}
+.gcs209-join>summary:hover,.gcs209-register:hover{filter:saturate(1.2);box-shadow:0 4px 13px #245f8124!important}
+.gcs209-session-card :is(button,a,summary):focus-visible{outline:3px solid #28a8c9;outline-offset:3px}
+@media(max-width:700px){
+ .gcs209-search-dialog{padding:17px;width:min(95vw,650px)}
+ .gcs209-search-choice .gcs151-discover-modes{grid-template-columns:1fr}
+ .gcs209-datetime{padding:9px}
+ .gcs209-hours{font-size:1.21rem}
+ .gcs209-dialog-actions{flex-wrap:wrap}
+}

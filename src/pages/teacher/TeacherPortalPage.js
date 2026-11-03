@@ -13,7 +13,10 @@ import '../../styles/sessionUxV204.css';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
 import {uploadSessionFlyerV203} from '../../services/sessionPlanServiceV203.js';
 import '../../styles/sessionPlannerV203.css';
-import {timeRangeV112} from '../../lib/sessionTimeV112.js';
+import {timeRangeV112,timePartsV112} from '../../lib/sessionTimeV112.js';
+import {overlapsLocalTimeV150} from '../../lib/sessionStudioV150.js';
+import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV209.js';
+import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
@@ -88,31 +91,36 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
    <div class="gcs151-hero-world" aria-hidden="true"><span>✦</span><span>🌏</span><span>✦</span></div>
   </header>
-  <div class="gcs151-discover-modes" role="group" aria-label="Choose how to find a session">
+  <div class="gcs209-search-tools"><button id="gctp-open-search" type="button" class="gcs209-open-search">🔎 Search options</button><span id="gctp-search-summary" role="status">Showing all upcoming sessions</span></div>
+  <dialog id="gctp-search-choice" class="gcs209-search-dialog gcs209-search-choice" aria-labelledby="gctp-search-choice-title">
+   <h3 id="gctp-search-choice-title">How would you like to find a session?</h3><p>Choose a method, then set your preferences.</p>
+   <div class="gcs151-discover-modes" role="group" aria-label="Choose how to find a session">
    <button id="gctp-discover-time" class="gcs151-discover-card" type="button" aria-pressed="true" data-gcs151-discovery="time">
     <span class="gcs151-discover-icon" aria-hidden="true">🕒</span><span class="gcs151-discover-label"><strong>Find by time</strong><small>Start with the hours you're available</small></span><span aria-hidden="true">→</span>
    </button>
    <button id="gctp-discover-map" class="gcs151-discover-card" type="button" aria-pressed="false" data-gcs151-discovery="map">
     <span class="gcs151-discover-icon" aria-hidden="true">🌐</span><span class="gcs151-discover-label"><strong>Explore world map</strong><small>Choose a country with an open session</small></span><span aria-hidden="true">→</span>
    </button>
-  </div>
-  <section id="gctp-find-time-panel" class="gcs151-discover-panel" aria-label="Find by available time">
+  </div><button id="gctp-show-all" class="gcs209-show-all" type="button">Show all sessions</button></dialog>
+  <dialog id="gctp-find-time-panel" class="gcs151-discover-panel gcs209-search-dialog" aria-label="Find by available time">
    <h4>When can your class join?</h4>
    <div class="gct-filterbar gcs150-main-filters">
     <label>Available time (your school time)<select id="gctp-find-preset"><option value="any">Any time</option><option value="morning">Morning · 08:00–12:00</option><option value="afternoon">Afternoon · 12:00–17:00</option><option value="evening">Evening · 17:00–22:00</option><option value="custom">Choose hours</option></select></label>
     <label>Date (optional)<input id="gctp-find-date" type="date"></label>
     <div id="gctp-find-custom" class="gcs150-custom" hidden><label>From<input id="gctp-find-from" type="time" value="09:00"></label><label>Until<input id="gctp-find-to" type="time" value="12:00"></label></div>
    </div>
-   <p class="gcs151-small-help">Results update automatically. Time zones and daylight saving are calculated for each session date.</p>
-  </section>
-  <section id="gctp-find-map-panel" class="gcs151-discover-panel" aria-label="Find by country" hidden>
+   <p class="gcs151-small-help">All times use your school's time zone, with daylight saving calculated for each session date.</p>
+   <div class="gcs209-dialog-actions"><button type="button" data-gcs209-cancel class="gct-secondary">Cancel</button><button id="gctp-apply-time" type="button" class="gcs209-apply">Show matching sessions →</button></div>
+  </dialog>
+  <dialog id="gctp-find-map-panel" class="gcs151-discover-panel gcs209-search-dialog gcs209-map-dialog" aria-label="Find by country">
    <div class="gcs151-map-heading"><div><h4>Explore available countries</h4><p>Only countries with currently open sessions are marked on the map.</p></div><span id="gctp-map-status" role="status" aria-live="polite">Select the map to explore</span></div>
    <div id="gctp-country-map" class="gcs151-map-stage" aria-label="Interactive world map"></div>
    <label class="gcs151-country-select-label">Choose from the list instead
     <select id="gctp-find-country"><option value="">All available countries</option></select>
    </label>
    <div id="gctp-country-list" class="gcs151-country-list" aria-label="Countries with open sessions"></div>
-  </section>
+   <div class="gcs209-dialog-actions"><button type="button" data-gcs209-cancel class="gct-secondary">Cancel</button><button id="gctp-apply-map" type="button" class="gcs209-apply">Show matching sessions →</button></div>
+  </dialog>
   <details class="gcs150-advanced"><summary>More options · school level, SDGs, format &amp; topic</summary>
    <div class="gct-filterbar">
     <label>Partner school level<select id="gctp-find-band"><option value="">Any level</option><option value="Primary">Elementary</option><option value="Lower Secondary">Junior high</option><option value="Upper Secondary">High school</option><option value="University">University</option><option value="Mixed">Mixed ages</option></select></label>
@@ -143,6 +151,7 @@ export function bindTeacherPortalPage(){
  let identity=null,offers=[],requests=[],hostEvents=[],formStep=0,discoverMode='time';
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
+  if($('gctp-find-map-panel').open)$('gctp-find-map-panel').close();
   $('gctp-find-country').value=code;
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],code);
   renderResults();
@@ -150,6 +159,7 @@ export function bindTeacherPortalPage(){
  });
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
+   root.classList.toggle('gcs209-finding',id==='find');
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
@@ -275,46 +285,65 @@ export function bindTeacherPortalPage(){
      if(kind&&d.session_type!==kind)return false;
      if(age&&!(Number(d.min_age)<=Number(age)&&Number(age)<=Number(d.max_age)))return false;
      if(term&&![e.title,d.description,d.preferred_countries].join(' ').toLowerCase().includes(term))return false;
-     if($('gctp-find-date').value&&new Date(e.starts_at).toLocaleDateString('en-CA',{timeZone:identity.timezone})!==$('gctp-find-date').value)return false;
+     if(discoverMode==='time'){
+      const selectedDate=$('gctp-find-date').value;
+      if(selectedDate&&timePartsV112(e.starts_at,identity.timezone).date!==selectedDate&&timePartsV112(e.ends_at,identity.timezone).date!==selectedDate)return false;
+      const ranges={morning:['08:00','12:00'],afternoon:['12:00','17:00'],evening:['17:00','22:00']};
+      const preset=$('gctp-find-preset').value;
+      const hours=preset==='custom'?[$('gctp-find-from').value,$('gctp-find-to').value]:ranges[preset]||['',''];
+      if(!overlapsLocalTimeV150(e,identity.timezone,...hours))return false;
+     }
      return true;
    });
   $('gctp-search-count').textContent=(results.length+published.length)+' sessions';
   if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
   const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
   for(const o of results){
-   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact'),top=element('div','gcs150-result-top');card.dataset.startsAt=o.starts_at;
-   top.append(element('span','gcs208-host-country',`${flag(o.country_code)} ${o.country_name} · HOST`));
-   if(GCC_MODES_V150[d.mode])top.append(element('span','gcs150-format',GCC_MODES_V150[d.mode].name));
-   card.append(top,element('h3','',sessionTitleV150(o)),element('p','',`${o.school_name} · ${o.teacher_name}`));
-   const clocks=element('div','gcs150-clock-pair');
-   for(const [label,zone] of [['YOUR TIME',identity.timezone],['HOST TIME',o.timezone||'UTC']]){
-    const block=element('div');block.append(element('small','',label),element('strong','',timeRangeV112(o.starts_at,o.ends_at,zone)),element('small','',zone));clocks.append(block);
-   }
-   card.append(clocks,element('small','',`${o.student_count} host-school students · Maximum ${totalCapacityV208(o)||'ask host'} · ${o.room_count} rooms`));
-   if(d.sdg)card.append(element('small','gcs150-sdg-tag',`SDG ${d.sdg} · ${GCC_SDG_V150[Number(d.sdg)-1]||''}`));
-   if(d.language)card.append(element('small','',`Languages: ${d.language}${d.english_level?' · English level: '+d.english_level:''}`));
-
-   if(d.session_type)card.append(element('strong','',TYPE_LABEL_V203(d.session_type)));
-   const full=element('details','gcc203-result-details');full.append(element('summary','','Full session details and flyer'));
+   const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
+   card.dataset.startsAt=o.starts_at;
+   appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),start:o.starts_at,end:o.ends_at,
+    zone:identity.timezone,host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},schoolLevel:schoolLevelV209(o)});
+   card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
+   if(GCC_MODES_V150[d.mode])card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
+   if(o.timezone&&o.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
+   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · Total capacity '+(totalCapacityV208(o)||'ask host')));
+   const full=element('details','gcs208-compact-details gcs209-details');
+   full.append(element('summary','','🔎 View details'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,d);full.append(body);card.append(full);
-   if(previously.has(o.id))card.append(element('span','gct-status approved','✓ Request already submitted'));
-   else{const detail=element('details','gct-request-form');detail.append(element('summary','','Request to Join →'));
-    const input=element('textarea');input.rows=2;input.maxLength=500;input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
-    const submit=element('button','gct-primary','Send join request →');submit.type='button';submit.addEventListener('click',async()=>{
-     submit.disabled=true;prepareSuccessChime();try{await teacherApply(o.id,input.value.trim());await refresh();inform('Request sent! Track it in My Requests. No email was sent.');showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});}
-     catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
-    });detail.append(input,submit);card.append(detail);}
+   if(previously.has(o.id)){
+    card.append(element('span','gct-status approved','✓ Join request submitted'));
+   }else{
+    const detail=element('details','gct-request-form gcs209-join');
+    detail.append(element('summary','','🤝 Request Join'));
+    const input=element('textarea');input.rows=2;input.maxLength=500;
+    input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
+    const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
+    submit.addEventListener('click',async()=>{
+     submit.disabled=true;prepareSuccessChime();
+     try{
+      await teacherApply(o.id,input.value.trim());await refresh();
+      inform('Request sent! Track it in My Requests. No email was sent.');
+      showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
+     }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
+    });
+    detail.append(input,submit);card.append(detail);
+   }
    list.append(card);
   }
   for(const e of published){
-   const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted');card.dataset.startsAt=e.starts_at;
-   const host=hostCountryV208(e);
-   card.append(element('div','gcs208-host-country',`${host.flag} ${host.name} · HOST COUNTRY`));
-   card.append(element('h3','',e.title),element('p','',timeRangeV112(e.starts_at,e.ends_at,identity.timezone)));
-   const info=element('details','gcs208-compact-details');info.append(element('summary','','Session details and flyer'));
+   const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card');
+   card.dataset.startsAt=e.starts_at;
+   appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
+    zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
+   if(e.timezone&&e.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
+   if(totalCapacityV208(e))card.append(element('small','gcs209-capacity','👥 Up to '+totalCapacityV208(e)+' students (including host school)'));
+   const info=element('details','gcs208-compact-details gcs209-details');
+   info.append(element('summary','','🔎 View details'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,e.session_details);info.append(body);card.append(info);
-   if(totalCapacityV208(e))card.append(element('small','',`Maximum participants (including host school): ${totalCapacityV208(e)}`));
-   const a=element('a','gct-primary gcs208-register','Register students →');a.href='#/session-register?session='+encodeURIComponent(e.id);
+   // These published events use the separate approved student-roster registration flow.
+   // Teachers' offers above use the genuine request/approval workflow.
+   const a=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students');
+   a.href='#/session-register?session='+encodeURIComponent(e.id);
    card.append(a);list.append(card);
   }
   list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
@@ -387,18 +416,45 @@ export function bindTeacherPortalPage(){
    }
    catch(err){const msg=err.message||'Could not publish the session.';inform(msg,true);showFormStep(2);guide.show(msg,2);}finally{btn.disabled=false;}
  });
+ const searchDialogs=['gctp-search-choice','gctp-find-time-panel','gctp-find-map-panel'];
+ const openSearchModal=(id)=>{
+  for(const other of searchDialogs){if($(other)?.open)$(other).close();}
+  const dlg=$(id);
+  if(typeof dlg.showModal==='function')dlg.showModal();
+  else dlg.setAttribute('open','');
+ };
  const setDiscoverMode=(mode)=>{
   discoverMode=mode==='map'?'map':'time';
-  $('gctp-find-time-panel').hidden=discoverMode!=='time';
-  $('gctp-find-map-panel').hidden=discoverMode!=='map';
   for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
    button.setAttribute('aria-pressed',String(button.dataset.gcs151Discovery===discoverMode));
   }
+  openSearchModal(discoverMode==='map'?'gctp-find-map-panel':'gctp-find-time-panel');
   if(discoverMode==='map')countryExplorer.load();
   renderResults();
  };
  for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
   button.addEventListener('click',()=>setDiscoverMode(button.dataset.gcs151Discovery));
+ }
+ $('gctp-open-search').addEventListener('click',()=>openSearchModal('gctp-search-choice'));
+ $('gctp-show-all').addEventListener('click',()=>{
+  $('gctp-search-choice').close();discoverMode='time';
+  $('gctp-reset-filters').click();
+  $('gctp-search-summary').textContent='All upcoming sessions';
+  scrollToCountryResultsV208($('gctp-results'));
+ });
+ $('gctp-apply-time').addEventListener('click',()=>{
+  $('gctp-find-time-panel').close();
+  $('gctp-search-summary').textContent='🕒 Time and date preferences applied';
+  renderResults();scrollToCountryResultsV208($('gctp-results'));
+ });
+ $('gctp-apply-map').addEventListener('click',()=>{
+  $('gctp-find-map-panel').close();
+  const selected=$('gctp-find-country');
+  $('gctp-search-summary').textContent=selected.value?'🌐 '+selected.selectedOptions[0].textContent:'🌐 All host countries';
+  renderResults();scrollToCountryResultsV208($('gctp-results'));
+ });
+ for(const cancel of root.querySelectorAll('[data-gcs209-cancel]')){
+  cancel.addEventListener('click',()=>cancel.closest('dialog')?.close());
  }
  $('gctp-reset-filters').addEventListener('click',()=>{
   $('gctp-find-preset').value='any';$('gctp-find-date').value='';
@@ -412,11 +468,11 @@ export function bindTeacherPortalPage(){
   $(id).addEventListener(id==='gctp-find-topic'?'input':'change',()=>{
    if(id==='gctp-find-country')countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
    renderResults();
-   if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value)scrollToCountryResultsV208($('gctp-results'));
+   if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value){$('gctp-find-map-panel').close();$('gctp-search-summary').textContent='🌐 '+$('gctp-find-country').selectedOptions[0].textContent;scrollToCountryResultsV208($('gctp-results'));}
   });
  }
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
- showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
+ showFormStep(0);display(view);if(view==='find')openSearchModal('gctp-search-choice');init().catch(e=>inform(e.message,true));
 }
