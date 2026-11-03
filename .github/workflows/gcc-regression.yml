@@ -8,7 +8,6 @@ on:
   pull_request:
     branches:
       - main
-      - 'feat/gcc-phase1-session-management-v212-20261103'
   workflow_dispatch:
 
 permissions:
