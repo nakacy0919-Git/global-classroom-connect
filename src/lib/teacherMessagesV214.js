@@ -5,6 +5,7 @@ import {
  teacherSendMessageV214,teacherMarkMessageReadV214
 } from '../services/teacherSelfService.js';
 import {timeRangeV112} from './sessionTimeV112.js';
+import {unreadTotalV214,chatBadgeV214} from './messageUnreadV214.js';
 import {calendarMenuV214} from './sessionCalendarExportV214.js';
 import {countryFlagSrcV209} from './sessionVisualV209.js';
 
@@ -15,9 +16,6 @@ const stamp=(iso,zone)=>{try{
  return new Intl.DateTimeFormat('en',{timeZone:zone||'UTC',
   month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
 }catch{return '';}};
-export const unreadTotalV214=threads=>Array.isArray(threads)?
- threads.reduce((sum,x)=>sum+Math.max(0,Number(x.unread_count)||0),0):0;
-export const chatBadgeV214=count=>count>99?'99+':String(Math.max(0,Math.floor(count)||0));
 export function mountTeacherMessagesV214(root,{getIdentity,onUnread,onError,onOpenView}){
  const panel=root.querySelector('#gcs214-messages-view');
  const list=root.querySelector('#gcs214-thread-list');
