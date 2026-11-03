@@ -285,6 +285,212 @@ BEGIN
  RETURN true;
 END $fn$;
 
+-- Database-side guard also covers direct writes by a privileged host account.
+-- This prevents bypassing the RPC's serialized capacity check.
+CREATE OR REPLACE FUNCTION public.gcc_v212_enforce_approved_capacity()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE offer record; booked integer; max_seats integer; old_approved integer:=0;
+BEGIN
+ IF NEW.status<>'approved' THEN RETURN NEW;END IF;
+ IF TG_OP='UPDATE' THEN
+  IF OLD.status='approved' AND OLD.requested_students=NEW.requested_students
+   AND OLD.offer_id=NEW.offer_id THEN RETURN NEW; END IF;
+  IF OLD.status='approved' AND OLD.offer_id=NEW.offer_id THEN
+   old_approved:=OLD.requested_students;
+  END IF;
+ END IF;
+ SELECT * INTO offer FROM public.exchange_availability
+ WHERE id=NEW.offer_id FOR UPDATE;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Session does not exist';END IF;
+ IF coalesce(offer.session_details->>'max_participants','') !~ '^[0-9]{1,4}
+CREATE OR REPLACE FUNCTION public.gcc_teacher_list_requests()
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE tid uuid:=public.gcc_current_teacher_id();result jsonb;
+BEGIN
+ SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC),'[]'::jsonb)
+ INTO result FROM (
+  SELECT r.id,r.offer_id,r.status,r.message,r.created_at,r.requesting_teacher_id,
+   r.requested_students,r.reconfirmation_required,a.teacher_id as host_teacher_id,
+   h.display_name as host_name,g.display_name as guest_name,
+   a.starts_at,a.ends_at,a.timezone,a.topic,
+   sh.country_code as host_country,
+   CASE WHEN a.teacher_id=tid THEN 'incoming' ELSE 'outgoing' END as direction
+  FROM public.session_join_requests r
+  JOIN public.exchange_availability a ON a.id=r.offer_id
+  JOIN public.teachers h ON h.id=a.teacher_id
+  JOIN public.teachers g ON g.id=r.requesting_teacher_id
+  LEFT JOIN public.schools sh ON sh.id=h.school_id
+  WHERE r.requesting_teacher_id=tid OR a.teacher_id=tid
+  ORDER BY r.created_at DESC LIMIT 200
+ ) x;
+ RETURN result;
+END $fn$;
+
+-- Teacher listing shows actual remaining seats, and keeps the meeting URL private.
+CREATE OR REPLACE FUNCTION public.gcc_teacher_browse_sessions()
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE tid uuid:=public.gcc_current_teacher_id();items jsonb;
+BEGIN
+ SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.starts_at),'[]'::jsonb)
+ INTO items FROM (
+  SELECT a.id,a.teacher_id,t.display_name as teacher_name,s.name as school_name,
+   s.country_name,s.country_code,a.starts_at,a.ends_at,a.timezone,a.student_count,
+   a.room_count,a.age_band,a.topic,a.status,
+   (a.session_details-'meeting_url') AS session_details,
+   (a.teacher_id=tid) as is_mine,
+   coalesce(booked.confirmed,0)::integer AS approved_guest_students,
+   CASE WHEN a.session_details->>'max_participants' ~ '^[0-9]{1,4}$'
+     THEN greatest(0,(a.session_details->>'max_participants')::integer
+       -a.student_count-coalesce(booked.confirmed,0)) ELSE NULL END AS available_seats
+  FROM public.exchange_availability a
+  JOIN public.teachers t ON t.id=a.teacher_id AND t.is_active=true
+  JOIN public.schools s ON s.id=t.school_id
+  LEFT JOIN LATERAL (
+    SELECT coalesce(sum(requested_students),0) AS confirmed
+    FROM public.session_join_requests r WHERE r.offer_id=a.id AND r.status='approved'
+  ) booked ON true
+  WHERE a.ends_at>now() AND (a.teacher_id=tid OR
+   (a.status='open' AND (a.session_details->>'registration_closes_at' IS NULL
+    OR (a.session_details->>'registration_closes_at')::timestamptz>now())))
+  ORDER BY a.starts_at ASC LIMIT 300
+ ) x;
+ RETURN items;
+END $fn$;
+
+-- Never let anonymous actors call teacher-specific RPCs. Internal triggers
+-- are invoked only by Postgres, not via the external REST Data API.
+REVOKE ALL ON FUNCTION public.gcc_v212_request_notify() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gcc_v212_offer_notice() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gcc_v212_notifications() FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_mark_notification_read(uuid) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_apply_to_session(uuid,text,integer) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_review_request(uuid,text) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_manage_session(uuid) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_edit_session(uuid,timestamptz,timestamptz,integer,integer,text,text,text,jsonb) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_confirm_new_schedule(uuid) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_reopen_session(uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_notifications() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_mark_notification_read(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_apply_to_session(uuid,text,integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_review_request(uuid,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_manage_session(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_edit_session(uuid,timestamptz,timestamptz,integer,integer,text,text,text,jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_confirm_new_schedule(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_reopen_session(uuid) TO authenticated;
+
+COMMIT;
+
+ THEN RAISE EXCEPTION 'Complete total session capacity before approving students';END IF;
+ max_seats:=(offer.session_details->>'max_participants')::integer;
+ SELECT coalesce(sum(requested_students),0) INTO booked
+ FROM public.session_join_requests WHERE offer_id=NEW.offer_id AND status='approved';
+ IF offer.student_count+booked-old_approved+NEW.requested_students>max_seats THEN
+  RAISE EXCEPTION 'Approved students would exceed total session capacity';END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v212_approved_capacity_trg ON public.session_join_requests;
+CREATE TRIGGER gcc_v212_approved_capacity_trg
+ BEFORE INSERT OR UPDATE OF status,requested_students,offer_id
+ ON public.session_join_requests
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v212_enforce_approved_capacity();
+
+CREATE OR REPLACE FUNCTION public.gcc_v212_offer_capacity_guard()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE booked integer; total_cap integer;
+BEGIN
+ IF coalesce(NEW.session_details->>'max_participants','') !~ '^[0-9]{1,4}
+CREATE OR REPLACE FUNCTION public.gcc_teacher_list_requests()
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE tid uuid:=public.gcc_current_teacher_id();result jsonb;
+BEGIN
+ SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC),'[]'::jsonb)
+ INTO result FROM (
+  SELECT r.id,r.offer_id,r.status,r.message,r.created_at,r.requesting_teacher_id,
+   r.requested_students,r.reconfirmation_required,a.teacher_id as host_teacher_id,
+   h.display_name as host_name,g.display_name as guest_name,
+   a.starts_at,a.ends_at,a.timezone,a.topic,
+   sh.country_code as host_country,
+   CASE WHEN a.teacher_id=tid THEN 'incoming' ELSE 'outgoing' END as direction
+  FROM public.session_join_requests r
+  JOIN public.exchange_availability a ON a.id=r.offer_id
+  JOIN public.teachers h ON h.id=a.teacher_id
+  JOIN public.teachers g ON g.id=r.requesting_teacher_id
+  LEFT JOIN public.schools sh ON sh.id=h.school_id
+  WHERE r.requesting_teacher_id=tid OR a.teacher_id=tid
+  ORDER BY r.created_at DESC LIMIT 200
+ ) x;
+ RETURN result;
+END $fn$;
+
+-- Teacher listing shows actual remaining seats, and keeps the meeting URL private.
+CREATE OR REPLACE FUNCTION public.gcc_teacher_browse_sessions()
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE tid uuid:=public.gcc_current_teacher_id();items jsonb;
+BEGIN
+ SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.starts_at),'[]'::jsonb)
+ INTO items FROM (
+  SELECT a.id,a.teacher_id,t.display_name as teacher_name,s.name as school_name,
+   s.country_name,s.country_code,a.starts_at,a.ends_at,a.timezone,a.student_count,
+   a.room_count,a.age_band,a.topic,a.status,
+   (a.session_details-'meeting_url') AS session_details,
+   (a.teacher_id=tid) as is_mine,
+   coalesce(booked.confirmed,0)::integer AS approved_guest_students,
+   CASE WHEN a.session_details->>'max_participants' ~ '^[0-9]{1,4}$'
+     THEN greatest(0,(a.session_details->>'max_participants')::integer
+       -a.student_count-coalesce(booked.confirmed,0)) ELSE NULL END AS available_seats
+  FROM public.exchange_availability a
+  JOIN public.teachers t ON t.id=a.teacher_id AND t.is_active=true
+  JOIN public.schools s ON s.id=t.school_id
+  LEFT JOIN LATERAL (
+    SELECT coalesce(sum(requested_students),0) AS confirmed
+    FROM public.session_join_requests r WHERE r.offer_id=a.id AND r.status='approved'
+  ) booked ON true
+  WHERE a.ends_at>now() AND (a.teacher_id=tid OR
+   (a.status='open' AND (a.session_details->>'registration_closes_at' IS NULL
+    OR (a.session_details->>'registration_closes_at')::timestamptz>now())))
+  ORDER BY a.starts_at ASC LIMIT 300
+ ) x;
+ RETURN items;
+END $fn$;
+
+-- Never let anonymous actors call teacher-specific RPCs. Internal triggers
+-- are invoked only by Postgres, not via the external REST Data API.
+REVOKE ALL ON FUNCTION public.gcc_v212_request_notify() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gcc_v212_offer_notice() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gcc_v212_notifications() FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_mark_notification_read(uuid) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_apply_to_session(uuid,text,integer) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_review_request(uuid,text) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_manage_session(uuid) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_edit_session(uuid,timestamptz,timestamptz,integer,integer,text,text,text,jsonb) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_confirm_new_schedule(uuid) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.gcc_v212_teacher_reopen_session(uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_notifications() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_mark_notification_read(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_apply_to_session(uuid,text,integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_review_request(uuid,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_manage_session(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_edit_session(uuid,timestamptz,timestamptz,integer,integer,text,text,text,jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_confirm_new_schedule(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v212_teacher_reopen_session(uuid) TO authenticated;
+
+COMMIT;
+
+ THEN RETURN NEW;END IF;
+ total_cap:=(NEW.session_details->>'max_participants')::integer;
+ SELECT coalesce(sum(requested_students),0) INTO booked
+ FROM public.session_join_requests WHERE offer_id=NEW.id AND status='approved';
+ IF NEW.student_count+booked>total_cap THEN
+  RAISE EXCEPTION 'Session total capacity must include all approved participants';END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v212_offer_capacity_guard_trg ON public.exchange_availability;
+CREATE TRIGGER gcc_v212_offer_capacity_guard_trg
+ BEFORE UPDATE OF student_count,session_details ON public.exchange_availability
+ FOR EACH ROW EXECUTE FUNCTION public.gcc_v212_offer_capacity_guard();
+REVOKE ALL ON FUNCTION public.gcc_v212_enforce_approved_capacity() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gcc_v212_offer_capacity_guard() FROM PUBLIC,anon,authenticated;
+
 -- Return only the relevant count and schedule status to the applicant/host.
 CREATE OR REPLACE FUNCTION public.gcc_teacher_list_requests()
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
