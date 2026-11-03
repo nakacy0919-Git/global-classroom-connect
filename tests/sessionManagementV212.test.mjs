@@ -78,6 +78,15 @@ test('in-app notifications are teacher-scoped and private; external email is not
  assert.match(portal,/Automated email is not yet enabled/);
  assert.doesNotMatch(sql,/http_post|resend\.com|smtp/);
 });
+test('legacy host-managed events show a precise missing-details checklist without inventing content',()=>{
+ const editor=read('src/lib/hostPlanEditorV203.js');
+ const host=read('src/pages/host/SimpleSessionsPage.js');
+ assert.match(editor,/sessionReadinessV212\(event\)/);
+ assert.match(editor,/Complete missing session details/);
+ assert.match(editor,/readiness.missing.includes\('Agenda \(at least two activities\)'\)/);
+ assert.match(editor,/form.querySelector\('#gcc203edit-'\+focus\)\?\.focus\(\)/);
+ assert.match(host,/mountHostPlanEditorV203/);
+});
 test('published events and existing room plans are not modified by this migration',()=>{
  assert.doesNotMatch(sql,/(?:UPDATE|DELETE FROM)\s+public\.(?:events|gcc_v91_room_drafts|gcc_v102_shared_plans|gcc_v104_shared_access|gcc_session_signup_students)\b/i);
  assert.match(sql,/CREATE OR REPLACE FUNCTION public.gcc_teacher_browse_sessions/);
