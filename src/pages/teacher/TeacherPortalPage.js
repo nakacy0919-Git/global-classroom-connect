@@ -376,7 +376,7 @@ export function bindTeacherPortalPage(){
    });
   $('gctp-search-count').textContent=(results.length+published.length)+' sessions';
   if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
-  const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
+  const previously=new Map(requests.filter(r=>r.direction==='outgoing').map(r=>[r.offer_id,r]));
   for(const o of results){
    const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
    card.dataset.startsAt=o.starts_at;
@@ -385,27 +385,48 @@ export function bindTeacherPortalPage(){
    card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
    if(GCC_MODES_V150[d.mode])card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
    if(o.timezone&&o.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
-   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · Total capacity '+(totalCapacityV208(o)||'ask host')));
+   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · '+
+    (availableSeatsV212(o)===null?'Capacity not set':availableSeatsV212(o)+' seats remaining')));
    const full=element('details','gcs208-compact-details gcs209-details');
    full.append(element('summary','','🔎 View details'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,d);full.append(body);card.append(full);
-   if(previously.has(o.id)){
-    card.append(element('span','gct-status approved','✓ Join request submitted'));
+   const previous=previously.get(o.id);
+   if(o.is_mine){
+    const edit=element('button','gcs209-register','✎ Manage my session');edit.type='button';
+    edit.addEventListener('click',async()=>{
+     edit.disabled=true;try{await manager.open(o);}
+     catch(e){inform(e.message||'Could not edit this session',true);}
+     finally{edit.disabled=false;}
+    });card.append(edit);
+   }else if(previous){
+    card.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
+   }else if(!canRequestV212(o)){
+    card.append(element('span','gcs212-status gcs212-incomplete',
+     availableSeatsV212(o)===0?'Fully booked':'Host must complete the capacity setting'));
    }else{
     const detail=element('details','gct-request-form gcs209-join');
     detail.append(element('summary','','🤝 Request Join'));
+    const countLabel=element('label','gcs212-request-count','Students joining from your school *');
+    const count=element('input');count.type='number';count.min='1';
+    count.max=String(Math.min(500,availableSeatsV212(o)));count.value='1';
+    count.required=true;count.setAttribute('aria-label','Number of students joining your school');
+    countLabel.append(count);
     const input=element('textarea');input.rows=2;input.maxLength=500;
     input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
     const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
     submit.addEventListener('click',async()=>{
+     const number=Number(count.value);
+     if(!count.checkValidity()||!Number.isInteger(number)){
+      count.focus();inform('Enter the number of students joining (within available seats).',true);return;
+     }
      submit.disabled=true;prepareSuccessChime();
      try{
-      await teacherApply(o.id,input.value.trim());await refresh();
-      inform('Request sent! Track it in My Requests. No email was sent.');
+      await teacherApply(o.id,input.value.trim(),number);await refresh();
+      inform('Request sent! The host received an in-app notification.');
       showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
      }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
     });
-    detail.append(input,submit);card.append(detail);
+    detail.append(countLabel,input,submit);card.append(detail);
    }
    list.append(card);
   }
