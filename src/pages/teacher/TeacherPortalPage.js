@@ -151,6 +151,7 @@ export function bindTeacherPortalPage(){
  let identity=null,offers=[],requests=[],hostEvents=[],formStep=0,discoverMode='time';
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
+  if($('gctp-find-map-panel').open)$('gctp-find-map-panel').close();
   $('gctp-find-country').value=code;
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],code);
   renderResults();
@@ -158,6 +159,7 @@ export function bindTeacherPortalPage(){
  });
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
+   root.classList.toggle('gcs209-finding',id==='find');
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
@@ -283,7 +285,14 @@ export function bindTeacherPortalPage(){
      if(kind&&d.session_type!==kind)return false;
      if(age&&!(Number(d.min_age)<=Number(age)&&Number(age)<=Number(d.max_age)))return false;
      if(term&&![e.title,d.description,d.preferred_countries].join(' ').toLowerCase().includes(term))return false;
-     if($('gctp-find-date').value&&new Date(e.starts_at).toLocaleDateString('en-CA',{timeZone:identity.timezone})!==$('gctp-find-date').value)return false;
+     if(discoverMode==='time'){
+      const selectedDate=$('gctp-find-date').value;
+      if(selectedDate&&timePartsV112(e.starts_at,identity.timezone).date!==selectedDate&&timePartsV112(e.ends_at,identity.timezone).date!==selectedDate)return false;
+      const ranges={morning:['08:00','12:00'],afternoon:['12:00','17:00'],evening:['17:00','22:00']};
+      const preset=$('gctp-find-preset').value;
+      const hours=preset==='custom'?[$('gctp-find-from').value,$('gctp-find-to').value]:ranges[preset]||['',''];
+      if(!overlapsLocalTimeV150(e,identity.timezone,...hours))return false;
+     }
      return true;
    });
   $('gctp-search-count').textContent=(results.length+published.length)+' sessions';
