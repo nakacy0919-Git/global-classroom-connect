@@ -81,7 +81,7 @@ test('cards are compact and accessible, with prominent flag and short CTA',()=>{
  assert.match(s,/max-width:100%/);
  assert.match(s,/width:max-content!important/);
  assert.match(s,/@media\(max-width:750px\)/);
- assert.match(teacher,/gcs208-host-country/);assert.match(host,/gcs208-host-country/);
+ assert.match(teacher,/appendVisualBasicsV209/);assert.match(host,/gcs208-host-country/);
  assert.match(teacher,/gcs208-compact-details/);
  assert.match(host,/publishedByCountryV208/);
 });
