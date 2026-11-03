@@ -170,7 +170,7 @@
   border:0;
   border-radius:0;
   object-fit:cover;
-  object-position:center 20%;
+  object-position:center top;
   background:#e4edf1;
   transition:transform .32s ease;
 }
