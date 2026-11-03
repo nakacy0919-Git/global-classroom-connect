@@ -278,29 +278,62 @@ export function bindTeacherPortalPage(){
    }
   }
  }
+ function makeManageCard(o,{compact=false}={}){
+  const card=element('article','gct-session-card gcs212-offer');
+  const ready=sessionReadinessV212(o);
+  const head=element('div','gcs212-offer-head');
+  head.append(element('strong','',sessionTitleV150(o)),
+   element('span','gcs212-status '+(ready.ready?'gcs212-ready':'gcs212-incomplete'),
+    ready.ready?'✓ Ready':ready.label));
+  card.append(head,
+    element('p','',timeRangeV112(o.starts_at,o.ends_at,identity.timezone)),
+    element('small','',o.student_count+' host students · '+
+      (o.approved_guest_students||0)+' approved guest students · '+
+      (availableSeatsV212(o)??'Unknown')+' open seats · '+o.status));
+  if(!ready.ready)card.append(element('p','gcs212-missing','Needs: '+ready.missing.join(' · ')));
+  const row=element('div','gcs212-offer-actions');
+  const edit=element('button','gct-primary',ready.ready?'✎ Edit session':'✎ Complete details');
+  edit.type='button';
+  edit.addEventListener('click',async()=>{
+   edit.disabled=true;try{await manager.open(o);}
+   catch(e){inform(e.message||'Unable to open session editor',true);}
+   finally{edit.disabled=false;}
+  });
+  row.append(edit);
+  if(!compact){
+   const status=element('button','gct-secondary',o.status==='open'?'Close to requests':'Reopen session');
+   status.type='button';
+   status.addEventListener('click',async()=>{
+    if(!confirm(o.status==='open'?'Close this session to new requests? Approved schools remain registered.':'Reopen this session for new requests?'))return;
+    status.disabled=true;
+    try{
+     if(o.status==='open')await teacherCloseSession(o.id);
+     else await manager.reopen(o);
+     await refresh();
+     inform('Session status updated. Partner teachers were notified inside GCC.');
+    }catch(e){inform(e.message||'Could not change status',true);status.disabled=false;}
+   });row.append(status);
+  }
+  card.append(row);return card;
+ }
  function renderHome(){
   const mine=upcoming().filter(o=>o.is_mine);
-  const pending=requests.filter(r=>r.status==='pending');
+  const pending=requests.filter(r=>r.direction==='incoming'&&r.status==='pending');
   $('gctp-home-sessions-count').textContent=String(mine.length);
   $('gctp-home-requests-count').textContent=String(pending.length);
   const list=$('gctp-home-mine');list.replaceChildren();
-  if(!mine.length){list.append(element('p','gct-empty','No upcoming sessions yet. Create one to meet classrooms worldwide.'));return;}
-  for(const o of mine.slice(0,3)){
-   const card=element('article','gct-session-card');
-   card.append(element('strong','',sessionTitleV150(o)),
-     element('p','',timeRangeV112(o.starts_at,o.ends_at,identity.timezone)),
-     element('small','',o.status==='open'?'Open for partner teachers':String(o.status||'')));
-   list.append(card);
+  if(!mine.length){
+   list.append(element('p','gct-empty','No upcoming sessions yet. Create one to meet classrooms worldwide.'));return;
   }
+  for(const o of mine.slice(0,3))list.append(makeManageCard(o,{compact:true}));
  }
- function renderMine(){const list=$('gctp-mine');list.replaceChildren();
-  const mine=upcoming().filter(o=>o.is_mine);if(!mine.length){list.append(element('p','gct-empty','No sessions yet. Choose a date and publish your first session.'));return;}
-  for(const o of mine){const card=element('article','gct-session-card');card.append(element('strong','',sessionTitleV150(o)),
-    element('p','',`${timeRangeV112(o.starts_at,o.ends_at,identity.timezone)} (${identity.timezone})`),
-    element('small','',`${o.student_count} students · ${o.room_count} rooms · ${o.status}`));
-    if(o.status==='open'){const close=element('button','gct-secondary','Close session');close.type='button';close.addEventListener('click',async()=>{
-     if(!confirm('Close this session to new applicants?'))return;close.disabled=true;try{await teacherCloseSession(o.id);await refresh();inform('Session closed.');}catch(e){inform(e.message,true);close.disabled=false;}
-    });card.append(close);}list.append(card);}
+ function renderMine(){
+  const list=$('gctp-mine');list.replaceChildren();
+  const mine=upcoming().filter(o=>o.is_mine);
+  if(!mine.length){
+   list.append(element('p','gct-empty','No hosted sessions yet. Choose a date and publish one.'));return;
+  }
+  for(const o of mine)list.append(makeManageCard(o));
  }
  function searchFiltered(){
   if(!identity)return [];
