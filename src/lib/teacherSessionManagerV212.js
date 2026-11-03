@@ -52,7 +52,7 @@ export function mountSessionManagerV212(root,{identity,onSaved,onError}){
  input.band=field(basics,'band','Your school level *','select',
   {values:GCC_LEVELS_V150.map(([code,label])=>[code,label])});
  input.mode=field(basics,'mode','Connection format *','select',
-  {values:Object.entries(GCC_MODES_V150).map(([code,data])=>[code,data.name])});
+  {required:true,values:Object.entries(GCC_MODES_V150).map(([code,data])=>[code,data.name])});
  input.topic=field(basics,'topic','Session topic','text',{maxLength:120});
  input.notes=field(basics,'notes','Notes to other teachers','textarea',{maxLength:500});
  const target=node('fieldset','gcs212-target-levels');
@@ -96,7 +96,7 @@ export function mountSessionManagerV212(root,{identity,onSaved,onError}){
   input.capacity.value=String(d.max_participants||'');
   input.rooms.value=String(data.room_count);
   input.band.value=data.age_band;
-  input.mode.value=d.mode||'classroom';
+  input.mode.value=d.mode||'';
   input.topic.value=data.topic||'';
   input.notes.value=data.notes||'';
   for(const checkbox of target.querySelectorAll('input[type=checkbox]')){
@@ -106,7 +106,13 @@ export function mountSessionManagerV212(root,{identity,onSaved,onError}){
    maxage:d.max_age,grades:d.accepted_grades,description:d.description,
    platform:d.platform,meeting:d.meeting_url,breakout:d.breakout_mode,
    breakoutnotes:d.breakout_notes};
-  for(const [key,value] of Object.entries(vals))setPlan(key,value);
+  for(const [key,value] of Object.entries(vals)){
+   if(value===undefined||value===null||value===''){
+    const select=planSlot.querySelector('#gcs212plan-'+key);
+    if(select?.tagName==='SELECT')select.selectedIndex=-1;
+    else if(select&&key!=='flyerfile')select.value='';
+   }else setPlan(key,value);
+  }
   const flow=(d.flow||[]).filter(x=>x?.time&&x?.activity)
    .map(x=>x.time+' '+x.activity).join('\n');
   setPlan('flow',flow);
