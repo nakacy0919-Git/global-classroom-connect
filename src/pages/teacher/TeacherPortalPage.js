@@ -20,6 +20,9 @@ import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
 import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
+import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213,favoriteKeyV213} from '../../lib/sessionSearchV213.js';
+import {captureSessionDraftV213,applySessionDraftV213,copiedSessionDraftV213} from '../../lib/sessionDraftV213.js';
+import '../../styles/sessionWorkspaceV213.css';
 import '../../styles/sessionManagementV212.css';
 
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
@@ -27,7 +30,7 @@ import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
- teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule} from '../../services/teacherSelfService.js';
+ teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
 
 const element=(name,cls='',text='')=>{const n=document.createElement(name);n.className=cls;n.textContent=text;return n;};
 const flag=code=>/^[A-Z]{2}$/.test(code||'')?[...code].map(c=>String.fromCodePoint(127397+c.charCodeAt())).join(''):'🌐';
@@ -53,7 +56,12 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
   <div class="gct-section-head"><span>✦</span><div><h3>Create a global classroom session</h3><p>Four quick steps to bring the world into your classroom.</p></div></div>
-  <nav class="gcs150-steps" aria-label="Session setup"><span data-gcs150-step-dot="0">1 · Basics</span><span data-gcs150-step-dot="1">2 · Format</span><span data-gcs150-step-dot="2">3 · Topics</span><span data-gcs150-step-dot="3">4 · Review</span></nav>
+  <div class="gcs213-draft-tools" aria-label="Save your session draft">
+    <span id="gcs213-draft-status" role="status" aria-live="polite">Checking your draft…</span>
+    <button id="gcs213-save-draft" type="button" class="gct-secondary">Save draft</button>
+    <button id="gcs213-discard-draft" type="button" class="gct-secondary" hidden>Discard draft</button>
+   </div>
+   <nav class="gcs150-steps" aria-label="Session setup"><span data-gcs150-step-dot="0">1 · Basics</span><span data-gcs150-step-dot="1">2 · Format</span><span data-gcs150-step-dot="2">3 · Topics</span><span data-gcs150-step-dot="3">4 · Review</span></nav>
   <p class="gcs151-step-status" id="gctp-form-step" aria-live="polite">Step 1 of 4 · Tell us when you can connect</p>
   <section class="gct-form-section" data-gctp-form-section="0">
    <div class="gcs150-intro"><h4>Plan your session</h4><p>No need to enter your school or teacher details again.</p></div>
@@ -136,8 +144,16 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
     <label class="gcs150-match"><input id="gctp-find-compatible" type="checkbox"><span>Partner accepts my school level</span></label>
    </div>
   </details>
-  <div class="gcs151-results-heading"><div><h3>Matching sessions</h3><span id="gctp-search-count" role="status" aria-live="polite"></span></div><button id="gctp-reset-filters" class="gct-secondary" type="button">Clear filters</button></div>
+  <div class="gcs151-results-heading gcs213-results-heading">
+     <div><h3>Matching sessions</h3><span id="gctp-search-count" role="status" aria-live="polite"></span></div>
+     <div class="gcs213-results-tools">
+      <label>Sort <select id="gcs213-sort"><option value="soonest">Soonest first</option><option value="latest">Latest first</option><option value="seats">Most seats available</option><option value="country">Host country A–Z</option></select></label>
+      <label class="gcs213-fav-filter"><input id="gcs213-favorites-only" type="checkbox"> ★ Favorites</label>
+      <button id="gctp-reset-filters" class="gct-secondary" type="button">Clear filters</button>
+     </div>
+    </div>
   <div id="gctp-results" class="gct-results"></div>
+  <button id="gcs213-show-more" class="gcs213-show-more" type="button" hidden>Show more sessions ↓</button>
  </div>
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
