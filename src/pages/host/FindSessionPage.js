@@ -14,6 +14,8 @@ import {eligibleRequesters,requestForPair} from '../../lib/joinRequestRules.js';
 import {loadMatchData} from '../../services/matchingService.js';
 import {buildSearchWindow,filterSessionOffers} from '../../lib/sessionSearch.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
+import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213} from '../../lib/sessionSearchV213.js';
+import '../../styles/sessionWorkspaceV213.css';
 
 const el=(tag,className='',text='')=>{
   const e=document.createElement(tag);e.className=className;e.textContent=text;return e;
@@ -58,6 +60,8 @@ export function FindSessionPage() {
           <option value="University">University</option>
           <option value="Mixed">Mixed ages</option></select></label>
         <label class="gcf-field"><span>Session type</span><select id="gcf-type"><option value="">All formats</option></select></label>
+        <label class="gcf-field"><span>Connection format</span><select id="gcf-mode"><option value="">Any connection format</option><option value="device">Individual devices</option><option value="classroom">Classroom to classroom</option><option value="hybrid">Hybrid</option></select></label>
+        <label class="gcf-field"><span>SDG goal</span><select id="gcf-sdg"><option value="">Any SDG</option></select></label>
         <label class="gcf-field"><span>Student age</span><input id="gcf-age" type="number" min="5" max="30" placeholder="Any age"></label>
         <label class="gcf-field"><span>Topic, country or school</span><input id="gcf-query" type="search" placeholder="e.g. Food, Culture, Philippines"></label>
         <p id="gcf-error" role="alert" class="gcf-error" hidden></p>
@@ -67,8 +71,10 @@ export function FindSessionPage() {
       <section class="gcf-results" aria-label="Available Sessions">
         <div class="gcf-results-top"><div><span class="gcf-step">MATCHING OPPORTUNITIES</span><h3>Available Sessions</h3></div>
           <span class="gcf-result-count" id="gcf-count">Loading…</span></div>
+        <label class="gcs213-host-sort">Sort <select id="gcf-sort"><option value="soonest">Soonest first</option><option value="latest">Latest first</option><option value="country">Host country A–Z</option></select></label>
         <div class="gcf-current-search" id="gcf-summary">Upcoming international opportunities</div>
         <div class="gcf-list" id="gcf-list" aria-live="polite"><p class="gcf-intro">Loading available sessions…</p></div>
+        <button id="gcf-show-more" type="button" class="gcs213-show-more" hidden>Show more sessions ↓</button>
         <footer class="gcf-footnote">Host-managed applications. Teacher self-service requires account permissions and is not enabled yet.</footer>
       </section>
     </div>
@@ -104,7 +110,7 @@ export function bindFindSessionPage() {
   const clearButton=findForm?.querySelector('#gcf-clear');
   const feedback=findForm?.querySelector('#gcf-error');
   const optionalHeading=findForm?.querySelector('.gcf-optional-head');
-  const advancedIds=['gcf-country','gcf-level','gcf-type','gcf-age','gcf-query'];
+  const advancedIds=['gcf-country','gcf-level','gcf-type','gcf-mode','gcf-sdg','gcf-age','gcf-query'];
   const advancedFields=advancedIds.map(id=>findForm?.querySelector('#'+id)?.closest('.gcf-field'));
   if(!timeFields||!searchButton||!clearButton||!feedback||!optionalHeading||advancedFields.some(e=>!e))
     throw Error('Find search controls are not where expected.');
@@ -187,7 +193,7 @@ export function bindFindSessionPage() {
   const $=id=>root.querySelector('#'+id);
   let state={teachers:[],offers:[],shortlists:[]};let master=[];let selectedWindow={from:null,to:null};
   let joinRequests=[];let activeOffer=null; // GCC_JOIN_V4
-  let applied={country:'',level:'',type:'',age:'',query:''};
+  let applied={country:'',level:'',type:'',mode:'',sdg:'',age:'',query:''},visibleCount=12;
   const zone=$('gcf-zone');
   const detected=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
   const timezones=new Set([detected,'Asia/Tokyo','Asia/Manila','Asia/Bangkok','Asia/Jakarta',
@@ -199,6 +205,7 @@ export function bindFindSessionPage() {
   }
   zone.value=detected;
   for(const [id,name] of SESSION_TYPES_V203){const option=el('option','',name);option.value=id;$('gcf-type').append(option);}
+  for(let goal=1;goal<=17;goal++)$('gcf-sdg').append(new Option('SDG '+goal,String(goal)));
   const teacherById=()=>new Map(state.teachers.map(t=>[t.id,t]));
   function openRequest(offer){
     activeOffer=offer;
