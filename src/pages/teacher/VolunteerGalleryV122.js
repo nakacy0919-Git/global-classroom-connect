@@ -41,7 +41,7 @@ export function mountVolunteerGalleryV122(root,openTab){
  const placeFlag=(person)=>{
   const row=el('div','gcc122-person-location');
   const img=el('img');img.src=countryFlagAssetV131(person.country,person.country_code);
-  img.alt='';img.width=24;img.height=17;row.append(img);
+  img.alt='';img.width=38;img.height=27;img.loading='lazy';img.decoding='async';row.append(img);
   row.append(el('span','',person.country||person.country_code||'Global Classroom'));
   return row;
  };
