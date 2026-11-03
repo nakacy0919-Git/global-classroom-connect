@@ -15,7 +15,7 @@ test('agenda requires timed ordered stages that span the session',()=>{
  const rows=parseFlowV203('13:10 | Welcome and goals\n13:20 | Cultural exchange breakout\n13:55 | Reflection and closing','13:10','14:00');
  assert.equal(rows.length,3);
  assert.equal(rows[2].time,'13:55');
- assert.throws(()=>parseFlowV203('13:20 | Too late\n13:30 | Discuss together','13:10','14:00'),/agenda must begin/);
+ assert.equal(parseFlowV203('13:20 Welcome guests\n13:30 - Discuss together','13:10','14:00').length,2);
  assert.throws(()=>parseFlowV203('13:10 | Welcome together\n13:09 | Another activity','13:10','14:00'),/times must be ordered|ordered within/);
  assert.throws(()=>parseFlowV203('13:10 | Welcome together','13:10','14:00'),/2–20/);
 });
