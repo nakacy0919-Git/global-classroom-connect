@@ -10,7 +10,7 @@ test('volunteer photos have uniformly filled square tiles without stretching',()
  const rule=css.slice(css.indexOf('/* GCC V21.1'));
  assert.match(rule,/\.gcc133-person-open \.gcc122-person-photo\s*\{[^}]*aspect-ratio:1\s*\/\s*1;/s);
  assert.match(rule,/\.gcc133-person-open \.gcc122-person-photo img\s*\{[^}]*object-fit:cover;/s);
- assert.match(rule,/object-position:center 20%/);
+ assert.match(rule,/object-position:center top/);
  assert.match(rule,/background:linear-gradient/);
  assert.match(rule,/width:100%;\s*height:100%;\s*max-width:none;/s);
 });
