@@ -40,7 +40,7 @@ test('find UI opens with a choice dialog and only reveals timing/map filters ins
 test('request join remains an approval workflow, while managed event roster registration is not repurposed',()=>{
  const teacher=read('src/pages/teacher/TeacherPortalPage.js');
  assert.match(teacher,/🤝 Request Join/);
- assert.match(teacher,/await teacherApply\(o.id,input.value.trim\(\)\)/);
+ assert.match(teacher,/await teacherApply\(o.id,input.value.trim\(\),number\)/);
  assert.match(teacher,/👩‍🏫 Register Students/);
  assert.match(teacher,/session-register\?session=/);
  assert.match(teacher,/🔎 View details/);
