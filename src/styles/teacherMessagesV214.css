@@ -1,0 +1,104 @@
+/* GCC V21.4 — calm, professional inbox and no-service calendar links. */
+.gcs214-header-mail{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ max-width:100%;width:max-content;min-height:39px;
+ padding:8px 14px;margin:8px 0 2px;border:1px solid #b7d6e3;border-radius:11px;
+ background:linear-gradient(120deg,#edf8ff,#f3faf9);color:#165e7c;
+ text-decoration:none;font-size:.84rem;font-weight:850;
+}
+.gcs214-header-mail:hover{border-color:#67acc0;background:#e1f5fa}
+.gcs214-badge{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;
+ border-radius:99px;background:#d73145;color:white;
+ font-size:.74rem;font-weight:900;line-height:1;
+ box-shadow:0 2px 6px #ab29334d;font-variant-numeric:tabular-nums;
+}
+.gcs214-badge[hidden]{display:none!important}
+.gcs214-home-link{display:flex;align-items:center;gap:10px}
+.gcs214-home-link .gcs214-badge{margin-left:auto}
+.gcs214-messages{display:grid;gap:14px}
+.gcs214-title-row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.gcs214-title-row h3{font-size:1.4rem;letter-spacing:-.025em;color:#1c4d66;margin:0}
+.gcs214-title-row p{margin:5px 0 0;color:#55788b;font-size:.86rem}
+.gcs214-chat-layout{display:grid;grid-template-columns:minmax(230px,.85fr) minmax(0,1.55fr);
+ min-height:420px;max-height:min(74vh,780px);gap:0;overflow:hidden;
+ background:#fff;border:1px solid #d2e5eb;border-radius:18px;box-shadow:0 10px 30px #0b445714}
+.gcs214-chat-sidebar{min-height:0;overflow:auto;background:linear-gradient(160deg,#f4fafc,#f6f9fb);
+ border-right:1px solid #d9e8ec;padding:10px;display:grid;align-content:start;gap:8px}
+.gcs214-side-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 7px}
+.gcs214-side-head strong{color:#225571;font-size:.9rem}
+.gcs214-side-head button{font-size:.73rem;border:1px solid #bad6df;border-radius:7px;
+ background:#fff;color:#236d8e;padding:5px 8px;cursor:pointer}
+.gcs214-thread-list{display:grid;align-content:start;gap:8px}
+.gcs214-thread{display:grid;text-align:left;gap:4px;border:1px solid #e0eaef;
+ background:#fff;border-radius:12px;padding:11px 12px;cursor:pointer;
+ color:#204d65;min-width:0}
+.gcs214-thread:hover{border-color:#9fcedc;background:#f9fdff}
+.gcs214-thread.gcs214-selected{background:linear-gradient(120deg,#e8f8ff,#ecfaf6);border-color:#62b2c9;
+ box-shadow:0 3px 9px #3b98b31a}
+.gcs214-thread-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.gcs214-thread-top strong{font-size:.87rem;font-weight:850;overflow-wrap:anywhere}
+.gcs214-thread-school{display:flex;align-items:center;gap:5px;color:#54768c;font-size:.73rem}
+.gcs214-thread-flag{width:26px;height:19px;object-fit:contain;border:1px solid #d7e5eb;border-radius:3px}
+.gcs214-thread-session{font-size:.77rem;font-weight:740;color:#205f7e;overflow-wrap:anywhere}
+.gcs214-thread-preview{font-size:.72rem;color:#7693a3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gcs214-chat-main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.gcs214-chat-heading{padding:14px 16px;border-bottom:1px solid #dce9ed;display:grid;gap:5px}
+.gcs214-chat-heading h4{margin:0;font-size:1.1rem;font-weight:900;color:#205672}
+.gcs214-chat-heading p{margin:0;font-size:.79rem;color:#5c7c8d}
+.gcs214-chat-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.gcs214-chat-meta small{color:#5f8191;font-size:.74rem}
+.gcs214-chat-history{display:flex;flex-direction:column;gap:10px;overflow-y:auto;
+ min-height:180px;flex:1 1 auto;padding:18px;background:linear-gradient(#fff,#fbfdfd);
+ scroll-behavior:smooth}
+.gcs214-bubble{display:grid;gap:6px;max-width:min(86%,500px);
+ align-self:flex-start;min-width:0;padding:10px 13px;
+ border:1px solid #d4e7ed;border-radius:15px 15px 15px 4px;background:#f0f7fa;
+ color:#214b62}
+.gcs214-bubble.gcs214-mine{align-self:flex-end;border-color:#c5e8df;
+ border-radius:15px 15px 4px 15px;background:linear-gradient(125deg,#ddf8ee,#e2f5f9)}
+.gcs214-bubble p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;font-size:.86rem}
+.gcs214-bubble small{font-size:.69rem;color:#637d8e;justify-self:end}
+.gcs214-compose{display:grid;gap:9px;border-top:1px solid #dce8ed;padding:12px 15px;background:#fff}
+.gcs214-compose label{display:grid;gap:6px;font-weight:800;color:#2c6b85;font-size:.77rem}
+.gcs214-compose textarea{resize:vertical;min-height:60px;max-height:135px;
+ padding:9px 12px;border:1px solid #bdd9e3;border-radius:10px;font:inherit;
+ font-size:.87rem;color:#204960;background:#fff;box-sizing:border-box;width:100%}
+.gcs214-compose-actions{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.gcs214-compose-actions small{font-size:.69rem;color:#7994a1}
+.gcs214-send{width:max-content!important;min-width:112px;max-width:100%;
+ padding:9px 16px!important;border-radius:10px!important;background:linear-gradient(120deg,#c8f0e2,#d2f1ff)!important;
+ border:1px solid #88c7be!important;color:#185c63!important;font-size:.84rem;font-weight:850!important}
+.gcs214-empty{color:#7593a2;font-size:.84rem;line-height:1.6;margin:10px 6px}
+.gcs214-calendar-menu{position:relative;display:inline-flex;align-items:flex-start}
+.gcs214-calendar-menu>summary{list-style:none;white-space:nowrap;cursor:pointer;
+ border-radius:9px;padding:8px 11px;border:1px solid #c0dfd8;
+ color:#28755e;background:linear-gradient(120deg,#e8f8ef,#eaf9ff);font-size:.77rem;font-weight:800}
+.gcs214-calendar-menu>summary::-webkit-details-marker{display:none}
+.gcs214-calendar-menu[open] .gcs214-calendar-options{display:grid}
+.gcs214-calendar-options{position:absolute;top:calc(100% + 6px);right:0;
+ z-index:10;display:none;min-width:218px;max-width:min(85vw,290px);
+ gap:3px;background:#fff;border:1px solid #d5e6e9;border-radius:12px;
+ padding:8px;box-shadow:0 12px 28px #123c5450}
+.gcs214-calendar-options a,.gcs214-calendar-options button{
+ display:block;box-sizing:border-box;text-align:left;width:100%;padding:9px;
+ background:transparent;border:0;border-radius:8px;white-space:normal;
+ font:inherit;font-size:.78rem;color:#205b77;cursor:pointer;text-decoration:none}
+.gcs214-calendar-options a:hover,.gcs214-calendar-options button:hover{background:#e8f7fb}
+.gcs214-calendar-options small{font-size:.67rem;color:#7392a0;line-height:1.45;padding:3px 8px}
+.gcs214-calendar-menu:focus-within>summary,
+.gcs214-thread:focus-visible,.gcs214-compose textarea:focus-visible{
+ outline:3px solid #5bc3d3;outline-offset:2px}
+.gcs214-request-calendar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding-top:5px}
+.gcs214-msg-link{background:linear-gradient(125deg,#dff1ff,#e8f9f0);border:1px solid #b8dadf;
+ color:#186887;border-radius:9px;padding:8px 12px;font-size:.81rem;font-weight:800;cursor:pointer}
+@media(max-width:730px){
+ .gcs214-chat-layout{grid-template-columns:1fr;max-height:none;overflow:visible}
+ .gcs214-chat-sidebar{border-right:0;border-bottom:1px solid #d9e8ec;max-height:210px}
+ .gcs214-chat-main{min-height:340px}
+ .gcs214-chat-history{min-height:220px;max-height:48vh}
+ .gcs214-bubble{max-width:90%}
+ .gcs214-calendar-options{right:auto;left:0}
+}
+@media(prefers-reduced-motion:reduce){.gcs214-chat-history{scroll-behavior:auto}}
