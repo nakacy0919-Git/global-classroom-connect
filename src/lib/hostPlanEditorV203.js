@@ -41,7 +41,12 @@ export function mountHostPlanEditorV203(panel,event,onSaved,onError){
  for(const [key,value] of [['type',plan.session_type],['countries',plan.preferred_countries],
  ['minage',plan.min_age],['maxage',plan.max_age],['grades',plan.accepted_grades],['description',plan.description],
  ['platform',plan.platform],['meeting',plan.meeting_url],['breakout',plan.breakout_mode],['breakoutnotes',plan.breakout_notes]]){
-  if(value!==undefined&&value!==null)get(key).value=String(value);
+  if(value!==undefined&&value!==null&&value!=='')get(key).value=String(value);
+  else{
+   const control=get(key);
+   if(control?.tagName==='SELECT')control.selectedIndex=-1;
+   else if(control)control.value='';
+  }
  }
  if(Array.isArray(plan.flow))get('flow').value=plan.flow.map(x=>x.time+' | '+x.activity).join('\n');
  if(plan.platform){get('platform').dispatchEvent(new Event('change'));if(plan.platform_option)get('platform-option').value=plan.platform_option;}
