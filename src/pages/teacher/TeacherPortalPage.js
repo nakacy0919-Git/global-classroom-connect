@@ -636,7 +636,7 @@ export function bindTeacherPortalPage(){
   $('gctp-band').value=level;
   const checkbox=root.querySelector(`input[name="gctp-target-level"][value="${level}"]`);
   if(checkbox)checkbox.checked=true;
-  await refresh();inform('');await mountVolunteerV117(root,display);
+  await refresh();await loadTeacherWorkspace();inform('');await mountVolunteerV117(root,display);
   const networkProfile=await myTeacherProfileV116();
   // Only fetch/edit photo + profile details on their dedicated pages.
   if(view==='profile')await mountTeacherProfileV153(root,updated=>{
@@ -647,6 +647,35 @@ export function bindTeacherPortalPage(){
   });
   if(view==='network')await mountTeacherNetworkV116(root);
   if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
+ $('gctp-create').addEventListener('input',scheduleDraft);
+ $('gctp-create').addEventListener('change',scheduleDraft);
+ $('gcs213-save-draft').addEventListener('click',async()=>{
+  if(!identity)return;
+  draftDirty=true;draftRevision++;
+  const saved=await saveDraft(true);
+  if(saved)inform('Draft saved privately to your teacher account.');
+  else inform('Draft could not be saved. Please check your connection.',true);
+ });
+ $('gcs213-discard-draft').addEventListener('click',async()=>{
+  if(!confirm('Discard your saved session draft? This cannot be undone.'))return;
+  draftReady=false;
+  if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}
+  try{
+   await draftChain;
+   await teacherClearDraftV213();
+   $('gctp-create').reset();
+   cloneFlyerUrl='';draftDirty=false;savedDraftPresent=false;
+   $('gcs213-discard-draft').hidden=true;
+   $('gctp-date').value=tomorrow(identity.timezone);
+   $('gctp-zone').value=identity.timezone;
+   const level=GCC_LEVELS_V150.find(([id])=>id===identity.school_level)?.[0]||'Upper Secondary';
+   $('gctp-band').value=level;
+   root.querySelector('input[name="gctp-target-level"][value="'+level+'"]')?.click();
+   $('gctp-sdg-wrap').hidden=true;
+   showFormStep(0);draftStatus('Draft discarded');
+  }catch(e){draftStatus('Could not discard draft: '+(e.message||'Try again.'));}
+  finally{draftReady=true;}
+ });
  $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
    if(slot.error){inform(slot.error,true);guide.show(slot.error,0);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);guide.show('Choose a future date and time.',0);return;}
@@ -654,21 +683,41 @@ export function bindTeacherPortalPage(){
    let plan;try{plan=detailsPayload();}catch(err){showFormStep(2);inform(err.message,true);guide.show(err.message,2);return;}
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:plan};
    if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){showFormStep(1);inform('Check student and room counts.',true);guide.show('Check student count',1);return;}
-   const btn=$('gctp-publish');btn.disabled=true;
+   const btn=$('gctp-publish');btn.disabled=true;publishing=true;
+   let created=false;
    try{
-    const flyer=$('gctp-flyerfile').files?.[0];if(flyer)data.details.flyer_url=await uploadSessionFlyerV203(flyer);
-     prepareSuccessChime();await teacherCreateSession(slot,data);await refresh();
-    inform('Session published to approved teachers. No email sent.');
-    $('gctp-create').reset();$('gctp-date').value=tomorrow(identity.timezone);$('gctp-zone').value=identity.timezone;
+    const flyer=$('gctp-flyerfile').files?.[0];
+    if(flyer)data.details.flyer_url=await uploadSessionFlyerV203(flyer);
+    else if(cloneFlyerUrl)data.details.flyer_url=cloneFlyerUrl;
+    prepareSuccessChime();await teacherCreateSession(slot,data);created=true;
+    if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}
+    await draftChain;
+    try{
+     await teacherClearDraftV213();draftStatus('Published · draft cleared');
+    }catch(e){
+     draftStatus('Session published, but old draft could not be cleared. You may discard it manually.');
+    }
+    draftDirty=false;savedDraftPresent=false;cloneFlyerUrl='';
+    $('gcs213-discard-draft').hidden=true;
+    $('gctp-create').reset();
+    $('gctp-date').value=tomorrow(identity.timezone);$('gctp-zone').value=identity.timezone;
     const defaultLevel=GCC_LEVELS_V150.find(([id])=>id===identity.school_level)?.[0]||'Upper Secondary';
     $('gctp-band').value=defaultLevel;
     const defaultCheck=root.querySelector(`input[name="gctp-target-level"][value="${defaultLevel}"]`);
     if(defaultCheck)defaultCheck.checked=true;
     $('gctp-sdg-wrap').hidden=true;
     showFormStep(0);display('create');
+    try{await refresh();}
+    catch(e){inform('Published successfully. Refresh the page to update the session list.',true);}
+    if(!notice.textContent||!notice.classList.contains('error'))
+     inform('Session published to approved teachers. No email sent.');
     showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});
    }
-   catch(err){const msg=err.message||'Could not publish the session.';inform(msg,true);showFormStep(2);guide.show(msg,2);}finally{btn.disabled=false;}
+   catch(err){
+    const msg=err.message||'Could not publish the session.';
+    inform(created?'Session published, but refreshing the page failed.':msg,true);
+    if(!created){showFormStep(2);guide.show(msg,2);}
+   }finally{publishing=false;btn.disabled=false;}
  });
  const searchDialogs=['gctp-search-choice','gctp-find-time-panel','gctp-find-map-panel'];
  const openSearchModal=(id)=>{
