@@ -78,6 +78,13 @@ test('in-app notifications are teacher-scoped and private; external email is not
  assert.match(portal,/Automated email is not yet enabled/);
  assert.doesNotMatch(sql,/http_post|resend\.com|smtp/);
 });
+test('legacy plan forms cannot silently save invented defaults',()=>{
+ const hostEditor=read('src/lib/hostPlanEditorV203.js');
+ assert.match(editor,/if\(value===undefined\|\|value===null\|\|value===''\)/);
+ assert.match(editor,/select\.selectedIndex=-1/);
+ assert.match(editor,/input\.mode\.value=d\.mode\|\|''/);
+ assert.match(hostEditor,/if\(control\?\.tagName==='SELECT'\)control\.selectedIndex=-1/);
+});
 test('legacy host-managed events show a precise missing-details checklist without inventing content',()=>{
  const editor=read('src/lib/hostPlanEditorV203.js');
  const host=read('src/pages/host/SimpleSessionsPage.js');
