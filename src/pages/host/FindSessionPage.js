@@ -14,6 +14,8 @@ import {eligibleRequesters,requestForPair} from '../../lib/joinRequestRules.js';
 import {loadMatchData} from '../../services/matchingService.js';
 import {buildSearchWindow,filterSessionOffers} from '../../lib/sessionSearch.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
+import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213} from '../../lib/sessionSearchV213.js';
+import '../../styles/sessionWorkspaceV213.css';
 
 const el=(tag,className='',text='')=>{
   const e=document.createElement(tag);e.className=className;e.textContent=text;return e;
@@ -58,6 +60,8 @@ export function FindSessionPage() {
           <option value="University">University</option>
           <option value="Mixed">Mixed ages</option></select></label>
         <label class="gcf-field"><span>Session type</span><select id="gcf-type"><option value="">All formats</option></select></label>
+        <label class="gcf-field"><span>Connection format</span><select id="gcf-mode"><option value="">Any connection format</option><option value="device">Individual devices</option><option value="classroom">Classroom to classroom</option><option value="hybrid">Hybrid</option></select></label>
+        <label class="gcf-field"><span>SDG goal</span><select id="gcf-sdg"><option value="">Any SDG</option></select></label>
         <label class="gcf-field"><span>Student age</span><input id="gcf-age" type="number" min="5" max="30" placeholder="Any age"></label>
         <label class="gcf-field"><span>Topic, country or school</span><input id="gcf-query" type="search" placeholder="e.g. Food, Culture, Philippines"></label>
         <p id="gcf-error" role="alert" class="gcf-error" hidden></p>
@@ -67,9 +71,11 @@ export function FindSessionPage() {
       <section class="gcf-results" aria-label="Available Sessions">
         <div class="gcf-results-top"><div><span class="gcf-step">MATCHING OPPORTUNITIES</span><h3>Available Sessions</h3></div>
           <span class="gcf-result-count" id="gcf-count">Loading…</span></div>
+        <label class="gcs213-host-sort">Sort <select id="gcf-sort"><option value="soonest">Soonest first</option><option value="latest">Latest first</option><option value="country">Host country A–Z</option></select></label>
         <div class="gcf-current-search" id="gcf-summary">Upcoming international opportunities</div>
         <div class="gcf-list" id="gcf-list" aria-live="polite"><p class="gcf-intro">Loading available sessions…</p></div>
-        <footer class="gcf-footnote">Host-managed applications. Teacher self-service requires account permissions and is not enabled yet.</footer>
+        <button id="gcf-show-more" type="button" class="gcs213-show-more" hidden>Show more sessions ↓</button>
+        <footer class="gcf-footnote">Host-assisted requests are managed here. Verified teachers can also send and track requests in Teacher Space.</footer>
       </section>
     </div>
     <dialog class="gcf-join-dialog" id="gcf-join-dialog" aria-labelledby="gcf-request-title">
@@ -78,6 +84,7 @@ export function FindSessionPage() {
         <p id="gcf-request-session">Choose a teacher who wants to participate.</p>
         <p class="gcf-request-helper">Host-assisted request: choose the applicant teacher. No email or invitation is sent.</p>
         <label class="gcf-request-label">Applicant teacher / school *<select id="gcf-request-teacher" required></select></label>
+        <label class="gcf-request-label">Students from applicant school *<input id="gcf-request-students" type="number" min="1" max="500" value="1" required></label>
         <label class="gcf-request-label">Message (optional)<textarea id="gcf-request-message" maxlength="500" placeholder="e.g. We have 20 students and would love to join your exchange."></textarea></label>
         <p id="gcf-request-error" class="gcf-request-error" role="alert" hidden></p>
         <div class="gcf-request-actions"><button type="button" id="gcf-request-cancel" class="gcf-request-cancel">Cancel</button>
@@ -104,7 +111,7 @@ export function bindFindSessionPage() {
   const clearButton=findForm?.querySelector('#gcf-clear');
   const feedback=findForm?.querySelector('#gcf-error');
   const optionalHeading=findForm?.querySelector('.gcf-optional-head');
-  const advancedIds=['gcf-country','gcf-level','gcf-type','gcf-age','gcf-query'];
+  const advancedIds=['gcf-country','gcf-level','gcf-type','gcf-mode','gcf-sdg','gcf-age','gcf-query'];
   const advancedFields=advancedIds.map(id=>findForm?.querySelector('#'+id)?.closest('.gcf-field'));
   if(!timeFields||!searchButton||!clearButton||!feedback||!optionalHeading||advancedFields.some(e=>!e))
     throw Error('Find search controls are not where expected.');
@@ -187,7 +194,7 @@ export function bindFindSessionPage() {
   const $=id=>root.querySelector('#'+id);
   let state={teachers:[],offers:[],shortlists:[]};let master=[];let selectedWindow={from:null,to:null};
   let joinRequests=[];let activeOffer=null; // GCC_JOIN_V4
-  let applied={country:'',level:'',type:'',age:'',query:''};
+  let applied={country:'',level:'',type:'',mode:'',sdg:'',age:'',query:''},visibleCount=12;
   const zone=$('gcf-zone');
   const detected=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
   const timezones=new Set([detected,'Asia/Tokyo','Asia/Manila','Asia/Bangkok','Asia/Jakarta',
@@ -199,6 +206,7 @@ export function bindFindSessionPage() {
   }
   zone.value=detected;
   for(const [id,name] of SESSION_TYPES_V203){const option=el('option','',name);option.value=id;$('gcf-type').append(option);}
+  for(let goal=1;goal<=17;goal++)$('gcf-sdg').append(new Option('SDG '+goal,String(goal)));
   const teacherById=()=>new Map(state.teachers.map(t=>[t.id,t]));
   function openRequest(offer){
     activeOffer=offer;
@@ -213,7 +221,7 @@ export function bindFindSessionPage() {
       opt.value=teacher.id;select.append(opt);
     }
     const error=$('gcf-request-error');error.hidden=true;
-    $('gcf-request-message').value='';
+    $('gcf-request-message').value='';$('gcf-request-students').value='1';
     $('gcf-request-send').disabled=!eligible.length;
     if(!eligible.length){
       error.textContent=all.length
@@ -275,22 +283,6 @@ export function bindFindSessionPage() {
     card.append(header,when,sub,facts,buildDetails(offer,teacher));
     return card;
   }
-  function publicSessionsFiltered(){
-    const term=String(applied.query||'').trim().toLowerCase();
-    return publicEvents.filter(e=>{
-      const d=e.session_details||{};
-      if(applied.type&&d.session_type!==applied.type)return false;
-      if(applied.age&&!(Number(d.min_age)<=Number(applied.age)&&Number(applied.age)<=Number(d.max_age)))return false;
-      if(applied.level&&d.accepted_grades&&!String(d.accepted_grades).toLowerCase().includes(String(applied.level).toLowerCase()))return false;
-      if(applied.country&&!publishedByCountryV208(e,applied.country))return false;
-      if(term&&![e.title,d.description,d.preferred_countries,d.accepted_grades].join(' ').toLowerCase().includes(term))return false;
-      if(selectedWindow.from&&selectedWindow.to){
-        const overlap=Math.min(Date.parse(e.ends_at),Date.parse(selectedWindow.to))-Math.max(Date.parse(e.starts_at),Date.parse(selectedWindow.from));
-        if(overlap<30*60000)return false;
-      }
-      return true;
-    });
-  }
   function publicSessionCard(e){
     const card=el('article','gcc203-published-card gcs208-compact');
     const host=hostCountryV208(e);
@@ -302,33 +294,52 @@ export function bindFindSessionPage() {
     btn.addEventListener('click',()=>showPublicSessionOverviewV168(e));card.append(btn);
     return card;
   }
-  function show() {
+  function show(){
     const list=$('gcf-list');list.replaceChildren();
-    const results=filterSessionOffers(state.offers,{...selectedWindow,...applied},state.teachers);
-    const combined=[...results.map(data=>({kind:'teacher',data})),
-      ...publicSessionsFiltered().map(data=>({kind:'host',data}))]
-      .sort((a,b)=>Date.parse(a.data.starts_at)-Date.parse(b.data.starts_at));
-    $('gcf-count').textContent=combined.length+' session'+(combined.length===1?'':'s');
-    $('gcf-summary').textContent=selectedWindow.from
-      ?'Showing sessions overlapping your selected hours · '+zone.value
-      :'All upcoming sessions, earliest first. Adjust filters to narrow the list.';
-    if(combined.length){
-      const teachers=teacherById();
-      for(const entry of combined.slice(0,100))list.append(entry.kind==='host'?publicSessionCard(entry.data):offerCard(entry.data,teachers));
-      if(combined.length>100)list.append(el('p','gcf-intro','Showing first 100 of '+combined.length+' results. Refine the filters.'));
-    } else {
+    const teachers=teacherById();
+    // Preserve the host-side 30-minute overlap rule; apply the same
+    // school, type, age, language/SDG and country rules as Teacher Space.
+    const offers=filterSessionOffers(state.offers,{...selectedWindow},state.teachers)
+      .map(o=>({...o,
+        school_name:teachers.get(o.teacher_id)?.schools?.name||'',
+        teacher_name:teachers.get(o.teacher_id)?.display_name||'',
+        country_name:teachers.get(o.teacher_id)?.schools?.country_name||o.country_name}));
+    const records=sessionSearchRecordsV213(offers,publicEvents);
+    const filtered=filterSessionRecordsV213(records,{
+      country:applied.country,band:applied.level,mode:applied.mode,
+      sdg:applied.sdg,kind:applied.type,age:applied.age,
+      query:applied.query,sort:$('gcf-sort').value
+    },{timezone:zone.value}).filter(entry=>{
+      if(!selectedWindow.from||!selectedWindow.to)return true;
+      return Math.min(Date.parse(entry.end),Date.parse(selectedWindow.to))-
+        Math.max(Date.parse(entry.start),Date.parse(selectedWindow.from))>=30*60000;
+    });
+    const page=sessionResultsPageV213(filtered,visibleCount);
+    $('gcf-count').textContent=page.total+' sessions · '+page.items.length+' shown';
+    $('gcf-summary').textContent=selectedWindow.from?
+      'Sessions overlapping your selected hours · '+zone.value:
+      'Upcoming sessions, sorted as selected. Narrow the list with filters.';
+    $('gcf-show-more').hidden=!page.hasMore;
+    $('gcf-show-more').textContent='Show '+Math.min(12,page.remaining)+
+      ' more sessions ↓ ('+page.remaining+' remaining)';
+    if(page.items.length){
+      for(const entry of page.items)
+        list.append(entry.source==='event'?publicSessionCard(entry.item):offerCard(entry.item,teachers));
+    }else{
       const empty=el('div','gcf-empty');
-      empty.append(el('span','gcf-empty-icon','🌱'),el('h4','','No sessions match these conditions'),
-        el('p','','Try another time or country. You can also register a new session availability.'));
+      empty.append(el('span','gcf-empty-icon','🌱'),
+        el('h4','','No sessions match these conditions'),
+        el('p','','Try another time or country. You can also register a new session.'));
       const links=el('div','gcf-empty-actions');
-      const reset=el('button','gcf-secondary','Clear search');reset.type='button';reset.addEventListener('click',clear);
+      const reset=el('button','gcf-secondary','Clear search');reset.type='button';
+      reset.addEventListener('click',clear);
       const register=el('a','gcf-primary-link','＋ Register a Session →');register.href='#/register-session';
       links.append(reset,register);empty.append(links);list.append(empty);
     }
   }
   function clear() {
     $('gcf-form').reset();zone.value=detected;
-    selectedWindow={from:null,to:null};applied={country:'',level:'',type:'',age:'',query:''};
+    selectedWindow={from:null,to:null};applied={country:'',level:'',type:'',mode:'',sdg:'',age:'',query:''};visibleCount=12;$('gcf-sort').value='soonest';
     $('gcf-error').hidden=true;show();
   }
   function search(event){
@@ -336,8 +347,8 @@ export function bindFindSessionPage() {
     const window=buildSearchWindow({date:$('gcf-date').value,
       startTime:$('gcf-from').value,endTime:$('gcf-until').value,timezone:zone.value});
     if(window.error){$('gcf-error').textContent=window.error;$('gcf-error').hidden=false;return;}
-    $('gcf-error').hidden=true;selectedWindow=window;
-    applied={country:$('gcf-country').value,level:$('gcf-level').value,type:$('gcf-type').value,age:$('gcf-age').value,query:$('gcf-query').value};
+    $('gcf-error').hidden=true;selectedWindow=window;visibleCount=12;
+    applied={country:$('gcf-country').value,level:$('gcf-level').value,type:$('gcf-type').value,mode:$('gcf-mode').value,sdg:$('gcf-sdg').value,age:$('gcf-age').value,query:$('gcf-query').value};
     show();
   }
   $('gcf-request-cancel').addEventListener('click',()=>{ $('gcf-join-dialog').close(); });
@@ -345,14 +356,19 @@ export function bindFindSessionPage() {
     event.preventDefault();
     const id=$('gcf-request-teacher').value;
     const msg=$('gcf-request-message').value.trim();
+    const count=Number($('gcf-request-students').value);
     const err=$('gcf-request-error'),button=$('gcf-request-send');
     if(!activeOffer||!id){err.textContent='Select an applicant teacher.';err.hidden=false;return;}
+    if(!Number.isInteger(count)||!$('gcf-request-students').checkValidity()){
+      err.textContent='Enter how many students are joining (1–500).';err.hidden=false;
+      $('gcf-request-students').focus();return;
+    }
     if(!eligibleRequesters(state.teachers,activeOffer).some(t=>t.id===id)){
       err.textContent='Invalid applicant selection.';err.hidden=false;return;
     }
     button.disabled=true;button.textContent='Saving request…';
     try{
-      await requestSessionJoin(activeOffer.id,id,msg);
+      await requestSessionJoin(activeOffer.id,id,msg,count);
       joinRequests=await loadSessionJoinRequests();
       $('gcf-join-dialog').close();
       show();
@@ -361,8 +377,10 @@ export function bindFindSessionPage() {
     finally{button.disabled=false;button.textContent='Send request →';}
   });
   $('gcf-form').addEventListener('submit',search);
-  for(const id of ['gcf-date','gcf-zone','gcf-from','gcf-until','gcf-country','gcf-level','gcf-type','gcf-age','gcf-query'])$(id).addEventListener(['gcf-query','gcf-age'].includes(id)?'input':'change',search);
+  for(const id of ['gcf-date','gcf-zone','gcf-from','gcf-until','gcf-country','gcf-level','gcf-type','gcf-mode','gcf-sdg','gcf-age','gcf-query'])$(id).addEventListener(['gcf-query','gcf-age'].includes(id)?'input':'change',search);
   $('gcf-clear').addEventListener('click',clear);
+  $('gcf-sort').addEventListener('change',()=>{visibleCount=12;show();});
+  $('gcf-show-more').addEventListener('click',()=>{visibleCount=Math.min(500,visibleCount+12);show();});
   (async()=>{
     try{
       const [data,countryResponse,requests]=await Promise.all([

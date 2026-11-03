@@ -7,20 +7,22 @@ function requireClient() {
 
 export async function loadSessionJoinRequests() {
   const {data, error} = await requireClient().from('session_join_requests')
-    .select('id,offer_id,requesting_teacher_id,status,message,created_at,reviewed_at,reviewed_by')
+    .select('id,offer_id,requesting_teacher_id,status,message,requested_students,created_at,reviewed_at,reviewed_by')
     .order('created_at', {ascending:false});
   if (error) throw error;
   return data || [];
 }
 
-export async function requestSessionJoin(offerId, requestingTeacherId, message) {
+export async function requestSessionJoin(offerId, requestingTeacherId, message, studentCount=1) {
+  if(!Number.isInteger(studentCount)||studentCount<1||studentCount>500)
+    throw Error('Enter 1–500 students for the applicant school.');
   const db=requireClient();
   const {data:{user},error:authError}=await db.auth.getUser();
   if(authError) throw authError;
   if(!user) throw new Error('Please sign in as a host.');
   const {data,error}=await db.from('session_join_requests')
     .insert({offer_id:offerId,requesting_teacher_id:requestingTeacherId,
-      message:(message||'').trim(),created_by:user.id})
+      message:(message||'').trim(),requested_students:studentCount,created_by:user.id})
     .select('id,status').single();
   if(error) throw error;
   return data;

@@ -35,12 +35,12 @@ test('find UI opens with a choice dialog and only reveals timing/map filters ins
  assert.match(teacher,/openSearchModal\('gctp-search-choice'\)/);
  assert.match(teacher,/showModal\(\)/);
  assert.match(teacher,/gctp-apply-time/);assert.match(teacher,/gctp-apply-map/);
- assert.match(teacher,/overlapsLocalTimeV150\(e,identity.timezone/);
+ assert.match(teacher,/filterSessionRecordsV213\(records,currentSearchFilters\(\),identity\)/);
 });
 test('request join remains an approval workflow, while managed event roster registration is not repurposed',()=>{
  const teacher=read('src/pages/teacher/TeacherPortalPage.js');
  assert.match(teacher,/🤝 Request Join/);
- assert.match(teacher,/await teacherApply\(o.id,input.value.trim\(\),number\)/);
+ assert.match(teacher,/await teacherApply\(o.id,message.value.trim\(\),number\)/);
  assert.match(teacher,/👩‍🏫 Register Students/);
  assert.match(teacher,/session-register\?session=/);
  assert.match(teacher,/🔎 View details/);
