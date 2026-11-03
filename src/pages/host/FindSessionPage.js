@@ -14,6 +14,8 @@ import {eligibleRequesters,requestForPair} from '../../lib/joinRequestRules.js';
 import {loadMatchData} from '../../services/matchingService.js';
 import {buildSearchWindow,filterSessionOffers} from '../../lib/sessionSearch.js';
 import {timeRangeV112} from '../../lib/sessionTimeV112.js';
+import {calendarMenuV214} from '../../lib/sessionCalendarExportV214.js';
+import '../../styles/teacherMessagesV214.css';
 import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213} from '../../lib/sessionSearchV213.js';
 import '../../styles/sessionWorkspaceV213.css';
 
@@ -174,7 +176,7 @@ export function bindFindSessionPage() {
     const register=el('a','gcc-v168-register','Register for this session →');
     register.href='#/session-register?session='+encodeURIComponent(e.id);
     register.addEventListener('click',()=>dialog.close());
-    footer.append(register);
+    footer.append(register,calendarMenuV214({...e,viewer_zone:zone.value}));
     dialog.append(header,body,footer);
     dialog.showModal();
   }
@@ -280,7 +282,8 @@ export function bindFindSessionPage() {
     const facts=el('div','gcf-facts');
     facts.append(el('span','',`👨‍🏫 ${teacher?.display_name||'Registered teacher'}`),
       el('span','',`👥 ${offer.student_count} students`),el('span','',`▦ ${offer.room_count} rooms`));
-    card.append(header,when,sub,facts,buildDetails(offer,teacher));
+    card.append(header,when,sub,facts,buildDetails(offer,teacher),
+     calendarMenuV214({...offer,title:offer.session_details?.session_name||offer.topic,viewer_zone:zone.value}));
     return card;
   }
   function publicSessionCard(e){
@@ -291,7 +294,8 @@ export function bindFindSessionPage() {
     if(totalCapacityV208(e))card.append(el('small','',`Maximum participants (including host school): ${totalCapacityV208(e)}`));
     if(e.session_details?.session_type)card.append(el('strong','',TYPE_LABEL_V203(e.session_details.session_type)));
     const btn=el('button','gcf-request-cta gcs208-register','View details →');btn.type='button';
-    btn.addEventListener('click',()=>showPublicSessionOverviewV168(e));card.append(btn);
+    btn.addEventListener('click',()=>showPublicSessionOverviewV168(e));
+    card.append(btn,calendarMenuV214({...e,viewer_zone:zone.value}));
     return card;
   }
   function show(){
