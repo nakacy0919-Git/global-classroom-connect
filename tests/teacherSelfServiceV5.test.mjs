@@ -39,7 +39,7 @@ test('teacher workflow links own sessions, finding and inbound approval without 
  assert.match(portal,/data-gct-view="requests"/);
  assert.doesNotMatch(portal,/data-gct-tab=/);
  assert.match(portal,/teacherReview\(r\.id,decision\)/);
- assert.match(portal,/teacherApply\(o\.id,input\.value\.trim\(\)\)/);
+ assert.match(portal,/teacherApply\(o\.id,input\.value\.trim\(\),number\)/);
  assert.match(access,/claimTeacherInvite/);
 });
 test('guarded V5 upgrade patches only the expected anchors',()=>{
