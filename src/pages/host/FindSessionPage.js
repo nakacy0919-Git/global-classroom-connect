@@ -75,7 +75,7 @@ export function FindSessionPage() {
         <div class="gcf-current-search" id="gcf-summary">Upcoming international opportunities</div>
         <div class="gcf-list" id="gcf-list" aria-live="polite"><p class="gcf-intro">Loading available sessions…</p></div>
         <button id="gcf-show-more" type="button" class="gcs213-show-more" hidden>Show more sessions ↓</button>
-        <footer class="gcf-footnote">Host-managed applications. Teacher self-service requires account permissions and is not enabled yet.</footer>
+        <footer class="gcf-footnote">Host-assisted requests are managed here. Verified teachers can also send and track requests in Teacher Space.</footer>
       </section>
     </div>
     <dialog class="gcf-join-dialog" id="gcf-join-dialog" aria-labelledby="gcf-request-title">
@@ -282,22 +282,6 @@ export function bindFindSessionPage() {
     card.append(header,when,sub,facts,buildDetails(offer,teacher));
     return card;
   }
-  function publicSessionsFiltered(){
-    const term=String(applied.query||'').trim().toLowerCase();
-    return publicEvents.filter(e=>{
-      const d=e.session_details||{};
-      if(applied.type&&d.session_type!==applied.type)return false;
-      if(applied.age&&!(Number(d.min_age)<=Number(applied.age)&&Number(applied.age)<=Number(d.max_age)))return false;
-      if(applied.level&&d.accepted_grades&&!String(d.accepted_grades).toLowerCase().includes(String(applied.level).toLowerCase()))return false;
-      if(applied.country&&!publishedByCountryV208(e,applied.country))return false;
-      if(term&&![e.title,d.description,d.preferred_countries,d.accepted_grades].join(' ').toLowerCase().includes(term))return false;
-      if(selectedWindow.from&&selectedWindow.to){
-        const overlap=Math.min(Date.parse(e.ends_at),Date.parse(selectedWindow.to))-Math.max(Date.parse(e.starts_at),Date.parse(selectedWindow.from));
-        if(overlap<30*60000)return false;
-      }
-      return true;
-    });
-  }
   function publicSessionCard(e){
     const card=el('article','gcc203-published-card gcs208-compact');
     const host=hostCountryV208(e);
@@ -309,33 +293,52 @@ export function bindFindSessionPage() {
     btn.addEventListener('click',()=>showPublicSessionOverviewV168(e));card.append(btn);
     return card;
   }
-  function show() {
+  function show(){
     const list=$('gcf-list');list.replaceChildren();
-    const results=filterSessionOffers(state.offers,{...selectedWindow,...applied},state.teachers);
-    const combined=[...results.map(data=>({kind:'teacher',data})),
-      ...publicSessionsFiltered().map(data=>({kind:'host',data}))]
-      .sort((a,b)=>Date.parse(a.data.starts_at)-Date.parse(b.data.starts_at));
-    $('gcf-count').textContent=combined.length+' session'+(combined.length===1?'':'s');
-    $('gcf-summary').textContent=selectedWindow.from
-      ?'Showing sessions overlapping your selected hours · '+zone.value
-      :'All upcoming sessions, earliest first. Adjust filters to narrow the list.';
-    if(combined.length){
-      const teachers=teacherById();
-      for(const entry of combined.slice(0,100))list.append(entry.kind==='host'?publicSessionCard(entry.data):offerCard(entry.data,teachers));
-      if(combined.length>100)list.append(el('p','gcf-intro','Showing first 100 of '+combined.length+' results. Refine the filters.'));
-    } else {
+    const teachers=teacherById();
+    // Preserve the host-side 30-minute overlap rule; apply the same
+    // school, type, age, language/SDG and country rules as Teacher Space.
+    const offers=filterSessionOffers(state.offers,{...selectedWindow},state.teachers)
+      .map(o=>({...o,
+        school_name:teachers.get(o.teacher_id)?.schools?.name||'',
+        teacher_name:teachers.get(o.teacher_id)?.display_name||'',
+        country_name:teachers.get(o.teacher_id)?.schools?.country_name||o.country_name}));
+    const records=sessionSearchRecordsV213(offers,publicEvents);
+    const filtered=filterSessionRecordsV213(records,{
+      country:applied.country,band:applied.level,mode:applied.mode,
+      sdg:applied.sdg,kind:applied.type,age:applied.age,
+      query:applied.query,sort:$('gcf-sort').value
+    },{timezone:zone.value}).filter(entry=>{
+      if(!selectedWindow.from||!selectedWindow.to)return true;
+      return Math.min(Date.parse(entry.end),Date.parse(selectedWindow.to))-
+        Math.max(Date.parse(entry.start),Date.parse(selectedWindow.from))>=30*60000;
+    });
+    const page=sessionResultsPageV213(filtered,visibleCount);
+    $('gcf-count').textContent=page.total+' sessions · '+page.items.length+' shown';
+    $('gcf-summary').textContent=selectedWindow.from?
+      'Sessions overlapping your selected hours · '+zone.value:
+      'Upcoming sessions, sorted as selected. Narrow the list with filters.';
+    $('gcf-show-more').hidden=!page.hasMore;
+    $('gcf-show-more').textContent='Show '+Math.min(12,page.remaining)+
+      ' more sessions ↓ ('+page.remaining+' remaining)';
+    if(page.items.length){
+      for(const entry of page.items)
+        list.append(entry.source==='event'?publicSessionCard(entry.item):offerCard(entry.item,teachers));
+    }else{
       const empty=el('div','gcf-empty');
-      empty.append(el('span','gcf-empty-icon','🌱'),el('h4','','No sessions match these conditions'),
-        el('p','','Try another time or country. You can also register a new session availability.'));
+      empty.append(el('span','gcf-empty-icon','🌱'),
+        el('h4','','No sessions match these conditions'),
+        el('p','','Try another time or country. You can also register a new session.'));
       const links=el('div','gcf-empty-actions');
-      const reset=el('button','gcf-secondary','Clear search');reset.type='button';reset.addEventListener('click',clear);
+      const reset=el('button','gcf-secondary','Clear search');reset.type='button';
+      reset.addEventListener('click',clear);
       const register=el('a','gcf-primary-link','＋ Register a Session →');register.href='#/register-session';
       links.append(reset,register);empty.append(links);list.append(empty);
     }
   }
   function clear() {
     $('gcf-form').reset();zone.value=detected;
-    selectedWindow={from:null,to:null};applied={country:'',level:'',type:'',age:'',query:''};
+    selectedWindow={from:null,to:null};applied={country:'',level:'',type:'',mode:'',sdg:'',age:'',query:''};visibleCount=12;$('gcf-sort').value='soonest';
     $('gcf-error').hidden=true;show();
   }
   function search(event){
@@ -343,8 +346,8 @@ export function bindFindSessionPage() {
     const window=buildSearchWindow({date:$('gcf-date').value,
       startTime:$('gcf-from').value,endTime:$('gcf-until').value,timezone:zone.value});
     if(window.error){$('gcf-error').textContent=window.error;$('gcf-error').hidden=false;return;}
-    $('gcf-error').hidden=true;selectedWindow=window;
-    applied={country:$('gcf-country').value,level:$('gcf-level').value,type:$('gcf-type').value,age:$('gcf-age').value,query:$('gcf-query').value};
+    $('gcf-error').hidden=true;selectedWindow=window;visibleCount=12;
+    applied={country:$('gcf-country').value,level:$('gcf-level').value,type:$('gcf-type').value,mode:$('gcf-mode').value,sdg:$('gcf-sdg').value,age:$('gcf-age').value,query:$('gcf-query').value};
     show();
   }
   $('gcf-request-cancel').addEventListener('click',()=>{ $('gcf-join-dialog').close(); });
@@ -368,8 +371,10 @@ export function bindFindSessionPage() {
     finally{button.disabled=false;button.textContent='Send request →';}
   });
   $('gcf-form').addEventListener('submit',search);
-  for(const id of ['gcf-date','gcf-zone','gcf-from','gcf-until','gcf-country','gcf-level','gcf-type','gcf-age','gcf-query'])$(id).addEventListener(['gcf-query','gcf-age'].includes(id)?'input':'change',search);
+  for(const id of ['gcf-date','gcf-zone','gcf-from','gcf-until','gcf-country','gcf-level','gcf-type','gcf-mode','gcf-sdg','gcf-age','gcf-query'])$(id).addEventListener(['gcf-query','gcf-age'].includes(id)?'input':'change',search);
   $('gcf-clear').addEventListener('click',clear);
+  $('gcf-sort').addEventListener('change',()=>{visibleCount=12;show();});
+  $('gcf-show-more').addEventListener('click',()=>{visibleCount=Math.min(500,visibleCount+12);show();});
   (async()=>{
     try{
       const [data,countryResponse,requests]=await Promise.all([
