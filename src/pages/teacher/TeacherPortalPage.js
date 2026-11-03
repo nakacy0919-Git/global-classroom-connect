@@ -18,13 +18,16 @@ import {overlapsLocalTimeV150} from '../../lib/sessionStudioV150.js';
 import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV209.js';
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
+import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
+import '../../styles/sessionManagementV212.css';
 
 import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150,partnerLevelsV150,filterOffersV150,sessionDetailsPayloadV150} from '../../lib/sessionStudioV150.js';
 import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
- teacherApply,teacherReview,teacherSignOut} from '../../services/teacherSelfService.js';
+ teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule} from '../../services/teacherSelfService.js';
 
 const element=(name,cls='',text='')=>{const n=document.createElement(name);n.className=cls;n.textContent=text;return n;};
 const flag=code=>/^[A-Z]{2}$/.test(code||'')?[...code].map(c=>String.fromCodePoint(127397+c.charCodeAt())).join(''):'🌐';
@@ -44,7 +47,8 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
    <a href="#/teacher-portal?view=requests" class="gct-home-summary-card-v200"><strong id="gctp-home-requests-count">0</strong><span>Pending requests</span></a>
   </div>
-  <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
+  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><div class="gcs212-inbox-head"><h3>🔔 Notifications <span id="gcs212-notice-count-home"></span></h3><button id="gcs212-refresh-notices" type="button" class="gct-secondary">Refresh</button></div><div id="gcs212-notices-home"></div></section>
+   <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
  </section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
@@ -136,8 +140,9 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <div id="gctp-results" class="gct-results"></div>
  </div>
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
- <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
- <p class="gct-hint">Approval records interest only. Agree on the final arrangements separately; no notification, Zoom link, or event is automatically sent.</p></div>
+ <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
+  <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
+ <p class="gct-hint">Requests and approvals now appear in GCC notifications. Approved schools still need to agree on meeting links and final arrangements with their host. Automated email is not yet enabled.</p></div>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
  <section class="gct-section" data-gct-view="network" hidden>
   <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
@@ -148,7 +153,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
 export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
- let identity=null,offers=[],requests=[],hostEvents=[],formStep=0,discoverMode='time';
+ let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
  const countryExplorer=mountCountryExplorerV151(root,code=>{
   if(!identity)return;
   if($('gctp-find-map-panel').open)$('gctp-find-map-panel').close();
@@ -158,6 +163,11 @@ export function bindTeacherPortalPage(){
   scrollToCountryResultsV208($('gctp-results'));
  });
  const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
+ const manager=mountSessionManagerV212(root,{
+  identity:()=>identity,
+  onSaved:async()=>{await refresh();inform('Session changes saved. Partner teachers can review the latest details.');},
+  onError:()=>{}
+ });
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
    root.classList.toggle('gcs209-finding',id==='find');
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
@@ -227,34 +237,103 @@ export function bindTeacherPortalPage(){
  $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
-  const [mine,applications,publicEvents]=await Promise.all([teacherSessions(),teacherRequests(),listPublicSessionOverviews()]);
+  const [mine,applications,publicEvents,inbox]=await Promise.all([
+    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications()
+  ]);
   hostEvents=Array.isArray(publicEvents)?publicEvents:[];
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  renderMine();renderHome();updateFindCountries();countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);renderResults();renderRequests();
+  notifications=Array.isArray(inbox)?inbox:[];
+  renderMine();renderHome();renderNotifications();updateFindCountries();
+  countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
+  renderResults();renderRequests();
+ }
+ function renderNotifications(){
+  const unread=notifications.filter(x=>!x.read_at).length;
+  for(const [elementId,countId] of [
+   ['gcs212-notices-home','gcs212-notice-count-home'],
+   ['gcs212-notices-requests','gcs212-notice-count-requests']
+  ]){
+   const mount=$(elementId);if(!mount)continue;
+   mount.replaceChildren();$(countId).textContent=unread?'('+unread+' unread)':'';
+   if(!notifications.length){
+    mount.append(element('p','gct-empty','No notifications yet. Join requests and approvals appear here.'));continue;
+   }
+   for(const entry of notifications.slice(0,12)){
+    const article=element('article','gcs212-notice'+(entry.read_at?'':' gcs212-notice-unread'));
+    const text=element('div');
+    text.append(element('strong','',entry.title),
+     element('p','',entry.body),
+     element('small','',fmt(entry.created_at,identity.timezone)));
+    article.append(text);
+    if(!entry.read_at){
+     const mark=element('button','gct-secondary','Mark read');mark.type='button';
+     mark.addEventListener('click',async()=>{
+      mark.disabled=true;
+      try{await teacherReadNotification(entry.id);
+       entry.read_at=new Date().toISOString();renderNotifications();
+      }catch(e){inform(e.message||'Could not mark notification as read',true);mark.disabled=false;}
+     });article.append(mark);
+    }
+    mount.append(article);
+   }
+  }
+ }
+ function makeManageCard(o,{compact=false}={}){
+  const card=element('article','gct-session-card gcs212-offer');
+  const ready=sessionReadinessV212(o);
+  const head=element('div','gcs212-offer-head');
+  head.append(element('strong','',sessionTitleV150(o)),
+   element('span','gcs212-status '+(ready.ready?'gcs212-ready':'gcs212-incomplete'),
+    ready.ready?'✓ Ready':ready.label));
+  card.append(head,
+    element('p','',timeRangeV112(o.starts_at,o.ends_at,identity.timezone)),
+    element('small','',o.student_count+' host students · '+
+      (o.approved_guest_students||0)+' approved guest students · '+
+      (availableSeatsV212(o)??'Unknown')+' open seats · '+o.status));
+  if(!ready.ready)card.append(element('p','gcs212-missing','Needs: '+ready.missing.join(' · ')));
+  const row=element('div','gcs212-offer-actions');
+  const edit=element('button','gct-primary',ready.ready?'✎ Edit session':'✎ Complete details');
+  edit.type='button';
+  edit.addEventListener('click',async()=>{
+   edit.disabled=true;try{await manager.open(o);}
+   catch(e){inform(e.message||'Unable to open session editor',true);}
+   finally{edit.disabled=false;}
+  });
+  row.append(edit);
+  if(!compact){
+   const status=element('button','gct-secondary',o.status==='open'?'Close to requests':'Reopen session');
+   status.type='button';
+   status.addEventListener('click',async()=>{
+    if(!confirm(o.status==='open'?'Close this session to new requests? Approved schools remain registered.':'Reopen this session for new requests?'))return;
+    status.disabled=true;
+    try{
+     if(o.status==='open')await teacherCloseSession(o.id);
+     else await manager.reopen(o);
+     await refresh();
+     inform('Session status updated. Partner teachers were notified inside GCC.');
+    }catch(e){inform(e.message||'Could not change status',true);status.disabled=false;}
+   });row.append(status);
+  }
+  card.append(row);return card;
  }
  function renderHome(){
   const mine=upcoming().filter(o=>o.is_mine);
-  const pending=requests.filter(r=>r.status==='pending');
+  const pending=requests.filter(r=>r.direction==='incoming'&&r.status==='pending');
   $('gctp-home-sessions-count').textContent=String(mine.length);
   $('gctp-home-requests-count').textContent=String(pending.length);
   const list=$('gctp-home-mine');list.replaceChildren();
-  if(!mine.length){list.append(element('p','gct-empty','No upcoming sessions yet. Create one to meet classrooms worldwide.'));return;}
-  for(const o of mine.slice(0,3)){
-   const card=element('article','gct-session-card');
-   card.append(element('strong','',sessionTitleV150(o)),
-     element('p','',timeRangeV112(o.starts_at,o.ends_at,identity.timezone)),
-     element('small','',o.status==='open'?'Open for partner teachers':String(o.status||'')));
-   list.append(card);
+  if(!mine.length){
+   list.append(element('p','gct-empty','No upcoming sessions yet. Create one to meet classrooms worldwide.'));return;
   }
+  for(const o of mine.slice(0,3))list.append(makeManageCard(o,{compact:true}));
  }
- function renderMine(){const list=$('gctp-mine');list.replaceChildren();
-  const mine=upcoming().filter(o=>o.is_mine);if(!mine.length){list.append(element('p','gct-empty','No sessions yet. Choose a date and publish your first session.'));return;}
-  for(const o of mine){const card=element('article','gct-session-card');card.append(element('strong','',sessionTitleV150(o)),
-    element('p','',`${timeRangeV112(o.starts_at,o.ends_at,identity.timezone)} (${identity.timezone})`),
-    element('small','',`${o.student_count} students · ${o.room_count} rooms · ${o.status}`));
-    if(o.status==='open'){const close=element('button','gct-secondary','Close session');close.type='button';close.addEventListener('click',async()=>{
-     if(!confirm('Close this session to new applicants?'))return;close.disabled=true;try{await teacherCloseSession(o.id);await refresh();inform('Session closed.');}catch(e){inform(e.message,true);close.disabled=false;}
-    });card.append(close);}list.append(card);}
+ function renderMine(){
+  const list=$('gctp-mine');list.replaceChildren();
+  const mine=upcoming().filter(o=>o.is_mine);
+  if(!mine.length){
+   list.append(element('p','gct-empty','No hosted sessions yet. Choose a date and publish one.'));return;
+  }
+  for(const o of mine)list.append(makeManageCard(o));
  }
  function searchFiltered(){
   if(!identity)return [];
@@ -297,7 +376,7 @@ export function bindTeacherPortalPage(){
    });
   $('gctp-search-count').textContent=(results.length+published.length)+' sessions';
   if(!results.length&&!published.length){list.append(element('p','gct-empty','No sessions match yet. Try Any time or another date.'));return;}
-  const previously=new Set(requests.filter(r=>r.direction==='outgoing').map(r=>r.offer_id));
+  const previously=new Map(requests.filter(r=>r.direction==='outgoing').map(r=>[r.offer_id,r]));
   for(const o of results){
    const d=detailsV150(o),card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
    card.dataset.startsAt=o.starts_at;
@@ -306,27 +385,48 @@ export function bindTeacherPortalPage(){
    card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
    if(GCC_MODES_V150[d.mode])card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
    if(o.timezone&&o.timezone!==identity.timezone)card.append(element('small','gcs209-host-time','Host local time: '+timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
-   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · Total capacity '+(totalCapacityV208(o)||'ask host')));
+   card.append(element('small','gcs209-capacity','👥 '+o.student_count+' host-school students · '+
+    (availableSeatsV212(o)===null?'Capacity not set':availableSeatsV212(o)+' seats remaining')));
    const full=element('details','gcs208-compact-details gcs209-details');
    full.append(element('summary','','🔎 View details'));
    const body=element('div','gcc203-result-body');renderSessionDetailsV203(body,d);full.append(body);card.append(full);
-   if(previously.has(o.id)){
-    card.append(element('span','gct-status approved','✓ Join request submitted'));
+   const previous=previously.get(o.id);
+   if(o.is_mine){
+    const edit=element('button','gcs209-register','✎ Manage my session');edit.type='button';
+    edit.addEventListener('click',async()=>{
+     edit.disabled=true;try{await manager.open(o);}
+     catch(e){inform(e.message||'Could not edit this session',true);}
+     finally{edit.disabled=false;}
+    });card.append(edit);
+   }else if(previous){
+    card.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
+   }else if(!canRequestV212(o)){
+    card.append(element('span','gcs212-status gcs212-incomplete',
+     availableSeatsV212(o)===0?'Fully booked':'Host must complete the capacity setting'));
    }else{
     const detail=element('details','gct-request-form gcs209-join');
     detail.append(element('summary','','🤝 Request Join'));
+    const countLabel=element('label','gcs212-request-count','Students joining from your school *');
+    const count=element('input');count.type='number';count.min='1';
+    count.max=String(Math.min(500,availableSeatsV212(o)));count.value='1';
+    count.required=true;count.setAttribute('aria-label','Number of students joining your school');
+    countLabel.append(count);
     const input=element('textarea');input.rows=2;input.maxLength=500;
     input.placeholder='Optional message to the host teacher';input.setAttribute('aria-label','Message to the session host');
     const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
     submit.addEventListener('click',async()=>{
+     const number=Number(count.value);
+     if(!count.checkValidity()||!Number.isInteger(number)){
+      count.focus();inform('Enter the number of students joining (within available seats).',true);return;
+     }
      submit.disabled=true;prepareSuccessChime();
      try{
-      await teacherApply(o.id,input.value.trim());await refresh();
-      inform('Request sent! Track it in My Requests. No email was sent.');
+      await teacherApply(o.id,input.value.trim(),number);await refresh();
+      inform('Request sent! The host received an in-app notification.');
       showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
      }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
     });
-    detail.append(input,submit);card.append(detail);
+    detail.append(countLabel,input,submit);card.append(detail);
    }
    list.append(card);
   }
@@ -348,21 +448,52 @@ export function bindTeacherPortalPage(){
   }
   list.replaceChildren(...[...list.children].sort((a,b)=>Date.parse(a.dataset.startsAt)-Date.parse(b.dataset.startsAt)));
  }
- function renderRequests(){const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');incoming.replaceChildren();outgoing.replaceChildren();
-  const dirs={incoming,outgoing};for(const [direction,list] of Object.entries(dirs)){
+ function renderRequests(){
+  const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');
+  incoming.replaceChildren();outgoing.replaceChildren();
+  for(const [direction,list] of Object.entries({incoming,outgoing})){
    const matches=requests.filter(r=>r.direction===direction);
-   if(!matches.length){list.append(element('p','gct-empty','No requests yet.'));continue;}
-   for(const r of matches){const card=element('article','gct-session-card');card.append(element('span',`gct-status ${r.status}`,r.status.toUpperCase()),
-     element('strong','',direction==='incoming'?`${r.guest_name} would like to join`:`${r.host_name} · ${r.topic||'Open exchange'}`),
-     element('small','',fmt(r.starts_at,identity.timezone)));
-     if(r.message)card.append(element('p','',r.message));
-     if(direction==='incoming'&&r.status==='pending'){
-      const actions=element('div','gct-card-actions');for(const [decision,label] of [['approved','Approve interest'],['declined','Decline']]){
-       const btn=element('button',decision==='approved'?'gct-primary':'gct-secondary',label);btn.type='button';
-       btn.addEventListener('click',async()=>{if(!confirm(`${label}? This does not send a notification.`))return;btn.disabled=true;
-         try{await teacherReview(r.id,decision);await refresh();inform(`Request ${decision}.`);}catch(e){inform(e.message,true);btn.disabled=false;}
-       });actions.append(btn);}card.append(actions);
-     }list.append(card);
+   if(!matches.length){
+    list.append(element('p','gct-empty','No requests yet.'));continue;
+   }
+   for(const r of matches){
+    const card=element('article','gct-session-card gcs212-request');
+    card.append(element('span','gct-status '+r.status,requestStatusLabelV212(r)),
+     element('strong','',direction==='incoming'?
+      r.guest_name+' requested to join':r.host_name+' · '+(r.topic||'Open exchange')),
+     element('small','',fmt(r.starts_at,identity.timezone)),
+     element('span','gcs212-students','👥 '+r.requested_students+' student'+
+      (Number(r.requested_students)===1?'':'s')+' requested'));
+    if(r.message)card.append(element('p','',r.message));
+    if(direction==='incoming'&&r.status==='pending'){
+     const actions=element('div','gct-card-actions');
+     for(const [decision,label] of [['approved','Approve & reserve seats'],['declined','Decline']]){
+      const btn=element('button',decision==='approved'?'gct-primary':'gct-secondary',label);
+      btn.type='button';
+      btn.addEventListener('click',async()=>{
+       if(!confirm(decision==='approved'?
+        'Approve '+r.requested_students+' students? The seats will be reserved and the teacher notified inside GCC.':
+        'Decline the request? The teacher will be notified inside GCC.'))return;
+       btn.disabled=true;
+       try{
+        await teacherReview(r.id,decision);await refresh();
+        inform(decision==='approved'?'Seats reserved and teacher notified inside GCC.':'Request declined; teacher notified inside GCC.');
+       }catch(e){inform(e.message,true);btn.disabled=false;}
+      });actions.append(btn);
+     }
+     card.append(actions);
+    }
+    if(direction==='outgoing'&&r.status==='approved'&&r.reconfirmation_required){
+     const ack=element('button','gct-primary','✓ Confirm the new session time');ack.type='button';
+     ack.addEventListener('click',async()=>{
+      ack.disabled=true;
+      try{await teacherConfirmSchedule(r.id);await refresh();
+       inform('New session time confirmed. The host was notified.');}
+      catch(e){inform(e.message||'Could not confirm the new time',true);ack.disabled=false;}
+     });
+     card.append(ack);
+    }
+    list.append(card);
    }
   }
  }
@@ -471,6 +602,25 @@ export function bindTeacherPortalPage(){
    if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value){$('gctp-find-map-panel').close();$('gctp-search-summary').textContent='🌐 '+$('gctp-find-country').selectedOptions[0].textContent;scrollToCountryResultsV208($('gctp-results'));}
   });
  }
+ $('gcs212-refresh-notices').addEventListener('click',async()=>{
+  const button=$('gcs212-refresh-notices');button.disabled=true;
+  try{
+   const inbox=await teacherNotifications();
+   notifications=Array.isArray(inbox)?inbox:[];
+   renderNotifications();inform('Notifications refreshed.');
+  }catch(e){inform(e.message||'Could not refresh notifications.',true);}
+  finally{button.disabled=false;}
+ });
+ // Lightweight refresh for active teacher workspaces; automatically stops on navigation.
+ const notificationPoll=setInterval(async()=>{
+  if(!root.isConnected){clearInterval(notificationPoll);return;}
+  if(!identity||document.hidden)return;
+  try{
+   const inbox=await teacherNotifications();
+   notifications=Array.isArray(inbox)?inbox:[];
+   renderNotifications();
+  }catch{/* A failed poll never disrupts creating or joining a session. */}
+ },60000);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}

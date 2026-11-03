@@ -1,0 +1,71 @@
+/* GCC V21.2 session management — compact, non-intrusive teacher workspace. */
+.gcs212-offer{display:flex;flex-direction:column;gap:10px!important;background:linear-gradient(160deg,#fff,#f7fbfc)}
+.gcs212-offer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gcs212-offer-head>strong{font-size:.98rem;color:#194e6c}
+.gcs212-status{display:inline-flex;align-self:flex-start;align-items:center;padding:5px 9px;
+ border:1px solid #cfe6ee;border-radius:8px;color:#386e85;background:#f2f9fb;font-size:.73rem;font-weight:800}
+.gcs212-ready{background:#e6f7ee;color:#25735a;border-color:#c5ead9}
+.gcs212-incomplete{background:#fff4e5;color:#93632b;border-color:#f2dfc3}
+.gcs212-missing{color:#805c37;font-size:.77rem;line-height:1.5;background:#fff9f2;
+ border-radius:9px;padding:7px 9px;margin:0}
+.gcs212-offer-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.gcs212-offer-actions button{flex:none!important;width:max-content!important;max-width:100%;
+ min-height:37px;border-radius:9px;padding:8px 13px;font-weight:740;font-size:.81rem}
+.gcs212-inbox{padding:17px 19px;display:grid;gap:10px}
+.gcs212-inbox-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gcs212-inbox h3{font-size:1.02rem;margin:0;color:#205877}
+.gcs212-inbox h3 span{font-size:.72rem;color:#c07236}
+.gcs212-inbox-head button{font-size:.75rem;padding:6px 11px}
+.gcs212-inbox [id^=gcs212-notices]{display:grid;gap:8px}
+.gcs212-notice{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+ padding:11px 13px;border:1px solid #e0e9ed;border-radius:10px;background:#fafcfd}
+.gcs212-notice-unread{border-left:4px solid #2896b1;background:#effafd}
+.gcs212-notice>div{min-width:0;display:grid;gap:4px}
+.gcs212-notice strong{font-size:.83rem;color:#245575}
+.gcs212-notice p{font-size:.78rem;color:#536f80;line-height:1.5;margin:0;overflow-wrap:anywhere}
+.gcs212-notice small{font-size:.69rem;color:#7894a1}
+.gcs212-notice button{width:max-content;white-space:nowrap;padding:6px 10px;font-size:.72rem}
+.gcs212-request{display:grid;gap:7px}
+.gcs212-students{font-size:.8rem;font-weight:800;color:#245b79}
+.gcs212-request-count{display:grid;gap:5px;font-size:.82rem;color:#325c73;max-width:240px;margin:10px 0}
+.gcs212-request-count input{width:100%;min-height:38px;padding:8px;border:1px solid #bbd7df;border-radius:9px;
+ background:#fff;color:#214c66;font-size:.95rem}
+.gcs212-dialog{position:fixed;margin:auto;inset:0;width:min(95vw,850px);max-height:91vh;
+ overflow:auto;border-radius:18px;border:1px solid #b6d7df;background:#fff;
+ padding:0;box-shadow:0 30px 90px #0a354e5a;color:#23546b}
+.gcs212-dialog::backdrop{background:#0a2e45a8;backdrop-filter:blur(4px)}
+.gcs212-dialog:not([open]){display:none}
+.gcs212-form{display:grid;gap:14px;padding:24px}
+.gcs212-modal-head{display:grid;gap:4px}
+.gcs212-modal-head h3{font-size:1.42rem;letter-spacing:-.025em;margin:0;color:#1d526e}
+.gcs212-eyebrow{font-size:.68rem;letter-spacing:.12em;font-weight:800;color:#4992a7}
+.gcs212-readiness{background:#eaf9f1;color:#27785a;padding:11px 13px;border-radius:10px;
+ font-size:.83rem;font-weight:800;line-height:1.5}
+.gcs212-needs-attention{background:#fff4e5;color:#946331}
+.gcs212-hint{font-size:.82rem;color:#637d8d;line-height:1.5;margin:0}
+.gcs212-basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.gcs212-field{display:grid;gap:6px;color:#2e6079;font-size:.79rem;font-weight:800}
+.gcs212-field>input,.gcs212-field>select,.gcs212-field>textarea{box-sizing:border-box;width:100%;max-width:100%;
+ padding:10px 12px;border:1px solid #cadee6;border-radius:10px;background:#fff;color:#23546b;font-size:.9rem}
+.gcs212-target-levels{display:flex;flex-wrap:wrap;gap:9px;border:1px solid #d9e7ec;border-radius:12px;padding:11px}
+.gcs212-target-levels legend{color:#316b84;font-size:.82rem;font-weight:800}
+.gcs212-target-label{display:flex;align-items:center;gap:5px;padding:6px 8px;border-radius:8px;
+ background:#f0f7fa;font-size:.8rem;color:#245670}
+.gcs212-planner .gcc203-fields{display:grid;gap:13px}
+.gcs212-feedback:not(:empty){padding:10px 12px;border:1px solid #f0ced2;border-radius:9px;
+ background:#fff2f3;color:#a53848}
+.gcs212-actions{position:sticky;bottom:-24px;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;
+ margin:0 -24px -24px;padding:12px 24px;border-top:1px solid #e1edf0;background:#fff}
+.gcs212-actions button{flex:0 0 auto;min-height:41px;width:max-content;max-width:100%;border-radius:9px;padding:9px 15px}
+.gcs212-form :is(input,textarea,select):focus-visible,
+.gcs212-offer-actions button:focus-visible,.gcs212-notice button:focus-visible{
+ outline:3px solid #43bed1;outline-offset:2px}
+@media(max-width:700px){
+ .gcs212-form{padding:16px}
+ .gcs212-basics{grid-template-columns:1fr}
+ .gcs212-actions{margin:0 -16px -16px;bottom:-16px;padding:10px 16px}
+ .gcs212-dialog{width:min(96vw,850px);max-height:93vh}
+ .gcs212-inbox{padding:12px}
+ .gcs212-notice{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){.gcs212-dialog{scroll-behavior:auto}}
