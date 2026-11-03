@@ -46,6 +46,12 @@ export async function teacherConfirmSchedule(requestId){
   return rpc('gcc_v212_confirm_new_schedule',{p_request_id:requestId});
 }
 export async function teacherReview(id,decision){return rpc('gcc_teacher_review_request',{p_request_id:id,p_decision:decision});}
+export async function teacherWorkspaceV213(){return rpc('gcc_v213_teacher_workspace');}
+export async function teacherSaveDraftV213(draft){return rpc('gcc_v213_save_teacher_draft',{p_draft:draft});}
+export async function teacherClearDraftV213(){return rpc('gcc_v213_clear_teacher_draft');}
+export async function teacherSetFavoriteV213(source,id,saved){
+  return rpc('gcc_v213_set_teacher_favorite',{p_source:source,p_session_id:id,p_saved:saved});
+}
 export async function teacherSignIn(email,password){
   const {data,error}=await client().auth.signInWithPassword({email,password});if(error)throw error;return data;
 }
