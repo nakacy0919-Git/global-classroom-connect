@@ -20,7 +20,31 @@ export async function teacherCreateSession(slot,data){
   });
 }
 export async function teacherCloseSession(id){return rpc('gcc_teacher_close_session',{p_offer_id:id});}
-export async function teacherApply(id,message){return rpc('gcc_teacher_apply_to_session',{p_offer_id:id,p_message:message});}
+export async function teacherApply(id,message,students=1){
+  return rpc('gcc_v212_teacher_apply_to_session',{
+    p_offer_id:id,p_message:message,p_students:students
+  });
+}
+export async function teacherManageSession(id){
+  return rpc('gcc_v212_teacher_manage_session',{p_offer_id:id});
+}
+export async function teacherEditSession({offerId,slot,students,rooms,band,topic,notes,details}){
+  return rpc('gcc_v212_teacher_edit_session',{
+    p_offer_id:offerId,p_starts_at:slot.startsAt,p_ends_at:slot.endsAt,
+    p_student_count:students,p_room_count:rooms,p_age_band:band,
+    p_topic:topic,p_notes:notes,p_details:details
+  });
+}
+export async function teacherNotifications(){return rpc('gcc_v212_notifications');}
+export async function teacherReadNotification(id){
+  return rpc('gcc_v212_mark_notification_read',{p_notification_id:id});
+}
+export async function teacherReopenSession(id){
+  return rpc('gcc_v212_teacher_reopen_session',{p_offer_id:id});
+}
+export async function teacherConfirmSchedule(requestId){
+  return rpc('gcc_v212_confirm_new_schedule',{p_request_id:requestId});
+}
 export async function teacherReview(id,decision){return rpc('gcc_teacher_review_request',{p_request_id:id,p_decision:decision});}
 export async function teacherSignIn(email,password){
   const {data,error}=await client().auth.signInWithPassword({email,password});if(error)throw error;return data;
