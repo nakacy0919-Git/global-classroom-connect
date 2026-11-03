@@ -89,3 +89,13 @@ test('teacher UI provides red badge, safe read workflow, free calendar options, 
  assert.match(css,/background:#d73145/);
  assert.match(css,/@media\(max-width:730px\)/);
 });
+
+test('rapid chat switching queues latest thread fetch and keeps drafts separate',()=>{
+ const chat=read('src/lib/teacherMessagesV214.js');
+ assert.match(chat,/if\(loadingMessages\)\{queuedLoad=true;return;\}/);
+ assert.match(chat,/if\(queuedLoad\)\{queuedLoad=false;void loadMessages\(\{quiet:true\}\);\}/);
+ assert.match(chat,/drafts\.set\(activeId,textarea\.value\)/);
+ assert.match(chat,/textarea\.value=drafts\.get\(id\)\|\|''/);
+ assert.match(chat,/teacherSendMessageV214\(sendingThread,body\)/);
+ assert.match(chat,/if\(activeId===sendingThread\)/);
+});
