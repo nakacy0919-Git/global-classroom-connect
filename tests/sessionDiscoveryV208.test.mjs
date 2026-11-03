@@ -50,7 +50,8 @@ test('host and teacher flows now record one clear total capacity and no duplicat
  assert.match(teacher,/id="gctp-capacity"/);
  assert.match(teacher,/Maximum total participants/);
  assert.doesNotMatch(teacher,/id="gctp-goals"/);
- assert.match(teacher,/max_participants/);
+ assert.match(teacher,/Number\(\$\('gctp-capacity'\)\.value\)/);
+ assert.match(read('src/lib/sessionPlannerV203.js'),/max_participants:preferred/);
  assert.match(teacher,/scrollToCountryResultsV208/);
  assert.match(teacher,/hostEventsAsOffersV208\(hostEvents\)/);
  assert.match(teacher,/publishedByCountryV208/);
