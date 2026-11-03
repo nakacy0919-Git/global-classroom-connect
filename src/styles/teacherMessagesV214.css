@@ -18,6 +18,7 @@
 .gcs214-home-link{display:flex;align-items:center;gap:10px}
 .gcs214-home-link .gcs214-badge{margin-left:auto}
 .gcs214-messages{display:grid;gap:14px}
+.gcs214-messages[hidden],.gcs214-compose[hidden]{display:none!important}
 .gcs214-title-row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .gcs214-title-row h3{font-size:1.4rem;letter-spacing:-.025em;color:#1c4d66;margin:0}
 .gcs214-title-row p{margin:5px 0 0;color:#55788b;font-size:.86rem}
