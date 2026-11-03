@@ -158,6 +158,14 @@
   margin:0;
   background:linear-gradient(140deg,#e9f1f5,#dfe9ee);
 }
+.gcc122-team .gcc133-person-open .gcc122-person-photo .gcc122-person-placeholder{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  color:#7897a7;
+  font-size:3.8rem;
+}
 .gcc122-team .gcc133-person-open .gcc122-person-photo img{
   position:absolute;
   inset:0;
