@@ -285,24 +285,57 @@ BEGIN
  RETURN true;
 END $fn$;
 
--- Database-side guard also covers direct writes by a privileged host account.
--- This prevents bypassing the RPC's serialized capacity check.
+
+-- Enforce capacity even if a host tries to update requests directly via Data API.
 CREATE OR REPLACE FUNCTION public.gcc_v212_enforce_approved_capacity()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
-DECLARE offer record; booked integer; max_seats integer; old_approved integer:=0;
+DECLARE offer record; booked integer; max_seats integer; old_count integer:=0;
 BEGIN
- IF NEW.status<>'approved' THEN RETURN NEW;END IF;
+ IF NEW.status<>'approved' THEN RETURN NEW; END IF;
  IF TG_OP='UPDATE' THEN
-  IF OLD.status='approved' AND OLD.requested_students=NEW.requested_students
-   AND OLD.offer_id=NEW.offer_id THEN RETURN NEW; END IF;
-  IF OLD.status='approved' AND OLD.offer_id=NEW.offer_id THEN
-   old_approved:=OLD.requested_students;
+  IF OLD.status='approved' AND OLD.requested_students=NEW.requested_students AND OLD.offer_id=NEW.offer_id THEN
+   RETURN NEW;
   END IF;
+  IF OLD.status='approved' AND OLD.offer_id=NEW.offer_id THEN old_count:=OLD.requested_students; END IF;
  END IF;
- SELECT * INTO offer FROM public.exchange_availability
- WHERE id=NEW.offer_id FOR UPDATE;
- IF NOT FOUND THEN RAISE EXCEPTION 'Session does not exist';END IF;
- IF coalesce(offer.session_details->>'max_participants','') !~ '^[0-9]{1,4}
+ SELECT * INTO offer FROM public.exchange_availability WHERE id=NEW.offer_id FOR UPDATE;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Session not found'; END IF;
+ IF coalesce(offer.session_details->>'max_participants','') !~ '^[0-9]{1,4}$' THEN
+  RAISE EXCEPTION 'Host must set total session capacity first';
+ END IF;
+ max_seats:=(offer.session_details->>'max_participants')::integer;
+ SELECT coalesce(sum(requested_students),0) INTO booked
+ FROM public.session_join_requests WHERE offer_id=NEW.offer_id AND status='approved';
+ IF offer.student_count+booked-old_count+NEW.requested_students>max_seats THEN
+  RAISE EXCEPTION 'Approved student seats exceed total capacity';
+ END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v212_approved_capacity_trg ON public.session_join_requests;
+CREATE TRIGGER gcc_v212_approved_capacity_trg
+BEFORE INSERT OR UPDATE OF status,requested_students,offer_id ON public.session_join_requests
+FOR EACH ROW EXECUTE FUNCTION public.gcc_v212_enforce_approved_capacity();
+
+CREATE OR REPLACE FUNCTION public.gcc_v212_offer_capacity_guard()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
+DECLARE booked integer; capacity integer;
+BEGIN
+ IF coalesce(NEW.session_details->>'max_participants','') !~ '^[0-9]{1,4}$' THEN RETURN NEW; END IF;
+ capacity:=(NEW.session_details->>'max_participants')::integer;
+ SELECT coalesce(sum(requested_students),0) INTO booked
+ FROM public.session_join_requests WHERE offer_id=NEW.id AND status='approved';
+ IF NEW.student_count+booked>capacity THEN
+  RAISE EXCEPTION 'Total capacity must include all approved student seats';
+ END IF;
+ RETURN NEW;
+END $fn$;
+DROP TRIGGER IF EXISTS gcc_v212_offer_capacity_guard_trg ON public.exchange_availability;
+CREATE TRIGGER gcc_v212_offer_capacity_guard_trg
+BEFORE UPDATE OF student_count,session_details ON public.exchange_availability
+FOR EACH ROW EXECUTE FUNCTION public.gcc_v212_offer_capacity_guard();
+REVOKE ALL ON FUNCTION public.gcc_v212_enforce_approved_capacity() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gcc_v212_offer_capacity_guard() FROM PUBLIC,anon,authenticated;
+
 CREATE OR REPLACE FUNCTION public.gcc_teacher_list_requests()
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $fn$
 DECLARE tid uuid:=public.gcc_current_teacher_id();result jsonb;
