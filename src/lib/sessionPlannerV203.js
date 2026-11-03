@@ -36,13 +36,13 @@ export function mountPlanFieldsV203(root,prefix){
   for(const [value,text] of options){const o=node('option','',text);o.value=value;s.append(o);}return s;
  };
  choose('type','Educational session type *',SESSION_TYPES_V203);
- add('preferred','Preferred students *','input',{type:'number',min:1,max:2000,value:20,required:true});
+ // Maximum total attendance is entered once in Basics (teacher) or event settings (host).
  add('countries','Preferred partner countries (optional)','input',{maxLength:200,placeholder:'Any, or Japan, Korea, Philippines'});
  add('minage','Minimum acceptable age *','input',{type:'number',min:5,max:30,value:12,required:true});
  add('maxage','Maximum acceptable age *','input',{type:'number',min:5,max:30,value:18,required:true});
  add('grades','Accepted grades (optional)','input',{maxLength:100,placeholder:'Grades 7–12'});
- add('flow','Detailed schedule * (HH:MM | activity, one line per stage)','textarea',{rows:6,maxLength:4000,required:true,placeholder:'13:10 | Welcome and goals\n13:20 | Breakout Round 1: introductions\n13:40 | Breakout Round 2: discussion\n13:55 | Closing reflection'});
- section.append(node('p','gcc203-hint','At least two timed activities, in order, covering the start and ending period of this session. Times use the session local time zone.'));
+ add('flow','Session agenda * (time + activity per line; no special symbol needed)','textarea',{rows:6,maxLength:4000,required:true,placeholder:'13:10 Welcome and goals\n13:20 Breakout Round 1: introductions\n13:40 Breakout Round 2: discussion\n13:55 Closing reflection'});
+ section.append(node('p','gcc203-hint','Write at least two timed activities. For example: 13:10 Welcome, 13:20 Group discussion. Use your school time zone. Separators such as |, – or : are optional; the first activity need not start at the exact session time.'));
  add('description','Objectives and preparation details *','textarea',{rows:3,maxLength:1200,required:true,placeholder:'Explain what students do, language level and preparation needed.'});
  const platform=choose('platform','Video meeting platform *',PLATFORMS_V203);
  const hint=node('p','gcc203-hint');section.append(hint);
@@ -109,29 +109,31 @@ export const PLATFORM_LABEL_V203=id=>PLATFORMS_V203.find(x=>x[0]===id)?.[1]||'On
 const minutes=t=>{const m=/^(\d\d):(\d\d)$/.exec(t||'');return m&&+m[1]<24&&+m[2]<60?+m[1]*60+ +m[2]:null;};
 export function parseFlowV203(value,start,end){
  const rows=String(value||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
- if(rows.length<2||rows.length>20)throw Error('A session flow of 2–20 timed stages is required.');
- const a=minutes(start),b=minutes(end);if(a===null||b===null||b<=a)throw Error('Use start and end times on the same day.');
+ if(rows.length<2||rows.length>20)throw Error('Please describe 2–20 timed agenda activities.');
+ const a=minutes(start),b=minutes(end);
+ if(a===null||b===null||b<=a)throw Error('Use a valid same-day start and end time.');
  let previous=-1;
- const stages=rows.map(row=>{
-  const match=/^(\d{2}:\d{2})\s*[|｜]\s*(.{5,250})$/.exec(row);
-  if(!match)throw Error('Each session flow line must be HH:MM | description (5+ characters).');
-  const m=minutes(match[1]);
-  if(m===null||m<a||m>=b||m<=previous)throw Error('Agenda times must be ordered within the session hours.');
-  previous=m;return {time:match[1],activity:match[2].trim()};
+ return rows.map(row=>{
+  const match=/^(?:[-*•・]\s*)?(\d{1,2}:\d{2})\s*(?:[|｜:：–—-]\s*)?(.+)$/.exec(row);
+  if(!match)throw Error('Please begin each agenda line with a time, such as 13:10 Welcome.');
+  const m=minutes(match[1].padStart(5,'0'));
+  const activity=match[2].trim();
+  if(m===null||m<a||m>b)throw Error('Please keep agenda times within the session hours.');
+  if(m<=previous)throw Error('Please list agenda activities in time order.');
+  if(activity.length<2||activity.length>250)throw Error('Please write a brief activity after each time.');
+  previous=m;
+  return {time:match[1].padStart(5,'0'),activity};
  });
- if(minutes(stages[0].time)!==a)throw Error('The agenda must begin at the session start time.');
- if(b-previous>25)throw Error('Add a closing activity within 25 minutes of the end.');
- return stages;
 }
 const safeUrl=value=>{if(!value)return '';try{const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password)throw Error();return u.href;}catch{throw Error('Please use a valid HTTPS meeting link.');}};
-export function readPlanV203(root,prefix,slot,deadlineIso){
+export function readPlanV203(root,prefix,slot,deadlineIso,maxParticipants){
  const value=k=>root.querySelector('#'+prefix+'-'+k)?.value?.trim()||'';
- const min=Number(value('minage')),max=Number(value('maxage')),preferred=Number(value('preferred'));
+ const min=Number(value('minage')),max=Number(value('maxage')),preferred=Number(maxParticipants);
  if(!Number.isInteger(min)||!Number.isInteger(max)||min<5||max>30||min>max)throw Error('Accepted ages must be between 5 and 30, with minimum no greater than maximum.');
- if(!Number.isInteger(preferred)||preferred<1||preferred>2000)throw Error('Enter the desired number of students (1–2000).');
+ if(!Number.isInteger(preferred)||preferred<1||preferred>2000)throw Error('Enter the maximum total participants, including the host school (1–2000).');
  if(!deadlineIso||Date.parse(deadlineIso)<=Date.now()||Date.parse(deadlineIso)>Date.parse(slot.startsAt))throw Error('Registration deadline must be in the future and no later than the session start.');
  if(value('description').length<25)throw Error('Write at least 25 characters describing objectives and preparations.');
- const d={session_type:value('type'),preferred_students:preferred,preferred_countries:value('countries'),
+ const d={session_type:value('type'),preferred_students:preferred,max_participants:preferred,preferred_countries:value('countries'),
   min_age:min,max_age:max,accepted_grades:value('grades'),flow:parseFlowV203(value('flow'),slot.startTime,slot.endTime),
   description:value('description'),platform:value('platform'),platform_option:value('platform-option'),meeting_url:safeUrl(value('meeting')),
   breakout_mode:value('breakout'),breakout_notes:value('breakoutnotes'),registration_closes_at:deadlineIso,
@@ -148,7 +150,7 @@ export function renderSessionDetailsV203(root,details,{privateLink=false}={}){
  add('Format',d.session_type?TYPE_LABEL_V203(d.session_type):'Not specified');
  add('Platform',d.platform?PLATFORM_LABEL_V203(d.platform):'Not specified');
  add('Platform controls',d.platform_option);
- add('Desired participants',d.preferred_students);
+ add('Maximum participants (including host school)',d.max_participants||d.preferred_students);
  add('Accepted ages',d.min_age&&d.max_age?d.min_age+'–'+d.max_age:'');
  add('Grades',d.accepted_grades);
  add('Preferred countries',d.preferred_countries);
