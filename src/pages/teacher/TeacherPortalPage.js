@@ -237,10 +237,46 @@ export function bindTeacherPortalPage(){
  $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
-  const [mine,applications,publicEvents]=await Promise.all([teacherSessions(),teacherRequests(),listPublicSessionOverviews()]);
+  const [mine,applications,publicEvents,inbox]=await Promise.all([
+    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications()
+  ]);
   hostEvents=Array.isArray(publicEvents)?publicEvents:[];
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  renderMine();renderHome();updateFindCountries();countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);renderResults();renderRequests();
+  notifications=Array.isArray(inbox)?inbox:[];
+  renderMine();renderHome();renderNotifications();updateFindCountries();
+  countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
+  renderResults();renderRequests();
+ }
+ function renderNotifications(){
+  const unread=notifications.filter(x=>!x.read_at).length;
+  for(const [elementId,countId] of [
+   ['gcs212-notices-home','gcs212-notice-count-home'],
+   ['gcs212-notices-requests','gcs212-notice-count-requests']
+  ]){
+   const mount=$(elementId);if(!mount)continue;
+   mount.replaceChildren();$(countId).textContent=unread?'('+unread+' unread)':'';
+   if(!notifications.length){
+    mount.append(element('p','gct-empty','No notifications yet. Join requests and approvals appear here.'));continue;
+   }
+   for(const entry of notifications.slice(0,12)){
+    const article=element('article','gcs212-notice'+(entry.read_at?'':' gcs212-notice-unread'));
+    const text=element('div');
+    text.append(element('strong','',entry.title),
+     element('p','',entry.body),
+     element('small','',fmt(entry.created_at,identity.timezone)));
+    article.append(text);
+    if(!entry.read_at){
+     const mark=element('button','gct-secondary','Mark read');mark.type='button';
+     mark.addEventListener('click',async()=>{
+      mark.disabled=true;
+      try{await teacherReadNotification(entry.id);
+       entry.read_at=new Date().toISOString();renderNotifications();
+      }catch(e){inform(e.message||'Could not mark notification as read',true);mark.disabled=false;}
+     });article.append(mark);
+    }
+    mount.append(article);
+   }
+  }
  }
  function renderHome(){
   const mine=upcoming().filter(o=>o.is_mine);
