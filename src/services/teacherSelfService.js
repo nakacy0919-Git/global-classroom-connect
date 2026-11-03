@@ -52,6 +52,18 @@ export async function teacherClearDraftV213(){return rpc('gcc_v213_clear_teacher
 export async function teacherSetFavoriteV213(source,id,saved){
   return rpc('gcc_v213_set_teacher_favorite',{p_source:source,p_session_id:id,p_saved:saved});
 }
+export async function teacherMessageThreadsV214(){
+ return rpc('gcc_v214_teacher_threads');
+}
+export async function teacherThreadMessagesV214(requestId){
+ return rpc('gcc_v214_teacher_messages',{p_request_id:requestId});
+}
+export async function teacherSendMessageV214(requestId,body){
+ return rpc('gcc_v214_teacher_send_message',{p_request_id:requestId,p_body:body});
+}
+export async function teacherMarkMessageReadV214(requestId,messageId){
+ return rpc('gcc_v214_teacher_mark_read',{p_request_id:requestId,p_last_message_id:messageId});
+}
 export async function teacherSignIn(email,password){
   const {data,error}=await client().auth.signInWithPassword({email,password});if(error)throw error;return data;
 }
