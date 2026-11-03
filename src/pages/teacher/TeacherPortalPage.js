@@ -416,18 +416,45 @@ export function bindTeacherPortalPage(){
    }
    catch(err){const msg=err.message||'Could not publish the session.';inform(msg,true);showFormStep(2);guide.show(msg,2);}finally{btn.disabled=false;}
  });
+ const searchDialogs=['gctp-search-choice','gctp-find-time-panel','gctp-find-map-panel'];
+ const openSearchModal=(id)=>{
+  for(const other of searchDialogs){if($(other)?.open)$(other).close();}
+  const dlg=$(id);
+  if(typeof dlg.showModal==='function')dlg.showModal();
+  else dlg.setAttribute('open','');
+ };
  const setDiscoverMode=(mode)=>{
   discoverMode=mode==='map'?'map':'time';
-  $('gctp-find-time-panel').hidden=discoverMode!=='time';
-  $('gctp-find-map-panel').hidden=discoverMode!=='map';
   for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
    button.setAttribute('aria-pressed',String(button.dataset.gcs151Discovery===discoverMode));
   }
+  openSearchModal(discoverMode==='map'?'gctp-find-map-panel':'gctp-find-time-panel');
   if(discoverMode==='map')countryExplorer.load();
   renderResults();
  };
  for(const button of root.querySelectorAll('[data-gcs151-discovery]')){
   button.addEventListener('click',()=>setDiscoverMode(button.dataset.gcs151Discovery));
+ }
+ $('gctp-open-search').addEventListener('click',()=>openSearchModal('gctp-search-choice'));
+ $('gctp-show-all').addEventListener('click',()=>{
+  $('gctp-search-choice').close();discoverMode='time';
+  $('gctp-reset-filters').click();
+  $('gctp-search-summary').textContent='All upcoming sessions';
+  scrollToCountryResultsV208($('gctp-results'));
+ });
+ $('gctp-apply-time').addEventListener('click',()=>{
+  $('gctp-find-time-panel').close();
+  $('gctp-search-summary').textContent='🕒 Time and date preferences applied';
+  renderResults();scrollToCountryResultsV208($('gctp-results'));
+ });
+ $('gctp-apply-map').addEventListener('click',()=>{
+  $('gctp-find-map-panel').close();
+  const selected=$('gctp-find-country');
+  $('gctp-search-summary').textContent=selected.value?'🌐 '+selected.selectedOptions[0].textContent:'🌐 All host countries';
+  renderResults();scrollToCountryResultsV208($('gctp-results'));
+ });
+ for(const cancel of root.querySelectorAll('[data-gcs209-cancel]')){
+  cancel.addEventListener('click',()=>cancel.closest('dialog')?.close());
  }
  $('gctp-reset-filters').addEventListener('click',()=>{
   $('gctp-find-preset').value='any';$('gctp-find-date').value='';
@@ -441,11 +468,11 @@ export function bindTeacherPortalPage(){
   $(id).addEventListener(id==='gctp-find-topic'?'input':'change',()=>{
    if(id==='gctp-find-country')countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
    renderResults();
-   if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value)scrollToCountryResultsV208($('gctp-results'));
+   if(id==='gctp-find-country'&&discoverMode==='map'&&$('gctp-find-country').value){$('gctp-find-map-panel').close();$('gctp-search-summary').textContent='🌐 '+$('gctp-find-country').selectedOptions[0].textContent;scrollToCountryResultsV208($('gctp-results'));}
   });
  }
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
- showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
+ showFormStep(0);display(view);if(view==='find')openSearchModal('gctp-search-choice');init().catch(e=>inform(e.message,true));
 }
