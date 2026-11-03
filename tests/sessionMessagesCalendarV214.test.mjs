@@ -34,7 +34,8 @@ test('ICS follows RFC 5545 CRLF folding and correctly escapes worldwide teacher 
  assert.match(ics,/DTSTART:20261109T041000Z\r\n/);
  assert.match(ics,/DTEND:20261109T051000Z\r\n/);
  assert.match(ics,/SUMMARY:交流・Cultural Exchange 🌏\r\n/);
- assert.match(ics,/DESCRIPTION:Talk with international teachers\\nDiscuss goals\\, grades\\; and language\./);
+ const unfolded=ics.replace(/\r\n /g,'');
+ assert.match(unfolded,/DESCRIPTION:Talk with international teachers\\nDiscuss goals\\, grades\\; and language\./);
  assert.match(ics,/UID:gcc-543184ab-29d9-467e-a8cd-8e0d49b4fe04@gcc\.pic-speak-story\.com/);
  for(const line of ics.split('\r\n'))assert.ok(new TextEncoder().encode(line).length<=75,'Oversized folded ICS line: '+line);
  assert.ok(ics.endsWith('\r\n'));
