@@ -279,6 +279,23 @@ export function bindTeacherPortalPage(){
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
    root.classList.toggle('gcs209-finding',id==='find');
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
+ const updateMessageBadges=count=>{
+  const n=Math.max(0,Number(count)||0);
+  for(const id of ['gcs214-badge-header','gcs214-badge-home','gcs214-badge-messages']){
+   const badge=$(id);if(!badge)continue;
+   badge.hidden=n===0;badge.textContent=n>99?'99+':String(n);
+   badge.setAttribute('aria-label',n+' unread teacher messages');
+  }
+ };
+ const messages=mountTeacherMessagesV214(root,{
+  getIdentity:()=>identity,onUnread:updateMessageBadges,
+  onError:message=>inform(message,true),
+  onOpenView:()=>{
+   display('messages');
+   window.history.replaceState(null,'','#/teacher-portal?view=messages');
+  }
+ });
+ const openPartnerMessages=async requestId=>{await messages.open(requestId);};
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
  const guide=createFieldGuideV204(root,$('gctp-create'));
@@ -354,6 +371,7 @@ export function bindTeacherPortalPage(){
   renderMine();renderHome();renderNotifications();updateFindCountries();
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
   renderResults();renderRequests();
+  await messages.refreshThreads({quiet:true});
  }
  function renderNotifications(){
   const unread=notifications.filter(x=>!x.read_at).length;
@@ -452,7 +470,9 @@ export function bindTeacherPortalPage(){
     }catch(e){inform(e.message||'Could not change status',true);status.disabled=false;}
    });row.append(status);
   }
-  card.append(row);return card;
+  card.append(row);
+  card.append(calendarMenuV214({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone}));
+  return card;
  }
  function renderHome(){
   const mine=upcoming().filter(o=>o.is_mine);
@@ -524,6 +544,7 @@ export function bindTeacherPortalPage(){
      schoolLevel:schoolLevelV209(o)});
     card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
     card.append(favoriteControl('offer',o.id));
+    card.append(calendarMenuV214({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone}));
     if(GCC_MODES_V150[d.mode])
      card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
     if(o.timezone&&o.timezone!==identity.timezone)
@@ -583,6 +604,7 @@ export function bindTeacherPortalPage(){
     appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
      zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
     card.append(favoriteControl('event',e.id));
+    card.append(calendarMenuV214({...e,viewer_zone:identity.timezone}));
     if(e.timezone&&e.timezone!==identity.timezone)
      card.append(element('small','gcs209-host-time','Host local time: '+
        timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
@@ -617,6 +639,22 @@ export function bindTeacherPortalPage(){
      element('span','gcs212-students','👥 '+r.requested_students+' student'+
       (Number(r.requested_students)===1?'':'s')+' requested'));
     if(r.message)card.append(element('p','',r.message));
+    if(r.status==='approved'){
+     const controls=element('div','gcs214-request-calendar');
+     const btn=element('button','gcs214-msg-link','✉ Message partner');
+     btn.type='button';
+     btn.addEventListener('click',async()=>{
+      btn.disabled=true;
+      try{await openPartnerMessages(r.id);}
+      catch(e){inform(e.message||'Could not open the conversation',true);}
+      finally{btn.disabled=false;}
+     });
+     controls.append(btn,calendarMenuV214({
+      id:r.offer_id,title:r.topic||'Global Classroom Exchange',
+      starts_at:r.starts_at,ends_at:r.ends_at,viewer_zone:identity.timezone
+     }));
+     card.append(controls);
+    }
     if(direction==='incoming'&&r.status==='pending'){
      const actions=element('div','gct-card-actions');
      for(const [decision,label] of [['approved','Approve & reserve seats'],['declined','Decline']]){
@@ -818,6 +856,10 @@ export function bindTeacherPortalPage(){
   finally{button.disabled=false;}
  });
  // Lightweight refresh for active teacher workspaces; automatically stops on navigation.
+ const messagePoll=setInterval(async()=>{
+  if(!root.isConnected){clearInterval(messagePoll);return;}
+  if(identity&&!document.hidden)await messages.poll();
+ },30000);
  const notificationPoll=setInterval(async()=>{
   if(!root.isConnected){clearInterval(notificationPoll);return;}
   if(!identity||document.hidden)return;
@@ -829,6 +871,8 @@ export function bindTeacherPortalPage(){
  },60000);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
- if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
- showFormStep(0);display(view);if(view==='find')openSearchModal('gctp-search-choice');init().catch(e=>inform(e.message,true));
+ if(!['home','create','find','volunteer','network','requests','profile','messages'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
+ showFormStep(0);display(view);if(view==='find')openSearchModal('gctp-search-choice');
+ init().then(()=>{if(view==='messages')messages.open().catch(e=>inform(e.message,true));})
+  .catch(e=>inform(e.message,true));
 }
