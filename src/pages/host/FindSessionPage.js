@@ -359,7 +359,7 @@ export function bindFindSessionPage() {
       const select=$('gcf-country');
       const codes=[...new Set([...state.offers.map(o=>o.country_code),...publicEvents.map(e=>hostCountryV208(e).code)].filter(Boolean))]
         .sort((a,b)=>countryName(a).localeCompare(countryName(b)));
-      for(const code of codes){const option=el('option','',`${flag(code)} ${countryName(code)||hostCountryV208(publicEvents.find(e=>hostCountryV208(e).code===code)).name}`);option.value=code;select.append(option);}
+      for(const code of codes){const option=el('option','',`${flag(code)} ${countryName(code)===code?(hostCountryV208(publicEvents.find(e=>hostCountryV208(e).code===code)).name||code):countryName(code)}`);option.value=code;select.append(option);}
       show();
     }catch(e){$('gcf-count').textContent='Could not load';$('gcf-list').replaceChildren(el('p','gcf-error',e?.message||'Data could not be loaded.'));}
   })();
