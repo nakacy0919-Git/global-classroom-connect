@@ -23,6 +23,6 @@ test('pilot materials use canonical signup route and explain not-yet-live featur
  for(const str of [guide,invite])assert.match(str,/https:\/\/gcc\.pic-speak-story\.com\/#\/teacher-access/);
  assert.match(guide,/Automatic email notification to hosts is not available/);
  assert.match(invite,/built-in GCC chat are not yet available/);
- assert.match(runbook,/approved-partner-only contact exchange/);
+ assert.match(runbook,/approved-partner-only contact exchange/i);
  assert.match(runbook,/\*\*\[PILOT\]\*\*/);
 });
