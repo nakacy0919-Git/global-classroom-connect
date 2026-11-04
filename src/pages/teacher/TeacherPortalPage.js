@@ -19,6 +19,7 @@ import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV20
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {mountApprovedPartnerContactV218} from '../../lib/partnerContactsV218.js';
 import {calendarMenuV214} from '../../lib/sessionCalendarExportV214.js';
 import '../../styles/sessionCalendarV214.css';
 import {SESSION_STARTERS_V216,sessionStarterV216} from '../../lib/sessionStartersV216.js';
@@ -558,6 +559,14 @@ export function bindTeacherPortalPage(){
      count.max=String(Math.min(500,availableSeatsV212(o)));count.value='1';
      count.required=true;count.setAttribute('aria-label','Number of students joining your school');
      countLabel.append(count);
+     const ages=element('div','gct-fields');
+     const youngLabel=element('label','','Youngest participating student age *');
+     const ageMin=element('input');ageMin.type='number';ageMin.min='3';ageMin.max='99';ageMin.required=true;
+     ageMin.setAttribute('aria-label','Youngest student age');youngLabel.append(ageMin);
+     const oldLabel=element('label','','Oldest participating student age *');
+     const ageMax=element('input');ageMax.type='number';ageMax.min='3';ageMax.max='99';ageMax.required=true;
+     ageMax.setAttribute('aria-label','Oldest student age');oldLabel.append(ageMax);
+     ages.append(youngLabel,oldLabel);
      const message=element('textarea');message.rows=2;message.maxLength=500;
      message.placeholder='Optional message to the host teacher';
      message.setAttribute('aria-label','Message to the session host');
@@ -567,14 +576,19 @@ export function bindTeacherPortalPage(){
       if(!count.checkValidity()||!Number.isInteger(number)){
        count.focus();inform('Enter a student count within the available seats.',true);return;
       }
+      const minAge=Number(ageMin.value),maxAge=Number(ageMax.value);
+      if(!ageMin.checkValidity()||!ageMax.checkValidity()||
+       !Number.isInteger(minAge)||!Number.isInteger(maxAge)||minAge>maxAge){
+       ageMin.focus();inform('Enter valid student ages (youngest to oldest).',true);return;
+      }
       submit.disabled=true;prepareSuccessChime();
       try{
-       await teacherApply(o.id,message.value.trim(),number);await refresh();
+       await teacherApply(o.id,message.value.trim(),number,minAge,maxAge);await refresh();
        inform('Request sent! The host received an in-app notification.');
        showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
       }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
      });
-     detail.append(countLabel,message,submit);card.append(detail);
+     detail.append(countLabel,ages,message,submit);card.append(detail);
     }
     list.append(card);
    }else{
@@ -618,15 +632,29 @@ export function bindTeacherPortalPage(){
      element('small','',fmt(r.starts_at,identity.timezone)),
      element('span','gcs212-students','👥 '+r.requested_students+' student'+
       (Number(r.requested_students)===1?'':'s')+' requested'));
+    if(direction==='incoming'){
+     const facts=[
+      r.guest_school_name,
+      r.guest_country_name||r.guest_country_code,
+      r.guest_school_level
+     ].filter(Boolean).join(' · ');
+     if(facts)card.append(element('p','gcs218-applicant-facts',facts));
+    }
+    if(r.students_min_age!==null&&r.students_min_age!==undefined&&
+       r.students_max_age!==null&&r.students_max_age!==undefined){
+     card.append(element('p','gcs218-applicant-ages',
+      'Participating students: ages '+r.students_min_age+'–'+r.students_max_age));
+    }
     if(r.message)card.append(element('p','',r.message));
     if(r.status==='approved'){
+     const handoff=element('div','gcs218-handoff');
+     mountApprovedPartnerContactV218(handoff,r.id);
+     card.append(handoff);
      const contact=element('div','gcs214-request-calendar');
      contact.append(calendarMenuV214({id:r.offer_id,title:r.topic||'Global Classroom Exchange',
       starts_at:r.starts_at,ends_at:r.ends_at,viewer_zone:identity.timezone}));
-     const directory=element('a','gcs214-partner-dir','Find partner in verified Teacher Network');
-     directory.href='#/teacher-portal?view=network';contact.append(directory);
      const help=element('p','gcs214-contact-note',
-      'After approval, agree on WhatsApp, LINE, or Messenger using a school-managed account where possible. Only voluntarily listed teacher profiles appear in the directory. Keep student information and private meeting links out of public profiles.');
+      'Share your preferred contact privately above. Only the approved counterpart can read it. Keep student information and private meeting links out of public session descriptions.');
      card.append(contact,help);
     }
     if(direction==='incoming'&&r.status==='pending'){

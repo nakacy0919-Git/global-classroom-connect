@@ -37,6 +37,6 @@ test('Find Partner stays independent of Create Session even when search is empty
  assert.match(empty,/gcv216-empty-actions/);
  assert.doesNotMatch(empty,/view=create|Create a Session/);
  assert.match(p,/gctp-reset-filters/);
- assert.match(p,/teacherApply\(o\.id,message\.value\.trim\(\),number\)/);
+ assert.match(p,/teacherApply\(o\.id,message\.value\.trim\(\),number,minAge,maxAge\)/);
  assert.doesNotMatch(p,/mountTeacherMessagesV214/);
 });

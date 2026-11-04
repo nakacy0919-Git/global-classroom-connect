@@ -10,6 +10,12 @@ export async function claimTeacherInvite(token){return rpc('gcc_claim_teacher_in
 export async function teacherIdentity(){return rpc('gcc_teacher_identity');}
 export async function teacherSessions(){return rpc('gcc_teacher_browse_sessions');}
 export async function teacherRequests(){return rpc('gcc_teacher_list_requests');}
+export async function teacherPartnerContactsV218(requestId){
+ return rpc('gcc_v218_partner_contacts',{p_request_id:requestId});
+}
+export async function teacherSavePartnerContactV218(requestId,channel,value){
+ return rpc('gcc_v218_set_partner_contact',{p_request_id:requestId,p_channel:channel,p_value:value});
+}
 export async function teacherCreateSession(slot,data){
   const enhanced=Boolean(data.details);
   return rpc(enhanced?'gcc_v203_teacher_register_session':'gcc_teacher_register_session',{
@@ -20,9 +26,10 @@ export async function teacherCreateSession(slot,data){
   });
 }
 export async function teacherCloseSession(id){return rpc('gcc_teacher_close_session',{p_offer_id:id});}
-export async function teacherApply(id,message,students=1){
-  return rpc('gcc_v212_teacher_apply_to_session',{
-    p_offer_id:id,p_message:message,p_students:students
+export async function teacherApply(id,message,students=1,minAge,maxAge){
+  return rpc('gcc_v218_teacher_apply_to_session',{
+    p_offer_id:id,p_message:message,p_students:students,
+    p_age_min:minAge,p_age_max:maxAge
   });
 }
 export async function teacherManageSession(id){
