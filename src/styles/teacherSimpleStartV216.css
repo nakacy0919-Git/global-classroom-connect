@@ -1,0 +1,14 @@
+/* GCC V21.6: straightforward session starting path, accessible on phone and tablet. */
+.gcv216-start{display:grid;gap:8px;border:1px solid #d9e7ec;border-radius:13px;padding:12px;margin:4px 0 14px;background:#f9fcfd}
+.gcv216-start>strong{font-size:.87rem;color:#20576d}
+.gcv216-start>p{font-size:.78rem;color:#607789;margin:0;line-height:1.5}
+.gcv216-choices{display:flex;gap:8px;flex-wrap:wrap}
+.gcv216-choices button{appearance:none;border:1px solid #a9cbd9;background:#fff;border-radius:9px;color:#245a72;padding:9px 12px;min-height:40px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
+.gcv216-choices button:hover{border-color:#388baf;background:#eef8fc}
+.gcv216-choices button:focus-visible,.gcv216-empty-actions a:focus-visible,.gcv216-empty-actions button:focus-visible{outline:3px solid #4aafca;outline-offset:2px}
+.gcv216-empty{display:grid;gap:10px;border:1px dashed #b6d3dd;border-radius:14px;padding:18px;background:#fbfdfe}
+.gcv216-empty p{margin:0;font-size:.87rem;line-height:1.5}
+.gcv216-empty-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.gcv216-empty-actions a,.gcv216-empty-actions button{display:inline-flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #93becc;background:#fff;padding:10px 13px;color:#22617a;font:inherit;font-size:.81rem;font-weight:700;text-decoration:none;cursor:pointer;min-height:42px}
+.gcv216-empty-actions a{background:#e5f6f1;border-color:#92cfb9;color:#245f51}
+@media(max-width:580px){.gcv216-choices button,.gcv216-empty-actions a,.gcv216-empty-actions button{flex:1 1 100%}}

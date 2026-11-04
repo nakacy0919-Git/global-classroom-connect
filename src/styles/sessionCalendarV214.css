@@ -1,0 +1,25 @@
+/* Calendar and approved-partner handoff. No GCC chat or polling. */
+.gcs214-calendar-menu{position:relative;display:inline-flex;align-items:flex-start}
+.gcs214-calendar-menu>summary{list-style:none;white-space:nowrap;cursor:pointer;
+ border-radius:9px;padding:8px 11px;border:1px solid #c0dfd8;
+ color:#28755e;background:linear-gradient(120deg,#e8f8ef,#eaf9ff);font-size:.77rem;font-weight:800}
+.gcs214-calendar-menu>summary::-webkit-details-marker{display:none}
+.gcs214-calendar-menu[open] .gcs214-calendar-options{display:grid}
+.gcs214-calendar-options{position:absolute;top:calc(100% + 6px);right:0;
+ z-index:10;display:none;min-width:218px;max-width:min(85vw,290px);
+ gap:3px;background:#fff;border:1px solid #d5e6e9;border-radius:12px;
+ padding:8px;box-shadow:0 12px 28px #123c5450}
+.gcs214-calendar-options a,.gcs214-calendar-options button{
+ display:block;box-sizing:border-box;text-align:left;width:100%;padding:9px;
+ background:transparent;border:0;border-radius:8px;white-space:normal;
+ font:inherit;font-size:.78rem;color:#205b77;cursor:pointer;text-decoration:none}
+.gcs214-calendar-options a:hover,.gcs214-calendar-options button:hover{background:#e8f7fb}
+.gcs214-calendar-options small{font-size:.67rem;color:#7392a0;line-height:1.45;padding:3px 8px}
+.gcs214-calendar-menu:focus-within>summary{
+ outline:3px solid #5bc3d3;outline-offset:2px}
+.gcs214-request-calendar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding-top:5px}
+
+
+.gcs214-contact-note{font-size:.78rem;line-height:1.55;color:#4b6679;margin:6px 0;max-width:65ch}
+.gcs214-partner-dir{font-size:.79rem;display:inline-block;margin:6px 0;color:#165e7c;text-decoration:underline;font-weight:750}
+@media(max-width:730px){.gcs214-calendar-options{right:auto;left:0}}
