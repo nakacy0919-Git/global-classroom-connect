@@ -80,6 +80,6 @@ test('activation requires private token, outbox retry and verified sender setup'
  assert.match(activation,/ON public\.gcc_v219_request_email_jobs/);
  assert.match(manual,/RESEND_API_KEY/);
  assert.match(manual,/GCC_MAIL_FROM/);
- assert.match(manual,/verification/);
+ assert.match(manual,/verify a domain|verified domain/i);
  assert.match(manual,/automatic email delivery is not live/i);
 });
