@@ -1,0 +1,11 @@
+pilot_id,assigned_role,country_or_region,school_level,device_browser,account_created,email_confirmed,application_submitted,approved,created_session,found_session,join_request_submitted,request_decided,external_contact_established,calendar_checked,live_exchange_completed,issue_refs,private_notes
+P01,Host (Japan),,,,,,,,,,,,,,,,
+P02,Host (Japan),,,,,,,,,,,,,,,,
+P03,Host (Overseas),,,,,,,,,,,,,,,,
+P04,Host (Overseas),,,,,,,,,,,,,,,,
+P05,Host (Overseas),,,,,,,,,,,,,,,,
+P06,Joiner,,,,,,,,,,,,,,,,
+P07,Joiner,,,,,,,,,,,,,,,,
+P08,Joiner,,,,,,,,,,,,,,,,
+P09,Joiner,,,,,,,,,,,,,,,,
+P10,Joiner,,,,,,,,,,,,,,,,
