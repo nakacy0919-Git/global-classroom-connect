@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {
  REVIEW_URL_V219,NOTIFICATION_SUBJECT_V219,buildHostJoinRequestEmailV219,
  classifyResendFailureV219,errorCodeV219,idempotencyKeyV219
-} from '../supabase/functions/_shared/requestEmailV219.mjs';
+} from '../supabase/functions/gcc-join-request-email/requestEmailV219.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const migration=read('supabase/migrations/20261104_gcc_v219_host_join_email_outbox.sql');
