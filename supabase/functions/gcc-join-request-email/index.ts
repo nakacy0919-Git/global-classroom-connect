@@ -4,7 +4,7 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.116.0';
 import {
  buildHostJoinRequestEmailV219,classifyResendFailureV219,errorCodeV219,idempotencyKeyV219
-} from '../_shared/requestEmailV219.mjs';
+} from './requestEmailV219.mjs';
 
 const respond=(status,payload)=>new Response(JSON.stringify(payload),{
  status,headers:{'content-type':'application/json','cache-control':'no-store'}
