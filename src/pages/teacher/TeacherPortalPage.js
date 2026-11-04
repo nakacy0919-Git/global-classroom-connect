@@ -502,13 +502,11 @@ export function bindTeacherPortalPage(){
   if(!page.total){
    const empty=element('div','gcv216-empty');
    empty.append(element('p','',
-    'No sessions match your search. Try other times or host your own session so partners can find you.'));
+    'No sessions match your search. Try another date, time, or country to find a partner.'));
    const actions=element('div','gcv216-empty-actions');
    const reset=element('button','','Clear search filters');reset.type='button';
    reset.addEventListener('click',()=>$('gctp-reset-filters').click());
-   const create=element('a','','Create a Session');
-   create.href='#/teacher-portal?view=create';
-   actions.append(reset,create);empty.append(actions);list.append(empty);
+   actions.append(reset);empty.append(actions);list.append(empty);
    return;
   }
   const previously=new Map(requests.filter(r=>r.direction==='outgoing').map(r=>[r.offer_id,r]));
