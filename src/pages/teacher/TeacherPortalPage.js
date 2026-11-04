@@ -19,6 +19,7 @@ import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV20
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {mountApprovedPartnerContactV218} from '../../lib/partnerContactsV218.js';
 import {calendarMenuV214} from '../../lib/sessionCalendarExportV214.js';
 import '../../styles/sessionCalendarV214.css';
 import {SESSION_STARTERS_V216,sessionStarterV216} from '../../lib/sessionStartersV216.js';
@@ -620,6 +621,9 @@ export function bindTeacherPortalPage(){
       (Number(r.requested_students)===1?'':'s')+' requested'));
     if(r.message)card.append(element('p','',r.message));
     if(r.status==='approved'){
+     const handoff=element('div','gcs218-handoff');
+     mountApprovedPartnerContactV218(handoff,r.id);
+     card.append(handoff);
      const contact=element('div','gcs214-request-calendar');
      contact.append(calendarMenuV214({id:r.offer_id,title:r.topic||'Global Classroom Exchange',
       starts_at:r.starts_at,ends_at:r.ends_at,viewer_zone:identity.timezone}));
