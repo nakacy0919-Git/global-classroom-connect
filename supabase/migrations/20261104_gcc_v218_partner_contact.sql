@@ -108,3 +108,78 @@ GRANT EXECUTE ON FUNCTION public.gcc_v218_set_partner_contact(uuid,text,text) TO
 
 COMMENT ON TABLE public.gcc_v218_partner_contacts IS
   'Per-approved-join-request voluntary teacher contact; no direct API reads; secure RPC only.';
+
+
+-- The age range is supplied by the applying teacher, NOT guessed from school type.
+ALTER TABLE public.session_join_requests
+  ADD COLUMN IF NOT EXISTS students_min_age integer,
+  ADD COLUMN IF NOT EXISTS students_max_age integer;
+ALTER TABLE public.session_join_requests
+  DROP CONSTRAINT IF EXISTS gcc_v218_request_age_range;
+ALTER TABLE public.session_join_requests
+  ADD CONSTRAINT gcc_v218_request_age_range CHECK (
+    (students_min_age IS NULL AND students_max_age IS NULL)
+    OR (
+      students_min_age BETWEEN 3 AND 99
+      AND students_max_age BETWEEN 3 AND 99
+      AND students_min_age <= students_max_age
+    )
+  );
+
+-- Keep the proven V21.2 capacity-locking and duplicate-request handling intact.
+CREATE OR REPLACE FUNCTION public.gcc_v218_teacher_apply_to_session(
+ p_offer_id uuid,p_message text,p_students integer,p_age_min integer,p_age_max integer
+)
+RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO ''
+AS $$
+DECLARE
+  request_id uuid;
+BEGIN
+  IF p_age_min IS NULL OR p_age_max IS NULL OR
+     p_age_min NOT BETWEEN 3 AND 99 OR p_age_max NOT BETWEEN 3 AND 99 OR
+     p_age_min > p_age_max THEN
+    RAISE EXCEPTION 'Enter the youngest and oldest participating student ages (3-99)';
+  END IF;
+  request_id:=public.gcc_v212_teacher_apply_to_session(p_offer_id,p_message,p_students);
+  UPDATE public.session_join_requests AS r
+    SET students_min_age=p_age_min,students_max_age=p_age_max
+    WHERE r.id=request_id AND r.requesting_teacher_id=public.gcc_current_teacher_id();
+  RETURN request_id;
+END $$;
+
+-- Only the approved teacher's own incoming/outgoing requests, never the world directory.
+CREATE OR REPLACE FUNCTION public.gcc_teacher_list_requests()
+RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO ''
+AS $$
+DECLARE tid uuid:=public.gcc_current_teacher_id(); result jsonb;
+BEGIN
+ SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC),'[]'::jsonb)
+ INTO result FROM (
+  SELECT r.id,r.offer_id,r.status,r.message,r.created_at,r.requesting_teacher_id,
+   r.requested_students,r.students_min_age,r.students_max_age,
+   r.reconfirmation_required,a.teacher_id AS host_teacher_id,
+   h.display_name AS host_name,g.display_name AS guest_name,
+   a.starts_at,a.ends_at,a.timezone,a.topic,
+   sh.country_code AS host_country,
+   sh.name AS host_school_name,
+   sg.name AS guest_school_name,
+   sg.country_code AS guest_country_code,
+   sg.country_name AS guest_country_name,
+   sg.school_level AS guest_school_level,
+   CASE WHEN a.teacher_id=tid THEN 'incoming' ELSE 'outgoing' END AS direction
+  FROM public.session_join_requests r
+  JOIN public.exchange_availability a ON a.id=r.offer_id
+  JOIN public.teachers h ON h.id=a.teacher_id
+  JOIN public.teachers g ON g.id=r.requesting_teacher_id
+  LEFT JOIN public.schools sh ON sh.id=h.school_id
+  LEFT JOIN public.schools sg ON sg.id=g.school_id
+  WHERE r.requesting_teacher_id=tid OR a.teacher_id=tid
+  ORDER BY r.created_at DESC LIMIT 200
+ ) x;
+ RETURN result;
+END $$;
+
+REVOKE ALL ON FUNCTION public.gcc_v218_teacher_apply_to_session(uuid,text,integer,integer,integer) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.gcc_v218_teacher_apply_to_session(uuid,text,integer,integer,integer) TO authenticated;
