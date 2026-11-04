@@ -27,11 +27,15 @@ test('teacher entry explains two goals and preserves approved-teacher gating',()
  assert.match(p,/teacherIdentity\(\)/);
 });
 
-test('empty search offers a safe path to create with unchanged approval rules',()=>{
+test('Find Partner stays independent of Create Session even when search is empty',()=>{
  const p=read('src/pages/teacher/TeacherPortalPage.js');
- assert.match(p,/gcv216-empty-actions/);
- assert.match(p,/No sessions match your search/);
- assert.match(p,/#\/teacher-portal\?view=create/);
+ const find=p.split('data-gct-view="find" hidden>')[1]?.split('data-gct-view="requests" hidden>')[0];
+ assert.ok(find,'Find Partner section exists');
+ assert.doesNotMatch(find,/view=create|Create a Session|Host a Session/);
+ const empty=p.slice(p.indexOf('if(!page.total)'),p.indexOf('const previously=new Map'));
+ assert.match(empty,/No sessions match your search/);
+ assert.match(empty,/gcv216-empty-actions/);
+ assert.doesNotMatch(empty,/view=create|Create a Session/);
  assert.match(p,/gctp-reset-filters/);
  assert.match(p,/teacherApply\(o\.id,message\.value\.trim\(\),number\)/);
  assert.doesNotMatch(p,/mountTeacherMessagesV214/);
