@@ -26,8 +26,10 @@ SET status='skipped',failure_code='before_email_activation',
     lease_token=NULL,lease_expires_at=NULL
 WHERE status IN ('pending','retry','sending') AND created_at<now();
 
-CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
-CREATE EXTENSION IF NOT EXISTS pg_cron;
+-- Supabase pg_net creates its own net schema; do not force extensions schema.
+CREATE EXTENSION IF NOT EXISTS pg_net;
+-- Supabase Cron installs in pg_catalog and creates cron schema.
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
 
 CREATE SCHEMA IF NOT EXISTS gcc_internal;
 REVOKE ALL ON SCHEMA gcc_internal FROM PUBLIC,anon,authenticated;
