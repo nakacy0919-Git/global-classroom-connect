@@ -1,0 +1,12 @@
+.gcc218-contact{margin-top:10px;border:1px solid #c9dfeb;border-radius:12px;padding:9px 12px;background:#f8fcff}
+.gcc218-contact>summary{cursor:pointer;color:#225a74;font-weight:750;font-size:.88rem}
+.gcc218-contact-body{display:grid;gap:10px;padding-top:9px}
+.gcc218-contact-body p{margin:0;font-size:.78rem;line-height:1.5}
+.gcc218-partner-contact{padding:9px;border-radius:7px;background:#edf6fc;overflow-wrap:anywhere}
+.gcc218-contact-form{display:grid;gap:10px}
+.gcc218-contact-form label{display:grid;gap:5px;font-size:.78rem;font-weight:650}
+.gcc218-contact-form :is(input,select){width:100%;max-width:600px;box-sizing:border-box;border:1px solid #a4c5d4;border-radius:8px;padding:10px;background:white;color:#153c4e;font:inherit}
+.gcc218-contact-actions{display:flex;flex-wrap:wrap;gap:8px}
+.gcc218-contact-actions button{min-height:42px}
+.gcc218-contact-status{color:#30576b}
+@media(max-width:650px){.gcc218-contact-actions button{flex:1 1 100%}}
