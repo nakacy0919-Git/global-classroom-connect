@@ -19,6 +19,13 @@ BEGIN
  END IF;
 END $$;
 
+-- Do not email old pending requests when this worker is first activated.
+-- They were submitted while automatic emails were explicitly unavailable.
+UPDATE public.gcc_v219_request_email_jobs
+SET status='skipped',failure_code='before_email_activation',
+    lease_token=NULL,lease_expires_at=NULL
+WHERE status IN ('pending','retry','sending') AND created_at<now();
+
 CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
