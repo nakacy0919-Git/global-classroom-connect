@@ -26,9 +26,10 @@ export async function teacherCreateSession(slot,data){
   });
 }
 export async function teacherCloseSession(id){return rpc('gcc_teacher_close_session',{p_offer_id:id});}
-export async function teacherApply(id,message,students=1){
-  return rpc('gcc_v212_teacher_apply_to_session',{
-    p_offer_id:id,p_message:message,p_students:students
+export async function teacherApply(id,message,students=1,minAge,maxAge){
+  return rpc('gcc_v218_teacher_apply_to_session',{
+    p_offer_id:id,p_message:message,p_students:students,
+    p_age_min:minAge,p_age_max:maxAge
   });
 }
 export async function teacherManageSession(id){
