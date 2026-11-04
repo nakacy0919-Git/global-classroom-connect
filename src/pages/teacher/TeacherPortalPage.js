@@ -19,6 +19,8 @@ import {appendVisualBasicsV209,schoolLevelV209} from '../../lib/sessionVisualV20
 import '../../styles/sessionVisualV209.css';
 import {mountCountryExplorerV151} from '../../lib/sessionCountryMapV151.js';
 import {mountSessionManagerV212} from '../../lib/teacherSessionManagerV212.js';
+import {SESSION_STARTERS_V216,sessionStarterV216} from '../../lib/sessionStartersV216.js';
+import '../../styles/teacherSimpleStartV216.css';
 import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
 import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213,favoriteKeyV213} from '../../lib/sessionSearchV213.js';
 import {captureSessionDraftV213,applySessionDraftV213,copiedSessionDraftV213} from '../../lib/sessionDraftV213.js';
@@ -41,10 +43,10 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <p id="gctp-message" class="gct-feedback" role="status" aria-live="polite"></p>
 
  <section class="gct-section gct-home-v200" data-gct-view="home" hidden>
-  <div class="gct-home-intro-v200"><p class="gct-eyebrow">YOUR TEACHER SPACE</p><h3>Your next global exchange starts here.</h3><p>Choose a starting point. Everything else stays in your workspace.</p></div>
+  <div class="gct-home-intro-v200"><p class="gct-eyebrow">YOUR TEACHER SPACE</p><h3>Find a partner. Create an exchange.</h3><p>Two simple ways to connect your classroom with the world.</p></div>
   <div class="gct-home-actions-v200">
-   <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Session</strong><small>Search sessions by time or country</small></span><span aria-hidden="true">→</span></a>
-   <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Host a Session</strong><small>Publish a session for partner teachers</small></span><span aria-hidden="true">→</span></a>
+   <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Partner</strong><small>Explore sessions from verified teachers</small></span><span aria-hidden="true">→</span></a>
+   <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Create a Session</strong><small>Invite a global classroom to join yours</small></span><span aria-hidden="true">→</span></a>
   </div>
   <div class="gct-home-summary-v200" aria-label="Teacher activity overview">
    <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
@@ -65,6 +67,11 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <p class="gcs151-step-status" id="gctp-form-step" aria-live="polite">Step 1 of 4 · Tell us when you can connect</p>
   <section class="gct-form-section" data-gctp-form-section="0">
    <div class="gcs150-intro"><h4>Plan your session</h4><p>No need to enter your school or teacher details again.</p></div>
+   <div class="gcv216-start" aria-label="Optional ready-made session ideas">
+    <strong>Start with an idea (optional)</strong>
+    <p>Choose a starter to fill in the title and theme. You can change everything before publishing.</p>
+    <div class="gcv216-choices">${SESSION_STARTERS_V216.map(starter=>`<button type="button" data-gctp-starter="${starter.id}">${starter.label}</button>`).join('')}</div>
+   </div>
    <label>Session name *<input id="gctp-name" maxlength="120" required placeholder="e.g. Discover school life around the world"></label>
    <div class="gcs150-host"><span aria-hidden="true">🏫</span><div><strong id="gctp-host-school">Loading school…</strong><small id="gctp-host-identity">Approved teacher</small></div><span class="gcs150-verified">✓ Verified</span></div>
    <div class="gct-fields"><label>Date *<input id="gctp-date" type="date" required></label><label>School time zone<input id="gctp-zone" readonly required></label></div>
@@ -256,6 +263,19 @@ export function bindTeacherPortalPage(){
  const selectedLevels=()=>[...root.querySelectorAll('input[name="gctp-target-level"]:checked')].map(x=>x.value);
  const selectedMode=()=>root.querySelector('input[name="gctp-mode"]:checked')?.value||'classroom';
  const sessionTopic=()=>[$('gctp-theme').value,$('gctp-topic').value.trim()].filter(Boolean).join(' · ').slice(0,120);
+ for(const button of root.querySelectorAll('[data-gctp-starter]')){
+  button.addEventListener('click',()=>{
+   const starter=sessionStarterV216(button.dataset.gctpStarter);
+   if(!starter)return;
+   $('gctp-name').value=starter.title;
+   $('gctp-theme').value=starter.theme;
+   $('gctp-topic').value=starter.topic;
+   $('gctp-sdg').value='';
+   $('gctp-sdg-wrap').hidden=starter.theme!=='SDGs';
+   scheduleDraft();
+   $('gctp-date').focus();
+  });
+ }
  const detailsPayload=()=>{
   const stamp=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
   if(stamp.error)throw Error(stamp.error);
@@ -480,8 +500,13 @@ export function bindTeacherPortalPage(){
   more.hidden=!page.hasMore;
   more.textContent='Show '+Math.min(12,page.remaining)+' more sessions ↓ ('+page.remaining+' remaining)';
   if(!page.total){
-   list.append(element('p','gct-empty',
-    'No sessions match your filters. Try another date, level, or show all sessions.'));
+   const empty=element('div','gcv216-empty');
+   empty.append(element('p','',
+    'No sessions match your search. Try another date, time, or country to find a partner.'));
+   const actions=element('div','gcv216-empty-actions');
+   const reset=element('button','','Clear search filters');reset.type='button';
+   reset.addEventListener('click',()=>$('gctp-reset-filters').click());
+   actions.append(reset);empty.append(actions);list.append(empty);
    return;
   }
   const previously=new Map(requests.filter(r=>r.direction==='outgoing').map(r=>[r.offer_id,r]));
