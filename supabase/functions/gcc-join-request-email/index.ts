@@ -34,6 +34,38 @@ Deno.serve(async(req)=>{
  if(!url||!serviceKey||!resendKey||!from)
   return respond(503,{error:'email_service_not_configured'});
 
+ // Operator-only synthetic provider test: fixed Resend sink, no real recipient.
+ // This runs ONLY after verifying the private webhook bearer token above.
+ const payload=await req.json().catch(()=>({}));
+ if(payload?.event==='resend_provider_test'){
+  try{
+   const response=await fetch('https://api.resend.com/emails',{
+    method:'POST',
+    headers:{
+     'Authorization':'Bearer '+resendKey,
+     'Content-Type':'application/json',
+     'Idempotency-Key':'gcc-v2192-provider-check-'+new Date().toISOString().slice(0,10)
+    },
+    body:JSON.stringify({
+     from,to:['delivered@resend.dev'],subject:'GCC mail provider connection test',
+     text:'Synthetic Global Classroom Connect mail provider check. No teacher or student data.'
+    }),
+    signal:AbortSignal.timeout(12000)
+   });
+   // Never return/log Resend response bodies, email keys or other credentials.
+   if(!response.ok){
+    const result=await response.json().catch(()=>({}));
+    const code=typeof result?.name==='string'
+      ?result.name.toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40):'unknown';
+    return respond(502,{error:'provider_rejected',provider_status:response.status,code});
+   }
+   return respond(200,{provider_test:'accepted',recipient:'resend_test_sink'});
+  }catch(error){
+   const code=error?.name==='TimeoutError'?'timeout':'network_error';
+   return respond(503,{error:'provider_unreachable',code});
+  }
+ }
+
  const supabase=createClient(url,serviceKey,{
   auth:{autoRefreshToken:false,persistSession:false}
  });
