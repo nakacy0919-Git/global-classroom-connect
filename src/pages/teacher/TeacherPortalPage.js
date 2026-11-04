@@ -653,10 +653,8 @@ export function bindTeacherPortalPage(){
      const contact=element('div','gcs214-request-calendar');
      contact.append(calendarMenuV214({id:r.offer_id,title:r.topic||'Global Classroom Exchange',
       starts_at:r.starts_at,ends_at:r.ends_at,viewer_zone:identity.timezone}));
-     const directory=element('a','gcs214-partner-dir','Find partner in verified Teacher Network');
-     directory.href='#/teacher-portal?view=network';contact.append(directory);
      const help=element('p','gcs214-contact-note',
-      'After approval, agree on WhatsApp, LINE, or Messenger using a school-managed account where possible. Only voluntarily listed teacher profiles appear in the directory. Keep student information and private meeting links out of public profiles.');
+      'Share your preferred contact privately above. Only the approved counterpart can read it. Keep student information and private meeting links out of public session descriptions.');
      card.append(contact,help);
     }
     if(direction==='incoming'&&r.status==='pending'){
