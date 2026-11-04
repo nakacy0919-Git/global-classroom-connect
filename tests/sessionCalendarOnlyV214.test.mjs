@@ -53,7 +53,7 @@ test('approved partners see external contact guidance without internal chat',()=
  const page=read('src/pages/teacher/TeacherPortalPage.js');
  assert.match(page,/if\(r\.status==='approved'\)/);
  assert.match(page,/WhatsApp, LINE, or Messenger/);
- assert.match(page,/verified Teacher Network/);
+ assert.match(page,/mountApprovedPartnerContactV218/);
  assert.doesNotMatch(page,/mountTeacherMessagesV214|gcs214-messages-view|messagePoll/);
  const stylesheet=read('src/styles/sessionCalendarV214.css');
  assert.doesNotMatch(stylesheet,/gcs214-chat-history|gcs214-badge/);
