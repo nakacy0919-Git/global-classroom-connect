@@ -17,6 +17,21 @@ test('unverified, duplicate, and unauthorized email errors have actionable text'
  assert.match(teacherSignupErrorV135({message:'User already registered'}),/Sign in and continue/);
  assert.match(teacherSignupErrorV135({code:'email_address_not_authorized'}),/contact the GCC administrator/);
 });
+test('signup network failures explain connection trouble without blaming password',()=>{
+ for(const error of [
+  new TypeError('Failed to fetch'),
+  {message:'NetworkError when attempting to fetch resource'},
+  {name:'AuthRetryableFetchError',message:'Temporary connection lost'}
+ ]){
+  const message=teacherSignupErrorV135(error);
+  assert.match(message,/account service/i);
+  assert.match(message,/network or browser connection/i);
+  assert.match(message,/not a password-strength error/i);
+  assert.match(message,/different network/i);
+  assert.match(message,/may have succeeded/i);
+  assert.doesNotMatch(message,/account created successfully|password is wrong/i);
+ }
+});
 test('photo policy recovery does not wipe the form and lets the same account retry',()=>{
  assert.match(teacherPhotoErrorV135({message:'new row violates row-level security policy'}),/profile entries are still/);
  assert.match(ui,/teacherPhotoErrorV135\(err\)/);
