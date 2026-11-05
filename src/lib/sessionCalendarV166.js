@@ -12,7 +12,7 @@ export function sessionDayV166(iso,zone='Asia/Tokyo'){
 export function sessionMonthV166(iso,zone='Asia/Tokyo'){return sessionDayV166(iso,zone).slice(0,7);}
 export function mountSessionCalendarV166(root,{events=[],zone='Asia/Tokyo',onSelect,initialMonth,heading='Session calendar',cardSummary}={}){
  let month=/^\d{4}-\d{2}$/.test(initialMonth||'')?initialMonth:
-  sessionMonthV166(events.find(e=>e.starts_at)?.starts_at,zone)||sessionDayV166(new Date().toISOString(),zone).slice(0,7);
+  sessionDayV166(new Date().toISOString(),zone).slice(0,7);
  let selected='';
  const shell=node('section','gcc-v166-calendar');shell.setAttribute('aria-label',heading);
  const header=node('div','gcc-v166-header');
@@ -29,6 +29,7 @@ export function mountSessionCalendarV166(root,{events=[],zone='Asia/Tokyo',onSel
  shell.append(header,weekdays,grid,legend);root.append(shell);
  function move(delta){const [y,m]=month.split('-').map(Number);const d=new Date(Date.UTC(y,m-1+delta,1));month=d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1);paint();}
  function paint(){
+  const todayKey=sessionDayV166(new Date().toISOString(),zone);
   const [year,m]=month.split('-').map(Number);
   caption.textContent=new Intl.DateTimeFormat('en',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(year,m-1,1)));
   grid.replaceChildren();
@@ -40,7 +41,9 @@ export function mountSessionCalendarV166(root,{events=[],zone='Asia/Tokyo',onSel
   for(let i=0;i<start;i++){const blank=node('div','gcc-v166-cell gcc-v166-blank');blank.setAttribute('aria-hidden','true');grid.append(blank);}
   for(let d=1;d<=days;d++){
    const key=month+'-'+pad(d),cell=node('div','gcc-v166-cell');
-   cell.setAttribute('role','gridcell');cell.append(node('span','gcc-v166-day',String(d)));
+   cell.setAttribute('role','gridcell');
+   if(key===todayKey){cell.classList.add('gcc-v166-current-day');cell.setAttribute('aria-current','date');}
+   cell.append(node('span','gcc-v166-day',String(d)));
    const items=byDay.get(key)||[];
    for(const event of items.slice(0,4)){
     const card=node('button','gcc-v166-card gcc-v166-'+String(event.status||'published').replace(/[^a-z]/gi,''),
