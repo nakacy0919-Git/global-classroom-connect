@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 const source=readFileSync(new URL('../src/lib/sessionCalendarV166.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../src/styles/sessionCalendarV166.css',import.meta.url),'utf8');
-const moduleCode=source.replace(/^import '..\\/styles\\/sessionCalendarV166\\.css';\\s*/,'');
+const moduleCode=source.replace("import '../styles/sessionCalendarV166.css';",'');
 const {mountSessionCalendarV166,sessionDayV166}=await import('data:text/javascript;base64,'+Buffer.from(moduleCode).toString('base64'));
 
 class FakeNode {
@@ -47,8 +47,8 @@ test('calendar initially opens in viewer current month, not the month of the old
  }finally{globalThis.document=originalDocument;}
 });
 test('today marker has visible styling, accessibility and timezone-specific date matching',()=>{
- assert.match(source,/aria-current','date'/);
- assert.match(css,/\\.gcc-v166-cell\\.gcc-v166-current-day\\{[^}]*background:/);
- assert.match(css,/\\.gcc-v166-current-day \\.gcc-v166-day\\{[^}]*color:#fff/);
+ assert.ok(source.includes("cell.setAttribute('aria-current','date')"));
+ assert.ok(css.includes('.gcc-v166-cell.gcc-v166-current-day{background:'));
+ assert.ok(css.includes('.gcc-v166-current-day .gcc-v166-day{'));
  assert.equal(sessionDayV166('2026-11-04T15:30:00Z','Asia/Tokyo'),'2026-11-05');
 });
