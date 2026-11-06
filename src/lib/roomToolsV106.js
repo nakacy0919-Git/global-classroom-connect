@@ -4,7 +4,7 @@ import {openTeacherEditorV106,applyTeacherRoomEditV106,changeTeacherStudentV202}
 import {cleanStudentNameV196} from './teacherStudentNamesV196.js';
 import '../styles/teacherStudentNamesV196.css';
 import {overviewColumnsV106,roomChoiceLabelV106,buildEditorDiffV106} from './roomOverviewV106.js';
-import {sortUnpairedV110,roomCandidatesV110,formatPlacementV110} from './roomPlacementV110.js';
+import {sortUnpairedV110,roomCandidatesV110,sortRoomChoicesByNumberV110,formatPlacementV110} from './roomPlacementV110.js';
 import '../styles/teacherRoomsV110.css';
 import '../styles/teacherRoomsV111.css';
 import {mountTeacherRoomBoardV111} from './roomDragV111.js';
@@ -151,7 +151,7 @@ export function setupRoomToolsV106({root,token,getCode,onRefresh}){
       const unique=[...new Map(moved.filter(Boolean).map(s=>[String(s.id),s])).values()];
       const options=roomCandidatesV110({roomStats:editorData.room_stats||[],students:unique,ownTotal:students.length});
       const old=room.value;room.replaceChildren();
-      for(const item of options){const opt=elt('option','',formatPlacementV110(item));opt.value=String(item.room);
+      for(const item of sortRoomChoicesByNumberV110(options)){const opt=elt('option','',formatPlacementV110(item));opt.value=String(item.room);
         room.append(opt);}
       const preferred=options.find(o=>String(o.room)===old)||options[0];
       if(preferred)room.value=String(preferred.room);else room.selectedIndex=-1;

@@ -27,6 +27,10 @@ export function roomCandidatesV110({roomStats,students,ownTotal}){
     allowed:true,crowded,schoolHeavy,warning,score};
  }).sort((a,b)=>Number(a.warning)-Number(b.warning)||a.score-b.score||a.room-b.room);
 }
+/** Display order only: keep the recommendation ranking intact for default selection. */
+export function sortRoomChoicesByNumberV110(items){
+ return [...(items||[])].sort((a,b)=>Number(a.room)-Number(b.room));
+}
 export function formatPlacementV110(item){
  return `Room ${String(item.room).padStart(2,'0')} · ${item.total} currently · ${item.own} your school${item.warning?' · ⚠ crowded (manual move allowed)':''}`;
 }
