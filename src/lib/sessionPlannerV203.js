@@ -142,6 +142,17 @@ export function readPlanV203(root,prefix,slot,deadlineIso,maxParticipants){
  if(JSON.stringify(d).length>12000)throw Error('Session plan is too long.');
  return d;
 }
+// Empty legacy plans often contain only a maximum headcount. The room chart
+// already shows attendance, so omit a section made entirely of placeholders.
+export function hasUsefulSessionDetailsV203(details){
+ if(!details||typeof details!=='object'||Array.isArray(details))return false;
+ const fields=['session_type','platform','platform_option','description','flyer_url',
+  'meeting_url','breakout_mode','breakout_notes','accepted_grades',
+  'preferred_countries','registration_closes_at'];
+ return fields.some(key=>details[key]!==undefined&&details[key]!==null&&String(details[key]).trim()!=='')
+  ||(Array.isArray(details.flow)&&details.flow.length>0)
+  ||(Number(details.min_age)>0&&Number(details.max_age)>0);
+}
 export function renderSessionDetailsV203(root,details,{privateLink=false}={}){
  const d=details&&typeof details==='object'?details:{};
  if(d.flyer_url){try{const u=new URL(d.flyer_url);if(u.protocol==='https:'){const img=node('img','gcc203-flyer');img.src=u.href;img.alt='Session flyer';img.loading='lazy';root.append(img);}}catch{/* older data */}}
