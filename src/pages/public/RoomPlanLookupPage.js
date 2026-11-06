@@ -6,7 +6,7 @@ import {openSharedRoomChart} from '../../services/sharePlanV102.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
 import {countryFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
-import {renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
+import {hasUsefulSessionDetailsV203,renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
 import '../../styles/sessionPlannerV203.css';
 import {bindRoomFinderV161} from '../../lib/roomFinderV161.js';
 
@@ -49,7 +49,7 @@ export function RoomPlanLookupPage(){return `
   </form>
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
   <div id="gcc-v104-chart" hidden>
-    <section class="gcc203-private-plan" aria-label="Session information"><h2>Session details</h2><div id="gcc203-room-session-details"></div></section>
+    <section id="gcc203-room-session-section" class="gcc203-private-plan" aria-label="Session information" hidden><h2>Session details</h2><div id="gcc203-room-session-details"></div></section>
     <section id="gcc-v161-choice" class="gcc-v161-choice" hidden aria-labelledby="gcc-v161-choice-title">
       <span class="gcc-v161-eyebrow">YOUR BREAKOUT ROOM</span>
       <h2 id="gcc-v161-choice-title">What would you like to check?</h2>
@@ -109,7 +109,13 @@ export function bindRoomPlanLookupPage(){
  function draw(data){
    result.hidden=false;
    $('gcc-v104-session-name').textContent=data.session||'Breakout rooms';
-   const plan=$('gcc203-room-session-details');renderSessionDetailsV203(plan,data.session_details,{privateLink:true});
+   const plan=$('gcc203-room-session-details');
+   // draw() runs after teacher edits and periodic refreshes. Never append
+   // multiple copies of the same session metadata to the room chart.
+   plan.replaceChildren();
+   const hasDetails=hasUsefulSessionDetailsV203(data.session_details);
+   $('gcc203-room-session-section').hidden=!hasDetails;
+   if(hasDetails)renderSessionDetailsV203(plan,data.session_details,{privateLink:true});
    const rooms=Array.isArray(data.rooms)?data.rooms:[];
    const total=rooms.reduce((count,room)=>count+(room.students||[]).length,0);
    $('gcc-v104-count').textContent=`${rooms.length} rooms · ${total} students`;
