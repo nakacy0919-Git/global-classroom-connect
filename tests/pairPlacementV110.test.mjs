@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {sortUnpairedV110,roomCandidatesV110,formatPlacementV110} from '../src/lib/roomPlacementV110.js';
+import {readFileSync} from 'node:fs';
+import {sortUnpairedV110,roomCandidatesV110,sortRoomChoicesByNumberV110,formatPlacementV110} from '../src/lib/roomPlacementV110.js';
 const roster=[
  {id:'k',name:'Keita',room:1},{id:'a',name:'Airi',room:2},
  {id:'s',name:'Sosuke',room:1},{id:'m',name:'Miku',room:5},
@@ -37,4 +38,22 @@ test('subtracts both moving students from original rooms by authoritative room c
 test('keeps choices deterministic on repeated evaluation',()=>{
  const input={roomStats,students:[{id:'a',room:2},{id:'s',room:1}],ownTotal:8};
  assert.deepEqual(roomCandidatesV110(input),roomCandidatesV110(input));
+});
+
+test('teacher dropdown shows rooms 01 through 05 numerically without changing suggestions',()=>{
+ const ranked=roomCandidatesV110({roomStats:[...roomStats].reverse(),students:[{id:'k',room:1},{id:'m',room:5}],ownTotal:8});
+ const originalRanking=ranked.map(x=>x.room);
+ assert.equal(ranked[0].room,4,'the balanced recommendation stays first in the ranked data');
+ const ordered=sortRoomChoicesByNumberV110(ranked);
+ assert.deepEqual(ordered.map(x=>x.room),[1,2,3,4,5]);
+ assert.deepEqual(ranked.map(x=>x.room),originalRanking,'sorting for the dropdown must not mutate the recommendation ranking');
+ assert.match(formatPlacementV110(ordered[0]),/^Room 01 · /);
+ assert.match(formatPlacementV110(ordered[4]),/^Room 05 · /);
+ assert.ok(ordered.find(x=>x.room===3).warning,'busy-room warnings are preserved');
+});
+test('pair creation and student moves use the same numerically sorted destination dropdown',()=>{
+ const source=readFileSync(new URL('../src/lib/roomToolsV106.js',import.meta.url),'utf8');
+ assert.ok(source.includes("for(const item of sortRoomChoicesByNumberV110(options))"));
+ assert.ok(source.includes("const preferred=options.find(o=>String(o.room)===old)||options[0]"));
+ assert.ok(source.includes("mode==='pair'?'3. Choose a breakout room for this pair':'2. Destination room'"));
 });
