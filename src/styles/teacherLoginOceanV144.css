@@ -202,6 +202,28 @@
 }
 .gcc144-page .gcc144-actions .gcc120-secondary:hover { background: #eef7f5; }
 .gcc144-page .gcc144-feedback { margin: 0; }
+.gcc144-page .gcc144-connection-check {
+  justify-self: start;
+  width: fit-content;
+  padding: 7px 12px;
+  border: 1px solid #b3d5d7;
+  border-radius: 10px;
+  background: #f1f9f8;
+  color: #206975;
+  font-size: .78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.gcc144-page .gcc144-connection-check[hidden],
+.gcc144-page .gcc144-connection-result[hidden] { display: none; }
+.gcc144-page .gcc144-connection-check:disabled { opacity: .6; cursor: wait; }
+.gcc144-page .gcc144-connection-result {
+  margin: -6px 0 0;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: #375c6c;
+}
+
 .gcc144-page .gcc144-password-help {
   margin: -3px 0 0;
   font-size: .82rem;
