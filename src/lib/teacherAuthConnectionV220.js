@@ -103,6 +103,6 @@ export async function checkTeacherAuthConnectionV220({
   };
   return {
     kind: 'unreachable',
-    message: failure + ' Try an institution-approved browser or network, and ask your school ICT administrator to check GCC Supabase access. Never share your password.',
+    message: failure + ' Try another network approved by your school or a different approved browser, and ask your school ICT administrator to check GCC Supabase access. Never share your password.',
   };
 }
