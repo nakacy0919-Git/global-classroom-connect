@@ -4,6 +4,8 @@
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ status: 'method_not_allowed' });
@@ -14,7 +16,7 @@ export default async function handler(req, res) {
   try {
     upstream = new URL(rawUrl);
     if (upstream.protocol !== 'https:' ||
-        !/^[a-z0-9-]+\\.supabase\\.co$/i.test(upstream.hostname) ||
+        !/^[a-z0-9-]+\.supabase\.co$/i.test(upstream.hostname) ||
         !apiKey) throw new Error('Not configured');
   } catch {
     return res.status(503).json({ status: 'not_configured' });
@@ -30,7 +32,11 @@ export default async function handler(req, res) {
       signal: controller.signal,
     });
     const contentType = response.headers.get('content-type') || '';
-    const gatewayUp = response.ok && contentType.toLowerCase().includes('json');
+    // Verify the actual GoTrue JSON response, not an HTML/JSON block page.
+    const body = response.ok && contentType.toLowerCase().includes('json')
+      ? await response.json().catch(() => null)
+      : null;
+    const gatewayUp = body?.name === 'GoTrue';
     return res.status(200).json({
       status: gatewayUp ? 'reachable' : 'upstream_error',
       upstream_status: response.status,
