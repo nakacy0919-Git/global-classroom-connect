@@ -5,6 +5,8 @@ import '../../styles/teacherLoginV126.css';
 import '../../styles/teacherPasswordV136.css';
 import '../../styles/teacherLoginOceanV144.css';
 import {teacherSignupErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
+import {isTeacherAuthTransportErrorV220,checkTeacherAuthConnectionV220} from '../../lib/teacherAuthConnectionV220.js';
+import {supabase} from '../../services/supabase.js';
 import {teacherSignIn,claimTeacherInvite,teacherIdentity} from '../../services/teacherSelfService.js';
 import {getCurrentProfile} from '../../services/authService.js';
 import {beginApplicationV120} from '../../services/teacherOnboardingV120.js';
@@ -30,6 +32,8 @@ export function TeacherAccessPage(){return `<main class="gcc120-page gcc126-page
     </div>
    </form>
    <p id="gcta-message" class="gcc120-message gcc126-feedback" role="status" aria-live="polite"></p>
+   <button id="gcta-check-connection" class="gcc144-connection-check" type="button" hidden>Check connection</button>
+   <p id="gcta-check-result" class="gcc144-connection-result" role="status" aria-live="polite" hidden></p>
    <p class="gcc126-password-help gcc144-password-help"><a href="#/teacher-password">Forgot your password? Reset it by email</a></p>
    <details class="gct-auth-expand gcc126-invitation gcc144-invitation"><summary>Have an invitation code? Activate access</summary>
     <form id="gcta-claim" class="gct-auth-form"><label>Private teacher invitation code<input id="gcta-token" spellcheck="false" autocomplete="off" required maxlength="32" minlength="32"></label>
@@ -44,8 +48,18 @@ export function bindTeacherAccessPage(){
  // Bind only when the real Teacher sign-in form exists.
  const root=document.querySelector('#gcta-login')?.closest('.gcc120-signin-page');if(!root)return;
  const $=id=>root.querySelector('#'+id),msg=$('gcta-message');
+ const checkButton=$('gcta-check-connection'),checkResult=$('gcta-check-result');
  const inform=(text,error=false)=>{msg.textContent=text;msg.classList.toggle('error',error);};
+ const resetCheck=()=>{checkButton.hidden=true;checkResult.hidden=true;checkResult.textContent='';};
+ checkButton.addEventListener('click',async()=>{
+  checkButton.disabled=true;checkResult.hidden=false;checkResult.textContent='Checking the account service…';
+  try{
+   const result=await checkTeacherAuthConnectionV220({url:supabase?.supabaseUrl});
+   if(root.isConnected)checkResult.textContent=result.message;
+  }finally{checkButton.disabled=false;}
+ });
  $('gcta-login').addEventListener('submit',async event=>{event.preventDefault();const btn=event.currentTarget.querySelector('button');btn.disabled=true;
+  resetCheck();inform('Signing in…');
   try{await teacherSignIn($('gcta-email').value.trim(),$('gcta-password').value);$('gcta-password').value='';
    const hostProfile=await getCurrentProfile();
    if(hostProfile?.role==='host'){
@@ -58,7 +72,14 @@ export function bindTeacherAccessPage(){
      if(draft.status==='rejected'){inform('The application was not approved. Contact the Global Classroom team.',true);return;}
      window.location.hash='#/signup';}
    catch(e){inform('Signed in, but teacher access is not active. Complete your application under Sign up, or use your existing invitation code.',true);}
-  }catch(e){const message=teacherSignupErrorV135(e);inform(message+(String(e?.message||'').toLowerCase().includes('invalid login credentials')?' Use Forgot your password? if needed.':''),true);}finally{btn.disabled=false;}});
+  }catch(e){
+   const connectionFailure=isTeacherAuthTransportErrorV220(e);
+   const message=connectionFailure
+    ? 'GCC could not complete the connection to the sign-in service. This does not mean your password is wrong. You do not need to create another account. Use Check connection below to identify a network or service problem.'
+    : teacherSignupErrorV135(e);
+   inform(message+(String(e?.message||'').toLowerCase().includes('invalid login credentials')?' Use Forgot your password? if needed.':''),true);
+   checkButton.hidden=!connectionFailure;
+  }finally{btn.disabled=false;}});
  $('gcta-claim').addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{await claimTeacherInvite($('gcta-token').value);inform('Access activated.');window.location.hash=destination();}
   catch(err){inform(err.message||'Invitation code was not accepted.',true);}finally{btn.disabled=false;}});
 }
