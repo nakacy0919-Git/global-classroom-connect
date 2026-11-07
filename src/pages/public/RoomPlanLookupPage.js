@@ -178,39 +178,6 @@ export function bindRoomPlanLookupPage(){
    }
  });
  filter.addEventListener('input',applyFilter);
- function openVerifiedGuide(data){
-   // A successful RPC is necessary but not sufficient to reveal any private chart.
-   // Never skip the five-step guide, even when a browser cannot scroll or focus it.
-   try{
-     const started=netiquetteGuideV146.show(()=>{
-       if(!root.isConnected)return;
-       root.querySelector('.gcc-v104-hero').hidden=true;
-       form.hidden=true;
-       guideRetry.hidden=true;
-       verifiedForGuide=null;
-       message('✓ Guide complete — your breakout room chart is ready.');
-       draw(data);
-       roomFinderV161.showStart();
-       roomToolsV106.onDraw(data);
-       const heading=$('gcc-v161-choice-title');
-       try{
-         heading.setAttribute('tabindex','-1');
-         heading.focus?.({preventScroll:true});
-         heading.scrollIntoView?.({block:'start',behavior:'smooth'});
-       }catch{/* optional focus/scroll must not interfere with a verified chart */}
-     });
-     if(started!==true)throw Error('Guide unavailable');
-     guideRetry.hidden=true;
-   }catch(error){
-     // A failed guide launch is not a bad session code. Restore the code screen
-     // and offer a retry without submitting another RPC (which may rate-limit).
-     root.querySelector('#gcc-v145-guide').hidden=true;
-     root.querySelector('#gcc-v145-room-access').hidden=false;
-     guideRetry.hidden=false;
-     message('✓ Code verified, but the meeting guidelines could not open in this browser. Use Open meeting guidelines to try again, or open the invitation in Chrome, Edge or Safari.',true);
-     console.warn('[GCC] Room guidelines could not start',error?.name||'Error');
-   }
- }
  guideRetry.addEventListener('click',()=>{
    if(verifiedForGuide)openVerifiedGuide(verifiedForGuide);
  });
@@ -244,4 +211,38 @@ export function bindRoomPlanLookupPage(){
    message('✓ Code verified. Please review the Zoom guidelines.');
    openVerifiedGuide(data);
  });
+ function openVerifiedGuide(data){
+   // A successful RPC is necessary but not sufficient to reveal any private chart.
+   // Never skip the five-step guide, even when a browser cannot scroll or focus it.
+   try{
+     const started=netiquetteGuideV146.show(()=>{
+       if(!root.isConnected)return;
+       root.querySelector('.gcc-v104-hero').hidden=true;
+       form.hidden=true;
+       guideRetry.hidden=true;
+       verifiedForGuide=null;
+       message('✓ Guide complete — your breakout room chart is ready.');
+       draw(data);
+       roomFinderV161.showStart();
+       roomToolsV106.onDraw(data);
+       const heading=$('gcc-v161-choice-title');
+       try{
+         heading.setAttribute('tabindex','-1');
+         heading.focus?.({preventScroll:true});
+         heading.scrollIntoView?.({block:'start',behavior:'smooth'});
+       }catch{/* optional focus/scroll must not interfere with a verified chart */}
+     });
+     if(started!==true)throw Error('Guide unavailable');
+     guideRetry.hidden=true;
+   }catch(error){
+     // A failed guide launch is not a bad session code. Restore the code screen
+     // and offer a retry without submitting another RPC (which may rate-limit).
+     root.querySelector('#gcc-v145-guide').hidden=true;
+     root.querySelector('#gcc-v145-room-access').hidden=false;
+     guideRetry.hidden=false;
+     message('✓ Code verified, but the meeting guidelines could not open in this browser. Use Open meeting guidelines to try again, or open the invitation in Chrome, Edge or Safari.',true);
+     console.warn('[GCC] Room guidelines could not start',error?.name||'Error');
+   }
+ }
+
 }
