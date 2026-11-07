@@ -48,6 +48,7 @@ export function RoomPlanLookupPage(){return `
     <div class="gcc-v104-unlock-row"><input id="gcc-v104-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6-digit code" aria-label="6-digit session access code" autocomplete="off" required /><button type="submit" class="gcc-v104-primary" id="gcc-v104-open">Verify code →</button></div>
   </form>
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
+  <button id="gcc-v222-guide-retry" class="gcc-v104-primary" type="button" hidden>Open meeting guidelines →</button>
   <div id="gcc-v104-chart" hidden>
     <section id="gcc203-room-session-section" class="gcc203-private-plan" aria-label="Session information" hidden><h2>Session details</h2><div id="gcc203-room-session-details"></div></section>
     <section id="gcc-v161-choice" class="gcc-v161-choice" hidden aria-labelledby="gcc-v161-choice-title">
@@ -103,6 +104,8 @@ export function bindRoomPlanLookupPage(){
  const submit=$('gcc-v104-open'),form=$('gcc-v104-unlock'),result=$('gcc-v104-chart');
  const list=$('gcc-v104-room-list'),filter=$('gcc-v104-filter');
  const message=(s,err=false)=>{const n=$('gcc-v104-message');n.textContent=s;n.classList.toggle('error',err);};
+ const guideRetry=$('gcc-v222-guide-retry');
+ let verifiedForGuide=null;
  const netiquetteGuideV146=bindNetiquetteGuideV145(root,Boolean(token));
  const roomFinderV161=bindRoomFinderV161(root);
  if(!token){submit.disabled=true;message('Invalid invitation link. Ask the session host for the current link.',true);return;}
@@ -175,30 +178,71 @@ export function bindRoomPlanLookupPage(){
    }
  });
  filter.addEventListener('input',applyFilter);
+ guideRetry.addEventListener('click',()=>{
+   if(verifiedForGuide)openVerifiedGuide(verifiedForGuide);
+ });
  form.addEventListener('submit',async event=>{
-   event.preventDefault();roomToolsV106.reset();result.hidden=true;list.replaceChildren();submit.disabled=true;message('Verifying your session access code…');
+   event.preventDefault();roomToolsV106.reset();result.hidden=true;list.replaceChildren();
+   verifiedForGuide=null;guideRetry.hidden=true;submit.disabled=true;
+   message('Verifying your session access code…');
    const code=$('gcc-v104-code').value.trim();
    if(!/^[0-9]{6}$/.test(code)){message('Please enter the 6-digit code.',true);submit.disabled=false;return;}
-   try{const data=await openSharedRoomChart(token,code);
-     if(!data||!Array.isArray(data.rooms)){message('Code not accepted or invitation expired. Check with your teacher.',true);return;}
-     // Never render student names or room details until the verified visitor has
-     // acknowledged the guidelines (or used their own browser's prior confirmation).
-     filter.value='';
-     message('✓ Code verified. Please review the Zoom guidelines.');
-     netiquetteGuideV146.show(()=>{
+   let data;
+   try{
+     data=await openSharedRoomChart(token,code);
+   }catch(error){
+     // The gateway can reject a request or a school browser can lose the
+     // connection. Neither case proves that the student's code is wrong.
+     const details=[error?.name,error?.code,error?.message].filter(Boolean).join(' ').toLowerCase();
+     const networkProblem=/failed to fetch|networkerror|network request failed|fetch failed|load failed|timeout|authretryablefetcherror/.test(details);
+     message(networkProblem
+       ? 'Could not connect to the room-chart service. Your code has not been rejected. Check your network or open the invitation in another browser, then try again.'
+       : 'The room-chart service could not complete verification. Do not request a new code yet; please try again or ask the host to check the session.',
+       true);
+     console.warn('[GCC] Room-chart lookup failed',{name:error?.name||'Error',code:error?.code||null,status:error?.status||null});
+     return;
+   }finally{submit.disabled=false;}
+   if(!data||!Array.isArray(data.rooms)){
+     message('Code not accepted or invitation expired. Confirm that this code belongs to the invitation link you opened. Ask your teacher for the current link if needed.',true);
+     return;
+   }
+   filter.value='';
+   verifiedForGuide=data;
+   message('✓ Code verified. Please review the Zoom guidelines.');
+   openVerifiedGuide(data);
+ });
+ function openVerifiedGuide(data){
+   // A successful RPC is necessary but not sufficient to reveal any private chart.
+   // Never skip the five-step guide, even when a browser cannot scroll or focus it.
+   try{
+     const started=netiquetteGuideV146.show(()=>{
        if(!root.isConnected)return;
        root.querySelector('.gcc-v104-hero').hidden=true;
        form.hidden=true;
+       guideRetry.hidden=true;
+       verifiedForGuide=null;
        message('✓ Guide complete — your breakout room chart is ready.');
        draw(data);
        roomFinderV161.showStart();
        roomToolsV106.onDraw(data);
        const heading=$('gcc-v161-choice-title');
-       heading.setAttribute('tabindex','-1');
-       heading.focus({preventScroll:true});
-       heading.scrollIntoView({block:'start',behavior:'smooth'});
+       try{
+         heading.setAttribute('tabindex','-1');
+         heading.focus?.({preventScroll:true});
+         heading.scrollIntoView?.({block:'start',behavior:'smooth'});
+       }catch{/* optional focus/scroll must not interfere with a verified chart */}
      });
-   }catch(_){message('Could not open the room chart. Please try again or contact the host.',true);}
-   finally{submit.disabled=false;}
- });
+     if(started!==true)throw Error('Guide unavailable');
+     guideRetry.hidden=true;
+   }catch(error){
+     // A failed guide launch is not a bad session code. Restore the code screen
+     // and offer a retry without submitting another RPC (which may rate-limit).
+     root.querySelector('#gcc-v145-guide').hidden=true;
+     root.querySelector('#gcc-v145-room-access').hidden=false;
+     guideRetry.hidden=false;
+     message('✓ Code verified, but the meeting guidelines could not open in this browser. Use Open meeting guidelines to try again, or open the invitation in Chrome, Edge or Safari.',true);
+     console.warn('[GCC] Room guidelines could not start',error?.name||'Error');
+   }
+ }
+
 }
