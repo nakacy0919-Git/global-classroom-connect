@@ -85,7 +85,16 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorag
  });
  updateSoundButton();
  const reducedMotion=()=>Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
- const moveToTop=()=>gate.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'start'});
+ // Focus and scrolling are presentation enhancements, not conditions for
+ // access verification. Embedded browsers can reject them; never abort the guide.
+ const moveToTop=()=>{
+   try{gate.scrollIntoView?.({behavior:reducedMotion()?'auto':'smooth',block:'start'});}
+   catch{/* keep the guide available even without smooth scrolling */}
+ };
+ const focusGuideHeading=()=>{
+   try{gate.querySelector('#gcc-v145-guide-title')?.focus?.({preventScroll:true});}
+   catch{/* focus is optional; the guide must remain usable */}
+ };
  const finish=()=>{
    if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
    gate.hidden=true;
@@ -119,8 +128,11 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorag
      progress.append(bar);
    }
    previous.hidden=index===0;
-   confirm.firstChild.textContent=index===NETIQUETTE_SLIDES_V145.length-1
+   const buttonLabel=index===NETIQUETTE_SLIDES_V145.length-1
      ?'I understand — Open my room chart ':'I have read and understood ';
+   // Prefer the existing text node; some embedded browsers omit or normalize it.
+   if(confirm.firstChild?.nodeType===3)confirm.firstChild.textContent=buttonLabel;
+   else confirm.prepend(document.createTextNode(buttonLabel));
  }
  image.addEventListener('error',()=>{picture.hidden=true;fallback.hidden=false;});
  image.addEventListener('load',()=>{picture.hidden=false;fallback.hidden=true;});
@@ -167,7 +179,7 @@ export function bindNetiquetteGuideV145(root,validInvitation,{storage=safeStorag
      skip.hidden=!isGuideConfirmedV145(storage);
      updateSoundButton();
      draw();
-     gate.querySelector('#gcc-v145-guide-title').focus({preventScroll:true});
+     focusGuideHeading();
      moveToTop();
      return true;
    }
