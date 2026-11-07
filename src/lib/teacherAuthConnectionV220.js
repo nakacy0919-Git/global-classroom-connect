@@ -1,15 +1,46 @@
-// GCC V22.0: Diagnose teacher sign-in transport failures without transmitting credentials.
-// This probe checks reachability only. It never signs in, retries a password, or changes accounts.
+// GCC V22.0: Diagnose managed-device connection failures without user credentials.
+// Both tests are read-only. No password, email, session token or student data is sent.
 export function isTeacherAuthTransportErrorV220(error) {
   const description = [error?.name, error?.code, error?.message].filter(Boolean).join(' ').toLowerCase();
   return /authretryablefetcherror|failed to fetch|network request failed|networkerror when attempting to fetch|load failed|fetch failed|network request timed out/.test(description);
+}
+
+async function checkSiteServiceV220({fetcher, origin, timeoutMs}) {
+  let endpoint;
+  try {
+    endpoint = new URL('/api/gcc-auth-health', origin);
+    if (endpoint.protocol !== 'https:') return null;
+  } catch {
+    return null;
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetcher(endpoint.toString(), {
+      method: 'GET',
+      cache: 'no-store',
+      credentials: 'omit',
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (data?.status === 'reachable') return 'reachable';
+    if (data?.status === 'upstream_error' ||
+        data?.status === 'upstream_unreachable') return 'unreachable';
+    return null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function checkTeacherAuthConnectionV220({
   url,
   fetcher = globalThis.fetch,
   online = typeof navigator === 'undefined' ? undefined : navigator.onLine,
-  timeoutMs = 8000,
+  origin = typeof window === 'undefined' ? undefined : window.location.origin,
+  timeoutMs = 6500,
 } = {}) {
   if (online === false) return {
     kind: 'offline',
@@ -27,6 +58,7 @@ export async function checkTeacherAuthConnectionV220({
   }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let failure = null;
   try {
     const response = await fetcher(endpoint.toString(), {
       method: 'GET',
@@ -38,19 +70,39 @@ export async function checkTeacherAuthConnectionV220({
       kind: 'server',
       message: 'The account service returned a server error (HTTP ' + response.status + '). Please try again later and contact the GCC administrator if it continues.',
     };
-    return {
-      kind: 'reachable',
-      message: 'Your browser received a response from the GCC account-service gateway. Try Sign in again. If it still fails, contact the GCC administrator with the time and browser.',
-    };
+    // A school filter may return an HTML block page with HTTP 200.
+    // Treat it as an unverified response, not a healthy Supabase endpoint.
+    const contentType = response.headers?.get?.('content-type') || '';
+    if (contentType && !contentType.toLowerCase().includes('json')) {
+      failure = 'The connection returned a non-API response. A school security filter or proxy may be intercepting it.';
+    } else if (response.status === 407 || response.status === 451) {
+      failure = 'The account-service request was blocked by a proxy or network policy.';
+    } else {
+      return {
+        kind: 'reachable',
+        message: 'Your browser received a response from the GCC account-service gateway. Try Sign in again. If it still fails, contact the GCC administrator with the time and browser.',
+      };
+    }
   } catch (error) {
     const timedOut = controller.signal.aborted || error?.name === 'AbortError';
-    return {
-      kind: 'unreachable',
-      message: timedOut
-        ? 'The account service did not respond in time. Try another network or ask your network administrator to check access to the GCC Supabase domain.'
-        : 'Your browser could not reach or read the account-service response. Try a private window or another network; browser extensions, school filters, or connection settings may be blocking it.',
-    };
+    failure = timedOut
+      ? 'The account service did not respond in time.'
+      : 'Your browser could not reach or read the account-service response.';
   } finally {
     clearTimeout(timer);
   }
+
+  const site = await checkSiteServiceV220({fetcher, origin, timeoutMs: 4500});
+  if (site === 'reachable') return {
+    kind: 'managed-network',
+    message: failure + ' However, the GCC server can reach Supabase. This points to filtering or browser restrictions on this device or network. Ask your school ICT administrator to approve HTTPS access to ' + endpoint.origin + ' (Auth and REST APIs). Do not change school security settings yourself.',
+  };
+  if (site === 'unreachable') return {
+    kind: 'service-unreachable',
+    message: failure + ' The GCC server also could not verify Supabase. Please inform the GCC administrator of the time and browser. Do not recreate your account.',
+  };
+  return {
+    kind: 'unreachable',
+    message: failure + ' Try an institution-approved browser or network, and ask your school ICT administrator to check GCC Supabase access. Never share your password.',
+  };
 }
