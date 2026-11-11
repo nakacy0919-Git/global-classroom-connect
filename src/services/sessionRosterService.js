@@ -29,3 +29,12 @@ export async function getEventFacilitatorIds(eventId){
    ids:new Set((facilitators.data||[]).map(x=>x.teacher_id))
  };
 }
+
+/** Host-only: delete a school registration for this session, including its room assignments. */
+export const removeSessionSignup=signupId=>rpc('gcc_v221_remove_session_registration',{
+ p_signup_id:signupId,p_student_id:null
+});
+/** Host-only: delete one registered student, retaining the school's registration. */
+export const removeSessionStudent=(signupId,studentId)=>rpc('gcc_v221_remove_session_registration',{
+ p_signup_id:signupId,p_student_id:studentId
+});
