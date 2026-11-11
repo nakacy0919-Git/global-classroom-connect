@@ -1,0 +1,25 @@
+
+/* GCC v22.1: host-only school and individual student removal controls. */
+.gcc-v221-student-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .4rem .2rem;
+  border-bottom: 1px solid rgba(140, 160, 180, .14);
+}
+.gcc-v221-student-row > span { min-width: 0; overflow-wrap: anywhere; }
+.gcc-v221-danger {
+  color: #a1222d !important;
+  border-color: #e4b7bd !important;
+  background-color: #fffafb !important;
+  white-space: normal;
+  text-align: center;
+}
+.gcc-v221-danger:hover,
+.gcc-v221-danger:focus-visible {
+  background-color: #fff0f2 !important;
+  border-color: #b43b48 !important;
+}
+.gcc-v221-student-remove { flex: 0 0 auto; padding: .4rem .75rem !important; font-size: .82rem; }
+.gcc-v221-legacy-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
