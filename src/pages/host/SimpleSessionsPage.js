@@ -2,6 +2,7 @@ import '../../styles/sessionDialogV167.css';
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
 import '../../styles/simpleSessionsV8.css';
 import '../../styles/hostBentoV130.css';
+import '../../styles/registrationRemovalV221.css';
 import '../../styles/sessionTitleV164.css';
 import '../../styles/privacyV103.css';
 import '../../styles/sharePlanV104.css';
@@ -21,7 +22,7 @@ import '../../styles/sessionPlannerV203.css';
 import {timePartsV112,timeRangeV112} from '../../lib/sessionTimeV112.js';
 import '../../styles/sessionTimeV112.css';
 import {getSessionSettings,saveSessionSettings} from '../../services/simpleSessionService.js';
-import {listSessionSignups,reviewSessionSignup} from '../../services/sessionRosterService.js';
+import {listSessionSignups,reviewSessionSignup,removeSessionSignup,removeSessionStudent} from '../../services/sessionRosterService.js';
 import {updateRegistrationNames} from '../../services/sessionManagerService.js';
 import {englishName} from '../../lib/simpleRoster.js';
 import {rosterOverviewV130,sessionScheduleV130,planFreshnessV130} from '../../lib/hostOverviewV130.js';
@@ -303,12 +304,22 @@ export function bindSimpleSessionsPage(){
      card.append(el('p','gcc-v130-teacher',`Teacher: ${s.teacher_name}`));
      const details=el('details','gcc-v130-roster-details');details.append(el('summary','',`View student names (${n})`));
      const roster=el('div','gcc-v130-student-list');
-     for(const [i,st] of (s.students||[]).entries())roster.append(el('div','gcc-v8-name',`${i+1}. ${st.name}${st.grade?' · '+st.grade:''}`));
+     for(const [i,st] of (s.students||[]).entries()){
+       const line=el('div','gcc-v8-name gcc-v221-student-row');
+       line.append(el('span','',`${i+1}. ${st.name}${st.grade?' · '+st.grade:''}`));
+       if(s.status==='approved'){
+         const remove=btn('Remove','gcc-v8-secondary gcc-v221-danger gcc-v221-student-remove',()=>removeRegistration(s,st));
+         remove.setAttribute('aria-label',`Remove ${st.name} from ${s.school_name} and breakout rooms`);
+         line.append(remove);
+       }
+       roster.append(line);
+     }
      roster.append(el('p','gcc-v8-help',`Facilitators: ${(s.facilitators||[]).join(', ')||'None'}`));
      details.append(roster);card.append(details);
      const actions=el('div','gcc-v8-actions gcc-v130-school-actions');
      if(s.status!=='declined')actions.append(btn('Edit names','gcc-v8-secondary',()=>openEdit(s)));
      if(s.status==='pending')actions.append(btn('Decline','gcc-v8-secondary',()=>review(s,false)),btn('Approve','gcc-v8-primary',()=>review(s,true)));
+     if(s.status==='approved')actions.append(btn('Remove school from this session','gcc-v8-secondary gcc-v221-danger',()=>removeRegistration(s)));
      card.append(actions);grid.append(card);
    }
    panel.append(grid);
@@ -468,6 +479,27 @@ export function bindSimpleSessionsPage(){
    if(!events.some(x=>x.id===activeEventId))activeEventId=events.find(x=>x.status==='published')?.id||events[0]?.id||'';
    if(resetStage)activeStage=0;updateCalendarV166();paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);
  }catch(err){notify('Could not load sessions: '+err.message,true);}}
+ async function removeRegistration(s,student=null){
+   const schoolOnly=!student;
+   const scope=schoolOnly
+     ? `the school "${s.school_name}" and all ${(s.students||[]).length} of its registered students`
+     : `student "${student.name}" from school "${s.school_name}"`;
+   const eventName=current()?.title||'this session';
+   if(!window.confirm(`Remove ${scope} from session "${eventName}"?\n\nThey will also be removed from the saved breakout rooms, and rooms will be rebalanced if needed. Existing shared room-chart links and six-digit codes will NOT be changed. This removal cannot be undone.`))return;
+   try{
+     const outcome=schoolOnly?await removeSessionSignup(s.id):await removeSessionStudent(s.id,student.id);
+     await reload(false);
+     const moved=Number(outcome?.reassigned_students||0);
+     const removed=Number(outcome?.removed_students||0);
+     if(outcome?.manual_balance_review){
+       notify(`Removed ${removed} student(s). The room chart and existing access link are up to date, but locked pairs prevent perfect balance. Please review the rooms.`,true);
+     }else{
+       notify(`Removed ${removed} student(s) and updated breakout rooms. ${moved} remaining student(s) repositioned. Existing permanent link and access code are unchanged.`);
+     }
+   }catch(error){
+     notify(`Removal failed; no partial changes were saved: ${error?.message||'Unknown error'}`,true);
+   }
+ }
  async function review(s,yes){if(!confirm(`${yes?'Approve':'Decline'} the registration from ${s.school_name}?`))return;
    try{
      if(yes)prepareSuccessChime();
