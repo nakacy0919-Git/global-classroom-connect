@@ -258,7 +258,27 @@ export function bindSimpleSessionsPage(){
    }
    const l=el('label','','Facilitators per room'),sel=el('select');sel.name='facs';for(const n of [0,1,2]){const o=el('option','',`${n}`);o.value=n;sel.append(o);}sel.value=c.facilitators_per_room;l.append(sel);f.append(l);
    const save=el('button','gcc-v8-secondary','Save settings');save.type='submit';f.append(save);
-   f.addEventListener('submit',async evt=>{evt.preventDefault();const data=new FormData(f);save.disabled=true;try{await updateSettings({rooms:Number(data.get('rooms')),maxStudents:Number(data.get('capacity')),facilitatorsPerRoom:Number(data.get('facs'))});}catch(err){notify(err.message,true);}finally{save.disabled=false;}});
+   const roomInput=f.querySelector('[name="rooms"]'),facSelect=f.querySelector('[name="facs"]');
+   const roomHint=el('p','gcc-v8-help','Checking saved room chart…');
+   f.append(roomHint);save.disabled=true;
+   fetchRoomDraft(e.id).then(saved=>{
+     if(saved?.draft?.rooms?.length){
+       roomInput.value=String(saved.draft.rooms.length);roomInput.disabled=true;
+       facSelect.value=String(saved.draft.prefs?.facilitatorsPerRoom??c.facilitators_per_room);
+       facSelect.disabled=true;
+       roomHint.textContent='A room chart is saved. To change the room count after issuing the permanent link or code, choose Rooms → Change room count. The same invitation remains valid.';
+       f.append(btn('Change room count in Rooms →','gcc-v8-secondary',()=>{
+         activeStage=2;paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),2);
+       }));
+     }else roomHint.textContent='You can edit these initial room settings until the first room plan is saved.';
+     save.disabled=false;
+   }).catch(err=>{
+     roomHint.textContent='Saved room plan could not be checked: '+err.message+'. Refresh before editing settings.';
+     notify(roomHint.textContent,true);
+   });
+   f.addEventListener('submit',async evt=>{evt.preventDefault();const data=new FormData(f);save.disabled=true;
+     try{await updateSettings({rooms:Number(roomInput.value),maxStudents:Number(data.get('capacity')),facilitatorsPerRoom:Number(facSelect.value)});}
+     catch(err){notify(err.message,true);}finally{save.disabled=false;}});
    section.append(f);panel.append(section);
  }
  function stageRosters(panel,e){

@@ -2,6 +2,9 @@ import '../styles/roomPlannerV9.css';
 import {collectApproved,buildRoomDraft,moveStudent,setFacilitator,roomStatistics,exportRoomCSV} from '../lib/roomPlannerV9.js';
 import {packRoomDraft} from '../lib/roomDraftV91.js';
 import {mergeSavedRoomDraftV129} from '../lib/roomIncrementalV129.js';
+import {resizeRoomPlanV225} from '../lib/roomResizeV225.js';
+import {getLockedRoomPairsV225,saveResizedRoomPlanV225} from '../services/roomResizeV225.js';
+import '../styles/roomResizeV225.css';
 import {fetchRoomDraft,saveRoomDraft} from '../services/roomDraftV91.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../lib/successCelebrationV142.js';
 import {countryFlagAssetV131} from '../lib/countryFlagAssetsV131.js';
@@ -45,7 +48,7 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
  if(!root)return;
  let {students,facilitators}=collectApproved(signups);
  let sample=false,plan=null,screen='settings',moveMode=false,moveTarget=null;
- let savedMeta=null,revision=0,dirty=true,busy=false,loadError='';
+ let savedMeta=null,revision=0,dirty=true,busy=false,loadError='',roomResizeOpen=false;
  let checkingSaved=Boolean(event?.id);
  const configured=Number(settings?.breakout_rooms||10),initialFac=Number(settings?.facilitators_per_room??1);
  const prefs={rooms:Math.max(1,Math.min(60,configured)),facilitatorsPerRoom:initialFac,countryMode:'prefer',schoolMode:'prefer'};
@@ -81,7 +84,9 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
        plan=restored.rooms;Object.assign(prefs,restored.prefs);revision=savedMeta.revision;dirty=restored.addedStudents>0||restored.addedFacilitators>0;screen='preview';moveMode=false;renderPreview();
        if(restored.addedStudents||restored.addedFacilitators)message(`${restored.addedStudents} new student(s) and ${restored.addedFacilitators} facilitator(s) added; saved placements were preserved. Save this updated arrangement, then publish the new chart in Step 4.`);
      }catch(err){message(err.message,true);}});
-     resume.append(info,open);shell.append(resume);
+     const change=elem('button','gcc-v9-outline gcc-v225-open','Change room count →');change.type='button';
+      change.addEventListener('click',()=>{open.click();if(plan){roomResizeOpen=true;renderPreview();}});
+      resume.append(info,open,change);shell.append(resume);
      shell.append(elem('p','gcc-v9-foot','Existing room assignments are protected. Whole-group Generate / Shuffle is disabled for this saved session.'));
      return;
    }
@@ -122,7 +127,43 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
    }catch(err){message(`Could not save: ${err.message}. Your draft is still on this screen; download CSV as a backup.`,true);if(primary)primary.disabled=false;}
    finally{busy=false;}
  }
- function renderPreview(){
+ async function saveChangedRoomCountV225(newCount) {
+    if(!savedMeta||sample||!event?.id||!plan||busy)return;
+    if(dirty){message('Save your current arrangement before changing the number of rooms.',true);return;}
+    if(newCount===plan.length){message('The room count is already '+newCount+'.');return;}
+    busy=true;
+    const action=root.querySelector('[data-v225-save]');
+    if(action)action.disabled=true;
+    try{
+      const [latest,pairs]=await Promise.all([fetchRoomDraft(event.id),getLockedRoomPairsV225(event.id)]);
+      if(Number(latest?.revision)!==revision){
+        throw Error('The chart changed after it was opened. Reload the session to protect the latest assignments.');
+      }
+      const resized=resizeRoomPlanV225(plan,newCount,pairs,facilitators);
+      const confirmation='Change breakout rooms from '+plan.length+' to '+newCount+'?\n\n'+
+        resized.movedStudents+' student(s) will move. Fixed pairs stay together.\n'+
+        (resized.emptyRooms?resized.emptyRooms+' room(s) will be empty.\n':'')+
+        'The existing permanent link, 6-digit code and Zoom URL will remain unchanged. '+
+        'If the chart is already published, everyone opening it will see the new rooms immediately.';
+      if(!window.confirm(confirmation))return;
+      const newPrefs={...prefs,rooms:newCount};
+      const payload=packRoomDraft(resized.rooms,newPrefs);
+      const saved=await saveResizedRoomPlanV225(event.id,revision,payload,newCount);
+      if(!saved?.ok||!Number.isInteger(Number(saved.revision)))throw Error('Room count was not confirmed by the server.');
+      plan=resized.rooms;Object.assign(prefs,newPrefs);
+      revision=Number(saved.revision);
+      savedMeta={...savedMeta,draft:payload,revision,updated_at:new Date().toISOString()};
+      dirty=false;roomResizeOpen=false;moveMode=false;moveTarget=null;
+      renderPreview();
+      message('✓ '+newCount+' rooms saved. '+resized.movedStudents+' student(s) repositioned. '+
+        (saved.published?'The already-issued permanent link and 6-digit code now show the updated chart.':
+          'Publish the saved plan in Step 4 when you are ready.'));
+      showSuccessCelebration({title:'Breakout rooms updated!',detail:'Permanent invitation unchanged.'});
+    }catch(err){
+      message('Could not change room count: '+(err?.message||'Please retry.')+' No published invitation was replaced.',true);
+    }finally{busy=false;if(action?.isConnected)action.disabled=false;}
+  }
+  function renderPreview(){
    root.replaceChildren();const shell=elem('section','gcc-v9 gcc-v9-preview');root.append(shell);
    const head=elem('div','gcc-v9-head');
    head.append(elem('span','gcc-v9-step','STEP 2 OF 2 · REVIEW'));
@@ -167,14 +208,42 @@ export function mountRoomPlannerV9({root,event,signups,settings}) {
 
    const tools=elem('div','gcc-v9-tools');
    const back=elem('button','gcc-v9-outline','← Change settings');back.type='button';back.addEventListener('click',()=>{screen='settings';moveMode=false;moveTarget=null;renderSettings();});tools.append(back);
-   if(!savedMeta){const remix=elem('button','gcc-v9-outline','↻ Shuffle again');remix.type='button';remix.addEventListener('click',()=>{plan=buildRoomDraft(students,facilitators,prefs);dirty=true;moveMode=false;moveTarget=null;renderPreview();message('A new room mix is ready. Save it to keep these changes.');});tools.append(remix);}
+   if(savedMeta&&!sample){
+      const resize=elem('button','gcc-v9-outline gcc-v225-room-count',roomResizeOpen?'✕ Close room count editor':'↔ Change room count');
+      resize.type='button';resize.setAttribute('aria-expanded',String(roomResizeOpen));
+      resize.addEventListener('click',()=>{roomResizeOpen=!roomResizeOpen;moveMode=false;renderPreview();});
+      tools.append(resize);
+    }
+    if(!savedMeta){const remix=elem('button','gcc-v9-outline','↻ Shuffle again');remix.type='button';remix.addEventListener('click',()=>{plan=buildRoomDraft(students,facilitators,prefs);dirty=true;moveMode=false;moveTarget=null;renderPreview();message('A new room mix is ready. Save it to keep these changes.');});tools.append(remix);}
    if(!sample){
      const edit=elem('button','gcc-v9-outline gcc-v9-edit-toggle',moveMode?'✓ Done moving':'⇄ Move students');edit.type='button';edit.setAttribute('aria-pressed',String(moveMode));
      edit.addEventListener('click',()=>{moveMode=!moveMode;moveTarget=null;renderPreview();});tools.append(edit);
    }
    if(!sample){const csv=elem('button','gcc-v9-outline','↓ Download CSV');csv.type='button';csv.addEventListener('click',csvDownload);tools.append(csv);}
    shell.append(tools);
-   const msg=elem('p','gcc-v9-message');msg.setAttribute('data-v9-message','');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');shell.append(msg);
+    if(roomResizeOpen&&savedMeta&&!sample){
+      const section=elem('form','gcc-v225-room-form');
+      const intro=elem('div','gcc-v225-intro');
+      intro.append(elem('strong','','Change the number of breakout rooms'),
+        elem('p','','You can change the room count even after issuing the permanent chart link and 6-digit code. The invitation and Zoom URL stay the same. Existing groups and fixed pairs are preserved wherever possible.'));
+      const fields=elem('div','gcc-v225-fields');
+      const label=elem('label','gcc-v225-number-field','Number of breakout rooms (1–60)');
+      const input=elem('input');input.type='number';input.min='1';input.max='60';input.step='1';
+      input.required=true;input.inputMode='numeric';input.value=String(plan.length);
+      input.setAttribute('aria-label','New number of breakout rooms');
+      label.append(input);
+      const save=elem('button','gcc-v9-primary gcc-v225-save','Preview changes and save →');
+      save.type='submit';save.setAttribute('data-v225-save','');
+      fields.append(label,save);section.append(intro,fields);
+      section.append(elem('p','gcc-v225-note','On confirmation the saved arrangement and already-published chart update together. Other host or teacher edits are checked before saving.'));
+      section.addEventListener('submit',event=>{
+        event.preventDefault();
+        if(!input.checkValidity()){input.reportValidity();return;}
+        saveChangedRoomCountV225(Number(input.value));
+      });
+      shell.append(section);
+    }
+    const msg=elem('p','gcc-v9-message');msg.setAttribute('data-v9-message','');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');shell.append(msg);
    if(moveMode){
      const hint=elem('p','gcc-v9-move-hint','Move mode: choose “Move” next to a student, then select their destination room.');
      shell.append(hint);
