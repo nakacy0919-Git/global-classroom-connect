@@ -1,0 +1,19 @@
+/* Host room count editor: works in the session workspace on iPad and desktop. */
+.gcc-v225-open{margin-left:.6rem}
+.gcc-v225-room-count{font-weight:700}
+.gcc-v225-room-form{
+  margin:1rem 0 1.2rem;
+  padding:clamp(.9rem,2vw,1.4rem);
+  border:1px solid #91b6c5;
+  border-radius:16px;
+  background:linear-gradient(135deg,#f4fbff 0%,#ffffff 100%);
+  box-shadow:0 6px 22px rgba(17,58,73,.06);
+}
+.gcc-v225-intro strong{display:block;font-size:1.03rem;color:#173f54}
+.gcc-v225-intro p,.gcc-v225-note{margin:.35rem 0 .9rem;line-height:1.55;color:#456174}
+.gcc-v225-fields{display:flex;flex-wrap:wrap;align-items:end;gap:.85rem}
+.gcc-v225-number-field{display:grid;gap:.3rem;flex:1 1 190px;min-width:0;font-weight:650}
+.gcc-v225-number-field input{box-sizing:border-box;width:100%;min-height:46px;border:1px solid #8ba7b7;border-radius:11px;padding:.5rem .75rem;font:inherit;background:#fff;color:#162e3b}
+.gcc-v225-save{min-height:46px;flex:1 1 210px}
+.gcc-v225-note{font-size:.87rem;margin:.75rem 0 0}
+@media(max-width:640px){.gcc-v225-open{margin:.6rem 0 0}.gcc-v225-fields{display:grid;grid-template-columns:minmax(0,1fr)}}
