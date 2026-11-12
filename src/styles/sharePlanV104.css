@@ -55,3 +55,19 @@
 .gcc-v104-guest .gcc-v104-room{border-color:#dcebe7;border-radius:20px;padding:18px}
 .gcc-v104-guest .gcc-v104-room-heading{padding-bottom:12px}
 @media(max-width:670px){.gcc-v104-guest .gcc-v104-zoom{align-self:flex-start}.gcc-v104-guest .gcc-v104-room{padding:14px}.gcc-v104-guest .gcc-v104-avatar{width:42px;height:42px;flex-basis:42px}}
+
+/* Optional managed-device connectivity check; hidden unless the RPC fails. */
+.gcc-v104-guest .gcc-v224-connection-check{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:max-content;min-height:38px;margin:4px 0 0;
+ padding:7px 13px;border:1px solid #a9c9c7;border-radius:10px;
+ color:#236b77;background:#f4fbfa;font-size:.83rem;font-weight:750;
+ cursor:pointer;
+}
+.gcc-v104-guest .gcc-v224-connection-check[hidden],
+.gcc-v104-guest .gcc-v224-connection-result[hidden]{display:none!important}
+.gcc-v104-guest .gcc-v224-connection-check:disabled{opacity:.6;cursor:wait}
+.gcc-v104-guest .gcc-v224-connection-result{
+ font-size:.82rem;line-height:1.55;max-width:700px;margin:6px 0 0;color:#365c6b;
+ overflow-wrap:anywhere;
+}
