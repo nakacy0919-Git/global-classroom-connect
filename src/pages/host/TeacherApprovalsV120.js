@@ -4,7 +4,7 @@ import {pendingApprovalsV120,signupOverviewV134,reviewApplicationV120,previewApp
 import {supabase} from '../../services/supabase.js';
 const el=(tag,cls='',str='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=str;return n;};
 export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-admin-page"><section class="gcc120-join gcc120-admin">
- <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Verify the teacher's face, introduction, school details, and any websites provided. Teachers without websites may still be approved after verifying their school information. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
+ <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>New teacher applications are emailed to the GCC founder administrator. After approval, the teacher receives an English confirmation email. Verify the teacher's face, introduction, school details, and any websites provided. Teachers without websites may still be approved after verifying their school information. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
  <section class="gcc134-tracker" aria-label="Teacher registration status">
   <div class="gcc134-tracker-head">
    <div><h2>Teacher registration status</h2><p>New sign-ups appear here before email confirmation or profile submission.</p></div>
@@ -106,7 +106,7 @@ export function bindTeacherApprovalsV120(){
       const warning=decision==='approved'?`Approve ${a.name} as ${grantHost?'HOST ADMIN + Teacher':'Teacher'}? ${grantHost?'This grants full GCC administrative powers.':''}`:`Reject ${a.name}?`;
       if(!confirm(warning))return;
       if(grantHost&&!confirm(`HIGH PRIVILEGE: Confirm granting Host Admin to ${a.email}. This user can approve future teachers.`))return;
-      btn.disabled=true;try{await reviewApplicationV120(a.id,decision,grantHost,school);notify(`${a.name}: ${decision}.`);await refresh();}
+      btn.disabled=true;try{await reviewApplicationV120(a.id,decision,grantHost,school);notify(`${a.name}: ${decision}.${decision==='approved'?' Approval confirmation email queued.':''}`);await refresh();}
       catch(e){notify(e.message||'Review failed.',true);btn.disabled=false;}
      });actions.append(btn);}card.append(actions);list.append(card);
   }
