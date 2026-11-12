@@ -98,7 +98,7 @@ export function bindTeacherJoinV120(){
   $('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
  }
  function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
-  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will verify your application. After approval, return to register as a Facilitator or GC Host; volunteer features stay locked until then.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
+  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
  async function ready(){
   const serial=++readySequence,user=await currentUserV120();if(serial!==readySequence)return;
   draft=null;activeDraftUserId=null;displayActiveAccount(user);
