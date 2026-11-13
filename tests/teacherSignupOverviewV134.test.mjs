@@ -6,6 +6,7 @@ const sql=read('sql/gcc_v134_signup_overview.sql');
 const page=read('src/pages/host/TeacherApprovalsV120.js');
 const service=read('src/services/teacherOnboardingV120.js');
 const header=read('src/components/Header.js');
+const consoleUi=read('src/lib/registrationConsoleV226.js');
 test('new signup accounts are visible before email confirmation or review submission',()=>{
  assert.match(sql,/FROM auth\.users/);
  assert.match(sql,/LEFT JOIN public\.gcc_v120_applications/);
@@ -37,9 +38,9 @@ test('admin live refresh polls every 15 seconds and catches focus/visibility tra
  assert.match(page,/window\.addEventListener\('focus',onActive\)/);
  assert.match(page,/root\.isConnected/);
  assert.match(page,/lastQueueKey/);
- assert.match(page,/lastAccountKey/);
+ assert.match(page,/registrationConsole\\.refresh\\(\\)/);
  assert.match(page,/loading/);
- assert.match(page,/Could not load registered accounts/);
+ assert.match(consoleUi,/Registration data is unavailable/);
 });
 test('approval route displays a real title, not undefined',()=>{
  assert.match(header,/'teacher-approvals': 'Teacher Applications'/);
