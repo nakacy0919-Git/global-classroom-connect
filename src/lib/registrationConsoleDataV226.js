@@ -38,3 +38,32 @@ export function legacyRegistrationSnapshotV226(rows, {page=1,pageSize=8,status='
     total_matches:filtered.length,page,page_size:pageSize,legacy:true};
 }
 
+
+
+// Improve the temporary 200-account fallback using existing host-authorized records.
+// A match is by verified account email, never an untrusted name/school string.
+export function enrichLegacyRegistrationV232(accounts,teachers=[],applications=[]) {
+  const teacherCountries=new Map();
+  for(const t of teachers||[]){
+    const email=String(t.email||'').trim().toLocaleLowerCase();
+    if(email && t.schools?.country_code)teacherCountries.set(email,{
+      country_code:t.schools.country_code,country:t.schools.country_name||''
+    });
+  }
+  const pendingCountries=new Map();
+  for(const a of applications||[]){
+    const email=String(a.email||'').trim().toLocaleLowerCase();
+    if(email && a.country)pendingCountries.set(email,{
+      country_code:a.country_code||'',country:a.country
+    });
+  }
+  return (accounts||[]).map(a=>{
+    const email=String(a.email||'').trim().toLocaleLowerCase();
+    const match=teacherCountries.get(email)||pendingCountries.get(email)||{};
+    return {
+      ...a,
+      country_code:a.country_code||match.country_code||'',
+      country:a.country||match.country||''
+    };
+  });
+}
