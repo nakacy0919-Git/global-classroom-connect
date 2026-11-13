@@ -5,7 +5,7 @@ import {supabase} from '../../services/supabase.js';
 import {mountRegistrationConsoleV226} from '../../lib/registrationConsoleV226.js';
 const el=(tag,cls='',str='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=str;return n;};
 export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-admin-page"><section class="gcc120-join gcc120-admin gcc226-admin">
- <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>New teacher applications are emailed to the GCC founder administrator. After approval, the teacher receives an English confirmation email. Verify the teacher's face, introduction, school details, and any websites provided. Teachers without websites may still be approved after verifying their school information. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
+ <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Review registration progress by status or country, then open the approval queue when action is needed. Teachers without websites may still be approved after verifying their school information. Teacher + Host Admin grants full administrative access and should be reserved for trusted organizers.</p></div>
  <nav class="gcc226-admin-tabs" aria-label="Admin views" role="tablist">
   <button type="button" role="tab" data-gcc226-tab="registrations" aria-selected="true">Registrations</button>
   <button type="button" role="tab" data-gcc226-tab="countries" aria-selected="false">By country</button>
@@ -107,7 +107,11 @@ export function bindTeacherApprovalsV120(){
     const roles=el('fieldset','gcc120-role');roles.append(el('legend','','Grant access after approval'));
     const teacher=el('label');const basic=el('input');basic.type='radio';basic.name=`role-${a.id}`;basic.value='teacher';basic.checked=true;teacher.append(basic,document.createTextNode(' Teacher only'));
     const admin=el('label');const elevated=el('input');elevated.type='radio';elevated.name=`role-${a.id}`;elevated.value='host';admin.append(elevated,document.createTextNode(' Teacher + Host Admin (can approve others and manage GCC)'));
-    roles.append(teacher,admin);reviewBody.append(roles);
+    const advanced=el('details','gcc226-privilege');
+    advanced.append(el('summary','','Advanced: grant Host Administrator permissions'));
+    advanced.append(el('p','','Host Admins can approve other teachers and manage GCC. Grant this role only to trusted organizers.'));
+    advanced.append(admin);
+    roles.append(teacher,advanced);reviewBody.append(roles);
     const checks=el('div','gcc120-review-checks');const checkedFace=el('label');const faceBox=el('input');faceBox.type='checkbox';checkedFace.append(faceBox,document.createTextNode(' I checked that the photograph shows a recognizable face'));
     const checkedSchool=el('label');const schoolBox=el('input');schoolBox.type='checkbox';checkedSchool.append(schoolBox,document.createTextNode(' I verified the school information and any website provided (if available)'));checks.append(checkedFace,checkedSchool);reviewBody.append(checks);
     const actions=el('div','gcc120-review-actions');for(const [decision,label] of [['approved','Approve application'],['rejected','Reject application']]){
