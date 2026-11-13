@@ -62,3 +62,8 @@
  .gcc120-admin .gcc134-counts{grid-template-columns:repeat(2,minmax(0,1fr))}
  .gcc226-country-row{grid-template-columns:1fr auto}.gcc226-country-row>span:not(.gcc226-country-name){display:none}
 }
+
+.gcc226-privilege{padding:9px 12px;border:1px solid #e9c89e;border-radius:10px;background:#fffbf3}
+.gcc226-privilege>summary{cursor:pointer;font-weight:800;color:#8b591b}
+.gcc226-privilege p{font-size:.8rem;color:#7a4b21;line-height:1.5;margin:9px 0}
+.gcc226-privilege>label{margin:8px 0}
