@@ -1,0 +1,10 @@
+/* GCC V22.8: Host teacher directory pagination and country selection */
+.teacher-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.gcc228-country{min-width:170px;max-width:260px;height:44px;font:inherit;color:#204c64}
+.gcc228-result-count{font-size:.85rem;color:#55798a;margin:10px 0}
+.gcc228-pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0;color:#527583;font-size:.87rem}
+.gcc228-page-button{font:inherit;background:#e6f3f8;border:1px solid #b7d6e2;border-radius:9px;color:#155c7b;padding:10px 13px;min-height:42px;cursor:pointer}
+.gcc228-page-button:focus-visible{outline:3px solid #0594b4;outline-offset:2px}
+.gcc228-page-button:disabled{opacity:.45;cursor:default}
+.teacher-grid .teacher-card[hidden],.teacher-grid .teacher-country-heading[hidden]{display:none!important}
+@media(max-width:650px){.gcc228-country{flex:1 1 100%;max-width:none}}

@@ -6,6 +6,7 @@ const sql=read('sql/gcc_v134_signup_overview.sql');
 const page=read('src/pages/host/TeacherApprovalsV120.js');
 const service=read('src/services/teacherOnboardingV120.js');
 const header=read('src/components/Header.js');
+const consoleUi=read('src/lib/registrationConsoleV226.js');
 test('new signup accounts are visible before email confirmation or review submission',()=>{
  assert.match(sql,/FROM auth\.users/);
  assert.match(sql,/LEFT JOIN public\.gcc_v120_applications/);
@@ -26,7 +27,8 @@ test('admin interface shows lifecycle counts separately from actionable pending 
  for(const s of ['gcc134-accounts','gcc134-counts','gcc134-refresh','Applications awaiting approval','No pending applications.']){
   assert.ok(page.includes(s),s);
  }
- assert.match(page,/pendingApprovalsV120\(\),signupOverviewV134\(\)/);
+ assert.match(page,/pendingApprovalsV120\(\),registrationConsole\.refresh\(\)/);
+ assert.match(consoleUi,/signupOverviewV134\(\)/);
  assert.match(page,/reviewApplicationV120\(a\.id,decision,grantHost,school\)/);
  assert.match(page,/grantHost&&!confirm/);
 });
@@ -37,9 +39,9 @@ test('admin live refresh polls every 15 seconds and catches focus/visibility tra
  assert.match(page,/window\.addEventListener\('focus',onActive\)/);
  assert.match(page,/root\.isConnected/);
  assert.match(page,/lastQueueKey/);
- assert.match(page,/lastAccountKey/);
+ assert.match(page,/registrationConsole\.refresh\(\)/);
  assert.match(page,/loading/);
- assert.match(page,/Could not load registered accounts/);
+ assert.match(consoleUi,/Registration data is unavailable/);
 });
 test('approval route displays a real title, not undefined',()=>{
  assert.match(header,/'teacher-approvals': 'Teacher Applications'/);
