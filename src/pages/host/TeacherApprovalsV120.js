@@ -5,14 +5,14 @@ import {supabase} from '../../services/supabase.js';
 import {mountRegistrationConsoleV226} from '../../lib/registrationConsoleV226.js';
 const el=(tag,cls='',str='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=str;return n;};
 export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-admin-page"><section class="gcc120-join gcc120-admin gcc226-admin">
- <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Review registration progress by status or country, then open the approval queue when action is needed. Teachers without websites may still be approved after verifying their school information. Teacher + Host Admin grants full administrative access and should be reserved for trusted organizers.</p></div>
+ <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher Registration Center</h1><p>Review registration progress by status or country, then open the approval queue when action is needed. Teachers without websites may still be approved after verifying their school information. Teacher + Host Admin grants full administrative access and should be reserved for trusted organizers.</p></div>
  <nav class="gcc226-admin-tabs" aria-label="Admin views" role="tablist">
-  <button type="button" role="tab" data-gcc226-tab="registrations" aria-selected="true">Registrations</button>
-  <button type="button" role="tab" data-gcc226-tab="countries" aria-selected="false">By country</button>
-  <button type="button" role="tab" data-gcc226-tab="applications" aria-selected="false">Approval queue</button>
-  <button type="button" role="tab" data-gcc226-tab="corrections" aria-selected="false">School corrections</button>
+  <button type="button" role="tab" id="gcc226-tab-registrations" aria-controls="gcc226-panel-registrations" data-gcc226-tab="registrations" aria-selected="true">Registrations</button>
+  <button type="button" role="tab" id="gcc226-tab-countries" aria-controls="gcc226-panel-countries" data-gcc226-tab="countries" aria-selected="false">By country</button>
+  <button type="button" role="tab" id="gcc226-tab-applications" aria-controls="gcc226-panel-applications" data-gcc226-tab="applications" aria-selected="false">Approval queue</button>
+  <button type="button" role="tab" id="gcc226-tab-corrections" aria-controls="gcc226-panel-corrections" data-gcc226-tab="corrections" aria-selected="false">School corrections</button>
  </nav>
- <section class="gcc134-tracker gcc226-view" data-gcc226-view="registrations" aria-label="Teacher registration status">
+ <section class="gcc134-tracker gcc226-view" id="gcc226-panel-registrations" role="tabpanel" aria-labelledby="gcc226-tab-registrations" data-gcc226-view="registrations" aria-label="Teacher registration status">
   <div class="gcc134-tracker-head">
    <div><h2>Teacher registration status</h2><p>New sign-ups appear here before email confirmation or profile submission.</p></div>
    <button id="gcc134-refresh" type="button" class="gcc120-secondary">↻ Refresh now</button>
@@ -21,19 +21,19 @@ export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-a
   <div id="gcc134-counts" class="gcc134-counts"></div>
   <div id="gcc134-accounts" class="gcc134-accounts">Loading registration status…</div>
  </section>
- <section class="gcc226-country-container gcc226-view" data-gcc226-view="countries" aria-label="Registration statistics by country" hidden>
+ <section class="gcc226-country-container gcc226-view" id="gcc226-panel-countries" role="tabpanel" aria-labelledby="gcc226-tab-countries" data-gcc226-view="countries" aria-label="Registration statistics by country" hidden>
    <h2>Teacher registrations by country</h2>
    <p>Select a country to see its teachers. Accounts without a completed profile appear under “Not provided”.</p>
    <div id="gcc226-countries-list" aria-live="polite"></div>
    <div id="gcc226-country-pagination" aria-label="Country pages"></div>
  </section>
- <section class="gcc153-host-school-queue gcc120-panel gcc226-view" data-gcc226-view="corrections" aria-label="School information correction requests" hidden>
+ <section class="gcc153-host-school-queue gcc120-panel gcc226-view" id="gcc226-panel-corrections" role="tabpanel" aria-labelledby="gcc226-tab-corrections" data-gcc226-view="corrections" aria-label="School information correction requests" hidden>
   <div class="gcc134-tracker-head"><div><h2>School information corrections</h2><p>Review changes requested by approved teachers. Approved changes may affect everyone linked to the same school.</p></div>
   <button type="button" id="gcc153-refresh-school" class="gcc120-secondary">↻ Refresh corrections</button></div>
   <p id="gcc153-host-school-msg" class="gcc120-message" role="status" aria-live="polite"></p>
   <div id="gcc153-host-school-list" class="gcc120-review-list">Loading requests…</div>
  </section>
- <section class="gcc226-view" data-gcc226-view="applications" hidden><h2 class="gcc134-queue-title">Applications awaiting approval</h2>
+ <section class="gcc226-view" id="gcc226-panel-applications" role="tabpanel" aria-labelledby="gcc226-tab-applications" data-gcc226-view="applications" hidden><h2 class="gcc134-queue-title">Applications awaiting approval</h2>
  <p id="gcc120-review-msg" role="status" aria-live="polite" class="gcc120-message"></p><div id="gcc120-review-list" class="gcc120-review-list">Loading…</div><div id="gcc226-review-pagination" aria-label="Application pages"></div></section>
  </section></main>`;}
 export function bindTeacherApprovalsV120(){
