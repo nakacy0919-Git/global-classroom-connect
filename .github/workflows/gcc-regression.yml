@@ -33,5 +33,7 @@ jobs:
         run: node --test
       - name: Build production bundle
         run: npm run build
+      - name: Browser smoke test — public teacher signup and protected host route
+        run: bash scripts/gcc-public-browser-smoke.sh
       - name: Check whitespace errors
         run: git diff --check
