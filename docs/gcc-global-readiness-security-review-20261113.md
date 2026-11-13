@@ -7,6 +7,7 @@ Status: **Staged changes only. Do not merge, deploy, or apply SQL to production 
 ## Changes implemented in draft PR #101
 
 - Host registration dashboard: four views (status, country, approvals, school corrections).
+- Host Teacher Database now has 8-card pages, a country picker, combined teacher/school search, and accurate matching-results count.
 - Account table: search by teacher/email/school; country and lifecycle filters; 8 entries/page.
 - Country counts: all-account aggregation and 12 countries/page after the staged read-only SQL is applied; unreported countries grouped separately.
 - Approval/correction queues: 6 entries/page, expandable approval details and secondary option for granting Host Admin.
@@ -33,6 +34,8 @@ These are **advisories, not verified exploits**. No database schema, access gran
 Some analyzed functions:
 - `gcc_v108_edit_room` checks a token/access-code/PIN via `gcc_v108_check_teacher` and then explicitly verifies student ownership of the same signup before updates. The advisory alone does not establish a bypass.
 - `gcc_v165_submit_roster` delegates to `gcc_v8_submit_roster`; that underlying authorization and rate limiting still require review.
+- `gcc_v8_submit_roster` is an intentionally unauthenticated registration path for published sessions. It validates inputs, caps total students and limits the pending queue per session, but database inspection did not establish any per-client/IP rate limiting. Before opening registration broadly, review edge/WAF rate controls and abuse monitoring without breaking legitimate international school signups.
+- `gcc_v6_submit_signup` validates a hashed 32-character invitation code, expiry and revocation before it accepts a roster. The code-protected flow is different from the open-registration flow and must be tested separately.
 - `rls_auto_enable()` is an event trigger function configured with `pg_catalog` search_path; its generic anonymous-execute advisory deserves a contextual review, not an automatic revocation.
 
 Reference guidance:
@@ -40,6 +43,12 @@ Reference guidance:
 - https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable
 - https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable
 - https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
+## Additional UI safety improvements
+
+- Approval refresh now queues a follow-up refresh if an earlier network request is still running, preventing stale approval records.
+- Applicant photos are fetched with short-lived signed URLs only when an administrator expands a review. A long pending queue no longer triggers all private photo requests immediately.
+- Tab controls are linked to their panels with ARIA attributes for keyboard/screen reader navigation.
 
 ## Required validation before worldwide rollout
 
