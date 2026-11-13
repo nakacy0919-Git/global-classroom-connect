@@ -61,7 +61,7 @@ BEGIN
            (requested_country='__UNKNOWN' AND a.country_code='') OR
            a.country_code=requested_country)
       AND (search_term='' OR
-           LOWER(CONCAT_WS(' ',a.name,a.email,a.school,a.country)) LIKE '%'||search_term||'%')
+           STRPOS(LOWER(CONCAT_WS(' ',a.name,a.email,a.school,a.country)),search_term)>0)
   ),
   country_groups AS (
     SELECT country_code,MAX(country) AS country_name,
