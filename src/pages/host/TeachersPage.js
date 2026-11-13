@@ -563,6 +563,8 @@ export async function TeachersPage() {
                         ${countryHeading}
                         <article
                           class="teacher-card"
+                          data-teacher-country="${escapeHtml(school?.country_code||'')}"
+                          data-teacher-country-name="${escapeHtml(school?.country_name||'Not provided')}"
                           data-teacher-search="${escapeHtml(
                             searchText
                           )}"
