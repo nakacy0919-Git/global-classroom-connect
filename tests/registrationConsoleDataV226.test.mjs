@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {legacyRegistrationSnapshotV226,GCC226_STAGES} from '../src/lib/registrationConsoleDataV226.js';
+import {legacyRegistrationSnapshotV226,GCC226_STAGES,enrichLegacyRegistrationV232} from '../src/lib/registrationConsoleDataV226.js';
 
 const rows=[
  {name:'Yuki',email:'yuki@example.jp',school:'Tokyo High',status:'approved',country:'Japan',country_code:'JP'},
@@ -38,4 +38,22 @@ test('unknown countries and invalid statuses are handled safely',()=>{
 test('empty and late pages return sensible empty results',()=>{
  assert.deepEqual(legacyRegistrationSnapshotV226([],{}).items,[]);
  assert.deepEqual(legacyRegistrationSnapshotV226(rows,{page:25,pageSize:2}).items,[]);
+});
+
+test('host-only fallback country lookup uses verified email not matching names',()=>{
+ const raw=[
+  {name:'Alex',email:'alex@school.example',status:'approved'},
+  {name:'Alex',email:'other@school.example',status:'email_unconfirmed'}
+ ];
+ const teachers=[{
+  email:'ALEX@school.example',
+  schools:{country_code:'JP',country_name:'Japan'}
+ }];
+ const enriched=enrichLegacyRegistrationV232(raw,teachers);
+ assert.equal(enriched[0].country_code,'JP');
+ assert.equal(enriched[0].country,'Japan');
+ assert.equal(enriched[1].country_code,'');
+ assert.equal(raw[0].country_code,undefined);
+ const filtered=legacyRegistrationSnapshotV226(enriched,{country:'JP'});
+ assert.equal(filtered.total_matches,1);
 });
