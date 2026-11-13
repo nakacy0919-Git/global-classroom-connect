@@ -45,7 +45,7 @@ export function bindTeacherApprovalsV120(){
  const schoolStatus=root.querySelector('#gcc153-host-school-msg');
  const schoolRefresh=root.querySelector('#gcc153-refresh-school');
  let schoolBusy=false;
- let loading=false,lastQueueKey=null;
+ let loading=false,lastQueueKey=null,queueRerun=false;
  const registrationConsole=mountRegistrationConsoleV226(root);
  const reviewPager=root.querySelector('#gcc226-review-pagination');
  const reviewPage={number:1};
@@ -76,16 +76,16 @@ export function bindTeacherApprovalsV120(){
  };
  const notify=(s,error=false)=>{message.textContent=s;message.classList.toggle('error',error);};
  async function refresh(){
-  if(loading||!root.isConnected)return;
+  if(!root.isConnected)return;
+  if(loading){queueRerun=true;return;}
   loading=true;refreshButton.disabled=true;
   try{
    const [applications]=await Promise.all([pendingApprovalsV120(),registrationConsole.refresh()]);
    if(!root.isConnected)return;
    const qKey=JSON.stringify(applications);
    if(qKey===lastQueueKey)return;
-   lastQueueKey=qKey;
    list.replaceChildren();
-   if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));updateReviewPager();return;}
+   if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));updateReviewPager();lastQueueKey=qKey;return;}
   const {data:schools,error:schoolErr}=await supabase.from('schools').select('id,name,country_name').eq('is_active',true).order('name');
   if(schoolErr)throw schoolErr;
   for(const a of applications){const card=el('article','gcc120-panel gcc120-review-card gcc226-review-card');
@@ -94,7 +94,20 @@ export function bindTeacherApprovalsV120(){
     disclosure.append(summary);card.append(disclosure);
     const reviewBody=el('div','gcc226-review-body');disclosure.append(reviewBody);
     const header=el('div','gcc120-review-head');const image=el('div','gcc120-review-photo','Photo not available');
-    if(a.photo_path){try{const src=await previewApplicationPhotoV120(a.photo_path);if(src){const pic=el('img');pic.src=src;pic.alt='Applicant face photograph (verify manually)';image.replaceChildren(pic);}}catch{}}
+    if(a.photo_path){
+      let photoAttempted=false;
+      disclosure.addEventListener('toggle',async()=>{
+        if(!disclosure.open||photoAttempted||!root.isConnected)return;
+        photoAttempted=true;
+        image.textContent='Loading photo…';
+        try{
+          const src=await previewApplicationPhotoV120(a.photo_path);
+          if(!src||!root.isConnected){image.textContent='Photo unavailable';return;}
+          const pic=el('img');pic.src=src;pic.alt='Applicant face photograph (verify manually)';
+          image.replaceChildren(pic);
+        }catch{image.textContent='Photo unavailable';}
+      });
+    }
     const detail=el('div');detail.append(el('h2','',a.name||''),el('p','',a.email||''));const facts=[
      ['Teacher website',a.website],['Introduction',a.bio],['School',a.school],['School type / level',`${a.school_type} · ${a.school_level}`],
      ['Location',[a.city,a.region,a.country].filter(Boolean).join(', ')],['School website',a.school_website],['Time zone',a.timezone]
@@ -126,10 +139,14 @@ export function bindTeacherApprovalsV120(){
      });actions.append(btn);}reviewBody.append(actions);list.append(card);
   }
   updateReviewPager();
+  lastQueueKey=qKey;
   }catch(e){
    if(lastQueueKey===null)list.replaceChildren(el('p','gcc120-panel','Could not load applications. Reload this page or contact your GCC administrator.'));
    notify(e.message||'Could not load applications.',true);
-  }finally{loading=false;refreshButton.disabled=false;}
+  }finally{
+   loading=false;refreshButton.disabled=false;
+   if(queueRerun){queueRerun=false;void refresh();}
+  }
  }
  async function refreshSchoolEdits(){
   if(schoolBusy||!root.isConnected)return;
