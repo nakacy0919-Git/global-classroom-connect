@@ -1,8 +1,9 @@
 import {supabase} from '../services/supabase.js';
-import {signupOverviewV134} from '../services/teacherOnboardingV120.js';
+import {signupOverviewV134,pendingApprovalsV120} from '../services/teacherOnboardingV120.js';
+import {getTeachers} from '../services/teacherService.js';
 import '../styles/registrationConsoleV226.css';
 
-import {GCC226_STAGES,legacyRegistrationSnapshotV226} from './registrationConsoleDataV226.js';
+import {GCC226_STAGES,legacyRegistrationSnapshotV226,enrichLegacyRegistrationV232} from './registrationConsoleDataV226.js';
 
 const make=(tag,cls='',label='')=>{
   const node=document.createElement(tag);
@@ -132,7 +133,7 @@ export function mountRegistrationConsoleV226(root) {
     accounts.replaceChildren();
     const caption=make('p','gcc226-caption',
       snapshot.legacy
-      ? 'Limited view: latest 200 accounts only. Apply the staged V22.6 database migration to unlock complete global totals and country information.'
+      ? 'Limited view: latest 200 accounts. Known approved-teacher countries are shown; full country totals require the staged database update.'
       : snapshot.total_matches+' matching accounts · '+snapshot.stats.total+' accounts worldwide');
     if(snapshot.legacy)caption.setAttribute('role','status');
     accounts.append(caption);
@@ -177,7 +178,14 @@ export function mountRegistrationConsoleV226(root) {
       if(!isMissingRpc(error))throw error;
       legacyMode=true;
     }
-    return legacyRegistrationSnapshotV226(await signupOverviewV134(),options);
+    const [accounts,teachers,applications]=await Promise.all([
+      signupOverviewV134(),
+      getTeachers().catch(()=>[]),
+      pendingApprovalsV120().catch(()=>[]),
+    ]);
+    return legacyRegistrationSnapshotV226(
+      enrichLegacyRegistrationV232(accounts,teachers,applications),options
+    );
   }
   async function refresh(){
     if(!root.isConnected)return;
