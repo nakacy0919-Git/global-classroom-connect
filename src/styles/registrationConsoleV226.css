@@ -1,0 +1,64 @@
+/* GCC V22.6 - compact, accessible host management without endless registration scrolling */
+.gcc120-admin.gcc226-admin{width:min(100%,1240px);max-width:1240px}
+.gcc226-admin-tabs{display:flex;gap:8px;flex-wrap:wrap;padding:5px;background:#e9f4f7;border-radius:14px;border:1px solid #d0e7ec}
+.gcc226-admin-tabs button{font:inherit;font-size:.9rem;font-weight:750;border:0;color:#335d70;background:transparent;padding:11px 14px;min-height:42px;cursor:pointer;border-radius:10px}
+.gcc226-admin-tabs button[aria-selected="true"]{background:white;color:#105d83;box-shadow:0 2px 8px #154f6623}
+.gcc226-admin-tabs button:focus-visible,.gcc226-page-button:focus-visible,.gcc226-country-button:focus-visible,
+.gcc226-stat:focus-visible{outline:3px solid #008abd;outline-offset:2px}
+.gcc226-view[hidden]{display:none!important}
+.gcc120-admin .gcc134-tracker{margin:0;gap:12px;padding:16px}
+.gcc120-admin .gcc134-counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gcc226-stat{font:inherit;cursor:pointer;text-align:left;transition:background .12s}
+.gcc226-stat:hover{background:#eefaff}
+.gcc226-stat strong{font-size:1.45rem}
+.gcc226-stat span{font-size:.76rem}
+.gcc226-filters{display:grid;grid-template-columns:minmax(200px,2fr) repeat(2,minmax(145px,1fr));gap:9px}
+.gcc226-search,.gcc226-select{font:inherit;font-size:.9rem;background:#fff;color:#183e54;border:1px solid #b9dbe4;border-radius:10px;padding:10px;min-width:0}
+.gcc226-search:focus,.gcc226-select:focus{outline:2px solid #0797bb}
+.gcc120-admin .gcc134-accounts{display:block}
+.gcc226-caption{font-size:.8rem;color:#466b7a;margin:0 0 8px;line-height:1.45}
+.gcc226-table-scroll{max-width:100%;overflow-x:auto;background:#fff;border:1px solid #d6e6eb;border-radius:13px}
+.gcc226-table{width:100%;border-collapse:collapse;text-align:left;font-size:.86rem}
+.gcc226-table th{font-size:.73rem;text-transform:uppercase;letter-spacing:.035em;color:#577888;background:#f0f7f9;font-weight:800}
+.gcc226-table th,.gcc226-table td{padding:9px 12px;border-bottom:1px solid #e7eff2;vertical-align:middle}
+.gcc226-table tbody tr:last-child td{border-bottom:0}
+.gcc226-table tbody tr:hover{background:#f6fbfd}
+.gcc226-table td:first-child{min-width:170px;max-width:260px;overflow-wrap:anywhere}
+.gcc226-table td:nth-child(2){min-width:125px;overflow-wrap:anywhere}
+.gcc226-table td:nth-child(3){min-width:115px}
+.gcc226-table td:nth-child(4){min-width:140px}
+.gcc226-table small{display:block;color:#688596;font-size:.75rem;overflow-wrap:anywhere;margin-top:2px}
+.gcc226-table .gcc134-status{display:inline-block;font-size:.69rem;padding:4px 8px}
+.gcc226-pagination,#gcc226-country-pagination,#gcc226-review-pagination,#gcc226-school-pagination{
+ display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px;font-size:.82rem;color:#537385}
+.gcc226-page-button,.gcc226-country-button{border:1px solid #afd4e0;background:#e7f5fa;color:#125c7c;border-radius:10px;font:inherit;font-size:.82rem;padding:8px 12px;cursor:pointer;min-height:35px}
+.gcc226-page-button:disabled{opacity:.4;cursor:default}
+.gcc226-country-row{display:grid;grid-template-columns:minmax(150px,2fr) repeat(3,minmax(70px,1fr)) auto;gap:8px;align-items:center;border-bottom:1px solid #d8e9ee;padding:10px 6px;font-size:.85rem}
+.gcc226-country-row:nth-child(even){background:#f7fbfc}
+.gcc226-country-name{font-weight:800;color:#164d65}
+.gcc226-country-container{padding:16px;background:#fff;border:1px solid #d1e5eb;border-radius:17px}
+.gcc226-country-container h2{margin:0;color:#1d566a}
+.gcc226-country-container p{margin:4px 0 12px;font-size:.87rem;color:#577687}
+.gcc226-empty{padding:18px;text-align:center;color:#587784}
+.gcc226-review-disclosure{width:100%}
+.gcc226-review-disclosure>summary{cursor:pointer;padding:4px 6px;list-style-position:inside;font-weight:800;color:#1d596b}
+.gcc226-review-disclosure>summary:focus-visible{outline:3px solid #0c93b5}
+.gcc226-review-disclosure[open]>summary{margin-bottom:14px}
+.gcc226-review-card{padding:13px!important;gap:8px!important}
+.gcc226-review-card[hidden],.gcc153-school-review[hidden]{display:none!important}
+.gcc226-review-body{display:grid;gap:14px;padding:12px 8px 4px}
+.gcc226-view .gcc134-tracker-head{margin-bottom:8px}
+@media(min-width:1100px){
+ .gcc120-admin .gcc134-counts{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .gcc226-filters{grid-template-columns:1fr 1fr}.gcc226-search{grid-column:1/-1}
+ .gcc226-country-row{grid-template-columns:minmax(130px,2fr) repeat(2,minmax(65px,1fr)) auto}
+ .gcc226-country-row>span:nth-child(4){display:none}
+ .gcc226-admin-tabs button{flex:1 1 45%;white-space:nowrap}
+}
+@media(max-width:440px){
+ .gcc226-filters{grid-template-columns:1fr}.gcc226-search{grid-column:auto}
+ .gcc120-admin .gcc134-counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gcc226-country-row{grid-template-columns:1fr auto}.gcc226-country-row>span:not(.gcc226-country-name){display:none}
+}
