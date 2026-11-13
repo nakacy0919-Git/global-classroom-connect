@@ -34,6 +34,7 @@ import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150
 import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
+import '../../styles/teacherFirstStartV226.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
 
@@ -47,6 +48,12 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
 
  <section class="gct-section gct-home-v200" data-gct-view="home" hidden>
   <div class="gct-home-intro-v200"><p class="gct-eyebrow">YOUR TEACHER SPACE</p><h3>Find a partner. Create an exchange.</h3><p>Two simple ways to connect your classroom with the world.</p></div>
+  <details class="gct-panel gcc226-first-start"><summary>First time using GCC? See the 3-step guide</summary>
+    <ol><li><strong>Find a Partner</strong> to explore international sessions and check local school times.</li>
+    <li><strong>Send a request</strong> when a session matches your students, or choose Create a Session to host your own.</li>
+    <li><strong>Check Pending requests and Notifications</strong> for updates and coordinate details before the exchange.</li></ol>
+    <p>Only approved GCC teacher accounts can join or host. Never include students’ private contact details in public session descriptions.</p>
+  </details>
   <div class="gct-home-actions-v200">
    <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Partner</strong><small>Explore sessions from verified teachers</small></span><span aria-hidden="true">→</span></a>
    <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Create a Session</strong><small>Invite a global classroom to join yours</small></span><span aria-hidden="true">→</span></a>
