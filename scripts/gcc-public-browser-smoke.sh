@@ -25,18 +25,18 @@ fetch_rendered() {
     --virtual-time-budget=7000 --dump-dom "$1" 2>/dev/null
 }
 home="$(fetch_rendered 'http://127.0.0.1:4173/#/welcome')"
-printf '%s' "$home" | grep -q 'Global Classroom'
+[[ "$home" == *'Global Classroom'* ]]
 echo 'PASS: welcome page renders'
 
 signup="$(fetch_rendered 'http://127.0.0.1:4173/#/signup')"
-printf '%s' "$signup" | grep -q 'Create account'
-printf '%s' "$signup" | grep -q 'Confirm your email'
-printf '%s' "$signup" | grep -q 'School time zone'
+[[ "$signup" == *'Create account'* ]]
+[[ "$signup" == *'Confirm your email'* ]]
+[[ "$signup" == *'School time zone'* ]]
 echo 'PASS: new teacher signup page and global timezone instructions render'
 
 protected="$(fetch_rendered 'http://127.0.0.1:4173/#/teacher-approvals')"
-printf '%s' "$protected" | grep -q 'Login\|Sign in\|Sign In'
-if printf '%s' "$protected" | grep -q 'id="gcc226-panel-registrations"'; then
+[[ "$protected" == *'Login'* || "$protected" == *'Sign in'* || "$protected" == *'Sign In'* ]]
+if [[ "$protected" == *'id="gcc226-panel-registrations"'* ]]; then
   echo 'FAIL: unauthenticated host registration center rendered' >&2; exit 1
 fi
 echo 'PASS: anonymous visitors cannot render the host registration center'
