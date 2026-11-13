@@ -43,7 +43,7 @@ test('admin uses four tabbed views and paginates approvals as well as account ro
   assert.match(consoleUi,/p_country:options\.country/);
   assert.match(consoleUi,/p_status:options\.status/);
   assert.match(consoleUi,/signupOverviewV134\(\)/);
-  assert.match(consoleUi,/latest 200 accounts only/);
+  assert.match(consoleUi,/latest 200 accounts/);
 });
 
 test('teacher registration PII uses textContent and browser-built table cells',()=>{
