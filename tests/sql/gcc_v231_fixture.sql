@@ -3,12 +3,12 @@ CREATE SCHEMA auth;
 CREATE ROLE anon NOLOGIN;
 CREATE ROLE authenticated NOLOGIN;
 GRANT USAGE ON SCHEMA public,auth TO authenticated,anon;
-CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $
+CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $uid$
  SELECT COALESCE(
   NULLIF(current_setting('request.jwt.claim.sub',true),''),
   NULLIF(current_setting('request.jwt.claims',true),'')::jsonb->>'sub'
  )::uuid;
-$;
+$uid$;
 CREATE TABLE auth.users (
  id uuid PRIMARY KEY,email text,created_at timestamptz NOT NULL,
  email_confirmed_at timestamptz,raw_user_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb
