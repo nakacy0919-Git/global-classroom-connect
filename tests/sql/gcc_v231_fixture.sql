@@ -8,7 +8,7 @@ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
 $$;
 CREATE TABLE auth.users (
  id uuid PRIMARY KEY,email text,created_at timestamptz NOT NULL,
- email_confirmed_at timestamptz
+ email_confirmed_at timestamptz,raw_user_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb
 );
 CREATE TABLE public.profiles (id uuid PRIMARY KEY,role text NOT NULL);
 CREATE TABLE public.schools (
@@ -71,10 +71,15 @@ INSERT INTO public.teachers(id,auth_user_id,display_name,school_id,is_active,cre
  ('20000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002',
  'Guest Teacher','30000000-0000-4000-8000-000000000002',true,now());
 -- 250 additional unapproved accounts for more-than-200 paging checks.
-INSERT INTO auth.users(id,email,created_at,email_confirmed_at)
+INSERT INTO auth.users(id,email,created_at,email_confirmed_at,raw_user_meta_data)
 SELECT ('40000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,
- 'demo'||n||'@example.invalid',now()-n*interval '1 minute',now()
+ 'demo'||n||'@example.invalid',now()-n*interval '1 minute',now(),
+ '{"gcc_registration_source":"global-classroom-connect"}'::jsonb
 FROM generate_series(1,250) AS n;
+-- Unrelated authentication account must NEVER appear in GCC host analytics.
+INSERT INTO auth.users(id,email,created_at,email_confirmed_at)
+VALUES ('70000000-0000-4000-8000-000000000001',
+ 'unrelated@example.invalid',now(),now());
 -- 325 genuine open future offers created by the same approved teacher.
 INSERT INTO public.exchange_availability
  (id,teacher_id,starts_at,ends_at,timezone,student_count,room_count,
