@@ -3,6 +3,7 @@ import '../../styles/sharePlanV104.css';
 import '../../styles/netiquetteGuideV145.css';
 import {bindNetiquetteGuideV145,netiquetteGuideMarkupV145} from '../../lib/netiquetteGuideV145.js';
 import {openSharedRoomChart} from '../../services/sharePlanV102.js';
+import {checkRoomChartConnectionV224} from '../../lib/roomChartNetworkDiagnosticV224.js';
 import {setupRoomToolsV106} from '../../lib/roomToolsV106.js';
 import {renderWorldSessionClocksV112} from '../../lib/sessionClockUIV112.js';
 import {countryFlagAssetV131} from '../../lib/countryFlagAssetsV131.js';
@@ -49,6 +50,8 @@ export function RoomPlanLookupPage(){return `
   </form>
   <p id="gcc-v104-message" role="status" aria-live="polite" class="gcc-v104-message"></p>
   <button id="gcc-v222-guide-retry" class="gcc-v104-primary" type="button" hidden>Open meeting guidelines →</button>
+  <button id="gcc-v224-check-connection" class="gcc-v224-connection-check" type="button" hidden>Check connection</button>
+  <p id="gcc-v224-connection-result" class="gcc-v224-connection-result" role="status" aria-live="polite" hidden></p>
   <div id="gcc-v104-chart" hidden>
     <section id="gcc203-room-session-section" class="gcc203-private-plan" aria-label="Session information" hidden><h2>Session details</h2><div id="gcc203-room-session-details"></div></section>
     <section id="gcc-v161-choice" class="gcc-v161-choice" hidden aria-labelledby="gcc-v161-choice-title">
@@ -105,7 +108,23 @@ export function bindRoomPlanLookupPage(){
  const list=$('gcc-v104-room-list'),filter=$('gcc-v104-filter');
  const message=(s,err=false)=>{const n=$('gcc-v104-message');n.textContent=s;n.classList.toggle('error',err);};
  const guideRetry=$('gcc-v222-guide-retry');
+ const connectionButton=$('gcc-v224-check-connection');
+ const connectionResult=$('gcc-v224-connection-result');
  let verifiedForGuide=null;
+ const resetConnectionCheck=()=>{connectionButton.hidden=true;connectionResult.hidden=true;connectionResult.textContent='';};
+ connectionButton.addEventListener('click',async()=>{
+  connectionButton.disabled=true;connectionResult.hidden=false;
+  connectionResult.textContent='Checking the room-chart connection…';
+  try{
+   const diagnosis=await checkRoomChartConnectionV224({
+    url:import.meta.env.VITE_SUPABASE_URL,
+    publishableKey:import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+   });
+   if(root.isConnected)connectionResult.textContent=diagnosis.message;
+  }catch{
+   if(root.isConnected)connectionResult.textContent='Connection checks could not finish. Please ask the GCC administrator for help.';
+  }finally{connectionButton.disabled=false;}
+ });
  const netiquetteGuideV146=bindNetiquetteGuideV145(root,Boolean(token));
  const roomFinderV161=bindRoomFinderV161(root);
  if(!token){submit.disabled=true;message('Invalid invitation link. Ask the session host for the current link.',true);return;}
@@ -183,7 +202,7 @@ export function bindRoomPlanLookupPage(){
  });
  form.addEventListener('submit',async event=>{
    event.preventDefault();roomToolsV106.reset();result.hidden=true;list.replaceChildren();
-   verifiedForGuide=null;guideRetry.hidden=true;submit.disabled=true;
+   verifiedForGuide=null;guideRetry.hidden=true;resetConnectionCheck();submit.disabled=true;
    message('Verifying your session access code…');
    const code=$('gcc-v104-code').value.trim();
    if(!/^[0-9]{6}$/.test(code)){message('Please enter the 6-digit code.',true);submit.disabled=false;return;}
@@ -199,6 +218,7 @@ export function bindRoomPlanLookupPage(){
        ? 'Could not connect to the room-chart service. Your code has not been rejected. Check your network or open the invitation in another browser, then try again.'
        : 'The room-chart service could not complete verification. Do not request a new code yet; please try again or ask the host to check the session.',
        true);
+     connectionButton.hidden=!networkProblem;
      console.warn('[GCC] Room-chart lookup failed',{name:error?.name||'Error',code:error?.code||null,status:error?.status||null});
      return;
    }finally{submit.disabled=false;}
