@@ -41,6 +41,10 @@ BEGIN
  response:=public.gcc_v226_registration_console(1,10,'','JP','');
  IF (response->>'total_matches')::integer<>1 THEN
   RAISE EXCEPTION 'Registration country filter failed'; END IF;
+ response:=public.gcc_v226_registration_console(1,10,'','','unrelated@example.invalid');
+ IF (response->>'total_matches')::integer<>0 OR
+    jsonb_array_length(response->'items')<>0 THEN
+  RAISE EXCEPTION 'Non-GCC authentication account leaked to host registration listing'; END IF;
 END
 $$;
 -- An ordinary, approved teacher can see open partners but not closed host sessions.
