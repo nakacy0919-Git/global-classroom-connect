@@ -42,10 +42,19 @@ Relevant vendor guidance:
 - https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable
 - https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
+## V23.2 targeted privacy and privilege hardening (2026-11-17)
+
+- New teacher Auth signups are tagged with `raw_user_meta_data.gcc_registration_source = 'global-classroom-connect'` **only to scope analytics**. User metadata is self-editable and MUST NOT be used to authorize any teacher or admin action. The existing server-side `gcc_v6_require_host()` remains the sole host authorization check for registration-console reads.
+- Staged `sql/gcc_v226_registration_console.sql` now lists accounts with a GCC application, an active linked GCC teacher, or the explicit self-declared GCC signup marker. It no longer includes every account in `auth.users`.
+- Live **read-only aggregate** audit at this point showed 32 Auth users and 3 not linked to a GCC application or teacher. All 3 unlinked users were email-unconfirmed and had no GCC marker. Their origin cannot be established. **This privacy-first change excludes these legacy unlinked accounts from the new console** until an authorized administrator verifies their GCC origin. Do not automatically change these user records; never guess that they are GCC users.
+- Staged `sql/gcc_v232_restrict_trigger_execute.sql` verifies five named zero-argument trigger/event-trigger functions still have attached triggers, then revokes direct `EXECUTE` from `PUBLIC`, `anon`, and `authenticated`. Does not disable triggers, alter RLS, or rewrite any function body. Isolated PostgreSQL CI verifies the row and DDL triggers still fire after revocation.
+- The remaining public `SECURITY DEFINER` advisories include intentional student-code, roster and room-chart endpoints. No automatic mass revocation; security and rate limiting still require review.
+- The staged SQL files are **NOT installed on the connected Supabase production project**. These tests do not imply that Supabase-specific JWT and PostgREST checks have passed.
+
 ## Release blockers (must be verified before worldwide rollout)
 
 1. **Preview DB separation.** Historical Vercel previews used the production Supabase URL. Do not run destructive or synthetic tests against that database; an isolated database may have usage costs and needs authorization.
-2. **Staged SQL not applied.** All three candidate scripts (`sql/gcc_v226_registration_console.sql`, `sql/gcc_v227_english_name_search_path.sql`, `sql/gcc_v231_teacher_browse_paged.sql`) pass disposable PostgreSQL role/syntax/pagination checks. Still verify them against an isolated **Supabase** project and PostgREST with real JWT role contexts before production migration. The legacy registration overview and 300-session listing remain limited until then.
+2. **Staged SQL not applied.** The four staged scripts (`sql/gcc_v226_registration_console.sql`, `sql/gcc_v227_english_name_search_path.sql`, `sql/gcc_v231_teacher_browse_paged.sql`, and `sql/gcc_v232_restrict_trigger_execute.sql`) pass disposable PostgreSQL role/syntax/trigger checks. Still verify them against an isolated **Supabase** project and PostgREST with real JWT role contexts before production migration. The legacy registration overview and 300-session listing remain limited until then.
 3. **Role-specific database authorization.** Verify anonymous, pending teacher, approved teacher, Host Admin and different schools' access. A hidden UI tab is not an authorization check.
 4. **Anonymous privileged endpoints.** The Supabase security advisor flags 20 anonymous-callable SECURITY DEFINER functions. Some are intentionally code/PIN-protected; test input validation, brute-force protection and row ownership before revoking any endpoint.
 5. **Sign-up and anti-abuse.** Real email confirmation, password reset and compromised-password protection (reported off on 2026-11-13), registration spam and public roster submission rate limiting.
