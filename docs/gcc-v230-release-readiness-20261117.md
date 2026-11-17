@@ -7,6 +7,7 @@ Status: **DEVELOPMENT / DRAFT PR ONLY — NOT DEPLOYED**
 
 - PR #101: Global-readiness registration console, country aggregations, paginated teacher/host approvals and first-time teacher onboarding. Its host-only SQL and search-path hardening remain **staged and unapplied**.
 - PR #102: Find Sessions includes teacher's own active sessions, identifiable as "Your Session"; read-only partner preview; verification after publishing. Own sessions appear on the world map.
+- PR #99: Room-chart access for managed school PCs uses an isolated anonymous Supabase client (no stored teacher auth refresh), with a limited diagnostic that does not transmit the real invitation or code.
 - V23.0: Availability conditions (status, time, deadline) are shared between search, country pins and country filters. Optional network/API failures no longer erase the successfully loaded teacher-owned session listing.
 - Expanded browser smoke checks cover anonymous host and teacher access, registration routes and mobile signup.
 - This branch merges both draft feature histories but has **not** merged into `main`.
