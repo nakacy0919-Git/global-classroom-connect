@@ -51,6 +51,16 @@ Relevant vendor guidance:
 - The remaining public `SECURITY DEFINER` advisories include intentional student-code, roster and room-chart endpoints. No automatic mass revocation; security and rate limiting still require review.
 - The staged SQL files are **NOT installed on the connected Supabase production project**. These tests do not imply that Supabase-specific JWT and PostgREST checks have passed.
 
+## V23.2 isolated REST/JWT authorization evidence
+
+- The consolidated GitHub workflow now runs three jobs: Node/browser/build regression, isolated PostgreSQL SQL/trigger assertions, and **isolated PostgREST 12.2 HTTP JWT authorization**.
+- Only disposable fixture identities and a static, CI-only HS256 signing secret are used. No network request targets the connected production Supabase project.
+- JWT/PostgREST assertions prove that anonymous callers, an approved ordinary teacher and an unlinked account cannot read the Host Admin registrations RPC; an approved host can read exactly 252 tagged/linked fixture accounts while an unrelated Auth user is omitted.
+- Teacher-scoped JWT paging fetches 327 fixture offers without duplicate IDs, does not reveal a different school's closed session, and strips private meeting URLs.
+- The isolated SQL tests verify the five trigger-only direct-execute grants are removed without disabling automatic row or DDL trigger execution.
+- GitHub Actions run [#44087793322](https://github.com/nakacy0919-Git/global-classroom-connect/actions/runs/44087793322) passed all three jobs: **616 Node tests**, Vite production bundle, Chromium public-route checks, SQL checks and JWT/PostgREST API checks.
+- This narrows a release gap but does **not** verify real Supabase Auth configuration, provider policies, school network or external mailbox deliverability. Staged SQL remains unapplied.
+
 ## Release blockers (must be verified before worldwide rollout)
 
 1. **Preview DB separation.** Historical Vercel previews used the production Supabase URL. Do not run destructive or synthetic tests against that database; an isolated database may have usage costs and needs authorization.
