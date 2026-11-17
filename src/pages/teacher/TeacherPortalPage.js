@@ -26,6 +26,9 @@ import {SESSION_STARTERS_V216,sessionStarterV216} from '../../lib/sessionStarter
 import '../../styles/teacherSimpleStartV216.css';
 import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
 import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213,favoriteKeyV213} from '../../lib/sessionSearchV213.js';
+import {verifyPublishedSessionV226} from '../../lib/sessionPublicationV226.js';
+import {isDiscoverableOfferV230} from '../../lib/sessionAvailabilityV230.js';
+import {loadTeacherWorkspaceSnapshotV230} from '../../lib/teacherWorkspaceRefreshV230.js';
 import {captureSessionDraftV213,applySessionDraftV213,copiedSessionDraftV213} from '../../lib/sessionDraftV213.js';
 import '../../styles/sessionWorkspaceV213.css';
 import '../../styles/sessionManagementV212.css';
@@ -34,6 +37,7 @@ import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150
 import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
+import '../../styles/teacherFirstStartV226.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
 
@@ -47,6 +51,12 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
 
  <section class="gct-section gct-home-v200" data-gct-view="home" hidden>
   <div class="gct-home-intro-v200"><p class="gct-eyebrow">YOUR TEACHER SPACE</p><h3>Find a partner. Create an exchange.</h3><p>Two simple ways to connect your classroom with the world.</p></div>
+  <details class="gct-panel gcc226-first-start"><summary>First time using GCC? See the 3-step guide</summary>
+    <ol><li><strong>Find a Partner</strong> to explore international sessions and check local school times.</li>
+    <li><strong>Send a request</strong> when a session matches your students, or choose Create a Session to host your own.</li>
+    <li><strong>Check Pending requests and Notifications</strong> for updates and coordinate details before the exchange.</li></ol>
+    <p>Only approved GCC teacher accounts can join or host. Never include students’ private contact details in public session descriptions.</p>
+  </details>
   <div class="gct-home-actions-v200">
    <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Partner</strong><small>Explore sessions from verified teachers</small></span><span aria-hidden="true">→</span></a>
    <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Create a Session</strong><small>Invite a global classroom to join yours</small></span><span aria-hidden="true">→</span></a>
@@ -339,15 +349,18 @@ export function bindTeacherPortalPage(){
  $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
-  const [mine,applications,publicEvents,inbox]=await Promise.all([
-    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications()
-  ]);
-  hostEvents=Array.isArray(publicEvents)?publicEvents:[];
-  offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  notifications=Array.isArray(inbox)?inbox:[];
+  const snapshot=await loadTeacherWorkspaceSnapshotV230({
+   sessions:teacherSessions,requests:teacherRequests,
+   publicEvents:listPublicSessionOverviews,notifications:teacherNotifications
+  },{offers,requests,hostEvents,notifications});
+  ({offers,requests,hostEvents,notifications}=snapshot);
   renderMine();renderHome();renderNotifications();updateFindCountries();
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
   renderResults();renderRequests();
+  if(snapshot.warnings.length)
+   inform('Sessions loaded, but some optional information could not refresh: '+
+    snapshot.warnings.join(', ')+'. Previously loaded information is retained.',true);
+  return snapshot;
  }
  function renderNotifications(){
   const unread=notifications.filter(x=>!x.read_at).length;
@@ -401,6 +414,28 @@ export function bindTeacherPortalPage(){
    window.history.replaceState(null,'','#/teacher-portal?view=create');
   }finally{draftReady=true;}
  }
+ function partnerPreviewV226(o){
+  const preview=element('details','gcs226-partner-preview');
+  preview.append(element('summary','','👁 Preview as a partner teacher'));
+  const panel=element('div','gcs226-preview-panel');
+  panel.append(element('p','gcs226-preview-note',
+   'Read-only preview of your session card. Partner teachers see the same details and their own request status.'));
+  const card=element('div','gcs226-preview-card');
+  appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),
+   start:o.starts_at,end:o.ends_at,zone:identity.timezone,
+   host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},
+   schoolLevel:schoolLevelV209(o)});
+  card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
+  const details=element('div','gcc203-result-body');
+  renderSessionDetailsV203(details,detailsV150(o));card.append(details);
+  const available=availableSeatsV212(o),canJoin=canRequestV212({...o,is_mine:false});
+  const action=element('button','gct-primary gcs226-preview-action',
+   canJoin?'🤝 Request Join (partner view)':o.status!=='open'?'Closed to new requests':
+   available===0?'Fully booked':'Host must complete the capacity setting');
+  action.type='button';action.disabled=true;
+  card.append(action);panel.append(card);preview.append(panel);
+  return preview;
+ }
  function makeManageCard(o,{compact=false}={}){
   const card=element('article','gct-session-card gcs212-offer');
   const ready=sessionReadinessV212(o);
@@ -446,7 +481,7 @@ export function bindTeacherPortalPage(){
     }catch(e){inform(e.message||'Could not change status',true);status.disabled=false;}
    });row.append(status);
   }
-  card.append(row);
+  card.append(row,partnerPreviewV226(o));
   card.append(calendarMenuV214({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone}));
   return card;
  }
@@ -488,7 +523,7 @@ export function bindTeacherPortalPage(){
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
-  const codes=new Map([...upcoming().filter(o=>!o.is_mine&&o.status==='open'),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
+  const codes=new Map([...upcoming().filter(o=>isDiscoverableOfferV230(o)),...hostEventsAsOffersV208(hostEvents).filter(o=>isDiscoverableOfferV230(o))].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
   select.replaceChildren(new Option('Any country',''));
   for(const [code,name] of [...codes].sort((a,b)=>a[1].localeCompare(b[1])))select.add(new Option(name,code));
   if(codes.has(current))select.value=current;
@@ -520,6 +555,7 @@ export function bindTeacherPortalPage(){
     const o=item.item,d=detailsV150(o);
     const card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
     card.dataset.startsAt=o.starts_at;
+    if(o.is_mine)card.append(element('span','gcs226-own-badge','👤 Your Session'));
     appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),start:o.starts_at,end:o.ends_at,
      zone:identity.timezone,host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},
      schoolLevel:schoolLevelV209(o)});
@@ -545,7 +581,7 @@ export function bindTeacherPortalPage(){
       edit.disabled=true;try{await manager.open(o);}
       catch(e){inform(e.message||'Could not edit this session',true);}
       finally{edit.disabled=false;}
-     });card.append(edit);
+     });card.append(edit,partnerPreviewV226(o));
     }else if(previous){
      card.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
     }else if(!canRequestV212(o)){
@@ -705,7 +741,9 @@ export function bindTeacherPortalPage(){
   $('gctp-band').value=level;
   const checkbox=root.querySelector(`input[name="gctp-target-level"][value="${level}"]`);
   if(checkbox)checkbox.checked=true;
-  await refresh();await loadTeacherWorkspace();inform('');await mountVolunteerV117(root,display);
+  const initialSnapshot=await refresh();await loadTeacherWorkspace();
+  if(!initialSnapshot.warnings.length)inform('');
+  await mountVolunteerV117(root,display);
   const networkProfile=await myTeacherProfileV116();
   // Only fetch/edit photo + profile details on their dedicated pages.
   if(view==='profile')await mountTeacherProfileV153(root,updated=>{
@@ -758,7 +796,18 @@ export function bindTeacherPortalPage(){
     const flyer=$('gctp-flyerfile').files?.[0];
     if(flyer)data.details.flyer_url=await uploadSessionFlyerV203(flyer);
     else if(cloneFlyerUrl)data.details.flyer_url=cloneFlyerUrl;
-    prepareSuccessChime();await teacherCreateSession(slot,data);created=true;
+    prepareSuccessChime();
+    const sessionId=await teacherCreateSession(slot,data);created=true;
+    let verification;
+    try{
+     const visibleOffers=await teacherSessions();
+     verification=verifyPublishedSessionV226(sessionId,visibleOffers,{
+      startsAt:slot.startsAt,endsAt:slot.endsAt,sessionName:plan.session_name,
+      sessionType:plan.session_type,maxParticipants:plan.max_participants
+     });
+    }catch(error){
+     verification={ok:false,issues:['The published session could not be checked: '+(error.message||'Connection error')]};
+    }
     if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}
     await draftChain;
     try{
@@ -776,15 +825,28 @@ export function bindTeacherPortalPage(){
     if(defaultCheck)defaultCheck.checked=true;
     $('gctp-sdg-wrap').hidden=true;
     showFormStep(0);display('create');
+    let refreshError=null;
     try{await refresh();}
-    catch(e){inform('Published successfully. Refresh the page to update the session list.',true);}
-    if(!notice.textContent||!notice.classList.contains('error'))
-     inform('Session published to approved teachers. No email sent.');
-    showSuccessCelebration({title:'Session published!',detail:'Approved teachers can now discover your session.'});
+    catch(error){refreshError=error;}
+    if(!verification.ok){
+     inform('Session saved, but visibility needs attention: '+verification.issues.join(' ')+
+      ' Open Manage my hosted sessions to check it before inviting partners.',true);
+    }else if(refreshError){
+     inform('Session verified in Find Sessions, but the page could not refresh: '+
+      (refreshError.message||'Please reload.'),true);
+    }else{
+     inform('Session published and verified in Find Sessions. No email sent.');
+    }
+    if(verification.ok)
+     showSuccessCelebration({title:'Session published!',
+      detail:'Confirmed discoverable by approved partner teachers.'});
+    else
+     showSuccessCelebration({title:'Session saved',
+      detail:'Saved successfully; check the visibility message before sharing.'});
    }
    catch(err){
     const msg=err.message||'Could not publish the session.';
-    inform(created?'Session published, but refreshing the page failed.':msg,true);
+    inform(created?'Session was saved, but a later step failed. Do not publish it again; check Manage my hosted sessions.':msg,true);
     if(!created){showFormStep(2);guide.show(msg,2);}
    }finally{publishing=false;btn.disabled=false;}
  });

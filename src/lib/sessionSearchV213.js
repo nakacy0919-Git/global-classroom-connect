@@ -3,6 +3,7 @@
 import {overlapsLocalTimeV150,partnerLevelsV150,detailsV150,sessionTitleV150} from './sessionStudioV150.js';
 import {timePartsV112} from './sessionTimeV112.js';
 import {hostCountryV208} from './sessionDiscoveryV208.js';
+import {isDiscoverableOfferV230,isDiscoverableEventV230} from './sessionAvailabilityV230.js';
 
 const text=v=>String(v??'').trim().toLocaleLowerCase();
 const asList=v=>Array.isArray(v)?v:[];
@@ -12,7 +13,7 @@ export function favoriteKeyV213(source,id){return FAVORITE_KINDS_V213.includes(s
 export function sessionSearchRecordsV213(offers=[],events=[],now=Date.now()){
  const out=[];
  for(const o of offers||[]){
-  if(!o||o.is_mine||o.status!=='open'||Date.parse(o.ends_at)<=now)continue;
+  if(!isDiscoverableOfferV230(o,now))continue;
   const deadline=Date.parse(o.session_details?.registration_closes_at||'');
   if(Number.isFinite(deadline)&&deadline<=now)continue;
   out.push({source:'offer',id:o.id,start:o.starts_at,end:o.ends_at,
@@ -21,7 +22,7 @@ export function sessionSearchRecordsV213(offers=[],events=[],now=Date.now()){
    partner_levels:partnerLevelsV150(o),available_seats:o.available_seats});
  }
  for(const e of events||[]){
-  if(!e||e.status!=='published'||Date.parse(e.ends_at)<=now)continue;
+  if(!isDiscoverableEventV230(e,now))continue;
   const deadline=Date.parse(e.session_details?.registration_closes_at||'');
   if(Number.isFinite(deadline)&&deadline<=now)continue;
   const host=hostCountryV208(e);

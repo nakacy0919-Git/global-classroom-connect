@@ -4,7 +4,7 @@ const primaryMenu = [
   {key:'welcome',label:'🌍 Home'},
   {key:'sessions',label:'Sessions'},
   {key:'teacher-invites',label:'Teacher Invitations'},
-  {key:'teacher-approvals',label:'New Teacher Approvals'},
+  {key:'teacher-approvals',label:'Teacher Registration Center'},
   {key:'host-volunteers',label:'Volunteer Team'},
   {key:'schools',label:'School Library'},
   {key:'teachers',label:'Teacher Database'},
