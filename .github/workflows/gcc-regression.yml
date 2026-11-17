@@ -37,3 +37,40 @@ jobs:
         run: bash scripts/gcc-public-browser-smoke.sh
       - name: Check whitespace errors
         run: git diff --check
+
+
+  sql-isolated-test:
+    name: Isolated Supabase SQL release gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: gcc_ci_disposable_only
+          POSTGRES_DB: gcc_v231_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gcc_v231_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - name: Checkout source without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Apply staged SQL and check authorization in disposable PostgreSQL
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: gcc_ci_disposable_only
+          PGDATABASE: gcc_v231_ci
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v231_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v231_teacher_browse_paged.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v226_registration_console.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v227_english_name_search_path.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v231_assertions.sql
