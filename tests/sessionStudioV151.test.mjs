@@ -34,7 +34,7 @@ test('Find Session has two clear discovery paths without an inert duplicate sear
  assert.doesNotMatch(portal,/id="gctp-find-button"/);
  assert.match(portal,/gctp-reset-filters/);
 });
-test('active country pins are grounded only in published future partner offers',()=>{
+test('active country pins include own and partner offers only while future and open',()=>{
  const t=Date.parse('2026-10-28T00:00:00Z');
  const iso='2026-11-12T12:00:00Z';
  const countries=activeCountriesV151([
@@ -45,7 +45,7 @@ test('active country pins are grounded only in published future partner offers',
   {country_code:'MY',country_name:'Malaysia',status:'open',ends_at:'2026-01-01T00:00:00Z',is_mine:false},
   {country_code:'INVALID',country_name:'Invalid',status:'open',ends_at:iso,is_mine:false}
  ],t);
- assert.deepEqual(countries,[{code:'PH',name:'Philippines',count:2}]);
+ assert.deepEqual(countries,[{code:'JP',name:'Japan',count:1},{code:'PH',name:'Philippines',count:2}]);
  assert.ok(countryMaster.countries.some(c=>c.code==='PH'&&Number.isFinite(c.lat)&&Number.isFinite(c.lon)));
 });
 test('world map renders grounded GeoJSON, clickable pins and an accessible country list',()=>{
