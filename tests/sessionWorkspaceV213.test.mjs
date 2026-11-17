@@ -52,12 +52,12 @@ test('favorites, sorting, and display paging use same results across both data s
  assert.equal(sessionResultsPageV213(large,24).remaining,8);
  assert.equal(sessionResultsPageV213(large,36).hasMore,false);
 });
-test('future-only records, closed sessions, own offers, and expired deadlines are excluded',()=>{
+test('future-only records, closed sessions, and expired deadlines are excluded; own offers remain discoverable',()=>{
  const found=sessionSearchRecordsV213([jap,{...egypt,status:'closed'},
   {...jap,id:'mine',is_mine:true},
   {...jap,id:'expired',session_details:{...jap.session_details,registration_closes_at:'2025-01-01T00:00:00Z'}}],
   [{...publicSession,id:'past',ends_at:'2000-01-01T00:00:00Z'}],now);
- assert.deepEqual(found.map(x=>x.id),['a']);
+ assert.deepEqual(found.map(x=>x.id),['a','mine']);
 });
 test('draft captures radio, multiple levels, text, and excludes flyer file contents',()=>{
  const fields=[
@@ -122,4 +122,12 @@ test('both Find Session experiences use the unified search engine and pagination
  assert.match(host,/filterSessionRecordsV213\(records/);
  assert.match(host,/gcf-sdg/);assert.match(host,/gcf-mode/);
  assert.match(host,/gcf-show-more/);
+});
+
+test('hosts find their own published sessions with management and read-only partner preview',()=>{
+ const portal=read('src/pages/teacher/TeacherPortalPage.js');
+ assert.match(portal,/if\(o\.is_mine\)card\.append\(element\('span','gcs226-own-badge'/);
+ assert.match(portal,/card\.append\(edit,partnerPreviewV226\(o\)\)/);
+ assert.match(portal,/card\.append\(row,partnerPreviewV226\(o\)\)/);
+ assert.match(portal,/canRequestV212\(\{\.\.\.o,is_mine:false\}\)/);
 });
