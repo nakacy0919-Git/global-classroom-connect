@@ -511,7 +511,7 @@ export function bindTeacherPortalPage(){
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
-  const codes=new Map([...upcoming().filter(o=>!o.is_mine&&o.status==='open'),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
+  const codes=new Map([...upcoming().filter(o=>o.status==='open'),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
   select.replaceChildren(new Option('Any country',''));
   for(const [code,name] of [...codes].sort((a,b)=>a[1].localeCompare(b[1])))select.add(new Option(name,code));
   if(codes.has(current))select.value=current;
