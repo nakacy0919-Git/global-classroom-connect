@@ -52,6 +52,12 @@ BEGIN
       LIMIT 1
     ) t ON TRUE
     LEFT JOIN public.schools s ON s.id = t.school_id
+    -- Scope the host dashboard to GCC records only. Auth is also used by
+    -- other applications; never show unrelated account emails to GCC hosts.
+    -- The signup marker is self-declared, NOT an authorization claim.
+    -- Host authorization is enforced by gcc_v6_require_host() above.
+    WHERE a.user_id IS NOT NULL OR t.id IS NOT NULL
+      OR u.raw_user_meta_data->>'gcc_registration_source'='global-classroom-connect'
   ),
   filtered AS MATERIALIZED (
     SELECT *
