@@ -27,6 +27,8 @@ import '../../styles/teacherSimpleStartV216.css';
 import {sessionReadinessV212,availableSeatsV212,canRequestV212,requestStatusLabelV212} from '../../lib/sessionManagementV212.js';
 import {sessionSearchRecordsV213,filterSessionRecordsV213,sessionResultsPageV213,favoriteKeyV213} from '../../lib/sessionSearchV213.js';
 import {verifyPublishedSessionV226} from '../../lib/sessionPublicationV226.js';
+import {isDiscoverableOfferV230} from '../../lib/sessionAvailabilityV230.js';
+import {loadTeacherWorkspaceSnapshotV230} from '../../lib/teacherWorkspaceRefreshV230.js';
 import {captureSessionDraftV213,applySessionDraftV213,copiedSessionDraftV213} from '../../lib/sessionDraftV213.js';
 import '../../styles/sessionWorkspaceV213.css';
 import '../../styles/sessionManagementV212.css';
@@ -347,15 +349,18 @@ export function bindTeacherPortalPage(){
  $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
-  const [mine,applications,publicEvents,inbox]=await Promise.all([
-    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications()
-  ]);
-  hostEvents=Array.isArray(publicEvents)?publicEvents:[];
-  offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  notifications=Array.isArray(inbox)?inbox:[];
+  const snapshot=await loadTeacherWorkspaceSnapshotV230({
+   sessions:teacherSessions,requests:teacherRequests,
+   publicEvents:listPublicSessionOverviews,notifications:teacherNotifications
+  },{offers,requests,hostEvents,notifications});
+  ({offers,requests,hostEvents,notifications}=snapshot);
   renderMine();renderHome();renderNotifications();updateFindCountries();
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
   renderResults();renderRequests();
+  if(snapshot.warnings.length)
+   inform('Sessions loaded, but some optional information could not refresh: '+
+    snapshot.warnings.join(', ')+'. Previously loaded information is retained.',true);
+  return snapshot;
  }
  function renderNotifications(){
   const unread=notifications.filter(x=>!x.read_at).length;
@@ -518,7 +523,7 @@ export function bindTeacherPortalPage(){
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
-  const codes=new Map([...upcoming().filter(o=>o.status==='open'),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
+  const codes=new Map([...upcoming().filter(o=>isDiscoverableOfferV230(o)),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
   select.replaceChildren(new Option('Any country',''));
   for(const [code,name] of [...codes].sort((a,b)=>a[1].localeCompare(b[1])))select.add(new Option(name,code));
   if(codes.has(current))select.value=current;
@@ -736,7 +741,9 @@ export function bindTeacherPortalPage(){
   $('gctp-band').value=level;
   const checkbox=root.querySelector(`input[name="gctp-target-level"][value="${level}"]`);
   if(checkbox)checkbox.checked=true;
-  await refresh();await loadTeacherWorkspace();inform('');await mountVolunteerV117(root,display);
+  const initialSnapshot=await refresh();await loadTeacherWorkspace();
+  if(!initialSnapshot.warnings.length)inform('');
+  await mountVolunteerV117(root,display);
   const networkProfile=await myTeacherProfileV116();
   // Only fetch/edit photo + profile details on their dedicated pages.
   if(view==='profile')await mountTeacherProfileV153(root,updated=>{
