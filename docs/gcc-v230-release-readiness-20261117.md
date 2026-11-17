@@ -9,6 +9,8 @@ Status: **DEVELOPMENT / DRAFT PR ONLY — NOT DEPLOYED**
 - PR #102: Find Sessions includes teacher's own active sessions, identifiable as "Your Session"; read-only partner preview; verification after publishing. Own sessions appear on the world map.
 - PR #99: Room-chart access for managed school PCs uses an isolated anonymous Supabase client (no stored teacher auth refresh), with a limited diagnostic that does not transmit the real invitation or code.
 - V23.0: Availability conditions (status, time, deadline) are shared between search, country pins and country filters. Optional network/API failures no longer erase the successfully loaded teacher-owned session listing.
+- V23.1: New keyset-paginated, approved-teacher-only browsing RPC in `sql/gcc_v231_teacher_browse_paged.sql` fixes the legacy 300-row ceiling and prevents one malformed deadline from crashing the whole directory. The JS client falls back **only** if the new RPC is missing, and explicitly refuses to silently truncate a full 300-row legacy response. SQL is **staged, not live**.
+- Host-managed published events now preserve the start time, publication state and registration deadline in the world-map projection, preventing them from disappearing under V23's unified validation.
 - Expanded browser smoke checks cover anonymous host and teacher access, registration routes and mobile signup.
 - This branch merges both draft feature histories but has **not** merged into `main`.
 
@@ -20,10 +22,30 @@ Status: **DEVELOPMENT / DRAFT PR ONLY — NOT DEPLOYED**
 - No pending teacher approvals or join requests at inspection.
 - An initial smoke from PR #101 and an integrated CI run passed; this does **not** prove international end-to-end correctness.
 
+## V23.1 automated evidence (2026-11-17)
+
+- Node regressions passed with dedicated coverage for 325+ session pagination, safe migration fallback, expired and malformed deadlines, permission errors and the host-event map.
+- A disposable **PostgreSQL 17 service container** in GitHub Actions executes the staged V22.6 registration-console SQL, V22.7 name-validator hardening and V23.1 paginated session SQL. No production connection or real user data is used.
+- Synthetic assertions verify an authorized host can page through 326 offers (325 foreign + one personally hosted closed session), while a different teacher cannot view the private session.
+- Admin paging and country/status filtering were checked with 252 synthetic accounts. Anonymous users cannot execute the two privileged browse APIs, ordinary teachers cannot read the host account directory, and session browsing removes private meeting URLs.
+- Passing these checks means the SQL is syntactically executable and meets the stated **synthetic role tests**. It does not substitute for verifying actual Supabase authentication tokens, the production PostgREST API cache, managed browser access or international delivery.
+
+## Supabase security inventory (read-only)
+
+As of 2026-11-17 the Supabase advisor reports 20 anonymously executable SECURITY DEFINER functions and 103 authenticated executable SECURITY DEFINER functions. A public grant is not alone proof of exploitability: five of the anonymous warnings relate to trigger or event-trigger functions, while others include intentionally code/PIN-protected classroom endpoints, public session discovery and public roster submission. Do not revoke them en masse.
+
+The unauthenticated public roster function `gcc_v8_submit_roster` validates student count, requires an open future event, deduplicates teacher/school and caps event pending queue/capacity. However these controls alone do **not** establish IP/client rate limiting; repeated fictitious schools could potentially exhaust pending capacity. A trusted gateway/WAF rate-limit or server-verified abuse challenge requires a separate architecture and live-equivalent test.
+
+An Auth advisor still reports leaked-password protection disabled. This is an account-setting control, not a client JavaScript fix, and needs an authorized change by the Supabase owner.
+
+Relevant vendor guidance:
+- https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable
+- https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
 ## Release blockers (must be verified before worldwide rollout)
 
 1. **Preview DB separation.** Historical Vercel previews used the production Supabase URL. Do not run destructive or synthetic tests against that database; an isolated database may have usage costs and needs authorization.
-2. **Staged SQL not applied.** `sql/gcc_v226_registration_console.sql` needs an isolated execution and a 200+ sample account test. The fallback only covers a limited recent subset. `sql/gcc_v227_english_name_search_path.sql` needs SQL validation.
+2. **Staged SQL not applied.** All three candidate scripts (`sql/gcc_v226_registration_console.sql`, `sql/gcc_v227_english_name_search_path.sql`, `sql/gcc_v231_teacher_browse_paged.sql`) pass disposable PostgreSQL role/syntax/pagination checks. Still verify them against an isolated **Supabase** project and PostgREST with real JWT role contexts before production migration. The legacy registration overview and 300-session listing remain limited until then.
 3. **Role-specific database authorization.** Verify anonymous, pending teacher, approved teacher, Host Admin and different schools' access. A hidden UI tab is not an authorization check.
 4. **Anonymous privileged endpoints.** The Supabase security advisor flags 20 anonymous-callable SECURITY DEFINER functions. Some are intentionally code/PIN-protected; test input validation, brute-force protection and row ownership before revoking any endpoint.
 5. **Sign-up and anti-abuse.** Real email confirmation, password reset and compromised-password protection (reported off on 2026-11-13), registration spam and public roster submission rate limiting.
