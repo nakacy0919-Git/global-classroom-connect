@@ -823,9 +823,12 @@ export function bindTeacherPortalPage(){
     }else{
      inform('Session published and verified in Find Sessions. No email sent.');
     }
-    showSuccessCelebration({title:verification.ok?'Session published!':'Session saved',
-     detail:verification.ok?'Confirmed discoverable by approved partner teachers.':
-      'Saved successfully; check the visibility message before sharing.'});
+    if(verification.ok)
+     showSuccessCelebration({title:'Session published!',
+      detail:'Confirmed discoverable by approved partner teachers.'});
+    else
+     showSuccessCelebration({title:'Session saved',
+      detail:'Saved successfully; check the visibility message before sharing.'});
    }
    catch(err){
     const msg=err.message||'Could not publish the session.';
