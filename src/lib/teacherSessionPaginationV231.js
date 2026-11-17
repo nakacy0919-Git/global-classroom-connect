@@ -23,6 +23,7 @@ export async function collectTeacherSessionsV231({
    if(page===0&&missingPagedBrowseV231(error)){
     const legacy=await getLegacy();
     if(!Array.isArray(legacy))throw Error('Invalid legacy session listing response.');
+    if(legacy.length>=300)throw Error('The legacy session listing is capped at 300 results. Ask the GCC administrator to activate the V23.1 paginated session RPC before continuing; later sessions must not be hidden.');
     return legacy;
    }
    throw error;
