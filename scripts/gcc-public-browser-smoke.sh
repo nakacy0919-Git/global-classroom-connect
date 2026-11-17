@@ -40,3 +40,35 @@ if [[ "$protected" == *'id="gcc226-panel-registrations"'* ]]; then
   echo 'FAIL: unauthenticated host registration center rendered' >&2; exit 1
 fi
 echo 'PASS: anonymous visitors cannot render the host registration center'
+
+
+# Public routes are read-only here: no Supabase credentials, no submissions.
+login="$(fetch_rendered 'http://127.0.0.1:4173/#/teacher-access')"
+[[ "$login" == *'id="gcta-login"'* ]]
+[[ "$login" == *'Forgot your password?'* ]]
+echo 'PASS: verified teacher sign-in and recovery links render'
+
+registration="$(fetch_rendered 'http://127.0.0.1:4173/#/session-register')"
+[[ "$registration" == *'id="gcc-v8-event"'* ]]
+[[ "$registration" == *'Choose your session'* ]]
+echo 'PASS: public session registration flow renders without exposing a roster'
+
+room="$(fetch_rendered 'http://127.0.0.1:4173/#/room-plan')"
+[[ "$room" == *'id="gcc-v104-code"'* ]]
+[[ "$room" == *'id="gcc-v104-chart"'* ]]
+echo 'PASS: room chart requires a session access code before viewing data'
+
+anonymous_teacher="$(fetch_rendered 'http://127.0.0.1:4173/#/teacher-portal?view=find')"
+[[ "$anonymous_teacher" == *'id="gcta-login"'* || "$anonymous_teacher" == *'Sign in'* ]]
+if [[ "$anonymous_teacher" == *'id="gctp-results"'* ]]; then
+  echo 'FAIL: anonymous visitor rendered the teacher session workspace' >&2; exit 1
+fi
+echo 'PASS: anonymous visitors cannot browse protected teacher sessions'
+
+# The mobile viewport must retain important public registration controls.
+mobile="$(timeout 30 "$browser" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+  --no-first-run --window-size=390,844 --virtual-time-budget=7000 \
+  --dump-dom 'http://127.0.0.1:4173/#/signup' 2>/dev/null)"
+[[ "$mobile" == *'id="gcc140-tab-signup"'* ]]
+[[ "$mobile" == *'School time zone'* ]]
+echo 'PASS: mobile signup page preserves the account and school-timezone fields'
