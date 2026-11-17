@@ -12,7 +12,7 @@ export function favoriteKeyV213(source,id){return FAVORITE_KINDS_V213.includes(s
 export function sessionSearchRecordsV213(offers=[],events=[],now=Date.now()){
  const out=[];
  for(const o of offers||[]){
-  if(!o||o.is_mine||o.status!=='open'||Date.parse(o.ends_at)<=now)continue;
+  if(!o||o.status!=='open'||Date.parse(o.ends_at)<=now)continue;
   const deadline=Date.parse(o.session_details?.registration_closes_at||'');
   if(Number.isFinite(deadline)&&deadline<=now)continue;
   out.push({source:'offer',id:o.id,start:o.starts_at,end:o.ends_at,
