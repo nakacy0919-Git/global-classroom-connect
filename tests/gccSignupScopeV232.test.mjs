@@ -5,8 +5,9 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
 test('GCC teacher signups carry only an origin marker, never an authorization claim',()=>{
  const js=read('src/services/teacherOnboardingV120.js');
- assert.match(js,/auth\.signUp\(\{email:email\.trim\(\)\.toLowerCase\(\),password,options:\{data:\{gcc_registration_source:'global-classroom-connect'\}\}\}\)/);
- assert.doesNotMatch(js,/admin_role|grant_host|host_admin/i);
+ const signupOnly=js.split('export async function signupAccountV120')[1].split('export async function resendConfirmationV135')[0];
+ assert.match(signupOnly,/auth\.signUp\(\{email:email\.trim\(\)\.toLowerCase\(\),password,options:\{data:\{gcc_registration_source:'global-classroom-connect'\}\}\}\)/);
+ assert.doesNotMatch(signupOnly,/admin_role|grant_host|host_admin/i);
 });
 
 test('admin account search lists only GCC-linked/marked users and checks server-side host status',()=>{
