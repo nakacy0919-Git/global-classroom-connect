@@ -7,7 +7,7 @@ const db=()=>{if(!supabase)throw Error('Supabase is not configured');return supa
 async function readEveryRow(table,columns) {
   const pageSize=200,all=[];
   for(let page=0;page<200;page++){
-    const {data,error}=await db().from(table).select(columns).range(page*pageSize,(page+1)*pageSize-1);
+    const {data,error}=await db().from(table).select(columns).order('id',{ascending:true}).range(page*pageSize,(page+1)*pageSize-1);
     if(error)throw new Error('Could not load '+table+': '+error.message);
     all.push(...(data||[]));
     if(!data||data.length<pageSize)return all;
@@ -37,7 +37,8 @@ export async function updateHostTeacherSessionV233(record,draft) {
   const payload={
     starts_at:draft.startsAt,ends_at:draft.endsAt,
     student_count:v.students,room_count:v.rooms,topic:v.topic,notes:v.notes,
-    session_details:details,status:draft.status,updated_at:new Date().toISOString()
+    session_details:details,updated_at:new Date().toISOString(),
+    ...(draft.status!==offer.status?{status:draft.status}:{})
   };
   const {data,error}=await db().from('exchange_availability').update(payload)
     .eq('id',record.id).eq('updated_at',offer.updated_at).select('id');
