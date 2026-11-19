@@ -45,7 +45,8 @@ test('Legacy historical sessions may be described but cannot be rescheduled to t
 });
 test('Host directory enforces host authorization and protects records with join requests',()=>{
  const service=readFileSync(new URL('../src/services/hostSessionDirectoryV233.js',import.meta.url),'utf8');
- assert.match(service,/rpc\('gcc_v6_require_host'\)/);
+ assert.match(service,/from\('profiles'\)\.select\('role'\)/);
+ assert.match(service,/profile\?\.role!=='host'/);
  assert.match(service,/readEveryRow\('exchange_availability'/);
  assert.match(service,/readEveryRow\('events'/);
  assert.match(service,/\.order\('id',\{ascending:true\}\)/);
