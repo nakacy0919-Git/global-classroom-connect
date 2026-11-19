@@ -18,7 +18,7 @@ test('request success is not reported as failure when follow-up refresh errors',
  assert.match(excerpt,/try\{await refresh\(\);\}catch\{refreshed=false;\}/);
  assert.match(excerpt,/Request submitted, but this screen could not refresh/);
  assert.match(excerpt,/do not send it twice/);
- assert.match(excerpt,/showSuccessCelebration\(\{title:'Request submitted!'/);
+ assert.match(excerpt,/showSuccessCelebration\(\{title:'Request sent!'/);
 });
 test('approvals also preserve committed decision when view refresh fails',()=>{
  const start=page.indexOf('await teacherReview(r.id,decision)');
