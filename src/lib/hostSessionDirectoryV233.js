@@ -44,7 +44,8 @@ export function validateAdminOfferChangeV233(offer, draft, approvedStudents=0, n
   const topic=String(draft.topic||'').trim();
   const notes=String(draft.notes||'').trim();
   const students=Number(draft.students), rooms=Number(draft.rooms),capacity=Number(draft.capacity);
-  const start=time(draft.startsAt),end=time(draft.endsAt),deadline=time(draft.deadline);
+  const rawDeadline=draft.deadline||details.registration_closes_at||'';
+  const start=time(draft.startsAt),end=time(draft.endsAt),deadline=time(rawDeadline);
   const previousStart=time(offer.starts_at),previousEnd=time(offer.ends_at);
   const changedTime=start!==previousStart||end!==previousEnd;
   if(title.length<3||title.length>120)errors.push('Session title must be 3–120 characters.');
@@ -56,11 +57,12 @@ export function validateAdminOfferChangeV233(offer, draft, approvedStudents=0, n
   if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start||end-start<30*60000||end-start>360*60000)
     errors.push('Choose a valid 30-minute to 6-hour time window.');
   if(changedTime&&(start<=now||previousEnd<=now))errors.push('Past sessions cannot be rescheduled.');
-  if(draft.status==='open'&&end<=now)errors.push('Past sessions cannot be reopened.');
+  if(draft.status==='open'&&end<=now&&offer.status!=='open')errors.push('Past sessions cannot be reopened.');
   if(!['open','closed'].includes(draft.status))errors.push('Invalid session status.');
-  if(draft.deadline && (!Number.isFinite(deadline)||deadline>=start||
-      (draft.status==='open'&&deadline<=now))) errors.push('Registration deadline must be before the session and in the future while open.');
-  if(draft.status==='open'&&!draft.deadline && !details.registration_closes_at)
-    errors.push('A future registration deadline is required to publish this session.');
+  const publishing=draft.status==='open'&&(offer.status!=='open'||changedTime);
+  if(rawDeadline&&(!Number.isFinite(deadline)||deadline>=start||(publishing&&deadline<=now)))
+    errors.push('Registration deadline must be before the session and in the future when publishing.');
+  if(publishing&&!rawDeadline)
+    errors.push('A future registration deadline is required when publishing.');
   return {ok:errors.length===0,errors,title,topic,notes,students,rooms,capacity,changedTime};
 }
