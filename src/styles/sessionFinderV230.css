@@ -132,7 +132,7 @@
  font-size:.86rem;font-weight:780;color:#08766e;padding:7px 0
 }
 .gct-portal #gctp-results .gcs230-footer>.gcs209-details[open]{
- grid-column:1/-1;grid-row:2;border-top:1px solid #e8eeee;padding-top:10px!important
+ grid-column:1/-1;grid-row:auto;border-top:1px solid #e8eeee;padding-top:10px!important
 }
 .gct-portal #gctp-results .gcs230-footer .gcs230-request{
  width:max-content;max-width:100%;margin:0;align-self:stretch;justify-self:end;
@@ -150,7 +150,7 @@
 .gct-portal #gctp-results .gcs230-footer .gcs230-request>summary:hover,
 .gct-portal #gctp-results .gcs230-footer .gcs209-register:hover{background:#07685f!important}
 .gct-portal #gctp-results .gcs230-footer .gcs230-request[open]{
- grid-column:1/-1;grid-row:2;justify-self:stretch;
+ grid-column:1/-1;grid-row:auto;justify-self:stretch;
  background:#edf7f5!important;border:1px solid #c9e5df!important;
  border-radius:15px;padding:14px!important;width:100%;min-width:0
 }
@@ -231,3 +231,24 @@
  .gct-portal #gctp-results .gcs230-age-fields{grid-template-columns:1fr!important}
 }
 @media(prefers-reduced-motion:reduce){.gct-portal #gctp-results .gcs230-card{transition:none}}
+
+/* One clearly labeled search field; advanced filters remain available. */
+.gct-portal.gcs209-finding .gcs209-search-tools{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.gct-portal.gcs209-finding .gcs230-quicksearch{
+ display:flex;align-items:center;min-width:220px;flex:1 1 300px;max-width:560px;
+ min-height:46px;gap:10px;padding:0 13px;background:#fff;
+ border:1px solid #c5d9d9;border-radius:12px;box-shadow:0 3px 12px #134e5510
+}
+.gct-portal.gcs209-finding .gcs230-quicksearch>span{color:#376a72;font-size:1.6rem;line-height:1}
+.gct-portal.gcs209-finding .gcs230-quicksearch input{
+ display:block;min-width:0;width:100%;min-height:43px;padding:8px 0;
+ background:transparent;border:0;border-radius:0;font:inherit;font-size:.9rem;
+ font-weight:500;color:#234b55;outline:none;box-shadow:none
+}
+.gct-portal.gcs209-finding .gcs230-quicksearch:focus-within{
+ border-color:#3c9f96;outline:2px solid #82c6bc;outline-offset:1px
+}
+.gct-portal.gcs209-finding .gcs209-open-search{min-height:46px}
+.gct-portal #gctp-results .gcs230-footer:has(>.gcs209-details[open])>.gcs230-request[open]{
+ grid-row:auto
+}
