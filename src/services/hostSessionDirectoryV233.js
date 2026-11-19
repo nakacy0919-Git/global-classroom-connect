@@ -15,8 +15,11 @@ async function readEveryRow(table,columns) {
   throw Error('Session directory exceeded the safe page limit; no results have been silently truncated.');
 }
 export async function loadHostSessionDirectoryV233() {
-  const {error:accessError}=await db().rpc('gcc_v6_require_host');
-  if(accessError)throw new Error('Host Admin access is required.');
+  const {data:auth,error:authError}=await db().auth.getUser();
+  if(authError||!auth?.user)throw new Error('Host Admin sign-in is required.');
+  const {data:profile,error:profileError}=await db().from('profiles').select('role')
+    .eq('id',auth.user.id).single();
+  if(profileError||profile?.role!=='host')throw new Error('Host Admin access is required.');
   const [events,offers,teachers,schools,requests]=await Promise.all([
     readEveryRow('events','id,title,starts_at,ends_at,timezone,status,created_at,session_details'),
     readEveryRow('exchange_availability','id,teacher_id,country_code,timezone,starts_at,ends_at,student_count,room_count,age_band,topic,notes,status,created_at,updated_at,session_details'),
