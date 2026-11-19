@@ -127,7 +127,8 @@ test('both Find Session experiences use the unified search engine and pagination
 test('hosts find their own published sessions with management and read-only partner preview',()=>{
  const portal=read('src/pages/teacher/TeacherPortalPage.js');
  assert.match(portal,/if\(o\.is_mine\)card\.append\(element\('span','gcs226-own-badge'/);
- assert.match(portal,/card\.append\(edit,partnerPreviewV226\(o\)\)/);
+ assert.match(portal,/footer\.append\(edit\)/);
+ assert.match(portal,/card\.append\(footer,partnerPreviewV226\(o\)\)/);
  assert.match(portal,/card\.append\(row,partnerPreviewV226\(o\)\)/);
  assert.match(portal,/canRequestV212\(\{\.\.\.o,is_mine:false\}\)/);
 });
