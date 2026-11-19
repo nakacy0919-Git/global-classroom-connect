@@ -183,7 +183,7 @@ export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
  let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
- let publicTeacherProfiles=new Map();
+ let publicTeacherProfiles=new Map(),publicProfilesLoaded=false;
   let favorites=new Set(),visibleCount=12,draftReady=false,draftDirty=false;
   let draftTimer=null,draftChain=Promise.resolve(),draftRevision=0;
   let savedDraftPresent=false,cloneFlyerUrl='',publishing=false;
@@ -345,9 +345,11 @@ export function bindTeacherPortalPage(){
  async function refresh(){
   const [mine,applications,publicEvents,inbox,directory]=await Promise.all([
     teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications(),
-    teacherDirectoryV116().catch(()=>[])
+    publicProfilesLoaded?Promise.resolve(null):teacherDirectoryV116().catch(()=>null)
   ]);
-  publicTeacherProfiles=new Map((Array.isArray(directory)?directory:[]).map(p=>[p.id,p]));
+  if(Array.isArray(directory)){
+   publicTeacherProfiles=new Map(directory.map(p=>[p.id,p]));publicProfilesLoaded=true;
+  }
   hostEvents=Array.isArray(publicEvents)?publicEvents:[];
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
   notifications=Array.isArray(inbox)?inbox:[];
