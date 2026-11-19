@@ -21,7 +21,7 @@ export function normalizeHostSessionsV233(events = [], offers = [], teachers = [
     return {
       id:o.id, source:'teacher', title:o.session_details?.session_name || o.topic || 'Untitled session',
       status:o.status, start:o.starts_at, end:o.ends_at, timezone:o.timezone,
-      teacher:teacher?.display_name || 'Teacher not found', school:school?.name || 'School not found',
+      teacher:teacher?.display_name || 'Teacher not found', school:school?.name || 'Private or inactive school',
       country:school?.country_name || o.country_code || '', original:o,
       requestStats:requestMap.get(o.id) || {count:0,approved:0,approvedStudents:0}
     };
