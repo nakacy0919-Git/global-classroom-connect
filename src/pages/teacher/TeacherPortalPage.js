@@ -172,7 +172,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
   <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
- <p class="gct-hint">Requests and decisions appear in GCC notifications. Verified host teachers may also receive an email alert if delivery succeeds, but email is not a substitute for checking Join requests. After approval, arrange details using your privately shared contact method. GCC does not store chat messages.</p></div>
+ <p class="gct-hint">Requests and decisions appear in GCC notifications. Verified host teachers may also receive an email alert if delivery succeeds, but email is not a substitute for checking Join requests. After approval, arrange details using your privately shared contact method, such as WhatsApp, LINE, or Messenger. GCC does not store chat messages.</p></div>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
  <section class="gct-section" data-gct-view="network" hidden>
   <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
@@ -651,7 +651,7 @@ export function bindTeacherPortalPage(){
        inform(refreshed
         ?'Request submitted! The host can review it in GCC Join requests.'
         :'Request submitted, but this screen could not refresh. Check your Join requests later; do not send it twice.',!refreshed);
-       showSuccessCelebration({title:'Request submitted!',detail:'The host can now review your request in GCC.'});
+       showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request in GCC.'});
       }catch(e){error.textContent=e.message||'Could not send the request.';submit.disabled=false;}
      });
      fields.append(countLabel,ages,messageLabel,error,submit);
