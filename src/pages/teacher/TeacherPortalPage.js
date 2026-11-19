@@ -184,6 +184,13 @@ export function bindTeacherPortalPage(){
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
  let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
  let publicTeacherProfiles=new Map(),publicProfilesLoaded=false;
+ const photoUrlCache=new Map();
+ const publicPhotoUrl=path=>{
+  const previous=photoUrlCache.get(path);
+  if(previous&&Date.now()-previous.when<480000)return previous.promise;
+  const promise=signedTeacherPhotoV116(path).catch(()=>null);
+  photoUrlCache.set(path,{when:Date.now(),promise});return promise;
+ };
   let favorites=new Set(),visibleCount=12,draftReady=false,draftDirty=false;
   let draftTimer=null,draftChain=Promise.resolve(),draftRevision=0;
   let savedDraftPresent=false,cloneFlyerUrl='',publishing=false;
@@ -560,7 +567,7 @@ export function bindTeacherPortalPage(){
      schoolLevel:schoolLevelV209(o)});
     const profile=publicTeacherProfiles.get(o.teacher_id)||null;
     card.append(teacherIdentityCardV230(o,profile,
-     (offer,person)=>showTeacherProfileV230(root,offer,person,signedTeacherPhotoV116)));
+     (offer,person)=>showTeacherProfileV230(root,offer,person,publicPhotoUrl),publicPhotoUrl));
     const tools=quickTools({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone},'offer',o.id);
     if(GCC_MODES_V150[d.mode])
      tools.append(element('span','gcs230-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
