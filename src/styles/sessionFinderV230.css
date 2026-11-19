@@ -252,3 +252,10 @@
 .gct-portal #gctp-results .gcs230-footer:has(>.gcs209-details[open])>.gcs230-request[open]{
  grid-row:auto
 }
+
+.gct-portal #gctp-results .gcs230-avatar img{
+ display:block;width:100%;height:100%;object-fit:cover;border-radius:50%
+}
+.gct-portal #gctp-results .gcs230-card:has(.gcs214-calendar-menu[open]){
+ z-index:12
+}
