@@ -5,12 +5,19 @@ const node=(tag,cls='',value='')=>{
  const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=String(value||'');return n;
 };
 const initials=name=>String(name||'?').trim().split(/\s+/).slice(0,2).map(s=>s[0]||'').join('').toUpperCase()||'?';
-export function teacherIdentityCardV230(offer,profile,onOpen){
+export function teacherIdentityCardV230(offer,profile,onOpen,getSignedPhoto){
  const group=node('div','gcs230-identity');
  const school=node('div','gcs230-school');
  school.append(node('span','gcs230-school-icon','⌂'),node('strong','gcs230-school-name',offer.school_name||'School name unavailable'));
  const teacher=node('div','gcs230-teacher');
  const avatar=node('span','gcs230-avatar',initials(offer.teacher_name));avatar.setAttribute('aria-hidden','true');
+ if(profile?.photo_path&&getSignedPhoto){
+  getSignedPhoto(profile.photo_path).then(url=>{
+   if(!url||!avatar.isConnected)return;
+   const image=document.createElement('img');image.src=url;image.alt='';image.loading='lazy';
+   avatar.replaceChildren(image);
+  }).catch(()=>{/* Keep teacher initials. */});
+ }
  const person=node('div','gcs230-person');
  person.append(node('strong','gcs230-person-name',offer.teacher_name||'Host teacher'));
  const link=node('button','gcs230-profile-link','View teacher profile →');
@@ -27,6 +34,7 @@ export function showTeacherProfileV230(root,offer,profile,getSignedPhoto){
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
   root.append(dialog);
  }
+ dialog.dataset.profileTeacher=String(offer.teacher_id||offer.teacher_name||'');
  dialog.replaceChildren();
  const top=node('div','gcs230-profile-head');
  const heading=node('h2','',profile?.name||offer.teacher_name||'Host teacher');
@@ -69,7 +77,7 @@ export function showTeacherProfileV230(root,offer,profile,getSignedPhoto){
  dialog.showModal();
  if(profile.photo_path&&getSignedPhoto){
   getSignedPhoto(profile.photo_path).then(url=>{
-   if(!url||!dialog.open)return;
+   if(!url||!dialog.open||dialog.dataset.profileTeacher!==String(offer.teacher_id||offer.teacher_name||''))return;
    const image=document.createElement('img');image.src=url;image.alt='';image.loading='lazy';
    avatar.replaceChildren(image);
   }).catch(()=>{/* Keep initials if photo cannot be loaded. */});
