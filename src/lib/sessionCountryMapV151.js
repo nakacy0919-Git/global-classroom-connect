@@ -1,4 +1,4 @@
-// GCC V15.1: accessible country map with live countries from approved open session offers.
+// GCC V22.6: show all future open offers, including the viewer's hosted sessions.
 // Never use country pins that cannot be backed by an actual published session.
 const svgNS='http://www.w3.org/2000/svg';
 const svgEl=(name,attrs={})=>{
@@ -31,7 +31,7 @@ export function worldPathV151(geometry){
 export function activeCountriesV151(offers,now=Date.now()){
  const counts=new Map();
  for(const offer of offers||[]){
-  if(offer?.is_mine||offer?.status!=='open'||Date.parse(offer?.ends_at)<=now)continue;
+  if(offer?.status!=='open'||Date.parse(offer?.ends_at)<=now)continue;
   const code=String(offer?.country_code||'').toUpperCase();
   if(!/^[A-Z]{2}$/.test(code))continue;
   const data=counts.get(code)||{code,name:String(offer?.country_name||code),count:0};
@@ -56,7 +56,7 @@ export function mountCountryExplorerV151(root,onPick){
   chips.replaceChildren();
   if(!countries.length){
    const msg=document.createElement('p');msg.className='gcs151-map-empty';
-   msg.textContent='No open sessions from other countries yet. Try searching by time or return later.';
+   msg.textContent='No open sessions yet. Try searching by time or return later.';
    chips.append(msg);return;
   }
   const all=document.createElement('button');all.type='button';all.className='gcs151-country-chip';
@@ -109,7 +109,7 @@ export function mountCountryExplorerV151(root,onPick){
    selected=country||'';
    status.textContent=countries.length?
     `${countries.length} ${countries.length===1?'country':'countries'} with available sessions · select a country pin`:
-    'No currently available sessions from other schools';
+    'No currently available sessions';
    paintList();
    if(geo&&master)paintMap();
   },
