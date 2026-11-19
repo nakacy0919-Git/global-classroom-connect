@@ -8,7 +8,7 @@ const el=(tag,cls='',txt='')=>{const n=document.createElement(tag);if(cls)n.clas
 const schoolFields=[['name','School name'],['school_type','School type'],['school_level','School level'],['city','City'],['region','Region'],['website_url','School website (HTTPS)']];
 export function teacherProfileMarkupV153(){
  return `<div class="gcc153-page">
-  <header class="gcc153-hero"><div><span>YOUR GLOBAL CLASSROOM IDENTITY</span><h2>My Teacher Profile</h2><p>Keep your information up to date and show the world who you are.</p></div><a href="#/teacher-portal?view=network" class="gcc153-network-link">Explore Teacher Network →</a></header>
+  <header class="gcc153-hero"><div><span>YOUR GLOBAL CLASSROOM IDENTITY</span><h2>My Teacher Profile</h2><p>Choose what approved GCC teachers can see. Approval alone does not publish your photo.</p></div><a href="#/teacher-portal?view=network" class="gcc153-network-link">Explore Teacher Network →</a></header>
   <div class="gcc153-layout">
    <form id="gcc153-editor" class="gct-panel gcc153-editor" novalidate>
     <div class="gcc153-heading"><span class="gcc153-heading-icon">📸</span><div><h3>Your photo</h3><p>Show a friendly face to other GCC teachers.</p></div></div>
@@ -30,7 +30,8 @@ export function teacherProfileMarkupV153(){
      <label>Facebook<input id="gcc153-facebook" type="url" maxlength="240" placeholder="https://facebook.com/..."></label>
      <label>Other social media<input id="gcc153-other" type="url" maxlength="240" placeholder="https://..."></label>
     </div>
-    <label class="gcc153-consent"><input id="gcc153-visible" type="checkbox"><span>Show my name, school, photo, introduction and links in the <strong>approved GCC teacher directory</strong>. You can switch this off at any time.</span></label>
+    <label class="gcc153-consent"><input id="gcc153-visible" type="checkbox"><span>Share my name, school, photo, introduction and links with <strong>approved GCC teachers</strong>. Account approval does not automatically publish these details. You can turn sharing off at any time.</span></label>
+    <p id="gcc153-visibility-status" role="status" aria-live="polite" class="gcc153-status"></p>
     <div class="gcc153-savebar"><button type="submit" id="gcc153-save" class="gct-primary">Save my profile ✓</button></div>
     <p id="gcc153-message" role="status" aria-live="polite" class="gcc153-status"></p>
    </form>
@@ -54,8 +55,27 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
  if(!$('gcc153-editor'))return;
  const notify=(message,error=false)=>{const e=$('gcc153-message');e.textContent=message;e.classList.toggle('error',error);};
  const schoolNotify=(message,error=false)=>{const e=$('gcc153-school-status');e.textContent=message;e.classList.toggle('error',error);};
- let profile=null,schoolSnapshot=null;
+ let profile=null,schoolSnapshot=null,savedVisibility=false;
  const avatar=$('gcc153-avatar');
+ const updateVisibilityStatus=()=>{
+  const enabled=$('gcc153-visible').checked;
+  const hasPhoto=Boolean(profile?.photo_path);
+  const status=$('gcc153-visibility-status');
+  if(enabled!==savedVisibility){
+   status.textContent=enabled
+    ? 'Not published yet. Select “Save my profile” to share your profile and uploaded photo with approved GCC teachers.'
+    : 'Not hidden yet. Select “Save my profile” to stop sharing your profile and photo.';
+  }else if(enabled){
+   status.textContent=hasPhoto
+    ? 'Visible to approved GCC teachers. Your uploaded photo can appear on session cards and in the teacher directory.'
+    : 'Visible to approved GCC teachers. Upload a photo above to show it on your sessions.';
+  }else{
+   status.textContent=hasPhoto
+    ? 'Photo saved privately. Other teachers cannot see it until you enable profile sharing and save.'
+    : 'Your profile is not shared. Uploading a photo does not make it public.';
+  }
+  status.dataset.state=enabled?'shared':'private';
+ };
  const photoPreview=async(path)=>{
   avatar.replaceChildren();
   if(!path){avatar.textContent='Your photo';return;}
@@ -78,6 +98,8 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   $('gcc153-languages').value=(profile.languages||[]).join(', ');
   $('gcc153-bio').value=profile.bio||'';
   $('gcc153-visible').checked=Boolean(profile.directory_visible);
+  savedVisibility=Boolean(profile.directory_visible);
+  updateVisibilityStatus();
   for(const [id,key] of [['website','website_url'],['instagram','instagram_url'],['facebook','facebook_url'],['other','other_social_url']])
    $('gcc153-'+id).value=social?.[key]||'';
   $('gcc153-bio-count').textContent=Array.from($('gcc153-bio').value).length.toLocaleString('en-US')+' / 3,000';
@@ -91,6 +113,7 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   else if(request?.status==='approved')schoolNotify('Your previous school correction was approved.');
   else if(request?.status==='rejected')schoolNotify('Your previous school correction was declined. Contact the GCC host if needed.');
  }catch(e){notify(e.message||'Could not load your profile.',true);return;}
+ $('gcc153-visible').addEventListener('change',updateVisibilityStatus);
  $('gcc153-bio').addEventListener('input',()=>{
   $('gcc153-bio-count').textContent=Array.from($('gcc153-bio').value).length.toLocaleString('en-US')+' / 3,000';
  });
@@ -105,6 +128,7 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   button.disabled=true;notify('Saving your profile…');
   try{
    profile=await saveTeacherProfileV116({name,jobTitle:$('gcc153-title').value.trim(),bio:$('gcc153-bio').value.trim(),languages,visible:$('gcc153-visible').checked});
+   savedVisibility=Boolean(profile.directory_visible);updateVisibilityStatus();
    await saveSocialV117(links);
    onNameSaved(profile);
    notify('✓ Your teacher profile and links have been saved.');
@@ -117,7 +141,7 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   input.disabled=true;$('gcc153-remove-photo').disabled=true;notify('Optimizing and uploading your new photo…');
   try{
    const result=await uploadMyTeacherPhotoV116(profile.id,file);
-   profile.photo_path=result.path;await photoPreview(result.path);
+   profile.photo_path=result.path;await photoPreview(result.path);updateVisibilityStatus();
    $('gcc153-remove-photo').hidden=false;
    notify('✓ Your new photo is saved ('+Math.round(result.bytes/1024)+' KB).');
    // Only remove an earlier image after a successful save.
@@ -131,7 +155,7 @@ export async function mountTeacherProfileV153(root,onNameSaved=()=>{}){
   if(!profile.photo_path||!confirm('Remove your profile photo?'))return;
   const button=$('gcc153-remove-photo');button.disabled=true;notify('Removing photo…');
   try{
-   const path=await rpc('gcc_v153_clear_my_photo');profile.photo_path=null;
+   const path=await rpc('gcc_v153_clear_my_photo');profile.photo_path=null;updateVisibilityStatus();
    await photoPreview(null);button.hidden=true;
    if(path){try{await supabase.storage.from('teacher-photos').remove([path]);}catch{/* Photo is already hidden from the profile. */}}
    notify('✓ Profile photo removed.');
