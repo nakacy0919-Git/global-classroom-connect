@@ -1,5 +1,6 @@
 import '../../styles/sessionDialogV167.css';
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
+import {mountHostSessionDirectoryV233} from '../../components/HostSessionDirectoryV233.js';
 import '../../styles/simpleSessionsV8.css';
 import '../../styles/hostBentoV130.css';
 import '../../styles/registrationRemovalV221.css';
@@ -72,7 +73,8 @@ export function SimpleSessionsPage(){return `
       <div class="gcc-v8-actions"><button type="button" id="gcc-v8-cancel-new" class="gcc-v8-secondary">Cancel</button><button type="submit" class="gcc-v8-primary">Create session →</button></div>
     </form>
   </div>
-  <div class="gcc-v166-host-wrap" id="gcc-v166-host-calendar"></div>
+  <div id="gcc-v233-directory"></div>
+  <details class="gcc-v233-calendar-toggle"><summary>Calendar view · Show sessions by date</summary><div class="gcc-v166-host-wrap" id="gcc-v166-host-calendar"></div></details>
   <div id="gcc-v167-workspace" class="gcc-v167-workspace" hidden>
   <section class="gcc-v8-current"><label>YOUR SESSION <select id="gcc-v8-host-select"><option value="">Loading…</option></select></label><div id="gcc-v8-current-title"></div></section>
   <section class="gcc-v8-focus" id="gcc-v8-focus">
@@ -109,6 +111,7 @@ export function bindSimpleSessionsPage(){
  const root=document.querySelector('.gcc-v8-host');if(!root)return;
  let events=[],settings=[],signups=[],edit=null;
  let calendarV166=null;
+ let directoryV233=null;
  let dialogV167=null;
  let shareToken='',shareEvent='';
  let deletingSessionV105=null;
@@ -497,7 +500,7 @@ export function bindSimpleSessionsPage(){
  }
  async function reload(resetStage){try{const [e,s,c]=await Promise.all([getEvents(),listSessionSignups(),getSessionSettings()]);events=e||[];settings=c||[];signups=s||[];
    if(!events.some(x=>x.id===activeEventId))activeEventId=events.find(x=>x.status==='published')?.id||events[0]?.id||'';
-   if(resetStage)activeStage=0;updateCalendarV166();paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);
+   if(resetStage)activeStage=0;updateCalendarV166();directoryV233?.refresh();paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);
  }catch(err){notify('Could not load sessions: '+err.message,true);}}
  async function removeRegistration(s,student=null){
    const schoolOnly=!student;
@@ -610,5 +613,14 @@ export function bindSimpleSessionsPage(){
  $('gcc-v8-host-select').addEventListener('change',event=>{activeEventId=event.target.value;shareToken='';shareEvent='';activeStage=0;paint();const chosen=current();if(chosen)openCalendarSessionV166(chosen);notify('');});
  $('gcc-v8-host-back').addEventListener('click',()=>{activeStage=Math.max(0,activeStage-1);paint();if(dialogV167?.open&&current())openWorkspaceV167(current(),activeStage);notify('');});
  $('gcc-v8-host-next').addEventListener('click',async()=>{const next=Math.min(3,activeStage+1);activeStage=next;if(dialogV167?.open&&current())openWorkspaceV167(current(),next);if(next===2){$('gcc-v8-host-next').disabled=true;try{await reload(false);}finally{$('gcc-v8-host-next').disabled=false;}}else paint();notify('');});
+ directoryV233=mountHostSessionDirectoryV233(root.querySelector('#gcc-v233-directory'),{
+   onSelectEvent:async id=>{
+     if(!events.some(e=>e.id===id))await reload(false);
+     const entry=events.find(e=>e.id===id);
+     if(entry)openWorkspaceV167(entry,0);
+     else notify('This session could not be loaded. Refresh and try again.',true);
+   },
+   onChange:()=>reload(false)
+ });
  reload(true);
 }
