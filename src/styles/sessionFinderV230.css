@@ -259,3 +259,14 @@
 .gct-portal #gctp-results .gcs230-card:has(.gcs214-calendar-menu[open]){
  z-index:12
 }
+
+
+/* Only the session owner sees this privacy hint. It never reveals a private photo. */
+.gct-portal #gctp-results .gcs230-own-photo-hint{
+ margin:3px 0 0;padding:8px 10px;border-radius:9px;
+ border:1px solid #d8e8e5;background:#f4faf8;
+ font-size:.78rem;line-height:1.5;color:#557078
+}
+.gct-portal #gctp-results .gcs230-photo-settings{
+ color:#08766e;font-weight:760;text-decoration:underline;text-underline-offset:2px
+}

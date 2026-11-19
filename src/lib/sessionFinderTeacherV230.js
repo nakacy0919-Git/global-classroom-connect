@@ -15,6 +15,7 @@ export function teacherIdentityCardV230(offer,profile,onOpen,getSignedPhoto){
   getSignedPhoto(profile.photo_path).then(url=>{
    if(!url||!avatar.isConnected)return;
    const image=document.createElement('img');image.src=url;image.alt='';image.loading='lazy';
+   image.addEventListener('error',()=>{avatar.textContent=initials(offer.teacher_name);},{once:true});
    avatar.replaceChildren(image);
   }).catch(()=>{/* Keep teacher initials. */});
  }
@@ -24,6 +25,12 @@ export function teacherIdentityCardV230(offer,profile,onOpen,getSignedPhoto){
  link.type='button';link.setAttribute('aria-label','View teacher profile for '+(offer.teacher_name||'host teacher'));
  link.addEventListener('click',()=>onOpen(offer,profile||null));
  person.append(link);teacher.append(avatar,person);group.append(school,teacher);
+ if(offer.is_mine&&!profile){
+  const hint=node('p','gcs230-own-photo-hint','Your public profile is not showing here. Check your sharing setting: ');
+  const settings=node('a','gcs230-photo-settings','Edit my teacher profile →');
+  settings.href='#/teacher-portal?view=profile';
+  hint.append(settings);group.append(hint);
+ }
  return group;
 }
 export function showTeacherProfileV230(root,offer,profile,getSignedPhoto){
@@ -79,6 +86,7 @@ export function showTeacherProfileV230(root,offer,profile,getSignedPhoto){
   getSignedPhoto(profile.photo_path).then(url=>{
    if(!url||!dialog.open||dialog.dataset.profileTeacher!==String(offer.teacher_id||offer.teacher_name||''))return;
    const image=document.createElement('img');image.src=url;image.alt='';image.loading='lazy';
+   image.addEventListener('error',()=>{avatar.textContent=initials(profile.name);},{once:true});
    avatar.replaceChildren(image);
   }).catch(()=>{/* Keep initials if photo cannot be loaded. */});
  }

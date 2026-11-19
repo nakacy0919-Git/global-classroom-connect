@@ -68,3 +68,29 @@ test('calm card styles remain scoped to teacher discovery and handle narrower sc
  assert.match(css,/\.gcs230-profile-dialog/);
  assert.match(css,/@media\(max-width:760px\)/);
 });
+
+test('only the owner gets a privacy-safe link to fix missing public photos',()=>{
+ const own=teacherIdentityCardV230({teacher_name:'Teacher One',school_name:'School One',is_mine:true},null,()=>{});
+ const hint=own.children.find(child=>child.className==='gcs230-own-photo-hint');
+ assert.ok(hint);
+ assert.match(flatten(hint),/public profile is not showing/);
+ assert.equal(hint.children[0].href,'#/teacher-portal?view=profile');
+ const other=teacherIdentityCardV230({teacher_name:'Teacher Two',school_name:'School Two',is_mine:false},null,()=>{});
+ assert.equal(other.children.find(child=>child.className==='gcs230-own-photo-hint'),undefined);
+});
+test('profile sharing is explicit and never inferred from account approval',()=>{
+ const src=readFileSync(new URL('../src/pages/teacher/TeacherProfileV153.js',import.meta.url),'utf8');
+ assert.match(src,/Approval alone does not publish your photo/);
+ assert.match(src,/id="gcc153-visibility-status"/);
+ assert.match(src,/Not published yet/);
+ assert.match(src,/Not hidden yet/);
+ assert.match(src,/Photo saved privately/);
+ assert.match(src,/savedVisibility=Boolean\(profile.directory_visible\)/);
+ assert.match(src,/updateVisibilityStatus\(\)/);
+});
+test('broken profile photo links fall back to initials without exposing private files',()=>{
+ const src=readFileSync(new URL('../src/lib/sessionFinderTeacherV230.js',import.meta.url),'utf8');
+ assert.match(src,/addEventListener\('error',\(\)=>\{avatar.textContent=initials\(offer.teacher_name\)/);
+ assert.match(src,/addEventListener\('error',\(\)=>\{avatar.textContent=initials\(profile.name\)/);
+ assert.doesNotMatch(src,/directory_visible\s*=\s*true/);
+});
