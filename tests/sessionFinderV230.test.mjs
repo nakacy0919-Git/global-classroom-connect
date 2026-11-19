@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {teacherIdentityCardV230,showTeacherProfileV230} from '../src/lib/sessionFinderTeacherV230.js';
 
 class FakeNode {
- constructor(tag){this.tag=tag;this.children=[];this.attrs={};this.listeners={};this.textContent='';this.open=false;}
+ constructor(tag){this.tag=tag;this.children=[];this.attrs={};this.listeners={};this.textContent='';this.open=false;this.dataset={};}
  append(...nodes){this.children.push(...nodes);}
  replaceChildren(...nodes){this.children=[...nodes];this.textContent='';}
  setAttribute(key,value){this.attrs[key]=value;}
