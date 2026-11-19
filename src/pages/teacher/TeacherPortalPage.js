@@ -111,8 +111,8 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-section gcs151-find" data-gct-view="find" hidden>
   <header class="gcs151-find-hero">
    <div><span class="gcs151-kicker">DISCOVER GLOBAL CLASSROOMS</span>
-   <h3>Where will your classroom connect next?</h3>
-   <p>Find a partner by your available time or explore countries offering sessions.</p>
+   <h3>Find a Session</h3>
+   <p>Discover and join international classroom exchanges with teachers around the world.</p>
    <span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
    <div class="gcs151-hero-world" aria-hidden="true"><span>✦</span><span>🌏</span><span>✦</span></div>
   </header>
@@ -605,10 +605,10 @@ export function bindTeacherPortalPage(){
      const ages=element('div','gcs230-age-fields');
      const youngLabel=element('label','','Youngest age *');
      const ageMin=element('input');ageMin.type='number';ageMin.min='3';ageMin.max='99';ageMin.required=true;
-     ageMin.setAttribute('aria-label','Youngest student age');youngLabel.append(ageMin);
+     ageMin.setAttribute('aria-label','Youngest participating student age');youngLabel.append(ageMin);
      const oldLabel=element('label','','Oldest age *');
      const ageMax=element('input');ageMax.type='number';ageMax.min='3';ageMax.max='99';ageMax.required=true;
-     ageMax.setAttribute('aria-label','Oldest student age');oldLabel.append(ageMax);
+     ageMax.setAttribute('aria-label','Oldest participating student age');oldLabel.append(ageMax);
      ages.append(youngLabel,oldLabel);
      const messageLabel=element('label','','Message to the host teacher (optional)');
      const message=element('textarea');message.rows=3;message.maxLength=500;
@@ -659,7 +659,7 @@ export function bindTeacherPortalPage(){
     const body=element('div','gcc203-result-body');
     renderSessionDetailsV203(body,e.session_details);info.append(body);footer.append(info);
     // Keep host-managed student registration separate from teacher-to-teacher join requests.
-    const register=element('a','gct-primary gcs208-register gcs209-register','Register Students →');
+    const register=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students →');
     register.href='#/session-register?session='+encodeURIComponent(e.id);
     footer.append(register);card.append(footer);list.append(card);
    }
