@@ -4,6 +4,7 @@ import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetwork
 import {teacherProfileMarkupV153,mountTeacherProfileV153} from './TeacherProfileV153.js';
 import {myTeacherProfileV116,teacherDirectoryV116,signedTeacherPhotoV116} from '../../services/teacherNetworkV116.js';
 import {teacherIdentityCardV230,showTeacherProfileV230} from '../../lib/sessionFinderTeacherV230.js';
+import {loadTeacherWorkspaceSnapshotV230} from '../../lib/teacherWorkspaceRefreshV230.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
 import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
@@ -171,7 +172,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
   <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
- <p class="gct-hint">Requests and approvals appear in GCC notifications. Coordinate with an approved partner through a mutually agreed external service such as WhatsApp, LINE, or Messenger. GCC does not store chat messages. Automated email is not yet enabled.</p></div>
+ <p class="gct-hint">Requests and decisions appear in GCC notifications. Verified host teachers may also receive an email alert if delivery succeeds, but email is not a substitute for checking Join requests. After approval, arrange details using your privately shared contact method. GCC does not store chat messages.</p></div>
  <section class="gct-section" data-gct-view="profile" hidden>${teacherProfileMarkupV153()}</section>
  <section class="gct-section" data-gct-view="network" hidden>
   <div class="gcc153-directory-head"><div><h3>Teacher Network</h3><p>Meet verified educators from around the world.</p></div><a class="gct-secondary" href="#/teacher-portal?view=profile">✎ Edit my profile</a></div>
@@ -350,19 +351,25 @@ export function bindTeacherPortalPage(){
  $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
-  const [mine,applications,publicEvents,inbox,directory]=await Promise.all([
-    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications(),
-    publicProfilesLoaded?Promise.resolve(null):teacherDirectoryV116().catch(()=>null)
+  // Session listing is essential. Optional panel failures must not hide sessions.
+  const [snapshot,directory]=await Promise.all([
+   loadTeacherWorkspaceSnapshotV230({
+    sessions:teacherSessions,requests:teacherRequests,
+    publicEvents:listPublicSessionOverviews,notifications:teacherNotifications
+   },{offers,requests,hostEvents,notifications}),
+   publicProfilesLoaded?Promise.resolve(null):teacherDirectoryV116().catch(()=>null)
   ]);
   if(Array.isArray(directory)){
    publicTeacherProfiles=new Map(directory.map(p=>[p.id,p]));publicProfilesLoaded=true;
   }
-  hostEvents=Array.isArray(publicEvents)?publicEvents:[];
-  offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
-  notifications=Array.isArray(inbox)?inbox:[];
+  ({offers,requests,hostEvents,notifications}=snapshot);
   renderMine();renderHome();renderNotifications();updateFindCountries();
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
   renderResults();renderRequests();
+  if(snapshot.warnings.length)
+   inform('Sessions loaded. Some information could not refresh ('+
+    snapshot.warnings.join(', ')+'). Previous data is retained. Please refresh later.',true);
+  return snapshot;
  }
  function renderNotifications(){
   const unread=notifications.filter(x=>!x.read_at).length;
@@ -637,9 +644,14 @@ export function bindTeacherPortalPage(){
       }
       submit.disabled=true;prepareSuccessChime();
       try{
-       await teacherApply(o.id,message.value.trim(),number,minAge,maxAge);await refresh();
-       inform('Request sent! The host received an in-app notification.');
-       showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
+       await teacherApply(o.id,message.value.trim(),number,minAge,maxAge);
+       // A successful RPC must never be treated as failed because refresh is unavailable.
+       let refreshed=true;
+       try{await refresh();}catch{refreshed=false;}
+       inform(refreshed
+        ?'Request submitted! The host can review it in GCC Join requests.'
+        :'Request submitted, but this screen could not refresh. Check your Join requests later; do not send it twice.',!refreshed);
+       showSuccessCelebration({title:'Request submitted!',detail:'The host can now review your request in GCC.'});
       }catch(e){error.textContent=e.message||'Could not send the request.';submit.disabled=false;}
      });
      fields.append(countLabel,ages,messageLabel,error,submit);
@@ -724,8 +736,14 @@ export function bindTeacherPortalPage(){
         'Decline the request? The teacher will be notified inside GCC.'))return;
        btn.disabled=true;
        try{
-        await teacherReview(r.id,decision);await refresh();
-        inform(decision==='approved'?'Seats reserved and teacher notified inside GCC.':'Request declined; teacher notified inside GCC.');
+        await teacherReview(r.id,decision);
+        let refreshed=true;
+        try{await refresh();}catch{refreshed=false;}
+        inform(!refreshed
+         ?'Decision saved, but this screen could not refresh. Please reload Join requests later.'
+         :decision==='approved'
+          ?'Seats reserved and teacher notified inside GCC.'
+          :'Request declined; teacher notified inside GCC.',!refreshed);
        }catch(e){inform(e.message,true);btn.disabled=false;}
       });actions.append(btn);
      }
