@@ -2,7 +2,8 @@ import '../../styles/teacherSelfService.css';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
 import {teacherProfileMarkupV153,mountTeacherProfileV153} from './TeacherProfileV153.js';
-import {myTeacherProfileV116} from '../../services/teacherNetworkV116.js';
+import {myTeacherProfileV116,teacherDirectoryV116,signedTeacherPhotoV116} from '../../services/teacherNetworkV116.js';
+import {teacherIdentityCardV230,showTeacherProfileV230} from '../../lib/sessionFinderTeacherV230.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
 import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
@@ -35,6 +36,7 @@ import {GCC_LEVELS_V150,GCC_SDG_V150,GCC_MODES_V150,detailsV150,sessionTitleV150
 import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
+import '../../styles/sessionFinderV230.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
 
@@ -114,7 +116,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
    <div class="gcs151-hero-world" aria-hidden="true"><span>✦</span><span>🌏</span><span>✦</span></div>
   </header>
-  <div class="gcs209-search-tools"><button id="gctp-open-search" type="button" class="gcs209-open-search">🔎 Search options</button><span id="gctp-search-summary" role="status">Showing all upcoming sessions</span></div>
+  <div class="gcs209-search-tools"><label class="gcs230-quicksearch"><span aria-hidden="true">⌕</span><input id="gcs230-quicksearch" type="search" aria-label="Search sessions" placeholder="Search sessions, school or country"></label><button id="gctp-open-search" type="button" class="gcs209-open-search">Filter options</button><span id="gctp-search-summary" role="status">Showing all upcoming sessions</span></div>
   <dialog id="gctp-search-choice" class="gcs209-search-dialog gcs209-search-choice" aria-labelledby="gctp-search-choice-title">
    <h3 id="gctp-search-choice-title">How would you like to find a session?</h3><p>Choose a method, then set your preferences.</p>
    <div class="gcs151-discover-modes" role="group" aria-label="Choose how to find a session">
@@ -181,6 +183,7 @@ export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
  let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
+ let publicTeacherProfiles=new Map();
   let favorites=new Set(),visibleCount=12,draftReady=false,draftDirty=false;
   let draftTimer=null,draftChain=Promise.resolve(),draftRevision=0;
   let savedDraftPresent=false,cloneFlyerUrl='',publishing=false;
@@ -340,9 +343,11 @@ export function bindTeacherPortalPage(){
  $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
-  const [mine,applications,publicEvents,inbox]=await Promise.all([
-    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications()
+  const [mine,applications,publicEvents,inbox,directory]=await Promise.all([
+    teacherSessions(),teacherRequests(),listPublicSessionOverviews(),teacherNotifications(),
+    teacherDirectoryV116().catch(()=>[])
   ]);
+  publicTeacherProfiles=new Map((Array.isArray(directory)?directory:[]).map(p=>[p.id,p]));
   hostEvents=Array.isArray(publicEvents)?publicEvents:[];
   offers=Array.isArray(mine)?mine:[];requests=Array.isArray(applications)?applications:[];
   notifications=Array.isArray(inbox)?inbox:[];
@@ -520,48 +525,55 @@ export function bindTeacherPortalPage(){
  function renderResults(){
   if(!identity)return;
   const list=$('gctp-results');list.replaceChildren();
+  if($('gcs230-quicksearch')&&$('gcs230-quicksearch').value!==$('gctp-find-topic').value)
+   $('gcs230-quicksearch').value=$('gctp-find-topic').value;
   const records=sessionSearchRecordsV213(upcoming(),hostEvents);
   const filtered=filterSessionRecordsV213(records,currentSearchFilters(),identity);
   const page=sessionResultsPageV213(filtered,visibleCount);
   $('gctp-search-count').textContent=page.total+' sessions · '+page.items.length+' shown';
-  const more=$('gcs213-show-more');
-  more.hidden=!page.hasMore;
+  const more=$('gcs213-show-more');more.hidden=!page.hasMore;
   more.textContent='Show '+Math.min(12,page.remaining)+' more sessions ↓ ('+page.remaining+' remaining)';
   if(!page.total){
    const empty=element('div','gcv216-empty');
-   empty.append(element('p','',
-    'No sessions match your search. Try another date, time, or country to find a partner.'));
+   empty.append(element('p','','No sessions match your search. Try another date, time, or country to find a partner.'));
    const actions=element('div','gcv216-empty-actions');
    const reset=element('button','','Clear search filters');reset.type='button';
    reset.addEventListener('click',()=>$('gctp-reset-filters').click());
-   actions.append(reset);empty.append(actions);list.append(empty);
-   return;
+   actions.append(reset);empty.append(actions);list.append(empty);return;
   }
   const previously=new Map(requests.filter(r=>r.direction==='outgoing').map(r=>[r.offer_id,r]));
+  const quickTools=(record,source,id)=>{
+   const tools=element('div','gcs230-quick-tools');
+   tools.append(calendarMenuV214(record),favoriteControl(source,id));
+   return tools;
+  };
   for(const item of page.items){
    if(item.source==='offer'){
     const o=item.item,d=detailsV150(o);
-    const card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card');
+    const card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card gcs230-card');
     card.dataset.startsAt=o.starts_at;
     if(o.is_mine)card.append(element('span','gcs226-own-badge','👤 Your Session'));
     appendVisualBasicsV209(document,card,{title:sessionTitleV150(o),start:o.starts_at,end:o.ends_at,
      zone:identity.timezone,host:{code:o.country_code,name:o.country_name,flag:flag(o.country_code)},
      schoolLevel:schoolLevelV209(o)});
-    card.append(element('p','gcs209-subline',o.school_name+' · '+o.teacher_name));
-    card.append(favoriteControl('offer',o.id));
-    card.append(calendarMenuV214({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone}));
+    const profile=publicTeacherProfiles.get(o.teacher_id)||null;
+    card.append(teacherIdentityCardV230(o,profile,
+     (offer,person)=>showTeacherProfileV230(root,offer,person,signedTeacherPhotoV116)));
+    const tools=quickTools({...o,title:sessionTitleV150(o),viewer_zone:identity.timezone},'offer',o.id);
     if(GCC_MODES_V150[d.mode])
-     card.append(element('span','gcs209-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
+     tools.append(element('span','gcs230-format',GCC_MODES_V150[d.mode].icon+' '+GCC_MODES_V150[d.mode].name));
+    card.append(tools);
     if(o.timezone&&o.timezone!==identity.timezone)
      card.append(element('small','gcs209-host-time','Host local time: '+
        timeRangeV112(o.starts_at,o.ends_at,o.timezone)));
     card.append(element('small','gcs209-capacity','👥 '+o.student_count+
-      ' host-school students · '+(availableSeatsV212(o)===null?'Capacity not set':
-      availableSeatsV212(o)+' seats remaining')));
+     ' host-school students · '+(availableSeatsV212(o)===null?'Capacity not set':
+     availableSeatsV212(o)+' seats remaining')));
+    const footer=element('div','gcs230-footer');
     const full=element('details','gcs208-compact-details gcs209-details');
-    full.append(element('summary','','🔎 View details'));
+    full.append(element('summary','','View details →'));
     const body=element('div','gcc203-result-body');
-    renderSessionDetailsV203(body,d);full.append(body);card.append(full);
+    renderSessionDetailsV203(body,d);full.append(body);footer.append(full);
     const previous=previously.get(o.id);
     if(o.is_mine){
      const edit=element('button','gcs209-register','✎ Manage my session');edit.type='button';
@@ -569,74 +581,85 @@ export function bindTeacherPortalPage(){
       edit.disabled=true;try{await manager.open(o);}
       catch(e){inform(e.message||'Could not edit this session',true);}
       finally{edit.disabled=false;}
-     });card.append(edit,partnerPreviewV226(o));
+     });
+     footer.append(edit);
+     card.append(footer,partnerPreviewV226(o));
     }else if(previous){
-     card.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
+     footer.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
+     card.append(footer);
     }else if(!canRequestV212(o)){
-     card.append(element('span','gcs212-status gcs212-incomplete',
+     footer.append(element('span','gcs212-status gcs212-incomplete',
       availableSeatsV212(o)===0?'Fully booked':'Host must complete the capacity setting'));
+     card.append(footer);
     }else{
-     const detail=element('details','gct-request-form gcs209-join');
+     const detail=element('details','gct-request-form gcs230-request');
      detail.append(element('summary','','🤝 Request Join'));
-     const countLabel=element('label','gcs212-request-count','Students joining from your school *');
+     const fields=element('div','gcs230-request-inner');
+     const countLabel=element('label','','Number of students *');
      const count=element('input');count.type='number';count.min='1';
-     count.max=String(Math.min(500,availableSeatsV212(o)));count.value='1';
-     count.required=true;count.setAttribute('aria-label','Number of students joining your school');
-     countLabel.append(count);
-     const ages=element('div','gct-fields');
-     const youngLabel=element('label','','Youngest participating student age *');
+     count.max=String(Math.min(500,availableSeatsV212(o)));
+     count.value='1';count.required=true;
+     count.setAttribute('aria-label','Number of students joining from your school');countLabel.append(count);
+     const ages=element('div','gcs230-age-fields');
+     const youngLabel=element('label','','Youngest age *');
      const ageMin=element('input');ageMin.type='number';ageMin.min='3';ageMin.max='99';ageMin.required=true;
      ageMin.setAttribute('aria-label','Youngest student age');youngLabel.append(ageMin);
-     const oldLabel=element('label','','Oldest participating student age *');
+     const oldLabel=element('label','','Oldest age *');
      const ageMax=element('input');ageMax.type='number';ageMax.min='3';ageMax.max='99';ageMax.required=true;
      ageMax.setAttribute('aria-label','Oldest student age');oldLabel.append(ageMax);
      ages.append(youngLabel,oldLabel);
-     const message=element('textarea');message.rows=2;message.maxLength=500;
-     message.placeholder='Optional message to the host teacher';
-     message.setAttribute('aria-label','Message to the session host');
-     const submit=element('button','gct-primary gcs209-submit','Send join request →');submit.type='button';
+     const messageLabel=element('label','','Message to the host teacher (optional)');
+     const message=element('textarea');message.rows=3;message.maxLength=500;
+     message.placeholder='Introduce your class, learning goals, or a short message…';
+     message.setAttribute('aria-label','Message to the session host');messageLabel.append(message);
+     const error=element('p','gcs230-request-error');error.setAttribute('role','alert');error.setAttribute('aria-live','polite');
+     const submit=element('button','gct-primary gcs209-submit gcs230-submit','Send Join Request →');
+     submit.type='button';
      submit.addEventListener('click',async()=>{
+      error.textContent='';
       const number=Number(count.value);
       if(!count.checkValidity()||!Number.isInteger(number)){
-       count.focus();inform('Enter a student count within the available seats.',true);return;
+       error.textContent='Enter a student count within the available seats.';count.focus();return;
       }
       const minAge=Number(ageMin.value),maxAge=Number(ageMax.value);
       if(!ageMin.checkValidity()||!ageMax.checkValidity()||
        !Number.isInteger(minAge)||!Number.isInteger(maxAge)||minAge>maxAge){
-       ageMin.focus();inform('Enter valid student ages (youngest to oldest).',true);return;
+       error.textContent='Enter valid student ages, youngest to oldest.';ageMin.focus();return;
       }
       submit.disabled=true;prepareSuccessChime();
       try{
        await teacherApply(o.id,message.value.trim(),number,minAge,maxAge);await refresh();
        inform('Request sent! The host received an in-app notification.');
        showSuccessCelebration({title:'Request sent!',detail:'The host can now review your request.'});
-      }catch(e){inform(e.message||'Request failed.',true);submit.disabled=false;}
+      }catch(e){error.textContent=e.message||'Could not send the request.';submit.disabled=false;}
      });
-     detail.append(countLabel,ages,message,submit);card.append(detail);
+     fields.append(countLabel,ages,messageLabel,error,submit);
+     detail.append(fields);footer.append(detail);card.append(footer);
     }
     list.append(card);
    }else{
     const e=item.item;
-    const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card');
+    const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card gcs230-card');
     card.dataset.startsAt=e.starts_at;
     appendVisualBasicsV209(document,card,{title:e.title,start:e.starts_at,end:e.ends_at,
      zone:identity.timezone,host:hostCountryV208(e),schoolLevel:schoolLevelV209(e)});
-    card.append(favoriteControl('event',e.id));
-    card.append(calendarMenuV214({...e,viewer_zone:identity.timezone}));
+    card.append(element('p','gcs230-event-note','Global Classroom · Host-managed event'));
+    card.append(quickTools({...e,viewer_zone:identity.timezone},'event',e.id));
     if(e.timezone&&e.timezone!==identity.timezone)
      card.append(element('small','gcs209-host-time','Host local time: '+
        timeRangeV112(e.starts_at,e.ends_at,e.timezone)));
     if(totalCapacityV208(e))
      card.append(element('small','gcs209-capacity','👥 Up to '+
        totalCapacityV208(e)+' students (including host school)'));
+    const footer=element('div','gcs230-footer');
     const info=element('details','gcs208-compact-details gcs209-details');
-    info.append(element('summary','','🔎 View details'));
+    info.append(element('summary','','View details →'));
     const body=element('div','gcc203-result-body');
-    renderSessionDetailsV203(body,e.session_details);info.append(body);card.append(info);
-    // Published host-managed events retain the student-roster registration flow.
-    const register=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students');
+    renderSessionDetailsV203(body,e.session_details);info.append(body);footer.append(info);
+    // Keep host-managed student registration separate from teacher-to-teacher join requests.
+    const register=element('a','gct-primary gcs208-register gcs209-register','Register Students →');
     register.href='#/session-register?session='+encodeURIComponent(e.id);
-    card.append(register);list.append(card);
+    footer.append(register);card.append(footer);list.append(card);
    }
   }
  }
@@ -859,6 +882,10 @@ export function bindTeacherPortalPage(){
   button.addEventListener('click',()=>setDiscoverMode(button.dataset.gcs151Discovery));
  }
  $('gctp-open-search').addEventListener('click',()=>openSearchModal('gctp-search-choice'));
+ $('gcs230-quicksearch').addEventListener('input',()=>{
+  $('gctp-find-topic').value=$('gcs230-quicksearch').value;
+  visibleCount=12;renderResults();
+ });
  $('gctp-show-all').addEventListener('click',()=>{
   $('gctp-search-choice').close();discoverMode='time';visibleCount=12;
   $('gctp-reset-filters').click();
