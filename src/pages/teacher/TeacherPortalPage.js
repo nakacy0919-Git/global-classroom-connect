@@ -580,7 +580,7 @@ export function bindTeacherPortalPage(){
      availableSeatsV212(o)+' seats remaining')));
     const footer=element('div','gcs230-footer');
     const full=element('details','gcs208-compact-details gcs209-details');
-    full.append(element('summary','','View details →'));
+    full.append(element('summary','','🔎 View details →'));
     const body=element('div','gcc203-result-body');
     renderSessionDetailsV203(body,d);full.append(body);footer.append(full);
     const previous=previously.get(o.id);
@@ -662,7 +662,7 @@ export function bindTeacherPortalPage(){
        totalCapacityV208(e)+' students (including host school)'));
     const footer=element('div','gcs230-footer');
     const info=element('details','gcs208-compact-details gcs209-details');
-    info.append(element('summary','','View details →'));
+    info.append(element('summary','','🔎 View details →'));
     const body=element('div','gcc203-result-body');
     renderSessionDetailsV203(body,e.session_details);info.append(body);footer.append(info);
     // Keep host-managed student registration separate from teacher-to-teacher join requests.
