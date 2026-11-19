@@ -64,7 +64,7 @@ test('capacity is guarded by a serialized host row and also by table triggers',(
  assert.match(sql,/requested_students integer NOT NULL DEFAULT 1/);
  assert.match(sql,/max_seats NOT BETWEEN p_student_count\+booked AND 2000/);
 });
-test('in-app notifications are teacher-scoped and private; external email is not claimed',()=>{
+test('in-app notifications are teacher-scoped and email delivery is never guaranteed',()=>{
  assert.match(sql,/CREATE TABLE IF NOT EXISTS public.gcc_teacher_notifications_v212/);
  assert.match(sql,/ALTER TABLE public.gcc_teacher_notifications_v212 ENABLE ROW LEVEL SECURITY/);
  assert.match(sql,/REVOKE ALL ON TABLE public.gcc_teacher_notifications_v212 FROM PUBLIC,anon,authenticated/);
@@ -75,7 +75,7 @@ test('in-app notifications are teacher-scoped and private; external email is not
  assert.match(sql,/reconfirmation_required=true/);
  assert.match(portal,/teacherNotifications\(\)/);
  assert.match(portal,/Mark read/);
- assert.match(portal,/Automated email is not yet enabled/);
+ assert.match(portal,/may also receive an email alert if delivery succeeds/);
  assert.doesNotMatch(sql,/http_post|resend\.com|smtp/);
 });
 test('legacy plan forms cannot silently save invented defaults',()=>{
