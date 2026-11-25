@@ -22,6 +22,14 @@ Join us | 参加登録
 My GCC Account | GCCアカウント
 Teacher Mode | 先生モード
 Teacher Login | 先生ログイン
+Earliest date & time | 開催日時が早い順
+Latest date & time | 開催日時が遅い順
+Earliest local time of day | 現地の開始時刻が早い順
+Region A–Z | 地域順
+Region | 地域
+All regions | すべての地域
+Americas | 南北アメリカ
+Oceania | オセアニア
 Admin Login | 管理者ログイン
 Admin Mode | 管理者モード
 Teacher access requires an approved profile. | 先生モードには承認済みプロフィールが必要です。
