@@ -13,6 +13,8 @@ export function compactSessionCardV246(info,onOpen){
  const foot=el('span','gcc246-card-foot');
  if(info.own)foot.append(el('span','gcc246-own','Your Session'));
  foot.append(el('span','gcc246-open-label','View details →'));
+ for(const label of [country,title,school,...when.children])label.title=label.textContent;
+ b.setAttribute('aria-label',[title.textContent,school.textContent,country.textContent,t.day,t.hours,info.own?'Your Session':'','View details'].filter(Boolean).join(' · '));
  b.append(country,title,school,when,foot);
  b.addEventListener('click',()=>onOpen(b));return b;
 }
