@@ -80,3 +80,27 @@ jobs:
           done
       - name: Check whitespace errors
         run: git diff --check
+
+  teacher-operations-postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: gcc_ci_only
+          POSTGRES_DB: gcc_ops_ci
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gcc_ops_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify teacher operation ownership and room lifecycle in PostgreSQL
+        run: |
+          set -euo pipefail
+          db="${{ job.services.postgres.id }}"
+          for file in tests/sql/gcc_v248_operations_fixture.sql sql/gcc_v248_teacher_session_operations.sql tests/sql/gcc_v248_operations_assertions.sql; do
+            docker exec -i "$db" psql -X -v ON_ERROR_STOP=1 -U postgres -d gcc_ops_ci < "$file"
+          done
