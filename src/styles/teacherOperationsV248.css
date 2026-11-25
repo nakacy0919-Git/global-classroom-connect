@@ -36,3 +36,5 @@
 .gcc248-roster details[open]>*:not(summary){margin-top:8px}
 @media(max-width:800px){.gcc249-school-grid{grid-template-columns:minmax(0,1fr)}.gcc249-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:480px){.gcc249-steps,.gcc249-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.gcc249-two,.gcc249-pair,.gcc249-header{grid-template-columns:minmax(0,1fr)}.gcc249-header button{justify-self:start}.gcc249-step{min-height:65px}}
+
+.gcc249-helper-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:6px;min-width:0}.gcc249-helper-row button{padding:4px!important}
