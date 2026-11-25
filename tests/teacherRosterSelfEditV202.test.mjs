@@ -59,5 +59,5 @@ test('mobile teacher UI offers add, update, remove, and refresh',()=>{
  assert.match(css,/\.gcc-v202-add-form/);
  assert.match(css,/@media\(max-width:560px\)/);
  assert.match(registration,/Already registered\? Need to add or correct students\?/);
- assert.match(registration,/Teacher Mode with your personal 4-digit code/);
+ assert.match(read('src/lib/rosterAdmissionV236.js'),/Teacher Mode with your personal 4-digit code/);
 });
