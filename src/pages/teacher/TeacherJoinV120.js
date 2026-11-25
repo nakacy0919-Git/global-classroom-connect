@@ -4,6 +4,8 @@ import '../../styles/teacherSignupRecoveryV135.css';
 import '../../styles/teacherSignupIdentityV139.css';
 import '../../styles/teacherSignupSimplifiedV140.css';
 import '../../styles/teacherBioLimitV141.css';
+import '../../styles/teacherReviewV250.css';
+import {validSchoolWebsiteV250} from '../../lib/teacherReviewV250.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
@@ -32,7 +34,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
    <div class="gcc140-auth-links"><a href="#/teacher-password">Forgot password?</a><button type="button" id="gcc135-resend" class="gcc135-link">Resend confirmation email</button></div>
   </div>
   <div id="gcc140-signup-pane" class="gcc140-auth-pane" role="tabpanel" aria-labelledby="gcc140-tab-signup" hidden>
-   <p class="gcc140-auth-note">Create an account, then confirm the link sent to your email.</p>
+   <p class="gcc140-auth-note">Create an account, then confirm the link sent to your email.</p><aside class="gcc250-notice"><strong>Teacher verification required</strong>A clear, recent individual photograph of your face and an official school website are required. Applications with a missing, unclear or unverifiable face photograph, missing school website or unverifiable teacher/school information will be rejected. Do not use logos, avatars or group photographs.</aside>
    <form id="gcc120-signup-form" class="gcc120-grid">
     <label>Email address <input type="email" id="gcc120-email" autocomplete="email" required></label>
     <label>Password (8 characters minimum) <input type="password" id="gcc120-password" autocomplete="new-password" minlength="8" required></label>
@@ -41,18 +43,18 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
   </div>
  </section>
  <section id="gcc120-profile-step" class="gcc120-panel gcc140-profile-panel" hidden><h2><span class="gcc120-step">2</span> Teacher &amp; school profile</h2>
-  <p class="gcc120-hint gcc140-short-hint">Fields marked * are required. Websites and region are optional.</p>
-  <form id="gcc120-application" class="gcc120-grid">
+  <p class="gcc120-hint gcc140-short-hint">Fields marked * are required. Personal website and region are optional.</p>
+  <aside class="gcc250-notice"><strong>Teacher verification required</strong>A clear, recent individual photograph of your face and an official school website are required. Applications with a missing, unclear or unverifiable face photograph, missing school website or unverifiable teacher/school information will be rejected. Do not use logos, avatars or group photographs.</aside><form id="gcc120-application" class="gcc120-grid">
   <h3 class="gcc120-span">About you</h3>
   <label>Full name *<input id="gcc120-name" autocomplete="name" minlength="2" maxlength="120" required></label>
   <label>Personal website (HTTPS, optional)<input id="gcc120-website" type="url" placeholder="https://... (optional)" maxlength="240"></label>
   <label class="gcc120-span">Short self-introduction (20–3000 characters) *
     <textarea id="gcc120-bio" rows="5" minlength="20" required aria-describedby="gcc141-bio-count" placeholder="Tell other teachers about your teaching and interests"></textarea>
     <small id="gcc141-bio-count" class="gcc141-bio-count" role="status" aria-live="polite">0 / 3000 characters</small></label>
-  <label class="gcc120-span">Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) *<input id="gcc120-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small>Resized privately in your browser (WebP or JPEG, maximum 512 pixels). Works even when WebP export is unavailable.</small></label>
+  <label class="gcc120-span">Clear face photograph (JPEG, PNG or WebP, 5 MB maximum) *<input id="gcc120-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small>Use a recent photo showing your face clearly. Logos, avatars and group photos will not be approved. Resized privately in your browser (WebP or JPEG, maximum 512 pixels).</small></label>
   <h3 class="gcc120-span">Your school</h3>
   <label>School / organization name *<input id="gcc120-school" minlength="2" maxlength="160" required></label>
-  <label>School website (HTTPS, optional)<input id="gcc120-school-web" type="url" placeholder="https://... (optional)" maxlength="240"></label>
+  <label>Official school website (HTTPS) *<input id="gcc120-school-web" type="url" placeholder="https://your-school..." maxlength="240" required><small>Provide the official website used to verify your school affiliation.</small></label>
   <label>School type *<select id="gcc120-type" required><option value="">Choose one</option><option>Public</option><option>Private</option><option>Independent / individual</option><option>Other</option></select></label>
   <label>School level *<select id="gcc120-level" required><option value="">Choose one</option><option>Elementary</option><option>Junior high</option><option>High school</option><option>University</option><option>Other</option></select></label>
   <label>Country *<select id="gcc120-country" required><option value="">Choose country</option></select></label>
@@ -98,7 +100,7 @@ export function bindTeacherJoinV120(){
   $('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
  }
  function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
-  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
+  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Your application could not be approved. Check the face photograph, official school website and teacher/school information. Contact Global Classroom for instructions on correcting your application; do not create a duplicate account.';}
  async function ready(){
   const serial=++readySequence,user=await currentUserV120();if(serial!==readySequence)return;
   draft=null;activeDraftUserId=null;displayActiveAccount(user);
@@ -136,6 +138,7 @@ export function bindTeacherJoinV120(){
   if(Array.from(bio.value.trim()).length>3000){bio.focus();return notify('Your introduction is over 3000 characters. Please shorten it before submitting.',true);}
   const file=$('gcc120-photo').files?.[0];if(!file)return notify('Please choose a clear photograph of your face.',true);
   const button=$('gcc120-submit');button.disabled=true;try{
+   if(!validSchoolWebsiteV250($('gcc120-school-web').value)){$('gcc120-school-web').focus();throw Error('Enter a valid official school website (https://...).');}
    for(const id of ['gcc120-website','gcc120-school-web']){const value=$(id).value.trim();if(!value)continue;
     try{const url=new URL(value);if(url.protocol!=='https:'||!url.hostname||url.username||url.password)throw Error('Invalid URL');}
     catch{throw Error('If provided, personal or school websites must be valid HTTPS URLs (https://...).');}
