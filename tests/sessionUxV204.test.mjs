@@ -41,7 +41,8 @@ test('create session has no redundant right-side upcoming panel but keeps sessio
  assert.match(portal,/Manage my hosted sessions/);
  assert.match(portal,/id="gctp-mine"/);
  assert.match(sidebar,/GCC Home/);assert.match(sidebar,/My Requests/);
- assert.doesNotMatch(sidebar,/const primary=[^;]*(?:Teacher Home|Find a Session|Host a Session)/);
+ assert.match(sidebar,/const primary=[^;]*Teacher Home[^;]*Host a Session[^;]*Find a Session[^;]*My Requests/);
+ assert.equal((portal.match(/id="gctp-mine"/g)||[]).length,1);
 });
 test('extended language switcher translates session labels but preserves entered values and can restore English',()=>{
  const i18n=read('src/lib/i18nV157.js'),header=read('src/components/Header.js');
