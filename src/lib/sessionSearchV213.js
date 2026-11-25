@@ -2,6 +2,7 @@
 // Unknown legacy metadata is never silently treated as a match for a specific filter.
 import {overlapsLocalTimeV150,partnerLevelsV150,detailsV150,sessionTitleV150} from './sessionStudioV150.js';
 import {timePartsV112} from './sessionTimeV112.js';
+import {regionForCountryV247} from './sessionRegionsV247.js';
 import {hostCountryV208} from './sessionDiscoveryV208.js';
 
 const text=v=>String(v??'').trim().toLocaleLowerCase();
@@ -36,7 +37,7 @@ export function sessionSearchRecordsV213(offers=[],events=[],now=Date.now()){
  return out;
 }
 export function filterSessionRecordsV213(records,filters={},identity={},now=Date.now()){
- const f={country:'',band:'',mode:'',kind:'',sdg:'',age:'',query:'',date:'',
+ const f={country:'',region:'',band:'',mode:'',kind:'',sdg:'',age:'',query:'',date:'',
   from:'',to:'',compatible:false,favoritesOnly:false,sort:'soonest',...filters};
  const favoriteKeys=filters.favoriteKeys instanceof Set?filters.favoriteKeys:new Set(asList(filters.favoriteKeys));
  const zone=identity?.timezone||'UTC',query=text(f.query);
@@ -44,6 +45,7 @@ export function filterSessionRecordsV213(records,filters={},identity={},now=Date
   if(Date.parse(r.end)<=now)return false;
   const d=r.details||{};
   if(f.country&&r.country_code!==f.country)return false;
+  if(f.region&&regionForCountryV247(r.country_code)!==f.region)return false;
   if(f.band&&!r.partner_levels.includes(f.band))return false;
   if(f.compatible&&identity.school_level&&!r.partner_levels.includes(identity.school_level)&&!r.partner_levels.includes('Mixed'))return false;
   if(f.mode&&d.mode!==f.mode)return false;
@@ -60,11 +62,17 @@ export function filterSessionRecordsV213(records,filters={},identity={},now=Date
   if(!overlapsLocalTimeV150({starts_at:r.start,ends_at:r.end},zone,f.from,f.to))return false;
   return true;
  });
+ const chron=(a,b)=>Date.parse(a.start)-Date.parse(b.start);
+ const localClock=r=>{try{return timePartsV112(r.start,zone).time;}catch{return '99:99';}};
+ const region=r=>regionForCountryV247(r.country_code)||'\uffff';
+ const country=(a,b)=>String(a.country_name||'\uffff').localeCompare(String(b.country_name||'\uffff'))||chron(a,b);
  const comparison={
   soonest:(a,b)=>Date.parse(a.start)-Date.parse(b.start),
   latest:(a,b)=>Date.parse(b.start)-Date.parse(a.start),
   seats:(a,b)=>(Number(b.available_seats??-1)-Number(a.available_seats??-1))||Date.parse(a.start)-Date.parse(b.start),
-  country:(a,b)=>String(a.country_name||'').localeCompare(String(b.country_name||''))||Date.parse(a.start)-Date.parse(b.start)
+  country,
+  region:(a,b)=>region(a).localeCompare(region(b))||country(a,b),
+  clock:(a,b)=>localClock(a).localeCompare(localClock(b))||chron(a,b)
  };
  selected.sort((a,b)=>(comparison[f.sort]||comparison.soonest)(a,b));
  return selected;
