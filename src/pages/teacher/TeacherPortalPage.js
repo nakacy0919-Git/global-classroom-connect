@@ -39,6 +39,8 @@ import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
 import '../../styles/sessionFinderV230.css';
+import '../../styles/sessionFinderCardsV246.css';
+import {compactSessionCardV246,sessionDetailsDialogV246} from '../../lib/sessionFinderCardsV246.js';
 import '../../styles/sessionPopupWizardV242.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
@@ -118,13 +120,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  </footer></form></dialog>
  </div></div>
  <div class="gct-section gcs151-find" data-gct-view="find" hidden>
-  <header class="gcs151-find-hero">
-   <div><span class="gcs151-kicker">DISCOVER GLOBAL CLASSROOMS</span>
-   <h3>Find a Session</h3>
-   <p>Discover and join international classroom exchanges with teachers around the world.</p>
-   <span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
-   <div class="gcs151-hero-world" aria-hidden="true"><span>✦</span><span>🌏</span><span>✦</span></div>
-  </header>
+  <div class="gcc246-find-context"><span id="gctp-find-zone-label" class="gcs150-zone-chip">Your school time zone</span></div>
   <div class="gcs209-search-tools"><label class="gcs230-quicksearch"><span aria-hidden="true">⌕</span><input id="gcs230-quicksearch" type="search" aria-label="Search sessions" placeholder="Search sessions, school or country"></label><button id="gctp-open-search" type="button" class="gcs209-open-search">Filter options</button><span id="gctp-search-summary" role="status">Showing all upcoming sessions</span></div>
   <dialog id="gctp-search-choice" class="gcs209-search-dialog gcs209-search-choice" aria-labelledby="gctp-search-choice-title">
    <h3 id="gctp-search-choice-title">How would you like to find a session?</h3><p>Choose a method, then set your preferences.</p>
@@ -192,6 +188,7 @@ export function bindTeacherPortalPage(){
  const root=document.querySelector('.gct-portal');if(!root)return;
  const $=id=>root.querySelector('#'+id),notice=$('gctp-message');
  let identity=null,offers=[],requests=[],hostEvents=[],notifications=[],formStep=0,discoverMode='time';
+ const sessionDetails=sessionDetailsDialogV246();
  let publicTeacherProfiles=new Map(),publicProfilesLoaded=false;
  const photoUrlCache=new Map();
  const publicPhotoUrl=path=>{
@@ -258,8 +255,11 @@ export function bindTeacherPortalPage(){
    try{
     await teacherSetFavoriteV213(source,id,!favorites.has(key));
     if(favorites.has(key))favorites.delete(key);else favorites.add(key);
-    renderResults();
-   }catch(e){inform('Could not update favorite: '+(e.message||'Please try again.'),true);button.disabled=false;}
+    const nowSaved=favorites.has(key);button.textContent=nowSaved?'★ Saved':'☆ Save';
+    button.classList.toggle('gcs213-favorite-active',nowSaved);
+    button.setAttribute('aria-pressed',String(nowSaved));button.setAttribute('aria-label',nowSaved?'Remove session from favorites':'Save session as favorite');button.disabled=false;
+    if($('gcs213-favorites-only').checked)renderResults();
+   }catch(e){const msg='Could not update favorite: '+(e.message||'Please try again.');inform(msg,true);if(sessionDetails.dialog.open)sessionDetails.status.textContent=msg;button.disabled=false;}
   });
   return button;
  }
@@ -278,7 +278,7 @@ export function bindTeacherPortalPage(){
   onError:()=>{}
  });
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
-   root.classList.toggle('gcs209-finding',id==='find');
+   root.classList.toggle('gcs209-finding',id==='find');if(id!=='find')sessionDetails.dismiss();
    root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');if(id==='create')wizard.open();else wizard.close();};
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
@@ -587,7 +587,7 @@ export function bindTeacherPortalPage(){
  }
  function renderResults(){
   if(!identity)return;
-  const list=$('gctp-results');list.replaceChildren();
+  const list=$('gctp-results');sessionDetails.dismiss();list.replaceChildren();
   if($('gcs230-quicksearch')&&$('gcs230-quicksearch').value!==$('gctp-find-topic').value)
    $('gcs230-quicksearch').value=$('gctp-find-topic').value;
   const records=sessionSearchRecordsV213(upcoming(),hostEvents);
@@ -610,7 +610,7 @@ export function bindTeacherPortalPage(){
    tools.append(calendarMenuV214(record),favoriteControl(source,id));
    return tools;
   };
-  for(const item of page.items){
+  const createFullCard=item=>{
    if(item.source==='offer'){
     const o=item.item,d=detailsV150(o);
     const card=element('article','gct-session-card gcs150-result gcs208-compact gcs209-session-card gcs230-card');
@@ -636,13 +636,13 @@ export function bindTeacherPortalPage(){
     const full=element('details','gcs208-compact-details gcs209-details');
     full.append(element('summary','','🔎 View details →'));
     const body=element('div','gcc203-result-body');
-    renderSessionDetailsV203(body,d);full.append(body);footer.append(full);
+    renderSessionDetailsV203(body,d);full.append(body);full.open=true;footer.append(full);
     const previous=previously.get(o.id);
     if(o.is_mine){
      const edit=element('button','gcs209-register','✎ Manage my session');edit.type='button';
      edit.addEventListener('click',async()=>{
       edit.disabled=true;try{await manager.open(o);}
-      catch(e){inform(e.message||'Could not edit this session',true);}
+      catch(e){const msg=e.message||'Could not edit this session';inform(msg,true);sessionDetails.status.textContent=msg;}
       finally{edit.disabled=false;}
      });
      footer.append(edit);
@@ -699,7 +699,7 @@ export function bindTeacherPortalPage(){
      fields.append(countLabel,ages,messageLabel,error,submit);
      detail.append(fields);footer.append(detail);card.append(footer);
     }
-    list.append(card);
+    return card;
    }else{
     const e=item.item;
     const card=element('article','gct-session-card gcs150-result gcs208-compact gcs208-hosted gcs209-session-card gcs230-card');
@@ -718,13 +718,22 @@ export function bindTeacherPortalPage(){
     const info=element('details','gcs208-compact-details gcs209-details');
     info.append(element('summary','','🔎 View details →'));
     const body=element('div','gcc203-result-body');
-    renderSessionDetailsV203(body,e.session_details);info.append(body);footer.append(info);
+    renderSessionDetailsV203(body,e.session_details);info.append(body);info.open=true;footer.append(info);
     // Keep host-managed student registration separate from teacher-to-teacher join requests.
     const register=element('a','gct-primary gcs208-register gcs209-register','👩‍🏫 Register Students →');
     register.href='#/session-register?session='+encodeURIComponent(e.id);
-    footer.append(register);card.append(footer);list.append(card);
+    footer.append(register);card.append(footer);return card;
    }
+  };
+  for(const item of page.items){
+   const x=item.item,isOffer=item.source==='offer';
+   const host=isOffer?{code:x.country_code,name:x.country_name,flag:flag(x.country_code)}:hostCountryV208(x);
+   const info={key:item.source+':'+x.id,title:isOffer?sessionTitleV150(x):x.title,
+    school:isOffer?x.school_name:(x.school_name||x.session_details?.school_name||'Global Classroom · Host-managed event'),
+    country:host.name,flag:host.flag,start:x.starts_at,end:x.ends_at,zone:identity.timezone,own:isOffer&&x.is_mine};
+   list.append(compactSessionCardV246(info,button=>sessionDetails.open(button,()=>createFullCard(item))));
   }
+  list.append(sessionDetails.dialog);
  }
  function renderRequests(){
   const incoming=$('gctp-incoming'),outgoing=$('gctp-outgoing');
@@ -1010,5 +1019,5 @@ export function bindTeacherPortalPage(){
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
- showFormStep(0);display(view);if(view==='find')openSearchModal('gctp-search-choice');init().catch(e=>inform(e.message,true));
+ showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
 }
