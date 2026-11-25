@@ -9,7 +9,7 @@ import {validSchoolWebsiteV250} from '../../lib/teacherReviewV250.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
-import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,
+import {signupAccountV120,signinAccountV120,currentUserV120,beginApplicationV120,restartApplicationV250,
  submitApplicationV120,uploadApplicationPhotoV120,resendConfirmationV135,hasApprovedTeacherV120} from '../../services/teacherOnboardingV120.js';
 import {teacherSignupErrorV135,teacherPhotoErrorV135} from '../../lib/teacherSignupRecoveryV135.js';
 import {assertApplicantIdentityV139,assertEditableDraftV139} from '../../lib/teacherSignupIdentityV139.js';
@@ -64,7 +64,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
   <datalist id="gcc120-zones"></datalist>
   <button type="submit" id="gcc120-submit" class="gcc120-primary gcc140-action">Submit for approval →</button>
   </form></section>
- <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-primary gcc120-inline" hidden>Continue to Facilitator registration →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
+ <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><button type="button" id="gcc250-restart" class="gcc120-primary" hidden>Register again →</button><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-primary gcc120-inline" hidden>Continue to Facilitator registration →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
  </section></main>`;}
 export function bindTeacherJoinV120(){
  const root=document.querySelector('.gcc120-join[aria-label="Join Global Classroom"]');if(!root)return;
@@ -99,8 +99,8 @@ export function bindTeacherJoinV120(){
   const zones=$('gcc120-zones');try{for(const name of Intl.supportedValuesOf('timeZone'))zones.append(new Option(name,name));}catch{zones.append(new Option('Asia/Tokyo','Asia/Tokyo'));}
   $('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
  }
- function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
-  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Your application could not be approved. Check the face photograph, official school website and teacher/school information. Contact Global Classroom for instructions on correcting your application; do not create a duplicate account.';}
+ function status(kind){setStep('status');$('gcc250-restart').hidden=kind!=='rejected';$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
+  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Your application could not be approved. Please register your GCC teacher account again. Upload a clear photograph of your face, provide your official school website and accurate school information, and submit a new application using your current email address.';}
  async function ready(){
   const serial=++readySequence,user=await currentUserV120();if(serial!==readySequence)return;
   draft=null;activeDraftUserId=null;displayActiveAccount(user);
@@ -157,6 +157,12 @@ export function bindTeacherJoinV120(){
    const res=await submitApplicationV120(payload,photo.path);notify('');status(res.status);
    if(res.status==='pending')showSuccessCelebration({title:'Application received!',detail:'Your profile was submitted. GCC will review your application before approval.'});
   }catch(err){notify(teacherPhotoErrorV135(err),true);}finally{button.disabled=false;}});
+ $('gcc250-restart').addEventListener('click',async()=>{const btn=$('gcc250-restart');btn.disabled=true;try{
+   const user=await currentUserV120();assertApplicantIdentityV139(user,displayedUserId);
+   if(!confirm('Register again? Your rejected profile will be cleared. You will need to enter all teacher and school details and upload a new photograph.'))return;
+   await restartApplicationV250();assertApplicantIdentityV139(await currentUserV120(),user.id);
+   $('gcc120-application').reset();updateBioCounter();$('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';await ready();notify('Please complete your new teacher registration.');
+ }catch(err){notify(err.message||'Unable to register again.',true);}finally{btn.disabled=false;}});
  $('gcc139-switch-account').addEventListener('click',async()=>{const button=$('gcc139-switch-account');button.disabled=true;try{
   const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;
   $('gcc120-signin-form').reset();$('gcc120-signup-form').reset();
