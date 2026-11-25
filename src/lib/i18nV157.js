@@ -21,6 +21,8 @@ Sign up | 新規登録
 Join us | 参加登録
 My GCC Account | GCCアカウント
 Teacher Mode | 先生モード
+Teacher Login | 先生ログイン
+Admin Login | 管理者ログイン
 Admin Mode | 管理者モード
 Teacher access requires an approved profile. | 先生モードには承認済みプロフィールが必要です。
 Could not sign out. Please try again. | ログアウトに失敗しました。再度お試しください。
