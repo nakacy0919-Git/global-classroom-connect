@@ -92,6 +92,9 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v238_verified_fixture.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v238_verified_roster_guard.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v238_verified_assertions.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v239_bot_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v239_bot_receipt_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v239_bot_assertions.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_fixture.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v232_restrict_trigger_execute.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_assertions.sql
