@@ -26,6 +26,13 @@ try{
  list.append(modal.dialog);
  const cards=[...list.querySelectorAll('.gcc246-session-card')],r=e=>e.getBoundingClientRect();
  check(cards.length===8&&built===0,'lazy detail construction');
+ for(const card of cards){
+  const box=r(card);
+  check(box.width<=191&&box.height>=box.width,'compact portrait card '+box.width+'x'+box.height);
+  check(box.height>=170,'readable card height');
+  const foot=r(card.querySelector('.gcc246-card-foot'));
+  check(foot.bottom<=box.bottom+1,'card footer not clipped');
+ }
  const cols=innerWidth>=851?4:innerWidth>320?2:1;
  check(getComputedStyle(list).gridTemplateColumns.split(' ').length===cols,'correct columns');
  for(let i=0;i<cols;i++){check(Math.abs(r(cards[i]).top-r(cards[0]).top)<1,'equal row');if(i>0)check(r(cards[i-1]).right<r(cards[i]).left,'no horizontal overlap');}
