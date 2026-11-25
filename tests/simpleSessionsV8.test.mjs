@@ -56,11 +56,12 @@ test('facilitators deduplicated, invalid names reported',()=>{
 
 });
 
-test('teacher registration is a single link, private, no invite codes',()=>{
+test('teacher registration remains a single link with optional private invitations',()=>{
 
  assert.match(teacher,/listPublicSessions/);assert.match(teacher,/submitSharedRoster/);
 
- assert.doesNotMatch(teacher,/invite code|invitation code|code provided by host/i);
+ assert.match(teacher,/Session invitation code \(if your host provided one\)/);
+ assert.match(teacher,/id="gcc-v237-invite" type="password"/);
 
  assert.doesNotMatch(svc,/\.from\(['"]gcc_session_signups['"]\)/);
 

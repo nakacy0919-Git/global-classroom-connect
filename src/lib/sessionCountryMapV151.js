@@ -1,5 +1,6 @@
 // GCC V22.6: show all future open offers, including the viewer's hosted sessions.
 // Never use country pins that cannot be backed by an actual published session.
+import {isDiscoverableOfferV230} from './sessionAvailabilityV230.js';
 const svgNS='http://www.w3.org/2000/svg';
 const svgEl=(name,attrs={})=>{
  const n=document.createElementNS(svgNS,name);
@@ -31,7 +32,7 @@ export function worldPathV151(geometry){
 export function activeCountriesV151(offers,now=Date.now()){
  const counts=new Map();
  for(const offer of offers||[]){
-  if(offer?.status!=='open'||Date.parse(offer?.ends_at)<=now)continue;
+  if(!isDiscoverableOfferV230(offer,now))continue;
   const code=String(offer?.country_code||'').toUpperCase();
   if(!/^[A-Z]{2}$/.test(code))continue;
   const data=counts.get(code)||{code,name:String(offer?.country_name||code),count:0};
