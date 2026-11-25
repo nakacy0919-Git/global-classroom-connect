@@ -11,3 +11,5 @@ END $$;
 INSERT INTO public.session_join_requests(id,offer_id,requesting_teacher_id,status,requested_students,reconfirmation_required,created_at) VALUES
  ('40000000-0000-0000-0000-000000000003','30000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000003','pending',2,false,now());
 UPDATE public.exchange_availability SET session_details=jsonb_set(session_details,'{max_participants}','6') WHERE id='30000000-0000-0000-0000-000000000001';
+
+CREATE TABLE public.gcc_teacher_notifications_v212(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),teacher_id uuid NOT NULL,offer_id uuid,request_id uuid,category text NOT NULL,title text NOT NULL,body text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),read_at timestamptz);
