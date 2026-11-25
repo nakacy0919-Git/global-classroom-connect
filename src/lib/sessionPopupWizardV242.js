@@ -51,9 +51,28 @@ export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy}){
   return 9;
  });
  pack(groups[3],()=>10);
+ // Large selection cards mirror the original native selects. They are not
+ // additional form fields; only the canonical select is serialized.
+ const choiceGroups=[];
+ for(const id of ['gctp-type','gctp-theme']){
+  const select=$(id),label=select.closest('label');
+  const cards=document.createElement('div');cards.className='gcc242-choice-grid';cards.setAttribute('role','group');
+  cards.setAttribute('aria-label',id==='gctp-type'?'Educational session type *':'Session theme *');
+  const buttons=[];
+  for(const option of select.options){
+   const button=document.createElement('button');button.type='button';button.className='gcc242-choice';button.textContent=option.textContent;
+   button.dataset.value=option.value;button.addEventListener('click',()=>{
+    select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));refresh();
+   });cards.append(button);buttons.push(button);
+  }
+  const refresh=()=>{for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.value===select.value));};
+  select.hidden=true;select.tabIndex=-1;label.after(cards);
+  select.addEventListener('change',refresh);choiceGroups.push(refresh);refresh();
+ }
  let index=0,closing=false;
  function render({focus=false}={}){
   const screen=WIZARD_SCREENS_V242[index];
+  for(const refresh of choiceGroups)refresh();
   for(const panel of panels)panel.hidden=Number(panel.dataset.gcc242Screen)!==index;
   slot.hidden=index<5||index>9;
   $('gcc242-question').textContent=screen.title;
