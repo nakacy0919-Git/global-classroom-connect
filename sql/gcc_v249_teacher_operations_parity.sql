@@ -1,6 +1,7 @@
 -- V24.9: extend the isolated teacher-owned workspace, without granting Admin access.
 BEGIN;
 ALTER TABLE gcc_ops_v248.rosters ADD COLUMN IF NOT EXISTS finalized boolean;
+ALTER TABLE gcc_ops_v248.rosters ADD COLUMN IF NOT EXISTS helpers jsonb NOT NULL DEFAULT '[]'::jsonb;
 CREATE TABLE gcc_ops_v248.extras_v249 (
  offer_id uuid PRIMARY KEY REFERENCES public.exchange_availability(id) ON DELETE CASCADE,
  pairs jsonb NOT NULL DEFAULT '[]', facilitators jsonb NOT NULL DEFAULT '[]',
@@ -84,22 +85,32 @@ BEGIN
  END LOOP;
  RETURN plan;
 END $$;
+-- Additional adult facilitators belong to the registering teacher's class.
+CREATE FUNCTION gcc_ops_v248.facilitator_pool_v249(p_offer uuid)
+RETURNS TABLE(facilitator_id uuid,teacher_id uuid,facilitator_name text,school_name text,country_code text)
+LANGUAGE sql STABLE SET search_path='' AS $$
+ SELECT m.teacher_id,m.teacher_id,m.teacher_name,m.school_name,m.country_code FROM gcc_ops_v248.members(p_offer) m
+ UNION ALL
+ SELECT (h->>'id')::uuid,m.teacher_id,h->>'name',m.school_name,m.country_code
+ FROM gcc_ops_v248.members(p_offer) m JOIN gcc_ops_v248.rosters r ON r.offer_id=p_offer AND r.teacher_id=m.teacher_id
+ CROSS JOIN LATERAL jsonb_array_elements(r.helpers) h
+$$;
 CREATE FUNCTION gcc_ops_v248.prune_v249(p_offer uuid,p_pairs jsonb,p_facs jsonb,p_rooms integer)
 RETURNS jsonb LANGUAGE sql STABLE SET search_path='' AS $$
  SELECT jsonb_build_object('pairs',coalesce((SELECT jsonb_agg(x) FROM jsonb_array_elements(p_pairs) x
  WHERE EXISTS(SELECT 1 FROM gcc_ops_v248.people_v249(p_offer) p WHERE p.student_id=(x->>0)::uuid)
  AND EXISTS(SELECT 1 FROM gcc_ops_v248.people_v249(p_offer) p WHERE p.student_id=(x->>1)::uuid)),'[]'::jsonb),
  'facilitators',coalesce((SELECT jsonb_agg(x) FROM jsonb_array_elements(p_facs) x
- WHERE (x->>'room')::integer BETWEEN 1 AND p_rooms AND EXISTS(SELECT 1 FROM gcc_ops_v248.members(p_offer) m WHERE m.teacher_id=(x->>'teacher_id')::uuid)),'[]'::jsonb))
+ WHERE (x->>'room')::integer BETWEEN 1 AND p_rooms AND EXISTS(SELECT 1 FROM gcc_ops_v248.facilitator_pool_v249(p_offer) m WHERE m.facilitator_id=(x->>'teacher_id')::uuid)),'[]'::jsonb))
 $$;
 CREATE FUNCTION public.gcc_v249_session_operations(p_offer_id uuid,p_action text DEFAULT 'read',p_data jsonb DEFAULT '{}')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE
  tid uuid; a public.exchange_availability%ROWTYPE; w gcc_ops_v248.workspace%ROWTYPE; e gcc_ops_v248.extras_v249%ROWTYPE;
  is_owner boolean; is_member boolean; req public.session_join_requests%ROWTYPE; rev bigint; old_map jsonb;
- was_published boolean; had_current_plan boolean; refresh_plan boolean:=false; target uuid; expected integer; roster jsonb; clean jsonb; entry jsonb; sid uuid;
+ was_published boolean; had_current_plan boolean; refresh_plan boolean:=false; target uuid; expected integer; roster jsonb; clean jsonb; helpers jsonb; clean_helpers jsonb; entry jsonb; sid uuid;
  pairs jsonb; facs jsonb; zoom text; withdrawal jsonb; checked jsonb; rooms integer; n integer; v_plan jsonb; members_json jsonb; requests_json jsonb;
- chart jsonb; people_json jsonb; messages_json jsonb; facilitator_json jsonb; signature text; msg text; ids uuid[]; status_label text;
+ chart jsonb; people_json jsonb; messages_json jsonb; facilitator_json jsonb; facilitator_pool_json jsonb; signature text; msg text; ids uuid[]; status_label text;
 BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Teacher sign-in required';END IF;
  tid:=public.gcc_current_teacher_id();
@@ -134,6 +145,7 @@ BEGIN
     PERFORM public.gcc_teacher_review_request(req.id,p_data->>'decision');
     IF p_data->>'decision'='approved' THEN
      INSERT INTO gcc_ops_v248.messages_v249(offer_id,request_id,sender_id,body,registration_link) VALUES(a.id,req.id,tid,'Your participation has been accepted. Please complete your student registration using the link below.',true);
+     INSERT INTO public.gcc_teacher_notifications_v212(teacher_id,offer_id,request_id,category,title,body) VALUES(req.requesting_teacher_id,a.id,req.id,'session_updated','New registration invitation','Your host accepted your request. Open your exchange workspace to register students.');
      refresh_plan:=true;
     END IF;
    ELSE
@@ -143,6 +155,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(hashtextextended('gcc249-message:'||tid::text,0));
     IF (SELECT count(*) FROM gcc_ops_v248.messages_v249 WHERE sender_id=tid AND created_at>now()-interval '1 minute')>=10 THEN RAISE EXCEPTION 'Message limit reached. Try again later.';END IF;
     INSERT INTO gcc_ops_v248.messages_v249(offer_id,request_id,sender_id,body,registration_link) VALUES(a.id,req.id,tid,msg,is_owner AND coalesce((p_data->>'registration_link')::boolean,false));
+    INSERT INTO public.gcc_teacher_notifications_v212(teacher_id,offer_id,request_id,category,title,body) VALUES(CASE WHEN is_owner THEN req.requesting_teacher_id ELSE a.teacher_id END,a.id,req.id,'session_updated','New private message','An approved partner sent a private message. Open your exchange workspace to read it.');
    END IF;
   ELSIF p_action='save_roster' THEN
    target:=coalesce(nullif(p_data->>'teacher_id','')::uuid,tid);
@@ -164,13 +177,32 @@ BEGIN
     IF sid=ANY(ids) THEN RAISE EXCEPTION 'Duplicate student identity';END IF;
     ids:=array_append(ids,sid);clean:=clean||jsonb_build_array(jsonb_build_object('id',sid,'name',btrim(entry->>'name'),'grade',btrim(coalesce(entry->>'grade',''))));
    END LOOP;
+   -- Optional extra adult helpers; editing a row preserves its stable identity.
+   IF p_data ? 'helpers' THEN
+    helpers:=p_data->'helpers';
+    IF helpers IS NULL OR jsonb_typeof(helpers)<>'array' OR jsonb_array_length(helpers)>100 THEN RAISE EXCEPTION 'Invalid facilitator list';END IF;
+    clean_helpers:='[]';ids:=ARRAY[]::uuid[];
+    FOR entry IN SELECT x FROM jsonb_array_elements(helpers) x LOOP
+     IF jsonb_typeof(entry)<>'object' OR jsonb_typeof(entry->'name') IS DISTINCT FROM 'string' OR char_length(btrim(entry->>'name')) NOT BETWEEN 1 AND 100 THEN RAISE EXCEPTION 'Invalid facilitator display name';END IF;
+     IF nullif(entry->>'id','') IS NULL THEN sid:=gen_random_uuid();
+     ELSE
+      sid:=(entry->>'id')::uuid;
+      IF NOT EXISTS(SELECT 1 FROM gcc_ops_v248.facilitator_pool_v249(a.id) p WHERE p.facilitator_id=sid AND p.teacher_id=target AND p.facilitator_id<>target) THEN RAISE EXCEPTION 'Invalid facilitator identity';END IF;
+     END IF;
+     IF sid=ANY(ids) THEN RAISE EXCEPTION 'Duplicate facilitator identity';END IF;
+     ids:=array_append(ids,sid);clean_helpers:=clean_helpers||jsonb_build_array(jsonb_build_object('id',sid,'name',btrim(entry->>'name')));
+    END LOOP;
+   ELSE
+    SELECT r.helpers INTO clean_helpers FROM gcc_ops_v248.rosters r WHERE r.offer_id=a.id AND r.teacher_id=target;
+    clean_helpers:=coalesce(clean_helpers,'[]');
+   END IF;
    -- A final list may release unused reserved seats; it cannot increase approved capacity.
    IF coalesce((p_data->>'finalized')::boolean,false) AND jsonb_array_length(clean)<expected THEN
     IF target=a.teacher_id THEN UPDATE public.exchange_availability SET student_count=jsonb_array_length(clean) WHERE id=a.id;
     ELSE UPDATE public.session_join_requests SET requested_students=jsonb_array_length(clean) WHERE offer_id=a.id AND requesting_teacher_id=target AND status='approved';END IF;
    END IF;
-   INSERT INTO gcc_ops_v248.rosters(offer_id,teacher_id,students,finalized) VALUES(a.id,target,clean,coalesce((p_data->>'finalized')::boolean,false))
-   ON CONFLICT(offer_id,teacher_id) DO UPDATE SET students=excluded.students,finalized=excluded.finalized;
+   INSERT INTO gcc_ops_v248.rosters(offer_id,teacher_id,students,finalized,helpers) VALUES(a.id,target,clean,coalesce((p_data->>'finalized')::boolean,false),clean_helpers)
+   ON CONFLICT(offer_id,teacher_id) DO UPDATE SET students=excluded.students,finalized=excluded.finalized,helpers=excluded.helpers;
    refresh_plan:=true;
   ELSIF p_action='withdraw' THEN
    -- Scope is explicit. Never remove the host's class or affect another offer.
@@ -196,9 +228,9 @@ BEGIN
    facs:=p_data->'facilitators';
    IF facs IS NULL OR jsonb_typeof(facs)<>'array' OR jsonb_array_length(facs)>500 THEN RAISE EXCEPTION 'Invalid facilitator list';END IF;
    IF EXISTS(SELECT 1 FROM jsonb_array_elements(facs) x WHERE jsonb_typeof(x)<>'object' OR coalesce(x->>'room','') !~ '^[0-9]{1,3}$'
-    OR (x->>'room')::integer NOT BETWEEN 1 AND rooms OR NOT EXISTS(SELECT 1 FROM gcc_ops_v248.members(a.id) m WHERE m.teacher_id=(x->>'teacher_id')::uuid))
+    OR (x->>'room')::integer NOT BETWEEN 1 AND rooms OR NOT EXISTS(SELECT 1 FROM gcc_ops_v248.facilitator_pool_v249(a.id) m WHERE m.facilitator_id=(x->>'teacher_id')::uuid))
     OR (SELECT count(DISTINCT (x->>'teacher_id')::uuid) FROM jsonb_array_elements(facs) x)<>jsonb_array_length(facs)
-   THEN RAISE EXCEPTION 'Each participating teacher can facilitate one valid room';END IF;
+   THEN RAISE EXCEPTION 'Each registered facilitator can facilitate one valid room';END IF;
   ELSIF p_action='save_zoom' THEN
    zoom:=btrim(coalesce(p_data->>'zoom_url',''));
    IF was_published AND zoom='' THEN RAISE EXCEPTION 'A published chart must retain its Zoom link';END IF;
@@ -248,7 +280,7 @@ BEGIN
  signature:=gcc_ops_v248.signature(a.id);
  was_published:=coalesce(w.published AND w.plan_signature=signature,false);
  SELECT coalesce(jsonb_agg(jsonb_build_object('teacher_id',m.teacher_id,'school_id',m.school_id,'school',m.school_name,'teacher',m.teacher_name,'country',m.country_code,'expected',m.expected,'is_host',m.is_host,
- 'finalized',coalesce(r.finalized,coalesce(jsonb_array_length(r.students),0)=m.expected),
+ 'finalized',coalesce(r.finalized,coalesce(jsonb_array_length(r.students),0)=m.expected),'helpers',coalesce(r.helpers,'[]'),
  'students',coalesce((SELECT jsonb_agg(jsonb_build_object('id',p.student_id,'name',p.student_name,'grade',p.grade) ORDER BY p.student_no) FROM gcc_ops_v248.people_v249(a.id) p WHERE p.teacher_id=m.teacher_id),'[]')) ORDER BY m.is_host DESC,m.school_name),'[]')
  INTO members_json FROM gcc_ops_v248.members(a.id) m LEFT JOIN gcc_ops_v248.rosters r ON r.offer_id=a.id AND r.teacher_id=m.teacher_id WHERE is_owner OR m.teacher_id=tid;
  IF is_owner THEN
@@ -260,8 +292,12 @@ BEGIN
  SELECT coalesce(jsonb_agg(jsonb_build_object('student_id',p.student_id,'teacher_id',p.teacher_id,'student_no',p.student_no,'name',p.student_name,'grade',p.grade,'school',p.school_name,'country',p.country_code,'room',(x->>'room')::integer) ORDER BY (x->>'room')::integer,p.school_name,p.student_name),'[]')
  INTO chart FROM jsonb_array_elements(w.plan) x JOIN gcc_ops_v248.people_v249(a.id) p ON p.teacher_id=(x->>'teacher_id')::uuid AND p.student_no=(x->>'student_no')::integer;
  END IF;
- SELECT coalesce(jsonb_agg(jsonb_build_object('teacher_id',m.teacher_id,'teacher',m.teacher_name,'school',m.school_name,'room',(x->>'room')::integer)),'[]') INTO facilitator_json
- FROM jsonb_array_elements(facs) x JOIN gcc_ops_v248.members(a.id) m ON m.teacher_id=(x->>'teacher_id')::uuid WHERE is_owner OR was_published;
+ IF is_owner THEN
+ SELECT coalesce(jsonb_agg(jsonb_build_object('id',m.facilitator_id,'name',m.facilitator_name,'school',m.school_name,'country',m.country_code) ORDER BY m.school_name,m.facilitator_name),'[]')
+ INTO facilitator_pool_json FROM gcc_ops_v248.facilitator_pool_v249(a.id) m;
+ END IF;
+ SELECT coalesce(jsonb_agg(jsonb_build_object('teacher_id',m.facilitator_id,'teacher',m.facilitator_name,'school',m.school_name,'room',(x->>'room')::integer)),'[]') INTO facilitator_json
+ FROM jsonb_array_elements(facs) x JOIN gcc_ops_v248.facilitator_pool_v249(a.id) m ON m.facilitator_id=(x->>'teacher_id')::uuid WHERE is_owner OR was_published;
  SELECT coalesce(jsonb_agg(to_jsonb(z) ORDER BY z.created_at,z.id),'[]') INTO messages_json FROM (
  SELECT m.id,m.request_id,m.sender_id,t.display_name AS sender,m.body,m.registration_link,m.created_at
  FROM gcc_ops_v248.messages_v249 m JOIN public.session_join_requests r ON r.id=m.request_id AND r.offer_id=a.id
@@ -272,7 +308,7 @@ BEGIN
  RETURN jsonb_build_object('role',CASE WHEN is_owner THEN 'host' ELSE 'participant' END,'teacher_id',tid,'offer_id',a.id,'title',coalesce(a.session_details->>'session_name',a.topic),
  'starts_at',a.starts_at,'ends_at',a.ends_at,'timezone',a.timezone,'revision',coalesce(w.revision,0),'room_count',coalesce(w.room_count,a.room_count),'members',members_json,'requests',requests_json,
  'request_id',CASE WHEN is_owner THEN NULL ELSE req.id END,'messages',messages_json,'people',people_json,'pairs',CASE WHEN is_owner THEN pairs ELSE NULL END,
- 'facilitators',facilitator_json,'zoom_url',CASE WHEN is_owner OR was_published THEN zoom ELSE NULL END,'chart',chart,'published',was_published,
+ 'facilitators',facilitator_json,'facilitator_pool',facilitator_pool_json,'zoom_url',CASE WHEN is_owner OR was_published THEN zoom ELSE NULL END,'chart',chart,'published',was_published,
  'plan_stale',coalesce(w.plan IS NOT NULL AND w.plan_signature IS DISTINCT FROM signature,false),'ready',gcc_ops_v248.ready_v249(a.id));
 END $$;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA gcc_ops_v248 FROM PUBLIC,anon,authenticated;
