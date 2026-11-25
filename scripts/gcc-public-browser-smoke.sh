@@ -73,3 +73,14 @@ mobile="$(timeout 30 "$browser" --headless=new --no-sandbox --disable-dev-shm-us
 [[ "$mobile" == *'id="gcc140-tab-signup"'* ]]
 [[ "$mobile" == *'School time zone'* ]]
 echo 'PASS: mobile signup page preserves the account and school-timezone fields'
+
+# Public gateway links must remain present on phone and tablet-sized Chromium.
+for viewport in 390,844 768,1024 1024,768; do
+  gateway="$(timeout 30 "$browser" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+    --no-first-run --window-size="$viewport" --virtual-time-budget=7000 \
+    --dump-dom 'http://127.0.0.1:4173/#/welcome' 2>/dev/null)"
+  for route in '#/teacher-portal?view=create' '#/teacher-portal?view=find' '#/teacher-portal?view=volunteer' '#/practice'; do
+    [[ "$gateway" == *"href=\"$route\""* ]]
+  done
+  echo "PASS: gateway actions present at $viewport"
+done
