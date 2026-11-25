@@ -12,7 +12,9 @@ const rosterParamsV237=p=>({
   p_school_name:p.school,p_country_code:p.countryCode,
   p_country_name:p.countryName,p_students:p.students,p_facilitators:p.facilitators,p_pairs:p.pairs||[]
 });
-export const submitSharedRoster=p=>p.invite
+export const submitSharedRoster=p=>p.botReceipt
+ ?rpc('gcc_v239_submit_protected_roster',{...rosterParamsV237(p),p_receipt:p.botReceipt,p_invite:p.invite||''})
+ :p.invite
  ?rpc('gcc_v237_submit_invited_roster',{...rosterParamsV237(p),p_invite:p.invite})
  :rpc('gcc_v165_submit_roster',rosterParamsV237(p));
 export const getSessionSettings=()=>rpc('gcc_v8_get_session_settings');
@@ -28,3 +30,11 @@ export const revokeRosterInvitesV237=eventId=>rpc('gcc_v237_revoke_invites',{p_e
 export const rosterIdentityV238=()=>rpc('gcc_v238_my_roster_identity');
 export const verifiedRosterPolicyV238=eventId=>rpc('gcc_v238_roster_policy',{p_event_id:eventId});
 export const requireVerifiedRosterV238=eventId=>rpc('gcc_v238_require_verified',{p_event_id:eventId});
+
+export const rosterBotPolicyV239=eventId=>rpc('gcc_v239_bot_policy',{p_event_id:eventId});
+export async function verifyRosterBotV239(eventId,token){
+ if(!supabase)throw Error('GCC_BOT_UNAVAILABLE');
+ const {data,error}=await supabase.functions.invoke('gcc-roster-bot-verify',{body:{eventId,token}});
+ if(error||!data||!(/^[a-f0-9]{64}$/.test(data.receipt)))throw Error('GCC_BOT_INVALID');
+ return data.receipt;
+}
