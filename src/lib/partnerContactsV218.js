@@ -52,13 +52,26 @@ export function mountApprovedPartnerContactV218(mount,requestId){
  body.append(note,partner,form,status);
  details.append(summary,body);mount.append(details);
 
- let loaded=false,busy=false;
- function setBusy(next){busy=next;save.disabled=next;remove.disabled=next;channel.disabled=next;value.disabled=next;}
- async function load(){
-  if(busy)return;
-  setBusy(true);status.textContent='Loading private contact details…';
+ let loaded=false,busy=false,viewGeneration=0;
+ function setBusy(next){
+  busy=next;
+  const enabled=details.open&&loaded&&!busy;
+  save.disabled=!enabled;remove.disabled=!enabled;channel.disabled=!enabled;value.disabled=!enabled;
+ }
+ function clearPrivateView(){
+  loaded=false;channel.value='email';value.value='';remove.hidden=true;
+  partner.textContent='Open to view the contact shared by your partner.';
+  status.textContent='';
+  setBusy(busy);
+ }
+ clearPrivateView();
+ async function load(savedNotice=''){
+  if(busy||!details.open)return;
+  const generation=viewGeneration;
+  loaded=false;setBusy(true);status.textContent=savedNotice||'Loading private contact details…';
   try{
    const current=await teacherPartnerContactsV218(requestId);
+   if(!details.open||generation!==viewGeneration)return;
    const mine=current?.mine;
    if(mine){channel.value=mine.channel;value.value=mine.value;}
    else {channel.value='email';value.value='';}
@@ -66,31 +79,50 @@ export function mountApprovedPartnerContactV218(mount,requestId){
    // Use only textContent: a contact handle or URL never becomes executable HTML.
    partner.textContent=other
     ?'Partner shared ('+(LABELS[other.channel]||'Contact')+'): '+other.value
-    :'Your partner has not shared a contact method yet.';
+    :'Your partner has not shared a contact method yet. You can share yours, or ask the GCC administrator for help.';
    remove.hidden=!mine;
-   status.textContent='Only this approved partner can see your shared contact.';
+   status.textContent=(savedNotice?savedNotice+' ':'')+'Only this approved partner can see your shared contact.';
    loaded=true;
-  }catch(error){status.textContent=error?.message||'Unable to load private contacts.';loaded=false;}
-  finally{setBusy(false);}
+  }catch{
+   if(!details.open||generation!==viewGeneration)return;
+   clearPrivateView();
+   status.textContent=savedNotice
+    ?savedNotice+' The contact view could not refresh. Close and reopen it to check.'
+    :'Private contacts could not be verified. Close and reopen to retry, or contact the GCC administrator.';
+  }
+  finally{
+   setBusy(false);
+   if(details.open&&generation!==viewGeneration)void load();
+  }
  }
- details.addEventListener('toggle',()=>{if(details.open&&!loaded)void load();});
+ details.addEventListener('toggle',()=>{
+  viewGeneration++;
+  clearPrivateView();
+  if(details.open&&!busy)void load();
+ });
+ async function writeContact(ch,val,notice){
+  if(busy||!loaded||!details.open)return;
+  const generation=viewGeneration;
+  setBusy(true);
+  try{
+   await teacherSavePartnerContactV218(requestId,ch,val);
+  }catch{
+   if(details.open&&generation===viewGeneration)status.textContent='Contact change could not be confirmed. Close and reopen to check before trying again.';
+   setBusy(false);
+   if(details.open&&generation!==viewGeneration)void load();
+   return;
+  }
+  clearPrivateView();setBusy(false);
+  if(details.open)await load(notice);
+ }
  form.addEventListener('submit',async event=>{
   event.preventDefault();
-  if(busy)return;
+  if(busy||!loaded||!details.open)return;
   if(!value.value.trim()){status.textContent='Enter a contact address or account name.';value.focus();return;}
-  setBusy(true);
-  try{
-   await teacherSavePartnerContactV218(requestId,channel.value,value.value.trim());
-   setBusy(false);loaded=false;await load();
-  }catch(error){status.textContent=error?.message||'Could not share contact.';setBusy(false);}
+  await writeContact(channel.value,value.value.trim(),'Contact shared.');
  });
  remove.addEventListener('click',async()=>{
-  if(busy)return;
-  setBusy(true);
-  try{
-   await teacherSavePartnerContactV218(requestId,'','');
-   setBusy(false);loaded=false;await load();
-  }catch(error){status.textContent=error?.message||'Could not remove contact.';setBusy(false);}
+  await writeContact('','','Shared contact removed.');
  });
  return details;
 }
