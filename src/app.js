@@ -3450,6 +3450,11 @@ export async function renderApp() {
     if(!allowed){
       const requested=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view');
       const next=['create','find','volunteer','network','requests','profile'].includes(requested)?requested:'home';
+      const params=new URLSearchParams(window.location.hash.split('?')[1]||'');
+      const offer=params.get('offer')||'';
+      if(route==='teacher-portal'&&requested==='operate'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(offer)){
+       window.location.hash='#/teacher-access?next=operate&offer='+encodeURIComponent(offer)+'&tab='+(params.get('tab')==='chart'?'chart':'register');return;
+      }
       window.location.hash = route === 'teacher-portal' ? '#/teacher-access?next='+next : '#/login';
       return;
     }
