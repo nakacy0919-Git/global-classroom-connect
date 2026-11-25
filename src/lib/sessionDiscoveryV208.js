@@ -9,7 +9,8 @@ export const hostCountryV208=(event)=>{
 export function hostEventsAsOffersV208(events){
  return (events||[]).filter(x=>hostCountryV208(x).code).map(e=>{
   const country=hostCountryV208(e);
-  return {id:e.id,status:'open',is_mine:false,ends_at:e.ends_at,
+  return {id:e.id,status:e.status==='published'?'open':'closed',is_mine:false,
+   starts_at:e.starts_at,ends_at:e.ends_at,session_details:e.session_details||{},
    country_code:country.code,country_name:country.name};
  });
 }
