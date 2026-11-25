@@ -70,7 +70,7 @@ export function bindTeacherAccessPage(){
    }
    try{await teacherIdentity();window.location.hash=destination();return;}catch{}
    try{const draft=await beginApplicationV120();if(draft.status==='pending'){inform('Signed in. Your registration is waiting for administrator approval. Session features remain locked.');return;}
-     if(draft.status==='rejected'){inform('The application was not approved. Contact the Global Classroom team.',true);return;}
+     if(draft.status==='rejected'){window.location.hash='#/signup';return;}
      window.location.hash='#/signup';}
    catch(e){inform('Signed in, but teacher access is not active. Complete your application under Sign up, or use your existing invitation code.',true);}
   }catch(e){

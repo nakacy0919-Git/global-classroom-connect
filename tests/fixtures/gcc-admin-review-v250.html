@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="app"></div><script type="module">
+import '/src/styles/global.css';import {TeacherApprovalsV120,bindTeacherApprovalsV120} from '/src/pages/host/TeacherApprovalsV120.js';
+import {TeacherJoinV120} from '/src/pages/teacher/TeacherJoinV120.js';
+const assert=(x,m)=>{if(!x)throw Error(m)};
+const base={status:'pending',school_type:'Public',school_level:'High school',country:'Japan',city:'Nagoya',timezone:'Asia/Tokyo',bio:'Synthetic teacher profile'};
+let pending=[{...base,id:'old',name:'Old applicant',email:'old@example.org',school:'Older school',school_website:'https://example.org',photo_path:'old.jpg',submitted_at:'2026-11-24T01:00:00Z'},{...base,id:'new',name:'New applicant',email:'new@example.org',school:'New school',school_website:'',photo_path:null,submitted_at:'2026-11-25T01:00:00Z'}];
+const app=document.querySelector('#app');app.innerHTML=TeacherApprovalsV120();const photo='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><rect width="30" height="30" fill="teal"/></svg>');let reviewed=[];
+window.confirm=()=>true;
+const client={from:()=>({select:()=>({eq:()=>({order:async()=>({data:[],error:null})})})}),rpc:async()=>({data:[],error:null})};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));const query=s=>document.querySelector(s);
+const click=async(root,text)=>{const b=[...root.querySelectorAll('button')].find(b=>b.textContent===text);assert(b,'missing '+text);b.click();await wait(70)};
+try{
+ bindTeacherApprovalsV120({pending:async()=>pending,overview:async()=>[{name:'Approved account',status:'approved'}],review:async(id,decision)=>{reviewed.push({id,decision});pending=pending.filter(a=>a.id!==id);},previewPhoto:async()=>photo,client});
+ await wait(200);
+ const cards=[...document.querySelectorAll('.gcc120-review-card')];assert(cards.length===2,'pending cards');assert(cards[0].textContent.includes('New applicant'),'newest first');assert(query('#gcc250-pending-count').textContent==='(2)','count');
+ assert(query('.gcc250-queue').getBoundingClientRect().top<query('.gcc250-collapsible').getBoundingClientRect().top,'pending before history');
+ assert([...document.querySelectorAll('.gcc250-collapsible')].every(x=>!x.open),'history collapsed');
+ await click(cards[0],'Approve application');assert(!reviewed.length,'incomplete approval blocked');
+ const rejection=cards[0].querySelector('.gcc250-rejection');rejection.open=true;const preview=rejection.querySelector('textarea[readonly]');assert(preview.value.includes('official school website')&&preview.value.includes('individual photograph'),'default reason preview');
+ const frame=query('.gcc120-admin').getBoundingClientRect();for(const e of [...cards[0].querySelectorAll('textarea,button,select'),query('#gcc134-refresh')]){const r=e.getBoundingClientRect();if(r.width)assert(r.left>=frame.left-2&&r.right<=frame.right+2,'overflow '+e.tagName);}
+ await click(cards[0],'Reject application');assert(reviewed.length===1&&reviewed[0].decision==='rejected','manual rejection');assert(!query('#gcc250-prepared-mail').hidden,'draft stays after removal');assert(query('#gcc250-prepared-mail a').href.includes('mailto:new%40example.org'),'recipient');assert(query('#gcc250-pending-count').textContent==='(1)','queue refreshed');
+ assert(TeacherJoinV120().includes('will be rejected'),'registration warning');document.body.dataset.result='pass';
+}catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.stack||e.message;document.body.append(p)}
+</script></body></html>

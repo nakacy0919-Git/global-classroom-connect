@@ -26,8 +26,8 @@ test('admin interface shows lifecycle counts separately from actionable pending 
  for(const s of ['gcc134-accounts','gcc134-counts','gcc134-refresh','Applications awaiting approval','No pending applications.']){
   assert.ok(page.includes(s),s);
  }
- assert.match(page,/pendingApprovalsV120\(\),signupOverviewV134\(\)/);
- assert.match(page,/reviewApplicationV120\(a\.id,decision,grantHost,school\)/);
+ assert.match(page,/pending\(\),overview\(\)\.catch/);
+ assert.match(page,/review\(a\.id,decision,grantHost,school\)/);
  assert.match(page,/grantHost&&!confirm/);
 });
 test('admin live refresh polls every 15 seconds and catches focus/visibility transitions',()=>{

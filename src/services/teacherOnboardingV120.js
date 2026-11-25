@@ -14,6 +14,7 @@ export async function signinAccountV120(email,password){
 }
 export async function currentUserV120(){const {data,error}=await api().auth.getUser();if(error)return null;return data?.user||null;}
 export const beginApplicationV120=()=>rpc('gcc_v120_begin_application');
+export const restartApplicationV250=()=>rpc('gcc_v250_restart_application');
 export const submitApplicationV120=(form,path)=>rpc('gcc_v120_submit_application',{p_data:form,p_photo_path:path});
 export const pendingApprovalsV120=()=>rpc('gcc_v120_admin_applications');
 export const signupOverviewV134=()=>rpc('gcc_v134_signup_overview');

@@ -10,13 +10,13 @@ const input=id=>{
  return hit[0];
 };
 
-test('teacher and school websites plus region are optional, not marked required in UI',()=>{
- for(const id of ['gcc120-website','gcc120-school-web','gcc120-region']){
+test('personal website and region are optional, official school website required',()=>{
+ for(const id of ['gcc120-website','gcc120-region']){
   const tag=input(id);
   assert.doesNotMatch(tag,/\srequired(?:\s|>)/);
  }
  assert.match(form,/Personal website \(HTTPS, optional\)/);
- assert.match(form,/School website \(HTTPS, optional\)/);
+ assert.match(form,/Official school website \(HTTPS\) \*/);assert.match(input('gcc120-school-web'),/\srequired(?:\s|>)/);
  assert.match(form,/Region \/ prefecture \/ state \(optional\)/);
 });
 
@@ -37,7 +37,7 @@ test('client skips empty optional URLs and still checks HTTPS for supplied links
  assert.match(form,/await uploadApplicationPhotoV120\(draft\.teacher_id,file\)/);
 });
 
-test('database accepts blank optional fields but rejects invalid supplied URLs',()=>{
+test('legacy V138 migration accepts blank optional fields; V250 adds current verification guard',()=>{
  assert.match(sql,/\(reg<>'' AND char_length\(reg\) NOT BETWEEN 2 AND 120\)/);
  assert.match(sql,/\(website<>'' AND website !~\*/);
  assert.match(sql,/\(site<>'' AND site !~\*/);
@@ -45,6 +45,7 @@ test('database accepts blank optional fields but rejects invalid supplied URLs',
  assert.match(sql,/school_region=nullif\(reg,''\)/);
  assert.match(sql,/school_website=nullif\(site,''\)/);
  assert.match(sql,/Any provided website URL must be a valid HTTPS address/);
+ assert.match(read('sql/gcc_v250_application_verification.sql'),/Provide a valid official school website/);
 });
 
 test('database still verifies identity, teacher draft, photo and status while preserving permissions',()=>{
