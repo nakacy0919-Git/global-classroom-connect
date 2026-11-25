@@ -20,4 +20,29 @@ END $$;
 REVOKE ALL ON FUNCTION public.gcc_v250_check_application_verification() FROM PUBLIC,anon,authenticated;
 CREATE TRIGGER gcc_v250_check_application_verification BEFORE UPDATE OF status ON public.gcc_v120_applications
  FOR EACH ROW EXECUTE FUNCTION public.gcc_v250_check_application_verification();
+
+-- Reapply using the same verified identity, not by deleting or duplicating Auth.
+CREATE FUNCTION public.gcc_v250_restart_application()
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
+DECLARE a public.gcc_v120_applications%ROWTYPE;
+BEGIN
+ IF auth.uid() IS NULL OR NOT EXISTS(
+  SELECT 1 FROM auth.users u WHERE u.id=auth.uid() AND u.email_confirmed_at IS NOT NULL
+  AND NOT coalesce(u.is_anonymous,false) AND u.deleted_at IS NULL AND (u.banned_until IS NULL OR u.banned_until<=now())
+ ) THEN RAISE EXCEPTION 'Sign in with your confirmed teacher email';END IF;
+ SELECT * INTO a FROM public.gcc_v120_applications WHERE user_id=auth.uid() FOR UPDATE;
+ IF NOT FOUND OR a.status IS DISTINCT FROM 'rejected' OR a.approved_teacher_id IS NOT NULL
+ OR EXISTS(SELECT 1 FROM public.teachers WHERE auth_user_id=auth.uid())
+ OR EXISTS(SELECT 1 FROM public.profiles WHERE id=auth.uid() AND role='host')
+ THEN RAISE EXCEPTION 'Only your own rejected teacher application can be restarted';END IF;
+ UPDATE public.gcc_v120_applications SET status='draft',
+ teacher_name=NULL,teacher_bio=NULL,teacher_website=NULL,photo_path=NULL,
+ school_name=NULL,school_type=NULL,school_level=NULL,school_country=NULL,school_country_code=NULL,
+ school_city=NULL,school_region=NULL,school_website=NULL,school_timezone=NULL,
+ submitted_at=NULL,reviewed_at=NULL,reviewed_by=NULL
+ WHERE id=a.id;
+ RETURN jsonb_build_object('status','draft');
+END $$;
+REVOKE ALL ON FUNCTION public.gcc_v250_restart_application() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.gcc_v250_restart_application() TO authenticated;
 COMMIT;
