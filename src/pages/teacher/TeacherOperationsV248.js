@@ -104,7 +104,8 @@ export async function mountTeacherOperationsV248(root,params,{rpc=teacherOperati
    const collect=()=>[...rows.children].map(row=>{const inputs=row.querySelectorAll('input');const name=inputs[0].value.trim(),grade=inputs[1].value.trim();if(!name&&grade)throw Error('Student name is required.');return {id:row.dataset.studentId||undefined,name,grade};}).filter(x=>x.name);
    const actions=el('div','gcc248-actions');
    for(const [finalized,caption] of [[false,'Save draft'],[true,'Confirm final registration']])actions.append(button(caption,async()=>{
-    const students=collect();if(students.length>m.expected||finalized&&students.length!==m.expected)throw Error('Final list must match the approved count of '+m.expected+'.');
+    const students=collect();if(students.length>m.expected||finalized&&!students.length)throw Error('A final list must have 1 to '+m.expected+' students.');
+    if(finalized&&students.length<m.expected&&!confirm('Finalize with '+students.length+' students and release '+(m.expected-students.length)+' reserved places?'))return;
     if(!confirm(caption+' for '+m.school+'? Unsaved changes in other class cards will be discarded.'))return;
     await mutate('save_roster',{teacher_id:m.teacher_id,students,finalized},finalized?'Final registration saved.':'Draft saved.');
    },finalized));section.append(actions);
