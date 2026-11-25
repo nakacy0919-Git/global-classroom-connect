@@ -65,13 +65,13 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE
  tid uuid; a public.exchange_availability%ROWTYPE; w gcc_ops_v248.workspace%ROWTYPE;
  owner boolean; member boolean; request_status text; target uuid; expected integer;
- roster jsonb; clean jsonb; rooms integer; n integer; plan jsonb; sig text; ready boolean;
+ roster jsonb; clean jsonb; rooms integer; n integer; v_plan jsonb; sig text; ready boolean;
  members_json jsonb; request_json jsonb; chart jsonb; own_roster jsonb; rev bigint;
 BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Teacher sign-in required'; END IF;
  tid:=public.gcc_current_teacher_id();
  IF NOT gcc_ops_v248.active_teacher(tid) THEN RAISE EXCEPTION 'Confirmed active teacher account required'; END IF;
- IF p_action NOT IN ('read','save_roster','arrange','save_plan','publish') OR p_data IS NULL
+ IF p_action IS NULL OR p_action NOT IN ('read','save_roster','arrange','save_plan','publish') OR p_data IS NULL
  OR jsonb_typeof(p_data)<>'object' OR octet_length(p_data::text)>750000
  THEN RAISE EXCEPTION 'Invalid session operation'; END IF;
  SELECT * INTO a FROM public.exchange_availability WHERE id=p_offer_id FOR UPDATE;
@@ -127,23 +127,23 @@ BEGIN
  IF rooms IS NULL OR rooms NOT BETWEEN 1 AND least(100,n) THEN RAISE EXCEPTION 'Choose 1 to 100 rooms, no more than the student count'; END IF;
  -- Distribute each school's students over successive rooms; global modulo balances sizes.
  SELECT jsonb_agg(jsonb_build_object('teacher_id',p.teacher_id,'student_no',p.student_no,'room',((p.seq-1)%rooms+1)::integer) ORDER BY p.seq)
- INTO plan FROM (SELECT p.*,row_number() OVER(ORDER BY p.school_id,p.teacher_id,p.student_no) seq FROM gcc_ops_v248.people(a.id) p) p;
+ INTO v_plan FROM (SELECT p.*,row_number() OVER(ORDER BY p.school_id,p.teacher_id,p.student_no) seq FROM gcc_ops_v248.people(a.id) p) p;
  INSERT INTO gcc_ops_v248.workspace(offer_id,revision,room_count,plan,plan_signature,published)
- VALUES(a.id,rev+1,rooms,plan,sig,false)
+ VALUES(a.id,rev+1,rooms,v_plan,sig,false)
  ON CONFLICT(offer_id) DO UPDATE SET revision=rev+1,room_count=rooms,plan=excluded.plan,plan_signature=sig,published=false;
  ELSIF p_action='save_plan' THEN
  IF w.plan IS NULL OR w.plan_signature IS DISTINCT FROM sig THEN RAISE EXCEPTION 'Roster changed. Arrange rooms again.'; END IF;
- rooms:=w.room_count;plan:=p_data->'plan';
- IF plan IS NULL OR jsonb_typeof(plan)<>'array' THEN RAISE EXCEPTION 'Invalid room plan'; END IF;
- IF jsonb_array_length(plan)<>n THEN RAISE EXCEPTION 'Every student needs exactly one room'; END IF;
- IF EXISTS(SELECT 1 FROM jsonb_array_elements(plan) x WHERE jsonb_typeof(x)<>'object'
+ rooms:=w.room_count;v_plan:=p_data->'plan';
+ IF v_plan IS NULL OR jsonb_typeof(v_plan)<>'array' THEN RAISE EXCEPTION 'Invalid room plan'; END IF;
+ IF jsonb_array_length(v_plan)<>n THEN RAISE EXCEPTION 'Every student needs exactly one room'; END IF;
+ IF EXISTS(SELECT 1 FROM jsonb_array_elements(v_plan) x WHERE jsonb_typeof(x)<>'object'
  OR coalesce(x->>'student_no','') !~ '^[0-9]{1,4}$' OR coalesce(x->>'room','') !~ '^[0-9]{1,3}$'
  OR coalesce(x->>'teacher_id','') !~ '^[0-9a-fA-F-]{36}$') THEN RAISE EXCEPTION 'Invalid room assignment'; END IF;
- IF EXISTS(SELECT 1 FROM jsonb_array_elements(plan) x WHERE (x->>'room')::integer NOT BETWEEN 1 AND rooms
+ IF EXISTS(SELECT 1 FROM jsonb_array_elements(v_plan) x WHERE (x->>'room')::integer NOT BETWEEN 1 AND rooms
  OR NOT EXISTS(SELECT 1 FROM gcc_ops_v248.people(a.id) p WHERE p.teacher_id=(x->>'teacher_id')::uuid AND p.student_no=(x->>'student_no')::integer))
- OR (SELECT count(DISTINCT (x->>'teacher_id',x->>'student_no')) FROM jsonb_array_elements(plan) x)<>n
+ OR (SELECT count(DISTINCT ((x->>'teacher_id')::uuid,(x->>'student_no')::integer)) FROM jsonb_array_elements(v_plan) x)<>n
  THEN RAISE EXCEPTION 'Invalid or duplicated student assignment'; END IF;
- UPDATE gcc_ops_v248.workspace SET revision=rev+1,plan=gcc_v248_session_operations.plan,published=false WHERE offer_id=a.id;
+ UPDATE gcc_ops_v248.workspace SET revision=rev+1,plan=v_plan,published=false WHERE offer_id=a.id;
  ELSE
  IF w.plan IS NULL OR w.plan_signature IS DISTINCT FROM sig THEN RAISE EXCEPTION 'Save a current room plan before publishing'; END IF;
  UPDATE gcc_ops_v248.workspace SET revision=rev+1,published=true WHERE offer_id=a.id;
