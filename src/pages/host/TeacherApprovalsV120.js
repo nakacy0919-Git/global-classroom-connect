@@ -2,26 +2,33 @@ import '../../styles/teacherJoinV120.css';
 import '../../styles/teacherApprovalStatusV134.css';
 import {pendingApprovalsV120,signupOverviewV134,reviewApplicationV120,previewApplicationPhotoV120} from '../../services/teacherOnboardingV120.js';
 import {supabase} from '../../services/supabase.js';
+import {newestApplicationsV250,rejectionDraftV250,rejectionReasonsV250,validSchoolWebsiteV250} from '../../lib/teacherReviewV250.js';
+import '../../styles/teacherReviewV250.css';
 const el=(tag,cls='',str='')=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=str;return n;};
 export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-admin-page"><section class="gcc120-join gcc120-admin">
- <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>New teacher applications are emailed to the GCC founder administrator. After approval, the teacher receives an English confirmation email. Verify the teacher's face, introduction, school details, and any websites provided. Teachers without websites may still be approved after verifying their school information. Decide whether to grant Teacher access or Teacher + Host Admin.</p></div>
- <section class="gcc134-tracker" aria-label="Teacher registration status">
+ <a class="gcc120-back" href="#/dashboard">← Host dashboard</a><div class="gcc120-title"><span>GLOBAL CLASSROOM · ADMIN</span><h1>Teacher applications</h1><p>Review new applications first. Verify a recognizable face photograph and official school website before approval. Teacher access is the default; Host Admin is reserved for trusted administrators.</p></div>
+ <section class="gcc250-queue" aria-label="Applications awaiting approval">
+  <div class="gcc134-tracker-head"><div><h2 class="gcc134-queue-title">Applications awaiting approval <span id="gcc250-pending-count" aria-live="polite"></span></h2><p>Newest submissions first. Review the face photograph and official school information.</p></div><button id="gcc134-refresh" type="button" class="gcc120-secondary">↻ Refresh now</button></div>
+  <p id="gcc134-refresh-time" class="gcc134-time" role="status" aria-live="polite">Checking applications…</p>
+  <p id="gcc120-review-msg" role="status" aria-live="polite" class="gcc120-message"></p>
+  <section id="gcc250-prepared-mail" class="gcc120-panel" hidden aria-label="Prepared rejection email"></section>
+  <div id="gcc120-review-list" class="gcc120-review-list">Loading…</div>
+ </section>
+ <details class="gcc134-tracker gcc250-collapsible"><summary>All teacher registration statuses</summary>
   <div class="gcc134-tracker-head">
    <div><h2>Teacher registration status</h2><p>New sign-ups appear here before email confirmation or profile submission.</p></div>
-   <button id="gcc134-refresh" type="button" class="gcc120-secondary">↻ Refresh now</button>
+
   </div>
-  <p id="gcc134-refresh-time" class="gcc134-time" role="status" aria-live="polite">Checking registered accounts…</p>
+
   <div id="gcc134-counts" class="gcc134-counts"></div>
   <div id="gcc134-accounts" class="gcc134-accounts">Loading registration status…</div>
- </section>
- <section class="gcc153-host-school-queue gcc120-panel" aria-label="School information correction requests">
+ </details>
+ <details class="gcc153-host-school-queue gcc120-panel gcc250-collapsible"><summary>School information correction requests</summary>
   <div class="gcc134-tracker-head"><div><h2>School information corrections</h2><p>Review changes requested by approved teachers. Approved changes may affect everyone linked to the same school.</p></div>
   <button type="button" id="gcc153-refresh-school" class="gcc120-secondary">↻ Refresh corrections</button></div>
   <p id="gcc153-host-school-msg" class="gcc120-message" role="status" aria-live="polite"></p>
   <div id="gcc153-host-school-list" class="gcc120-review-list">Loading requests…</div>
- </section>
- <h2 class="gcc134-queue-title">Applications awaiting approval</h2>
- <p id="gcc120-review-msg" role="status" aria-live="polite" class="gcc120-message"></p><div id="gcc120-review-list" class="gcc120-review-list">Loading…</div>
+ </details>
  </section></main>`;}
 export function bindTeacherApprovalsV120(){
  const root=document.querySelector('.gcc120-admin');if(!root)return;
@@ -32,7 +39,9 @@ export function bindTeacherApprovalsV120(){
  const schoolStatus=root.querySelector('#gcc153-host-school-msg');
  const schoolRefresh=root.querySelector('#gcc153-refresh-school');
  let schoolBusy=false;
- let loading=false,lastAccountKey=null,lastQueueKey=null;
+ let loading=false,reviewBusy=false,lastAccountKey=null,lastQueueKey=null;
+ const pendingCount=root.querySelector('#gcc250-pending-count'),prepared=root.querySelector('#gcc250-prepared-mail');
+ const showMail=(draft)=>{prepared.hidden=false;prepared.replaceChildren(el('h3','','Rejection email ready — not sent'),el('p','','To: '+draft.to),el('p','','Subject: '+draft.subject));const area=el('textarea');area.readOnly=true;area.rows=10;area.value=draft.body;area.setAttribute('aria-label','Rejection email body');prepared.append(area);const actions=el('div','gcc120-review-actions');const copy=el('button','gcc120-secondary','Copy email text');copy.type='button';copy.onclick=async()=>{try{await navigator.clipboard.writeText('Subject: '+draft.subject+'\n\n'+draft.body);notify('Email text copied.');}catch{area.focus();area.select();notify('Select and copy the email text.');}};const mail=el('a','gcc120-primary gcc120-inline','Open email draft');mail.href=draft.mailto;const close=el('button','gcc120-secondary','Dismiss');close.type='button';close.onclick=()=>{prepared.hidden=true;prepared.replaceChildren();};actions.append(copy,mail,close);prepared.append(actions);};
  const stages={
   email_unconfirmed:['Email confirmation needed','Ask the teacher to confirm their email.'],
   profile_incomplete:['Profile not submitted','The teacher needs to sign in and submit their school profile.'],
@@ -66,48 +75,54 @@ export function bindTeacherApprovalsV120(){
  }
  const notify=(s,error=false)=>{message.textContent=s;message.classList.toggle('error',error);};
  async function refresh(){
-  if(loading||!root.isConnected)return;
+  if(loading||reviewBusy||!root.isConnected)return;
   loading=true;refreshButton.disabled=true;
   try{
-   const [applications,accounts]=await Promise.all([pendingApprovalsV120(),signupOverviewV134()]);
+   const [rawApplications,accounts]=await Promise.all([pendingApprovalsV120(),signupOverviewV134().catch(()=>null)]);
+   const applications=newestApplicationsV250(rawApplications);pendingCount.textContent='('+applications.length+')';
    if(!root.isConnected)return;
    lastCheck.textContent='Last checked: '+new Date().toLocaleTimeString()+' · Refreshes every 15 seconds';
    const aKey=JSON.stringify(accounts);
-   if(aKey!==lastAccountKey){renderAccounts(accounts);lastAccountKey=aKey;}
+   if(accounts!==null&&aKey!==lastAccountKey){renderAccounts(accounts);lastAccountKey=aKey;}
    const qKey=JSON.stringify(applications);
    if(qKey===lastQueueKey)return;
-   lastQueueKey=qKey;
    list.replaceChildren();
-   if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));return;}
+   if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));lastQueueKey=qKey;return;}
   const {data:schools,error:schoolErr}=await supabase.from('schools').select('id,name,country_name').eq('is_active',true).order('name');
   if(schoolErr)throw schoolErr;
+  lastQueueKey=qKey;
   for(const a of applications){const card=el('article','gcc120-panel gcc120-review-card');
     const header=el('div','gcc120-review-head');const image=el('div','gcc120-review-photo','Photo not available');
-    if(a.photo_path){try{const src=await previewApplicationPhotoV120(a.photo_path);if(src){const pic=el('img');pic.src=src;pic.alt='Applicant face photograph (verify manually)';image.replaceChildren(pic);}}catch{}}
+    let photoReady=false;let faceBox;let photoStatus=el('p','gcc250-photo-status','Photo not available');
+    if(a.photo_path){try{const src=await previewApplicationPhotoV120(a.photo_path);if(src){const pic=el('img');pic.alt='Applicant face photograph (verify manually)';pic.addEventListener('load',()=>{photoReady=true;photoStatus.textContent='Photo loaded · verify manually';if(faceBox)faceBox.disabled=false;});pic.addEventListener('error',()=>{photoReady=false;photoStatus.textContent='Photo could not be loaded. Refresh before reviewing.';if(faceBox){faceBox.checked=false;faceBox.disabled=true;}});pic.src=src;image.replaceChildren(pic);}}catch{photoStatus.textContent='Photo could not be loaded. Refresh before reviewing.';}}
     const detail=el('div');detail.append(el('h2','',a.name||''),el('p','',a.email||''));const facts=[
      ['Teacher website',a.website],['Introduction',a.bio],['School',a.school],['School type / level',`${a.school_type} · ${a.school_level}`],
      ['Location',[a.city,a.region,a.country].filter(Boolean).join(', ')],['School website',a.school_website],['Time zone',a.timezone]
     ];for(const [title,value] of facts){const p=el('p');p.append(el('strong','',title+': '));
       if(['Teacher website','School website'].includes(title)&&value){try{const u=new URL(value);if(u.protocol==='https:'){const link=el('a','',u.hostname);link.href=u.href;link.rel='noopener noreferrer';link.target='_blank';p.append(link);}else p.append(document.createTextNode(value));}catch{p.append(document.createTextNode(value));}}
       else p.append(document.createTextNode(value||'—'));detail.append(p);}
-    header.append(image,detail);card.append(header);
+    detail.append(el('p','gcc250-submitted','Submitted: '+(a.submitted_at?new Date(a.submitted_at).toLocaleString():'Unknown')),photoStatus);header.append(image,detail);card.append(header);
     const existing=el('label','','Use existing school (optional; otherwise create new school)');const select=el('select');select.append(new Option('Create a new school',''));
     for(const s of schools){const opt=new Option(`${s.name} · ${s.country_name}`,s.id);select.append(opt);}existing.append(select);card.append(existing);
     const roles=el('fieldset','gcc120-role');roles.append(el('legend','','Grant access after approval'));
     const teacher=el('label');const basic=el('input');basic.type='radio';basic.name=`role-${a.id}`;basic.value='teacher';basic.checked=true;teacher.append(basic,document.createTextNode(' Teacher only'));
     const admin=el('label');const elevated=el('input');elevated.type='radio';elevated.name=`role-${a.id}`;elevated.value='host';admin.append(elevated,document.createTextNode(' Teacher + Host Admin (can approve others and manage GCC)'));
     roles.append(teacher,admin);card.append(roles);
-    const checks=el('div','gcc120-review-checks');const checkedFace=el('label');const faceBox=el('input');faceBox.type='checkbox';checkedFace.append(faceBox,document.createTextNode(' I checked that the photograph shows a recognizable face'));
-    const checkedSchool=el('label');const schoolBox=el('input');schoolBox.type='checkbox';checkedSchool.append(schoolBox,document.createTextNode(' I verified the school information and any website provided (if available)'));checks.append(checkedFace,checkedSchool);card.append(checks);
+    const checks=el('div','gcc120-review-checks');const checkedFace=el('label');faceBox=el('input');faceBox.type='checkbox';faceBox.disabled=!photoReady;checkedFace.append(faceBox,document.createTextNode(' I checked that the photograph shows a recognizable face'));
+    const checkedSchool=el('label');const schoolBox=el('input');schoolBox.type='checkbox';checkedSchool.append(schoolBox,document.createTextNode(' I verified the official school website and school affiliation'));schoolBox.disabled=!validSchoolWebsiteV250(a.school_website);checks.append(checkedFace,checkedSchool);card.append(checks);
+    if(schoolBox.disabled)card.append(el('p','gcc250-warning','Official school website is missing or invalid. This application cannot be approved.'));
+    const rejection=el('details','gcc250-rejection');rejection.append(el('summary','','Rejection reasons and email preview'));const reasonBoxes=new Map();for(const [key,title] of rejectionReasonsV250){const l=el('label','gcc250-reason');const cb=el('input');cb.type='checkbox';cb.checked=key==='school'&&!validSchoolWebsiteV250(a.school_website)||key==='photo'&&!a.photo_path;reasonBoxes.set(key,cb);l.append(cb,document.createTextNode(title));rejection.append(l);}const note=el('textarea');note.rows=2;note.maxLength=500;note.placeholder='Optional specific explanation (English)';note.setAttribute('aria-label','Additional rejection explanation');const preview=el('textarea');preview.rows=9;preview.readOnly=true;preview.setAttribute('aria-label','Rejection email preview');const selected=()=>[...reasonBoxes].filter(([,v])=>v.checked).map(([k])=>k);const draft=()=>rejectionDraftV250(a,selected(),note.value);const renderPreview=()=>{try{const d=draft();preview.value='Subject: '+d.subject+'\n\n'+d.body;}catch{preview.value='Select at least one rejection reason.';}};for(const cb of reasonBoxes.values())cb.addEventListener('change',renderPreview);note.addEventListener('input',renderPreview);rejection.append(note,preview);card.append(rejection);renderPreview();
     const actions=el('div','gcc120-review-actions');for(const [decision,label] of [['approved','Approve application'],['rejected','Reject application']]){
      const btn=el('button',decision==='approved'?'gcc120-primary':'gcc120-secondary',label);btn.type='button';btn.addEventListener('click',async()=>{
-      const grantHost=elevated.checked,school=select.value||null;
-      if(decision==='approved'&&(!faceBox.checked||!schoolBox.checked)){notify('Verify the face photo and school information before approval.',true);return;}
+      if(reviewBusy)return;const grantHost=decision==='approved'&&elevated.checked,school=select.value||null;
+      let rejectMail=null;if(decision==='rejected'){rejection.open=true;try{rejectMail=draft();}catch(e){notify(e.message,true);return;}}
+      if(decision==='approved'&&(!photoReady||!validSchoolWebsiteV250(a.school_website)||!faceBox.checked||!schoolBox.checked)){notify('Verify the face photo and school information before approval.',true);return;}
       const warning=decision==='approved'?`Approve ${a.name} as ${grantHost?'HOST ADMIN + Teacher':'Teacher'}? ${grantHost?'This grants full GCC administrative powers.':''}`:`Reject ${a.name}?`;
       if(!confirm(warning))return;
       if(grantHost&&!confirm(`HIGH PRIVILEGE: Confirm granting Host Admin to ${a.email}. This user can approve future teachers.`))return;
-      btn.disabled=true;try{await reviewApplicationV120(a.id,decision,grantHost,school);notify(`${a.name}: ${decision}.${decision==='approved'?' Approval confirmation email queued.':''}`);await refresh();}
-      catch(e){notify(e.message||'Review failed.',true);btn.disabled=false;}
+      btn.disabled=true;reviewBusy=true;try{await reviewApplicationV120(a.id,decision,grantHost,school);if(rejectMail)showMail(rejectMail);notify(decision==='approved'?a.name+': approved. Approval confirmation email queued.':a.name+': rejected. Review and send the prepared email manually.');}
+      catch(e){notify(e.message||'Review failed.',true);btn.disabled=false;return;}
+      finally{reviewBusy=false;}await refresh();
      });actions.append(btn);}card.append(actions);list.append(card);
   }
   }catch(e){
@@ -161,7 +176,7 @@ export function bindTeacherApprovalsV120(){
   finally{schoolBusy=false;schoolRefresh.disabled=false;}
  }
  schoolRefresh.addEventListener('click',refreshSchoolEdits);
- refreshButton.addEventListener('click',()=>{refresh();refreshSchoolEdits();});
+ refreshButton.addEventListener('click',()=>{if(loading||reviewBusy)return;lastQueueKey=null;refresh();refreshSchoolEdits();});
  const onActive=()=>{if(root.isConnected&&document.visibilityState==='visible'){refresh();refreshSchoolEdits();}};
  window.addEventListener('focus',onActive);
  document.addEventListener('visibilitychange',onActive);
