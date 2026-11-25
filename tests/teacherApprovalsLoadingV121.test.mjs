@@ -20,6 +20,6 @@ test('approval admin page initializes after signup handler and displays failures
 });
 test('new fix does not alter admin privilege decisions and teacher registration backends',()=>{
  assert.match(admin,/Teacher \+ Host Admin/);
- assert.match(admin,/reviewApplicationV120\(a\.id,decision,grantHost,school\)/);
+ assert.match(admin,/review\(a\.id,decision,grantHost,school\)/);
  assert.match(join,/submitApplicationV120/);
 });
