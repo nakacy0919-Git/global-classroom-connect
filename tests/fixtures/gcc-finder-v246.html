@@ -1,0 +1,93 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><main id="app"></main><script type="module">
+import '/src/styles/global.css';
+import {Header} from '/src/components/Header.js';
+import {TeacherPortalPage} from '/src/pages/teacher/TeacherPortalPage.js';
+import {compactSessionCardV246,sessionDetailsDialogV246} from '/src/lib/sessionFinderCardsV246.js';
+import '/src/styles/academicPop.css';
+import '/src/styles/mobileExperienceV152.css';
+import {calendarMenuV214} from '/src/lib/sessionCalendarExportV214.js';
+const check=(v,m)=>{if(!v)throw Error(m)};
+try{
+ history.replaceState(null,'','#/teacher-portal?view=find');
+ const app=document.getElementById('app');
+ app.innerHTML='<div class="app-shell"><aside></aside><main class="main-shell">'+Header('teacher-portal')+TeacherPortalPage()+'</main></div>';
+ const root=app.querySelector('.gct-portal');root.classList.add('gcs209-finding');root.querySelector('[data-gct-view=find]').hidden=false;
+ check(app.querySelectorAll('.page-title').length===1&&!root.querySelector('.gcs151-find-hero'),'one heading');
+ check(app.querySelector('.gcc246-find-subtitle').textContent.includes('Discover and join'),'subtitle present');
+ const list=root.querySelector('#gctp-results'),modal=sessionDetailsDialogV246();let built=0,clicked=0;
+ for(let i=0;i<8;i++){
+  const info={key:'offer:'+i,title:'International school exchange '+i+' — '+('Long title '.repeat(i+1)),school:'A long international partner school name '+i+' '+('長い学校名'.repeat(i+1)),country:i===7?'United Kingdom of Great Britain and Northern Ireland':'Japan',flag:'🇯🇵',start:'2026-12-01T00:00:00Z',end:'2026-12-01T01:00:00Z',zone:'Asia/Tokyo',own:i===0};
+  list.append(compactSessionCardV246(info,b=>modal.open(b,()=>{
+   built++;const detail=document.createElement('article');detail.className='gcs230-card';
+   const p=document.createElement('p');p.textContent='Full agenda and session details';
+   const action=document.createElement('button');action.textContent='Request Join';action.onclick=()=>clicked++;
+   const tools=document.createElement('div');tools.className='gcs230-quick-tools';
+   const calendar=calendarMenuV214({id:info.key,title:info.title,starts_at:info.start,ends_at:info.end,viewer_zone:info.zone});tools.append(calendar);
+   const extra=document.createElement('button');extra.textContent='Save';tools.append(extra);
+   detail.append(p,tools,action);return detail;
+  })));
+ }
+ list.append(modal.dialog);
+ const cards=[...list.querySelectorAll('.gcc246-session-card')],r=e=>e.getBoundingClientRect();
+ check(cards.length===8&&built===0,'lazy detail construction');
+ for(const card of cards){
+  const box=r(card);
+  check(box.width<=191&&Math.abs(box.height-box.width)<1.5,'square card '+box.width+'x'+box.height);
+  check(box.height>=90,'usable square size');
+  for(const label of card.querySelectorAll('.gcc246-card-country,.gcc246-card-title,.gcc246-card-school,.gcc246-card-date,.gcc246-card-hours,.gcc246-open-label')){
+   check(getComputedStyle(label).whiteSpace==='nowrap','one-line text');
+   check(getComputedStyle(label).textOverflow==='ellipsis','long text safely truncated');
+   check(r(label).right<=box.right+1&&r(label).bottom<=box.bottom+1,'label inside card');
+  }
+  const foot=r(card.querySelector('.gcc246-card-foot'));
+  check(foot.bottom<=box.bottom+1,'card footer not clipped');
+ }
+ const separate=(a,b)=>a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1;
+ const contained=(a,b)=>a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1;
+ const verifySiblings=(parent,children,label)=>{
+  const bounds=r(parent),nodes=[...children].filter(e=>e.getClientRects().length);
+  for(let i=0;i<nodes.length;i++){
+   check(contained(r(nodes[i]),bounds),label+' inside container '+i);
+   for(let j=0;j<i;j++)check(separate(r(nodes[i]),r(nodes[j])),label+' no overlap '+i+' '+j);
+  }
+ };
+ for(const card of cards){
+  verifySiblings(card,card.children,'card rows');
+  const when=card.querySelector('.gcc246-card-when');verifySiblings(when,when.children,'date/time lines');
+  const foot=card.querySelector('.gcc246-card-foot');verifySiblings(foot,foot.children,'footer labels');
+ }
+ const search=root.querySelector('.gcs209-search-tools'),sort=root.querySelector('.gcs213-results-tools');
+ const heading=root.querySelector('.gcs213-results-heading'),advanced=root.querySelector('.gcs150-advanced');
+ verifySiblings(search,search.children,'search toolbar');
+ verifySiblings(sort,sort.children,'sort/region toolbar');
+ verifySiblings(heading,heading.children,'results heading');
+ advanced.open=true;const filters=advanced.querySelector('.gct-filterbar');
+ verifySiblings(filters,filters.children,'advanced filters');
+ for(const label of filters.querySelectorAll('label'))verifySiblings(label,label.querySelectorAll('select,input'),'advanced inputs');
+ check(r(advanced).bottom<=r(heading).top+1,'advanced filters not overlapping heading');
+ advanced.open=false;
+ const cols=innerWidth>=851?4:innerWidth>320?2:1;
+ check(getComputedStyle(list).gridTemplateColumns.split(' ').length===cols,'correct columns');
+ for(let i=0;i<cols;i++){check(Math.abs(r(cards[i]).top-r(cards[0]).top)<1,'equal row');if(i>0)check(r(cards[i-1]).right<r(cards[i]).left,'no horizontal overlap');}
+ check(r(cards[cols]).top>r(cards[0]).bottom,'separate rows');
+ check(!modal.dialog.open&&!modal.dialog.getClientRects().length,'closed modal occupies no space');
+ check(!list.textContent.includes('Full agenda'),'no detailed content until open');
+ cards[0].click();
+ check(modal.dialog.open&&built===1,'card opens modal');
+ check(modal.dialog.textContent.includes('Full agenda'),'details displayed');
+ const bounds=r(modal.dialog);
+ check(bounds.width<=innerWidth+1&&bounds.height<=innerHeight+1,'modal fits viewport');
+ const menu=modal.dialog.querySelector('.gcs214-calendar-menu');menu.open=true;
+ const tools=modal.dialog.querySelector('.gcs230-quick-tools');
+ verifySiblings(tools,tools.children,'detail calendar/favorite');
+ check(getComputedStyle(menu.querySelector('.gcs214-calendar-options')).position==='static','calendar expands without overlay');
+ check(r(menu).bottom<=r(modal.dialog.querySelector('article>button')).top+1,'calendar does not cover request');
+ modal.dialog.querySelector('article>button').click();check(clicked===1,'detail action still works');
+ modal.dialog.querySelector('.gcc246-close').click();await new Promise(resolve=>setTimeout(resolve,30));
+ check(!modal.dialog.open&&!modal.dialog.querySelector('article'),'close clears old details');
+ check(document.activeElement===cards[0],'focus returns to card');
+ cards[1].click();check(built===2&&modal.dialog.open,'another card opens fresh details');
+ modal.dismiss();check(!modal.dialog.open,'refresh dismisses stale details');
+ document.body.dataset.result='pass';
+}catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.message;document.body.append(p);}
+</script></body></html>

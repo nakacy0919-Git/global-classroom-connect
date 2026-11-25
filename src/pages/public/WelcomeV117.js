@@ -16,6 +16,7 @@ const icon=(type)=>({
  search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5M8 10.5h5M10.5 8v5"/>',
  people:'<circle cx="8" cy="8" r="3"/><path d="M2.5 20v-2a5.5 5.5 0 0 1 11 0v2zM17 5a3 3 0 0 1 0 6M16 14a5 5 0 0 1 5.5 5"/>',
  arrow:'<path d="M5 12h14m-6-6 6 6-6 6"/>',
+ shield:'<path d="M12 3 4 6v6c0 4.5 3.5 7.5 8 9 4.5-1.5 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
  profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-6 6-6 12 0 18M12 3c6 6 6 12 0 18"/>'
 }[type]||'');
@@ -25,7 +26,9 @@ export function WelcomeV117(){return `<section class="gcc117-welcome" aria-label
  <div class="gcc117-world" aria-hidden="true"><div class="gcc117-globe"></div><i class="gcc117-orbit gcc117-orbit-a"></i><i class="gcc117-orbit gcc117-orbit-b"></i><i class="gcc117-dot gcc117-dot-a"></i><i class="gcc117-dot gcc117-dot-b"></i><i class="gcc117-dot gcc117-dot-c"></i></div>
  <header class="gcc117-topbar"><a href="#/welcome" class="gcc117-logo gcc119-brand" aria-label="Global Classroom Connect home"><img class="gcc119-logo-image" src="${gccOfficialBadgeV119}" width="420" height="420" alt=""/><span class="gcc119-brand-words"><small>GLOBAL CLASSROOM</small><strong>CONNECT</strong></span></a><nav aria-label="Account and management" class="gcc124-actions">
  <select class="gcc184-language-select" data-lang-select aria-label="Select interface language"><option value="en">English</option><option value="ja">日本語</option></select>
- <div class="gcc184-guest-actions" hidden><a href="#/teacher-access" class="gcc120-signin-top">${svg('profile')} Sign in</a><a href="#/signup" class="gcc120-signup-top">Join us ${svg('arrow')}</a></div>
+ <a class="gcc245-login gcc245-teacher-login" data-gcc245-teacher href="#/teacher-access">${svg('people')}<span>Teacher Login</span></a>
+ <a class="gcc245-login gcc245-admin-login" data-gcc245-admin href="#/login">${svg('shield')}<span>Admin Login</span></a>
+ <div class="gcc184-guest-actions"><a href="#/signup" class="gcc120-signup-top">Join us ${svg('arrow')}</a></div>
  <details class="gcc124-account-menu gcc184-user-menu" hidden><summary aria-label="My GCC Account">${svg('profile')}<span aria-hidden="true">▾</span></summary><div class="gcc124-account-popup">
  <p class="gcc184-account-heading">My GCC Account</p>
  <a data-gcc-teacher-mode href="#/teacher-portal?view=find" hidden>${svg('people')} Teacher Mode</a>

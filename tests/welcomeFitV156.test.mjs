@@ -28,8 +28,9 @@ test('desktop landing contains logo, full slogan, all three tappable artwork cho
  assert.match(css,/aspect-ratio:1 \/ 1/);
 });
 test('account actions have coherent sign-in/sign-up styles and keep accessible account menu',()=>{
- assert.ok(page.indexOf('class="gcc120-signin-top"')<page.indexOf('class="gcc120-signup-top"'));
- assert.match(page,/href="#\/teacher-access" class="gcc120-signin-top"/);
+ assert.ok(page.indexOf('data-gcc245-teacher')<page.indexOf('class="gcc120-signup-top"'));
+ assert.match(page,/data-gcc245-teacher href="#\/teacher-access"/);
+ assert.match(page,/data-gcc245-admin href="#\/login"/);
  assert.match(page,/href="#\/signup" class="gcc120-signup-top"/);
  assert.match(page,/class="gcc124-account-menu gcc184-user-menu"/);
  assert.match(page,/aria-label="My GCC Account"/);

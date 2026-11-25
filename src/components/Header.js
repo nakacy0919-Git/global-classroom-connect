@@ -25,9 +25,10 @@ const titles = {
 export function Header(route) {
   const view=route==='teacher-portal'?new URLSearchParams(window.location.hash.split('?')[1]||'').get('view'):null;
   const teacherTitles={home:'Teacher Home',profile:'My Profile',create:'Host a Session',find:'Find a Session',requests:'My Requests',network:'Teacher Network',volunteer:'Be a Facilitator / GC Host'};
+  const finding=route==='teacher-portal'&&view==='find';
   const pageTitle=route==='teacher-portal'?(teacherTitles[view||'home']||'Teacher Home'):titles[route];
   return `
-    <header class="topbar">
+    <header class="topbar${finding?' gcc246-find-header':''}">
       <div class="gcc152-topbar-main">
         <button id="gcc-mobile-menu-button" class="gcc-mobile-menu-button" type="button" aria-label="Open navigation menu" aria-controls="gcc-mobile-sidebar" aria-expanded="false">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -35,7 +36,8 @@ export function Header(route) {
         </button>
         <div class="gcc152-title-block">
           <p class="eyebrow">Global Classroom Connect</p>
-          <h1 class="page-title">${pageTitle}</h1>
+          <h1 class="page-title">${pageTitle}${finding?' <span aria-hidden="true">🌍</span>':''}</h1>
+          ${finding?'<p class="gcc246-find-subtitle">Discover and join international classroom exchanges with teachers around the world.</p>':''}
         </div>
       </div>
 
