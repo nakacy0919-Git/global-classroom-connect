@@ -99,6 +99,13 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v232_restrict_trigger_execute.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_assertions.sql
 
+      - name: Rehearse logical backup and restore in disposable PostgreSQL
+        env:
+          PGHOST: 127.0.0.1
+          PGDATABASE: gcc_v231_ci
+          GCC_CI_PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: bash scripts/gcc-v240-restore-rehearsal.sh
+
 
   postgrest-http-security:
     name: JWT/HTTP authorization through isolated PostgREST
@@ -139,6 +146,15 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v226_registration_console.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v227_english_name_search_path.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v233_scope_legacy_signup_overview.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v236_roster_guard_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v236_roster_admission_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v237_invite_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v237_event_invitation_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v238_verified_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v238_verified_roster_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v239_bot_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v239_bot_receipt_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v240_http_admission_seed.sql
       - name: Start an ephemeral PostgREST and verify actual HTTP JWT boundaries
         env:
           GCC_TEST_JWT_SECRET: gcc-ephemeral-postgrest-ci-only-secret-2026
@@ -160,3 +176,4 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then echo 'PostgREST failed startup'; exit 1; fi
           node scripts/gcc-postgrest-security-smoke.mjs
+          node scripts/gcc-v240-http-admission-smoke.mjs
