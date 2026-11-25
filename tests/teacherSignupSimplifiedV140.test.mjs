@@ -20,7 +20,7 @@ test('UI removes redundant registration instructions and legacy invitation link'
  assert.doesNotMatch(ui,/Your account already exists\. Finish this application/);
  assert.doesNotMatch(ui,/A successful submission displays/);
  assert.doesNotMatch(ui,/Legacy invitation registration/);
- assert.match(ui,/Fields marked \* are required\. Websites and region are optional/);
+ assert.match(ui,/Fields marked \* are required\. Personal website and region are optional/);
  assert.match(ui,/confirm the link sent to your email/);
 });
 test('action buttons are compact on desktop, phone-sized on mobile',()=>{
