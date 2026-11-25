@@ -38,7 +38,7 @@ test('teacher workflow links own sessions, finding and inbound approval without 
  assert.match(portal,/data-gct-view="find"/);
  assert.match(portal,/data-gct-view="requests"/);
  assert.doesNotMatch(portal,/data-gct-tab=/);
- assert.match(portal,/teacherReview\(r\.id,decision\)/);
+ assert.match(portal,/teacherOperationsV248\(r\.offer_id,'review',\{revision:operations\.revision,request_id:r\.id,decision\}\)/);
  assert.match(portal,/teacherApply\(o\.id,message\.value\.trim\(\),number,minAge,maxAge\)/);
  assert.match(access,/claimTeacherInvite/);
 });
