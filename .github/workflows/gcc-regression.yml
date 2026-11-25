@@ -106,6 +106,21 @@ jobs:
           GCC_CI_PG_CONTAINER: ${{ job.services.postgres.id }}
         run: bash scripts/gcc-v240-restore-rehearsal.sh
 
+      - name: Check actual roster RPC bodies, legacy capacity parity and concurrency
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: gcc_ci_disposable_only
+          PGDATABASE: gcc_v231_ci
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v241_actual_roster_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v241_roster_function_snapshot.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v241_legacy_roster_capacity.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v241_actual_roster_assertions.sql
+          bash scripts/gcc-v241-roster-capacity-concurrency.sh
+
 
   postgrest-http-security:
     name: JWT/HTTP authorization through isolated PostgREST
