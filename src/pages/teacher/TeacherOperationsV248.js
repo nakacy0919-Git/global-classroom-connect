@@ -102,12 +102,19 @@ export async function mountTeacherOperationsV248(root,params,{rpc=teacherOperati
    const bulk=el('details');bulk.append(el('summary','','Paste a class list'));const paste=el('textarea');paste.rows=3;paste.placeholder='One name per line; optional tab-separated grade';paste.oninput=()=>{dirty=true;};
    bulk.append(paste,button('Append names',()=>{const newStudents=parseRosterV248(paste.value,m.expected);const blank=[...rows.children].filter(row=>!row.dataset.studentId&&!row.querySelector('input').value.trim());if(rows.children.length-blank.length+newStudents.length>m.expected)throw Error('Approved allocation reached.');blank.forEach(row=>row.remove());for(const st of newStudents)addRow(st);paste.value='';dirty=true;}));section.append(bulk);
    const collect=()=>[...rows.children].map(row=>{const inputs=row.querySelectorAll('input');const name=inputs[0].value.trim(),grade=inputs[1].value.trim();if(!name&&grade)throw Error('Student name is required.');return {id:row.dataset.studentId||undefined,name,grade};}).filter(x=>x.name);
+   const helpers=el('div','gcc249-student-rows');
+   const addHelper=(person={})=>{const row=el('div','gcc249-helper-row');if(person.id)row.dataset.helperId=person.id;
+    const name=el('input');name.value=person.name||'';name.maxLength=100;name.placeholder='Adult facilitator display name';name.setAttribute('aria-label','Adult facilitator display name');name.oninput=()=>{dirty=true;};
+    const remove=button('×',()=>{row.remove();dirty=true;});remove.setAttribute('aria-label','Remove facilitator');row.append(name,remove);helpers.append(row);};
+   for(const person of m.helpers||[])addHelper(person);
+   section.append(el('h4','','Additional adult facilitators'),el('p','','Optional: register adult helpers from your school. The host assigns them to rooms.'),helpers,button('+ Add facilitator',()=>{if(helpers.children.length>=100)throw Error('Maximum 100 helpers per class.');addHelper();dirty=true;}));
+   const collectHelpers=()=>[...helpers.children].map(row=>({id:row.dataset.helperId||undefined,name:row.querySelector('input').value.trim()})).filter(x=>x.name);
    const actions=el('div','gcc248-actions');
    for(const [finalized,caption] of [[false,'Save draft'],[true,'Confirm final registration']])actions.append(button(caption,async()=>{
     const students=collect();if(students.length>m.expected||finalized&&!students.length)throw Error('A final list must have 1 to '+m.expected+' students.');
     if(finalized&&students.length<m.expected&&!confirm('Finalize with '+students.length+' students and release '+(m.expected-students.length)+' reserved places?'))return;
     if(!confirm(caption+' for '+m.school+'? Unsaved changes in other class cards will be discarded.'))return;
-    await mutate('save_roster',{teacher_id:m.teacher_id,students,finalized},finalized?'Final registration saved.':'Draft saved.');
+    await mutate('save_roster',{teacher_id:m.teacher_id,students,helpers:collectHelpers(),finalized},finalized?'Final registration saved.':'Draft saved.');
    },finalized));section.append(actions);
    if(host&&!m.is_host){const removal=el('details');removal.append(el('summary','','Participation withdrawal'));
     for(const [scope,value,caption] of [['teacher',m.teacher_id,'Remove this class'],['school',m.school_id,'Remove all classes from this school'],['country',m.country,'Remove all guest classes from '+m.country]])if(value)removal.append(button(caption,async()=>{if(!discard()||!confirm(caption+'? This will remove the selected guest registration(s), release their places and update any complete room chart.'))return;await mutate('withdraw',{scope,value},'Withdrawal saved. Room chart updated if all remaining registrations are final.');}));
@@ -137,9 +144,9 @@ export async function mountTeacherOperationsV248(root,params,{rpc=teacherOperati
  }
  function facilitators(s){
   const p=panel('Facilitator placement');
-  p.append(el('p','','Assign participating teachers to rooms. Multiple teachers may facilitate the same room; each teacher may be assigned to one room.'));
+  p.append(el('p','','Assign participating teachers and registered adult helpers to rooms. Several facilitators may share one room.'));
   const byTeacher=new Map((s.facilitators||[]).map(x=>[x.teacher_id,x.room])),choices=[['','Unassigned'],...Array.from({length:s.room_count||1},(_,i)=>[i+1,'Room '+(i+1)])],items=[];
-  for(const m of s.members||[]){const picker=select(choices,byTeacher.get(m.teacher_id)||'');picker.onchange=()=>{dirty=true;};items.push({id:m.teacher_id,picker});p.append(label(flag(m.country)+' '+m.teacher+' · '+m.school,picker));}
+  for(const m of s.facilitator_pool||(s.members||[]).map(m=>({id:m.teacher_id,name:m.teacher,school:m.school,country:m.country}))){const picker=select(choices,byTeacher.get(m.id)||'');picker.onchange=()=>{dirty=true;};items.push({id:m.id,picker});p.append(label(flag(m.country)+' '+m.name+' · '+m.school,picker));}
   p.append(button('Save facilitator placements',async()=>{if(!confirm('Save facilitator assignments?'))return;await mutate('save_facilitators',{facilitators:items.filter(x=>x.picker.value).map(x=>({teacher_id:x.id,room:Number(x.picker.value)}))},'Facilitators saved.');},true));return p;
  }
  function chart(s,edit){
