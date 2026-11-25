@@ -1,0 +1,35 @@
+/* GCC V23.5: responsive teacher workspace, without replacing existing card art. */
+.gct-portal .gct-home-summary-card-v200{font:inherit;text-align:start;min-height:52px;min-width:0;cursor:pointer}
+.gct-portal .gct-home-summary-card-v200:focus-visible,.gct-portal #gctp-mine-more:focus-visible,.gct-portal #gctp-manage-heading:focus-visible{outline:3px solid #187f91;outline-offset:3px}
+.gct-portal #gctp-manage-heading{scroll-margin-top:96px}
+.gct-portal #gctp-mine-more:not([hidden]){display:block;margin:14px auto 0;min-height:44px}
+.gct-portal .gcc226-first-start{margin:0!important}
+.gct-portal .gcc226-first-start>summary{min-height:44px;display:flex;align-items:center;gap:8px}
+.gct-portal .gcc226-first-start>summary::before{content:'+';font-size:1.15rem;flex-shrink:0}
+.gct-portal .gcc226-first-start[open]>summary::before{content:'−'}
+.gct-portal :is(.gct-home-action-v200,.gct-home-summary-card-v200,.gct-home-list-v200,.gcs209-search-tools,.gcs213-results-tools){min-width:0;overflow-wrap:anywhere}
+.gct-portal .gcs213-results-tools{flex-wrap:wrap}
+.gct-portal .gcs213-results-tools :is(button,select){min-height:44px;max-width:100%}
+.gct-portal dialog.gcs209-search-dialog{box-sizing:border-box;max-width:calc(100% - 24px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
+.gct-portal .gcs209-dialog-actions button{min-height:44px}
+@media(max-width:1024px){
+ .gct-portal .gct-home-actions-v200{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gct-portal .gct-home-action-v200{min-height:112px;padding:16px 14px}
+ .gct-portal .gct-home-action-icon-v200{flex-basis:44px;width:44px;height:44px}
+ .gct-portal .gct-home-action-v200 strong{font-size:1.05rem}
+}
+@media(max-width:600px){
+ .gct-portal .gct-home-actions-v200{grid-template-columns:minmax(0,1fr);gap:10px}
+ .gct-portal .gct-home-action-v200{min-height:84px;gap:10px}
+ .gct-portal .gct-home-summary-v200{gap:8px}
+ .gct-portal .gct-home-summary-card-v200{padding:10px;gap:8px}
+ .gct-portal .gct-home-summary-card-v200 strong{font-size:1.35rem}
+ .gct-portal.gcs209-finding .gcs230-quicksearch{flex:1 1 100%;min-width:0;max-width:none}
+ .gct-portal.gcs209-finding .gcs209-open-search{min-height:44px}
+ .gct-portal .gcs213-results-tools{width:100%;gap:8px}
+ .gct-portal .gcs213-results-tools label{min-width:0}
+ .gct-portal .gcs209-dialog-actions{flex-wrap:wrap}
+ .gct-portal .gcs209-dialog-actions button{flex:1 1 120px}
+ .gct-portal :is(input,select,textarea){font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.gct-portal #gctp-manage-heading{scroll-behavior:auto}}

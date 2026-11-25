@@ -29,7 +29,8 @@ test('teacher form is still a private four-step registration',()=>{
  assert.match(teacher,/dataset\.popStep=String\(n\)/);
  for(const id of ['gcc-v8-event','gcc-v8-country','gcc-v8-school','gcc-v8-roster','gcc-v8-submit'])assert.ok(teacher.includes(id));
  assert.match(teacher,/submitSharedRoster/);
- assert.doesNotMatch(teacher,/Invitation code|invitation code/);
+ assert.match(teacher,/Session invitation code \(if your host provided one\)/);
+ assert.match(teacher,/id="gcc-v237-invite" type="password"/);
 });
 test('Room Planner V9.1 save/load continues intact',()=>{
  for(const word of ['saveRoomDraft','fetchRoomDraft','Continue saved plan','Move students'])assert.ok(room.includes(word),word);

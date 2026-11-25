@@ -1,3 +1,4 @@
+import {mountRosterInvitesV237} from '../../lib/rosterInvitesV237.js';
 import '../../styles/sessionDialogV167.css';
 import {mountSessionCalendarV166} from '../../lib/sessionCalendarV166.js';
 import {mountHostSessionDirectoryV233} from '../../components/HostSessionDirectoryV233.js';
@@ -291,6 +292,7 @@ export function bindSimpleSessionsPage(){
      const stat=el('div','gcc-v130-roster-stat');stat.append(el('strong','',number),el('span','',label));summary.append(stat);
    }
    panel.append(summary);
+   mountRosterInvitesV237(panel,e.id);
    mountHostPlanEditorV203(panel,{...e,max_students:(settings.find(s=>s.event_id===e.id)?.max_students||150)},async()=>{await reload(false);notify('Session details updated.');},err=>notify(err.message,true));
    const refresh=btn('↻ Refresh registrations','gcc-v8-secondary gcc-v130-refresh',async()=>{refresh.disabled=true;try{await reload(false);}finally{refresh.disabled=false;}});
    panel.append(refresh);
