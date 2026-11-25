@@ -1,5 +1,4 @@
 import '../../styles/teacherSelfService.css';
-import '../../styles/sessionPopupWizardV242.css';
 import {mountSessionWizardV242} from '../../lib/sessionPopupWizardV242.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
@@ -39,6 +38,7 @@ import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
 import '../../styles/sessionFinderV230.css';
+import '../../styles/sessionPopupWizardV242.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
 
@@ -67,7 +67,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
  <section class="gct-panel gcc242-launcher"><h3>Create a global classroom session</h3><p>One question at a time. Your saved draft is ready when you return.</p><button id="gcc242-launch" class="gct-primary" type="button" disabled>Start / resume session setup →</button></section>
  <dialog id="gcc242-dialog" class="gcc242-dialog" aria-labelledby="gcc242-title">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
-  <header class="gcc242-head"><div class="gcc242-headrow"><h3 id="gcc242-title">Create a global classroom session</h3><button id="gcc242-close" type="button" aria-label="Save and close" title="Save and close">×</button></div>
+  <header class="gcc242-head"><div class="gcc242-headrow"><h3 id="gcc242-title">Create a global classroom session</h3><button id="gcc243-done" type="button" class="gcc243-done" hidden>Done typing</button><button id="gcc242-close" type="button" aria-label="Save and close" title="Save and close">×</button></div>
   <div class="gcc242-track" aria-hidden="true"><span id="gcc242-progress"></span></div>
    <nav class="gcs150-steps" aria-label="Session setup"><span data-gcs150-step-dot="0">1 · Basics</span><span data-gcs150-step-dot="1">2 · Format</span><span data-gcs150-step-dot="2">3 · Topics</span><span data-gcs150-step-dot="3">4 · Review</span></nav>
   </header><div id="gcc242-body" class="gcc242-body">
