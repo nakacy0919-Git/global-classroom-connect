@@ -48,3 +48,47 @@
 .gcc242-choice[aria-pressed=true]{background:#d8f4f5;border:2px solid #168da4;color:#125c70;box-shadow:0 0 0 2px #168da415}
 .gcc242-choice:focus-visible{outline:3px solid #168da4;outline-offset:2px}
 @media(max-width:360px){.gcc242-choice-grid{grid-template-columns:1fr}}
+
+/* V24.3: actual keyboard-visible space, not the browser's layout viewport. */
+#gcc242-dialog[open]{max-height:var(--gcc243-height,calc(100dvh - 28px))}
+#gcc242-dialog #gctp-create{max-height:var(--gcc243-height,calc(100dvh - 30px));min-height:0;min-width:0;padding:0;margin:0;box-sizing:border-box}
+#gcc242-dialog .gcc242-body{flex:1 1 auto;min-height:0;min-width:0;overflow-y:auto;scroll-padding:12px;overflow-anchor:none}
+#gcc242-dialog .gcc243-done{width:auto;min-width:44px;min-height:36px;height:auto;padding:7px 10px;font:inherit;font-size:.8rem;font-weight:750;white-space:nowrap;color:#126478;background:#e6f7f8}
+#gcc242-dialog .gcc243-done[hidden]{display:none!important}
+#gcc242-dialog[data-gcc243-compact][open]{
+ position:fixed;inset:auto;top:var(--gcc243-top);left:var(--gcc243-left);transform:translateX(-50%);
+ margin:0;width:min(780px,calc(var(--gcc243-width) - 12px));height:var(--gcc243-height);
+ max-height:var(--gcc243-height);border-radius:14px;overflow:hidden;
+}
+#gcc242-dialog[data-gcc243-compact] #gctp-create{
+ height:100%;max-height:100%;gap:0;border:0;padding:0;display:flex;flex-direction:column;
+}
+#gcc242-dialog[data-gcc243-compact] .gcc242-head{
+ flex:0 0 auto;padding:5px 12px;gap:0;
+}
+#gcc242-dialog[data-gcc243-compact] .gcc242-headrow{gap:7px}
+#gcc242-dialog[data-gcc243-compact] .gcc242-headrow h3{flex:1;min-width:0;font-size:.86rem;line-height:1.2;margin:0}
+#gcc242-dialog[data-gcc243-compact] #gcc242-close{width:36px;height:36px;min-height:36px}
+#gcc242-dialog[data-gcc243-compact] .gcc242-head .gcs150-steps,
+#gcc242-dialog[data-gcc243-compact] .gcc242-track,
+#gcc242-dialog[data-gcc243-compact] .gcc242-foot .gcs213-draft-tools{display:none}
+#gcc242-dialog[data-gcc243-compact] .gcc242-body{padding:10px 14px;flex:1 1 0;min-height:0}
+#gcc242-dialog[data-gcc243-compact] .gcc242-question{font-size:1rem;margin:3px 0 6px}
+#gcc242-dialog[data-gcc243-compact] .gcc242-hint{font-size:.8rem;margin:0 0 8px}
+#gcc242-dialog[data-gcc243-compact] .gcc242-foot{
+ flex:0 0 auto;padding:5px 12px;gap:4px;
+}
+#gcc242-dialog[data-gcc243-compact] .gct-form-actions{
+ position:static;margin:0;padding:0;gap:8px;
+}
+#gcc242-dialog[data-gcc243-compact] .gct-form-actions button{
+ min-height:44px;min-width:0;padding:7px 16px;font-size:.88rem;
+}
+#gcc242-dialog[data-gcc243-compact] .gcc242-feedback:not(:empty){max-height:36px;padding:4px 8px;font-size:.76rem}
+#gcc242-dialog[data-gcc243-compact] .gcc242-body input:not([type=radio]):not([type=checkbox]),
+#gcc242-dialog[data-gcc243-compact] .gcc242-body textarea{font-size:16px;scroll-margin:12px}
+/* If split-screen leaves exceptionally little space, the whole dialog
+   becomes scrollable rather than reducing the editable region to zero. */
+#gcc242-dialog[data-gcc243-short][open]{overflow-y:auto;overscroll-behavior:contain}
+#gcc242-dialog[data-gcc243-short] #gctp-create{height:auto;max-height:none;min-height:100%}
+#gcc242-dialog[data-gcc243-short] .gcc242-body{flex:0 0 auto;min-height:100px;overflow:visible}

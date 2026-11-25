@@ -1,3 +1,4 @@
+import {bindWizardViewportV243} from './sessionWizardViewportV243.js';
 // Sequential modal UI over the existing four persisted draft stages.
 // Original controls stay in the same form (and dynamic planner), with their IDs,
 // event handlers and payloads intact. Never clone fields or create extra drafts.
@@ -16,9 +17,10 @@ export const WIZARD_SCREENS_V242=[
 ];
 export const firstScreenV242=group=>Math.max(0,WIZARD_SCREENS_V242.findIndex(s=>s.group===group));
 export const screenGroupV242=index=>WIZARD_SCREENS_V242[index]?.group??0;
-export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy}){
+export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy,viewportOptions}){
  const $=id=>root.querySelector('#'+id);
  const dialog=$('gcc242-dialog'),form=$('gctp-create'),body=$('gcc242-body'),launch=$('gcc242-launch');
+ const keyboardViewport=bindWizardViewportV243(dialog,body,viewportOptions);
  const groups=[...form.querySelectorAll('[data-gctp-form-section]')];
  const planner=$('gctp-planner'),slot=$('gctp-plan-slot');
  // Only move direct child nodes within their original parent. Dynamic plan
@@ -106,10 +108,10 @@ export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy}){
  function open(){
   if(!root.isConnected||!canOpen()||dialog.open||dialog.closest('[hidden]'))return;
   if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
-  render({focus:true});
+  render({focus:true});keyboardViewport.start();
  }
  function close(){
-  if(dialog.open){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}
+  if(dialog.open){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}keyboardViewport.stop();
  }
  async function pause(){
   if(closing||isBusy())return;

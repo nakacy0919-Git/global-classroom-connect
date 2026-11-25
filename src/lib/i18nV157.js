@@ -59,6 +59,7 @@ Four quick steps to bring the world into your classroom. | 4つのステップ�
 One question at a time. Your saved draft is ready when you return. | 一つずつ質問に答えて進みます。保存した下書きから再開できます。
 Start / resume session setup → | セッション作成を開始・再開 →
 Save and close | 保存して閉じる
+Done typing | 入力完了
 What would you like to call your session? | セッションの名前は何にしますか？
 Pick a starting idea or enter your own session name. | 交流のアイデアを選ぶか、自由にセッション名を入力しましょう。
 When will your class connect? | いつ交流しますか？
