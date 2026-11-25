@@ -151,7 +151,7 @@ BEGIN
    IF expected IS NULL THEN RAISE EXCEPTION 'No approved class allocation';END IF;
    roster:=p_data->'students';
    IF roster IS NULL OR jsonb_typeof(roster)<>'array' OR jsonb_array_length(roster)>expected THEN RAISE EXCEPTION 'Invalid or oversized roster';END IF;
-   IF coalesce((p_data->>'finalized')::boolean,false) AND jsonb_array_length(roster)<>expected THEN RAISE EXCEPTION 'Final registration must match the approved count';END IF;
+   IF coalesce((p_data->>'finalized')::boolean,false) AND jsonb_array_length(roster)<1 THEN RAISE EXCEPTION 'A final registration needs at least one student; withdraw a class to remove everyone';END IF;
    clean:='[]';ids:=ARRAY[]::uuid[];
    FOR entry IN SELECT x FROM jsonb_array_elements(roster) x LOOP
     IF jsonb_typeof(entry)<>'object' OR jsonb_typeof(entry->'name') IS DISTINCT FROM 'string' OR char_length(btrim(entry->>'name')) NOT BETWEEN 1 AND 100
@@ -164,6 +164,11 @@ BEGIN
     IF sid=ANY(ids) THEN RAISE EXCEPTION 'Duplicate student identity';END IF;
     ids:=array_append(ids,sid);clean:=clean||jsonb_build_array(jsonb_build_object('id',sid,'name',btrim(entry->>'name'),'grade',btrim(coalesce(entry->>'grade',''))));
    END LOOP;
+   -- A final list may release unused reserved seats; it cannot increase approved capacity.
+   IF coalesce((p_data->>'finalized')::boolean,false) AND jsonb_array_length(clean)<expected THEN
+    IF target=a.teacher_id THEN UPDATE public.exchange_availability SET student_count=jsonb_array_length(clean) WHERE id=a.id;
+    ELSE UPDATE public.session_join_requests SET requested_students=jsonb_array_length(clean) WHERE offer_id=a.id AND requesting_teacher_id=target AND status='approved';END IF;
+   END IF;
    INSERT INTO gcc_ops_v248.rosters(offer_id,teacher_id,students,finalized) VALUES(a.id,target,clean,coalesce((p_data->>'finalized')::boolean,false))
    ON CONFLICT(offer_id,teacher_id) DO UPDATE SET students=excluded.students,finalized=excluded.finalized;
    refresh_plan:=true;
