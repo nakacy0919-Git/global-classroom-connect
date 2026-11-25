@@ -40,6 +40,14 @@ async function assertRejected(name,token){
 }
 async function main(){
  const hostJwt=jwt(account.host),teacherJwt=jwt(account.teacher),strangerJwt=jwt(account.stranger);
+ await assertRejected('gcc_v134_signup_overview',null);
+ await assertRejected('gcc_v134_signup_overview',teacherJwt);
+ await assertRejected('gcc_v134_signup_overview',strangerJwt);
+ const legacy=await request('gcc_v134_signup_overview',{},hostJwt);
+ assert.equal(legacy.ok,true);
+ assert.equal(legacy.value.length,200);
+ assert.equal(legacy.value.some(x=>x.email==='unrelated@example.invalid'),false);
+ assert.ok(legacy.value.some(x=>x.email==='host@example.invalid'&&x.status==='approved'&&x.email_confirmed===true));
  await assertRejected('gcc_v226_registration_console',null);
  await assertRejected('gcc_v226_registration_console',teacherJwt);
  await assertRejected('gcc_v226_registration_console',strangerJwt);
