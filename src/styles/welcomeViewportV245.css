@@ -70,3 +70,7 @@ html:has(#app .gcc117-welcome),body:has(#app .gcc117-welcome){margin:0;height:10
  #app .gcc117-welcome .gcc117-choices{grid-template-rows:repeat(4,76px)}
  #app .gcc117-welcome .gcc117-choices>a.gcc117-choice{height:100%!important;aspect-ratio:auto}
 }
+
+/* Keep the visible login entries touch-sized after the older mobile selectors. */
+#app .gcc117-topbar nav.gcc124-actions>a.gcc245-login{height:44px;min-height:44px;box-sizing:border-box}
+#app .gcc117-topbar nav.gcc124-actions [data-lang-select]{height:44px;min-height:44px;box-sizing:border-box}
