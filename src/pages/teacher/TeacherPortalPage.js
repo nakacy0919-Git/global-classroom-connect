@@ -650,7 +650,7 @@ export function bindTeacherPortalPage(){
       catch(e){const msg=e.message||'Could not edit this session';inform(msg,true);sessionDetails.status.textContent=msg;}
       finally{edit.disabled=false;}
      });
-     const operate=element('a','gct-primary gcs209-register','Manage exchange →');operate.href=operationsHashV248(o.id);footer.append(edit,operate);
+     const operate=element('a','gct-primary gcs209-register','Manage exchange →');operate.href=operationsHashV248(o.id);footer.append(edit);footer.append(operate);
      card.append(footer,partnerPreviewV226(o));
     }else if(previous){
      footer.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
