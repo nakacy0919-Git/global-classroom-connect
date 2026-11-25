@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Read-only public-page browser smoke tests. No production credentials are used.
 set -euo pipefail
+trap 'echo "Browser smoke failed at line $LINENO: $BASH_COMMAND" >&2' ERR
 browser=""
 for bin in google-chrome-stable google-chrome chromium chromium-browser; do
   if command -v "$bin" >/dev/null 2>&1; then browser="$bin"; break; fi
@@ -13,7 +14,7 @@ trap 'kill "$server_pid" 2>/dev/null || true' EXIT
 
 ready=0
 for try in $(seq 1 35); do
-  if curl -fsS http://127.0.0.1:4173/ >/dev/null; then ready=1; break; fi
+  if curl -fsS http://127.0.0.1:4173/ >/dev/null 2>&1; then ready=1; break; fi
   sleep .3
 done
 if [[ "$ready" != 1 ]]; then cat /tmp/gcc-preview-smoke.log >&2; exit 1; fi
