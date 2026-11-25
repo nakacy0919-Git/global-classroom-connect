@@ -1,3 +1,4 @@
+import {syncThemeV244} from './sessionThemeV244.js';
 import {bindWizardViewportV243} from './sessionWizardViewportV243.js';
 // Sequential modal UI over the existing four persisted draft stages.
 // Original controls stay in the same form (and dynamic planner), with their IDs,
@@ -8,7 +9,7 @@ export const WIZARD_SCREENS_V242=[
  {group:1,title:'How will students connect?',hint:'Choose the illustrated format that fits your classroom.'},
  {group:1,title:'How many students will participate?',hint:'Enter your own students, total capacity and number of rooms.'},
  {group:1,title:'Which students would you like to meet?',hint:'Select your school level and the partner levels you welcome.'},
- {group:2,title:'What kind of exchange are you planning?',hint:'Choose the educational session type and theme.'},
+ {group:2,title:'What kind of exchange are you planning?',hint:'Choose a session theme, or Other for your own topic.'},
  {group:2,title:'Who is your ideal exchange partner?',hint:'Specify ages, countries, languages and other preferences.'},
  {group:2,title:'What will students do during the session?',hint:'Describe the timed activities and the learning goals.'},
  {group:2,title:'How will you connect online?',hint:'Choose the meeting platform and breakout settings.'},
@@ -45,7 +46,7 @@ export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy,view
  pack(groups[2],(n,i)=>n===slot?null:(i<=3?5:6));
  pack(planner,(n,i)=>{
   const id=n.querySelector('input,select,textarea')?.id;
-  if(id==='gctp-type')return 5;
+  if(id==='gctp-type'){n.hidden=true;return null;}
   if(['gctp-countries','gctp-minage','gctp-maxage','gctp-grades'].includes(id))return 6;
   if(['gctp-flow','gctp-description'].includes(id)||(!id&&n.classList.contains('gcc203-hint')&&i<8))return 7;
   if(['gctp-platform','gctp-platform-option','gctp-meeting','gctp-breakout','gctp-breakoutnotes'].includes(id)||(!id&&n.classList.contains('gcc203-hint')&&i<15))return 8;
@@ -56,10 +57,10 @@ export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy,view
  // Large selection cards mirror the original native selects. They are not
  // additional form fields; only the canonical select is serialized.
  const choiceGroups=[];
- for(const id of ['gctp-type','gctp-theme']){
+ for(const id of ['gctp-theme']){
   const select=$(id),label=select.closest('label');
   const cards=document.createElement('div');cards.className='gcc242-choice-grid';cards.setAttribute('role','group');
-  cards.setAttribute('aria-label',id==='gctp-type'?'Educational session type *':'Session theme *');
+  cards.setAttribute('aria-label','Session theme *');
   const buttons=[];
   for(const option of select.options){
    const button=document.createElement('button');button.type='button';button.className='gcc242-choice';button.textContent=option.textContent;
@@ -67,7 +68,7 @@ export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy,view
     select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));refresh();
    });cards.append(button);buttons.push(button);
   }
-  const refresh=()=>{for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.value===select.value));};
+  const refresh=()=>{syncThemeV244(root);for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.value===select.value));};
   select.hidden=true;select.tabIndex=-1;label.after(cards);
   select.addEventListener('change',refresh);choiceGroups.push(refresh);refresh();
  }
@@ -88,8 +89,9 @@ export function mountSessionWizardV242(root,{onGroup,canOpen,onClose,isBusy,view
    const active=Number(n.dataset.gcs150StepDot)===screen.group;
    if(active)n.setAttribute('aria-current','step');else n.removeAttribute('aria-current');
   }
-  body.scrollTop=0;
   if(focus&&dialog.open)$('gcc242-question').focus({preventScroll:true});
+  body.scrollTop=0;
+  if(dialog.hasAttribute('data-gcc243-short'))dialog.scrollTop=0;
  }
  function go(next,{focus=true}={}){
   if(next<0||next>=WIZARD_SCREENS_V242.length)return;

@@ -71,7 +71,7 @@ Enter your own students, total capacity and number of rooms. | 自校の生徒�
 Which students would you like to meet? | どの学齢の生徒と交流しますか？
 Select your school level and the partner levels you welcome. | 自校の学齢と希望する交流相手の学齢を選びましょう。
 What kind of exchange are you planning? | どのような国際交流にしますか？
-Choose the educational session type and theme. | 交流の形式とテーマを選びましょう。
+Choose a session theme, or Other for your own topic. | 交流テーマを選びましょう。自由なテーマは「その他」を選択します。
 Who is your ideal exchange partner? | どのような交流相手を希望しますか？
 Specify ages, countries, languages and other preferences. | 年齢、国、言語などの希望を設定しましょう。
 What will students do during the session? | 生徒は交流で何をしますか？
@@ -130,9 +130,13 @@ Mystery Skype | ミステリースカイプ
 Language exchange | 言語交流
 Global citizenship | 地球市民・国際理解
 Free topic | 自由なテーマ
+Other | その他
 SDG goal | SDGsの目標
 Any SDG goal | 指定しない
 Specific topic (optional) | 具体的なテーマ（任意）
+Specific topic * | 具体的なテーマ *
+Enter a specific topic for Other. | その他を選択した場合は、具体的なテーマを入力してください。
+Choose a session theme. | 交流テーマを選択してください。
 e.g. Climate, local food, school traditions | 例：気候、郷土料理、学校行事
 Languages spoken (optional) | 話せる言語（任意）
 e.g. Japanese, English | 例：日本語、英語
