@@ -39,6 +39,8 @@ import '../../styles/sessionStudioV150.css';
 import '../../styles/sessionStudioV151.css';
 import '../../styles/teacherHubV200.css';
 import '../../styles/sessionFinderV230.css';
+import '../../styles/teacherFirstStartV226.css';
+import '../../styles/teacherExperienceV235.css';
 import {teacherIdentity,teacherSessions,teacherRequests,teacherCreateSession,teacherCloseSession,
  teacherApply,teacherReview,teacherSignOut,teacherNotifications,teacherReadNotification,teacherConfirmSchedule,teacherWorkspaceV213,teacherSaveDraftV213,teacherClearDraftV213,teacherSetFavoriteV213} from '../../services/teacherSelfService.js';
 
@@ -56,12 +58,18 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <a class="gct-home-action-v200 gct-home-action-find-v200" href="#/teacher-portal?view=find"><span class="gct-home-action-icon-v200" aria-hidden="true">🌐</span><span><strong>Find a Partner</strong><small>Explore sessions from verified teachers</small></span><span aria-hidden="true">→</span></a>
    <a class="gct-home-action-v200 gct-home-action-create-v200" href="#/teacher-portal?view=create"><span class="gct-home-action-icon-v200" aria-hidden="true">✦</span><span><strong>Create a Session</strong><small>Invite a global classroom to join yours</small></span><span aria-hidden="true">→</span></a>
   </div>
+  <details class="gct-panel gcc226-first-start"><summary>First time using GCC? See the 3-step guide</summary>
+    <ol><li><strong>Find a Partner</strong> to explore international sessions and check local school times.</li>
+    <li><strong>Send a request</strong> when a session matches your students, or choose Create a Session to host your own.</li>
+    <li><strong>Check Pending requests and Notifications</strong> for updates and coordinate details before the exchange.</li></ol>
+    <p>Only approved GCC teacher accounts can join or host. Never include students’ private contact details in public session descriptions.</p>
+  </details>
   <div class="gct-home-summary-v200" aria-label="Teacher activity overview">
-   <a href="#/teacher-portal?view=create" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">0</strong><span>Your upcoming sessions</span></a>
-   <a href="#/teacher-portal?view=requests" class="gct-home-summary-card-v200"><strong id="gctp-home-requests-count">0</strong><span>Pending requests</span></a>
+   <button type="button" id="gctp-manage-jump" class="gct-home-summary-card-v200"><strong id="gctp-home-sessions-count">—</strong><span>Your upcoming sessions</span></button>
+   <a href="#/teacher-portal?view=requests" class="gct-home-summary-card-v200"><strong id="gctp-home-requests-count">—</strong><span>Pending requests</span></a>
   </div>
   <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><div class="gcs212-inbox-head"><h3>🔔 Notifications <span id="gcs212-notice-count-home"></span></h3><button id="gcs212-refresh-notices" type="button" class="gct-secondary">Refresh</button></div><div id="gcs212-notices-home"></div></section>
-   <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
+   <section class="gct-panel gct-home-list-v200" aria-labelledby="gctp-manage-heading"><div class="gct-home-list-heading-v200"><h4 id="gctp-manage-heading" tabindex="-1">Manage my hosted sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-mine" class="gct-card-list"></div><button id="gctp-mine-more" class="gct-secondary" type="button" hidden>Show more hosted sessions</button></section>
  </section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
@@ -155,7 +163,6 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
     <label>SDG topic<select id="gctp-find-sdg"><option value="">Any SDG</option><option value="1">1. No Poverty</option><option value="2">2. Zero Hunger</option><option value="3">3. Good Health and Well-being</option><option value="4">4. Quality Education</option><option value="5">5. Gender Equality</option><option value="6">6. Clean Water and Sanitation</option><option value="7">7. Affordable and Clean Energy</option><option value="8">8. Decent Work and Economic Growth</option><option value="9">9. Industry, Innovation and Infrastructure</option><option value="10">10. Reduced Inequalities</option><option value="11">11. Sustainable Cities and Communities</option><option value="12">12. Responsible Consumption and Production</option><option value="13">13. Climate Action</option><option value="14">14. Life Below Water</option><option value="15">15. Life on Land</option><option value="16">16. Peace, Justice and Strong Institutions</option><option value="17">17. Partnerships for the Goals</option></select></label>
     <label>Session type<select id="gctp-find-type"><option value="">Any session type</option></select></label>
     <label>Student age<input id="gctp-find-age" type="number" min="5" max="30" placeholder="Any age"></label>
-    <label>Keyword<input id="gctp-find-topic" type="search" placeholder="Culture, climate, language…"></label>
     <label class="gcs150-match"><input id="gctp-find-compatible" type="checkbox"><span>Partner accepts my school level</span></label>
    </div>
   </details>
@@ -500,19 +507,23 @@ export function bindTeacherPortalPage(){
   const pending=requests.filter(r=>r.direction==='incoming'&&r.status==='pending');
   $('gctp-home-sessions-count').textContent=String(mine.length);
   $('gctp-home-requests-count').textContent=String(pending.length);
-  const list=$('gctp-home-mine');list.replaceChildren();
-  if(!mine.length){
-   list.append(element('p','gct-empty','No upcoming sessions yet. Create one to meet classrooms worldwide.'));return;
-  }
-  for(const o of mine.slice(0,3))list.append(makeManageCard(o,{compact:true}));
  }
+ let hostedVisible=6;
+ $('gctp-manage-jump').addEventListener('click',()=>{
+  const heading=$('gctp-manage-heading');
+  heading.focus({preventScroll:true});scrollToCountryResultsV208(heading);
+ });
+ $('gctp-mine-more').addEventListener('click',()=>{hostedVisible+=6;renderMine();});
  function renderMine(){
   const list=$('gctp-mine');list.replaceChildren();
-  const mine=upcoming().filter(o=>o.is_mine);
+  const mine=upcoming().filter(o=>o.is_mine).sort((a,b)=>Date.parse(a.starts_at)-Date.parse(b.starts_at));
+  const more=$('gctp-mine-more');
+  more.hidden=mine.length<=hostedVisible;
+  more.textContent='Show '+Math.min(6,Math.max(0,mine.length-hostedVisible))+' more hosted sessions';
   if(!mine.length){
    list.append(element('p','gct-empty','No hosted sessions yet. Choose a date and publish one.'));return;
   }
-  for(const o of mine)list.append(makeManageCard(o));
+  for(const o of mine.slice(0,hostedVisible))list.append(makeManageCard(o));
  }
  function currentSearchFilters(){
   const preset=$('gctp-find-preset').value;
@@ -525,7 +536,7 @@ export function bindTeacherPortalPage(){
    country:discoverMode==='map'?$('gctp-find-country').value:'',
    band:$('gctp-find-band').value,mode:$('gctp-find-mode').value,
    kind:$('gctp-find-type').value,sdg:$('gctp-find-sdg').value,
-   age:$('gctp-find-age').value,query:$('gctp-find-topic').value,
+   age:$('gctp-find-age').value,query:$('gcs230-quicksearch').value,
    compatible:$('gctp-find-compatible').checked,
    sort:$('gcs213-sort').value,favoritesOnly:$('gcs213-favorites-only').checked,
    favoriteKeys:favorites
@@ -543,8 +554,6 @@ export function bindTeacherPortalPage(){
  function renderResults(){
   if(!identity)return;
   const list=$('gctp-results');list.replaceChildren();
-  if($('gcs230-quicksearch')&&$('gcs230-quicksearch').value!==$('gctp-find-topic').value)
-   $('gcs230-quicksearch').value=$('gctp-find-topic').value;
   const records=sessionSearchRecordsV213(upcoming(),hostEvents);
   const filtered=filterSessionRecordsV213(records,currentSearchFilters(),identity);
   const page=sessionResultsPageV213(filtered,visibleCount);
@@ -781,7 +790,9 @@ export function bindTeacherPortalPage(){
   $('gctp-band').value=level;
   const checkbox=root.querySelector(`input[name="gctp-target-level"][value="${level}"]`);
   if(checkbox)checkbox.checked=true;
-  await refresh();await loadTeacherWorkspace();inform('');await mountVolunteerV117(root,display);
+  const initialSnapshot=await refresh();await loadTeacherWorkspace();
+  if(!initialSnapshot.warnings.length)inform('');
+  await mountVolunteerV117(root,display);
   const networkProfile=await myTeacherProfileV116();
   // Only fetch/edit photo + profile details on their dedicated pages.
   if(view==='profile')await mountTeacherProfileV153(root,updated=>{
@@ -912,7 +923,6 @@ export function bindTeacherPortalPage(){
  }
  $('gctp-open-search').addEventListener('click',()=>openSearchModal('gctp-search-choice'));
  $('gcs230-quicksearch').addEventListener('input',()=>{
-  $('gctp-find-topic').value=$('gcs230-quicksearch').value;
   visibleCount=12;renderResults();
  });
  $('gctp-show-all').addEventListener('click',()=>{
@@ -939,13 +949,14 @@ export function bindTeacherPortalPage(){
   visibleCount=12;$('gcs213-sort').value='soonest';$('gcs213-favorites-only').checked=false;
   $('gctp-find-preset').value='any';$('gctp-find-date').value='';
   $('gctp-find-custom').hidden=true;$('gctp-find-country').value='';
-  for(const id of ['gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-topic'])$(id).value='';
+  for(const id of ['gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gcs230-quicksearch'])$(id).value='';
+  $('gctp-search-summary').textContent='All upcoming sessions';
   $('gctp-find-compatible').checked=false;
   countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],'');renderResults();
  });
  $('gctp-find-preset').addEventListener('change',()=>{visibleCount=12;$('gctp-find-custom').hidden=$('gctp-find-preset').value!=='custom';renderResults();});
- for(const id of ['gctp-find-date','gctp-find-from','gctp-find-to','gctp-find-country','gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-compatible','gctp-find-topic']){
-  $(id).addEventListener(id==='gctp-find-topic'?'input':'change',()=>{
+ for(const id of ['gctp-find-date','gctp-find-from','gctp-find-to','gctp-find-country','gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-compatible']){
+  $(id).addEventListener('change',()=>{
    visibleCount=12;
    if(id==='gctp-find-country')countryExplorer.update([...upcoming(),...hostEventsAsOffersV208(hostEvents)],$('gctp-find-country').value);
    renderResults();
