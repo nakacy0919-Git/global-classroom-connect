@@ -283,7 +283,8 @@ export function bindTeacherPortalPage(){
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
  const guide=createFieldGuideV204(root,$('gctp-create'));
  const canCreate=()=>Boolean(identity?.timezone&&$('gctp-zone').value&&draftReady&&!publishing);
- const wizard=mountSessionWizardV242(root,{onGroup:showFormStep,canOpen:canCreate,isBusy:()=>publishing,onClose:async()=>{
+ const wizard=mountSessionWizardV242(root,{onGroup:showFormStep,canOpen:canCreate,isBusy:()=>publishing||!draftReady,onClose:async()=>{
+  await draftChain;
   if(draftDirty&&!await saveDraft(true)){
    inform('Draft could not be saved. Please check your connection.',true);
    return confirm('Your latest changes could not be saved. Close setup anyway?');
@@ -291,9 +292,10 @@ export function bindTeacherPortalPage(){
   return true;
  }});
  const revealError=(message,step)=>{
-  const target=errorFieldV204(message,root,'gctp');
+  const target=/agenda|timed activit|activity after|session hours|activities in time order/i.test(message)?$('gctp-flow'):
+   /meeting link|HTTPS/i.test(message)?$('gctp-meeting'):errorFieldV204(message,root,'gctp');
   if(target)wizard.reveal(target);
-  guide.show(message,step);
+  guide.show(message,formStep,'gctp',target);
  };
  const selectedLevels=()=>[...root.querySelectorAll('input[name="gctp-target-level"]:checked')].map(x=>x.value);
  const selectedMode=()=>root.querySelector('input[name="gctp-mode"]:checked')?.value||'classroom';
@@ -344,7 +346,7 @@ export function bindTeacherPortalPage(){
     ['Partner levels',selectedLevels().join(', ')],['Theme',sessionTopic()],
     ['SDG',$('gctp-theme').value==='SDGs'&&$('gctp-sdg').value?`SDG ${$('gctp-sdg').value} · ${GCC_SDG_V150[Number($('gctp-sdg').value)-1]}`:''],
     ['Languages',$('gctp-language').value.trim()],['English level',$('gctp-english').value],
-    ['Type',TYPE_LABEL_V203($('gctp-type').value)],['Platform',$('gctp-platform').selectedOptions[0]?.textContent],['Full agenda',$('gctp-flow').value]
+    ['Type',TYPE_LABEL_V203($('gctp-type').value)],['Preferred countries',$('gctp-countries').value],['Accepted ages',$('gctp-minage').value+'–'+$('gctp-maxage').value],['Grades',$('gctp-grades').value],['Objectives and preparation details',$('gctp-description').value],['Platform',$('gctp-platform').selectedOptions[0]?.textContent],['Breakout setup',$('gctp-breakout').selectedOptions[0]?.textContent],['Platform controls',$('gctp-platform-option').selectedOptions[0]?.textContent],['Registration closes',$('gctp-deadline').value.replace('T',' ')+' ('+(identity?.timezone||'')+')'],['Full agenda',$('gctp-flow').value],['Notes to partner teachers',$('gctp-notes').value],['Optional flyer',$('gctp-flyerfile').files?.[0]?.name||(cloneFlyerUrl?'Existing flyer':'')]
    ].filter(([,v])=>v)){const row=element('div','gct-review-line');row.append(element('span','',label),element('strong','',value));review.append(row);}
   }
   wizard.sync(index);
@@ -463,7 +465,7 @@ export function bindTeacherPortalPage(){
    if(!persisted)inform('Copy loaded, but it has not synced to your account yet.',true);
    else inform('Session copied. Choose a new date and registration deadline before publishing.');
    window.history.replaceState(null,'','#/teacher-portal?view=create');
-  }finally{draftReady=true;}
+  }finally{draftReady=true;wizard.open();}
  }
  function partnerPreviewV226(o){
   const preview=element('details','gcs226-partner-preview');
@@ -824,13 +826,14 @@ export function bindTeacherPortalPage(){
  $('gctp-create').addEventListener('input',scheduleDraft);
  $('gctp-create').addEventListener('change',scheduleDraft);
  $('gcs213-save-draft').addEventListener('click',async()=>{
-  if(!identity)return;
+  if(!canCreate())return;
   draftDirty=true;draftRevision++;
   const saved=await saveDraft(true);
   if(saved)inform('Draft saved privately to your teacher account.');
   else inform('Draft could not be saved. Please check your connection.',true);
  });
  $('gcs213-discard-draft').addEventListener('click',async()=>{
+  if(!canCreate())return;
   if(!confirm('Discard your saved session draft? This cannot be undone.'))return;
   draftReady=false;
   if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}
@@ -858,6 +861,7 @@ export function bindTeacherPortalPage(){
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:plan};
    if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){showFormStep(1);inform('Check student and room counts.',true);revealError('Check student count',1);return;}
    const btn=$('gctp-publish');btn.disabled=true;publishing=true;
+   for(const id of ['gcc242-close','gctp-back','gcs213-save-draft','gcs213-discard-draft'])$(id).disabled=true;
    let created=false;
    try{
     const flyer=$('gctp-flyerfile').files?.[0];
@@ -915,7 +919,7 @@ export function bindTeacherPortalPage(){
     const msg=err.message||'Could not publish the session.';
     inform(created?'Session was saved, but a later step failed. Do not publish it again; check Manage my hosted sessions.':msg,true);
     if(!created){showFormStep(2);revealError(msg,2);}
-   }finally{publishing=false;btn.disabled=false;}
+   }finally{publishing=false;btn.disabled=false;for(const id of ['gcc242-close','gctp-back','gcs213-save-draft','gcs213-discard-draft'])$(id).disabled=false;}
  });
  $('gcs213-show-more').addEventListener('click',()=>{visibleCount=Math.min(500,visibleCount+12);renderResults();});
  $('gcs213-sort').addEventListener('change',()=>{visibleCount=12;renderResults();});
