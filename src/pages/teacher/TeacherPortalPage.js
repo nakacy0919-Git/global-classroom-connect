@@ -165,7 +165,8 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <div class="gcs151-results-heading gcs213-results-heading">
      <div><h3>Matching sessions</h3><span id="gctp-search-count" role="status" aria-live="polite"></span></div>
      <div class="gcs213-results-tools">
-      <label>Sort <select id="gcs213-sort"><option value="soonest">Soonest first</option><option value="latest">Latest first</option><option value="seats">Most seats available</option><option value="country">Host country A–Z</option></select></label>
+      <label>Sort <select id="gcs213-sort"><option value="soonest">Earliest date &amp; time</option><option value="latest">Latest date &amp; time</option><option value="clock">Earliest local time of day</option><option value="country">Host country A–Z</option><option value="region">Region A–Z</option><option value="seats">Most seats available</option></select></label>
+      <label>Region <select id="gcc247-region"><option value="">All regions</option><option value="Asia">Asia</option><option value="Europe">Europe</option><option value="Africa">Africa</option><option value="Americas">Americas</option><option value="Oceania">Oceania</option></select></label>
       <label class="gcs213-fav-filter"><input id="gcs213-favorites-only" type="checkbox"> ★ Favorites</label>
       <button id="gctp-reset-filters" class="gct-secondary" type="button">Clear filters</button>
      </div>
@@ -568,7 +569,7 @@ export function bindTeacherPortalPage(){
   return {
    date:discoverMode==='time'?$('gctp-find-date').value:'',
    from:discoverMode==='time'?from:'',to:discoverMode==='time'?to:'',
-   country:discoverMode==='map'?$('gctp-find-country').value:'',
+   country:discoverMode==='map'?$('gctp-find-country').value:'',region:$('gcc247-region').value,
    band:$('gctp-find-band').value,mode:$('gctp-find-mode').value,
    kind:$('gctp-find-type').value,sdg:$('gctp-find-sdg').value,
    age:$('gctp-find-age').value,query:$('gctp-find-topic').value,
@@ -935,6 +936,7 @@ export function bindTeacherPortalPage(){
  });
  $('gcs213-show-more').addEventListener('click',()=>{visibleCount=Math.min(500,visibleCount+12);renderResults();});
  $('gcs213-sort').addEventListener('change',()=>{visibleCount=12;renderResults();});
+ $('gcc247-region').addEventListener('change',()=>{visibleCount=12;renderResults();});
  $('gcs213-favorites-only').addEventListener('change',()=>{visibleCount=12;renderResults();});
  const searchDialogs=['gctp-search-choice','gctp-find-time-panel','gctp-find-map-panel'];
  const openSearchModal=(id)=>{
@@ -981,7 +983,7 @@ export function bindTeacherPortalPage(){
   cancel.addEventListener('click',()=>cancel.closest('dialog')?.close());
  }
  $('gctp-reset-filters').addEventListener('click',()=>{
-  visibleCount=12;$('gcs213-sort').value='soonest';$('gcs213-favorites-only').checked=false;
+  visibleCount=12;$('gcs213-sort').value='soonest';$('gcc247-region').value='';$('gcs213-favorites-only').checked=false;
   $('gctp-find-preset').value='any';$('gctp-find-date').value='';
   $('gctp-find-custom').hidden=true;$('gctp-find-country').value='';
   for(const id of ['gctp-find-band','gctp-find-mode','gctp-find-type','gctp-find-age','gctp-find-sdg','gctp-find-topic'])$(id).value='';
