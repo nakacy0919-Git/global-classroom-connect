@@ -1,3 +1,4 @@
+import {rosterSubmissionErrorV236} from '../../lib/rosterAdmissionV236.js';
 import {renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
 import '../../styles/sessionPlannerV203.css';
 import {bindRegistrationPairsV165} from '../../lib/registrationPairsV165.js';
@@ -24,6 +25,8 @@ export function SharedRegistrationPage(){return `
     <div id="gcc203-registration-details" class="gcc203-public-panel" aria-live="polite"></div>
   </div>
   <div class="gcc-v8-stage" data-v8-stage="1" hidden>
+    <label>Session invitation code (if your host provided one)<input id="gcc-v237-invite" type="password" maxlength="64" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the code from your host"></label>
+    <p class="gcc-v8-help">If your host requires an invitation, enter the code privately. Do not share it with other schools.</p>
     <label>Country * <select id="gcc-v8-country"><option value="">Choose your country</option></select></label>
     <label>School name * <input id="gcc-v8-school" autocomplete="organization" maxlength="160" placeholder="Your school's official name"></label>
     <label>Teacher name (English letters) * <input id="gcc-v8-teacher" autocomplete="name" maxlength="120" placeholder="e.g. Maria Santos"></label>
@@ -80,7 +83,7 @@ export function bindSharedRegistrationPage(){
    if(n===2)preview();if(n===3){review();pairPicker.refresh();}
  }
  function validate(n){if(n===0&&!current())return 'Please choose a session.';
-   if(n===1){if(!$('gcc-v8-country').value)return 'Choose your country.';if($('gcc-v8-school').value.trim().length<2)return 'Enter your school name.';
+   if(n===1){const invite=$('gcc-v237-invite').value.trim();if(invite&&!/^[a-f0-9]{64}$/.test(invite))return 'Please paste the full invitation code from your host.';if(!$('gcc-v8-country').value)return 'Choose your country.';if($('gcc-v8-school').value.trim().length<2)return 'Enter your school name.';
      if(!englishName($('gcc-v8-teacher').value))return 'Teacher name must use English letters (A–Z).';}
    if(n===2){const r=roster();if(r.errors.length)return `Please fix line ${r.errors[0].line}: ${r.errors[0].message}`;
      if(r.records.length<1||r.records.length>500)return 'Enter 1–500 students.';
@@ -95,13 +98,14 @@ export function bindSharedRegistrationPage(){
  $('gcc-v8-submit').addEventListener('click',async()=>{
    if(sending)return;for(let i=0;i<4;i++){const err=validate(i);if(err){show(i);message(err);return;}}
    sending=true;const b=$('gcc-v8-submit');b.disabled=true;message('Submitting…');
-   try{const receipt=await submitSharedRoster({eventId:current().id,teacher:$('gcc-v8-teacher').value.trim(),school:$('gcc-v8-school').value.trim(),countryCode:$('gcc-v8-country').value,countryName:countries.get($('gcc-v8-country').value).name,students:roster().records,facilitators:facs().records,pairs:pairPicker.getPairs()});
+   try{const receipt=await submitSharedRoster({eventId:current().id,invite:$('gcc-v237-invite').value.trim(),teacher:$('gcc-v8-teacher').value.trim(),school:$('gcc-v8-school').value.trim(),countryCode:$('gcc-v8-country').value,countryName:countries.get($('gcc-v8-country').value).name,students:roster().records,facilitators:facs().records,pairs:pairPicker.getPairs()});
+     $('gcc-v237-invite').value='';
      root.querySelector('.gcc-v8-steps').hidden=true;root.querySelector('#gcc-v8-subtitle').hidden=true;
      for(const e of root.querySelectorAll('.gcc-v8-stage'))e.hidden=true;
      $('gcc-v8-footer').hidden=true;
      $('gcc-v8-title').textContent='Your class is registered!';
      message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, open the session room chart and use your 4-digit Teacher Code in Teacher Mode to add, correct, or remove students and adjust rooms.`);$('gcc-v8-error').after(ok);
-   }catch(err){const original=err.message||'Please try again.';message(/already registered for this session/i.test(original)?'Your school is already registered. To edit or add students, open the breakout room chart and use Teacher Mode with your personal 4-digit code. Ask the host for the code if needed.':original);sending=false;b.disabled=false;}
+   }catch(err){if(['GCC_INVITE_REQUIRED','GCC_INVITE_INVALID'].includes(err?.message))show(1);message(rosterSubmissionErrorV236(err));sending=false;b.disabled=false;}
  });
  show(0);
  (async()=>{try{const [sessions,res]=await Promise.all([listPublicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
