@@ -11,8 +11,10 @@ try{
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  $('gctp-theme').addEventListener('change',()=>$('gctp-sdg-wrap').hidden=$('gctp-theme').value!=='SDGs');
  let wizard,group=0,closeCount=0;
+ const viewport=new EventTarget();Object.assign(viewport,{width:innerWidth,height:innerHeight,offsetLeft:0,offsetTop:0});
+ const frame=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
  const groupChanged=g=>{group=g;for(const s of root.querySelectorAll('[data-gctp-form-section]'))s.hidden=Number(s.dataset.gctpFormSection)!==g;wizard.sync(g)};
- wizard=mountSessionWizardV242(root,{onGroup:groupChanged,canOpen:()=>true,isBusy:()=>false,onClose:async()=>{closeCount++;return true}});
+ wizard=mountSessionWizardV242(root,{onGroup:groupChanged,canOpen:()=>true,isBusy:()=>false,onClose:async()=>{closeCount++;return true},viewportOptions:{viewport,layout:window}});
  $('gcc242-launch').disabled=false;groupChanged(0);$('gcc242-launch').click();
  check($('gcc242-dialog').open,'native modal opens');
  const visible=e=>!!e&&e.getClientRects().length>0;
@@ -50,6 +52,35 @@ try{
  $('gcc242-close').click();await Promise.resolve();await Promise.resolve();
  check(!$('gcc242-dialog').open&&closeCount===1,'save and close');
  $('gcc242-launch').click();check($('gcc242-dialog').open,'reopen');
+ // Simulate iPadOS keyboard shrink with unchanged layout viewport, including
+ // scrolling offset. Real hardware keyboard geometry still needs device QA.
+ const dialog=$('gcc242-dialog'),body=$('gcc242-body'),input=$('gctp-name');
+ input.focus();viewport.height=290;viewport.offsetTop=24;
+ viewport.dispatchEvent(new Event('resize'));await frame();
+ check(dialog.hasAttribute('data-gcc243-compact'),'keyboard compact mode');
+ check(!visible(root.querySelector('.gcc242-foot .gcs213-draft-tools')),'draft controls yield space');
+ check(!visible(root.querySelector('.gcs150-steps')),'step tabs yield space');
+ check(visible($('gcc243-done')),'keyboard dismissal available');
+ const dr=dialog.getBoundingClientRect(),br=body.getBoundingClientRect(),ir=input.getBoundingClientRect();
+ check(dr.top>=24-1&&dr.bottom<=314+1,'dialog inside simulated visible viewport');
+ check(br.height>=120,'usable input body '+br.height);
+ check(ir.top>=br.top-1&&ir.bottom<=br.bottom+1,'focused input is inside scrollable body');
+ check(input.value==='Synthetic classroom exchange','keyboard resize preserves value');
+ $('gcc243-done').click();
+ viewport.height=innerHeight;viewport.offsetTop=0;
+ viewport.dispatchEvent(new Event('resize'));await frame();
+ check(!dialog.hasAttribute('data-gcc243-compact'),'normal layout restored');
+ check(visible(root.querySelector('.gcc242-foot .gcs213-draft-tools')),'draft tools restored');
+ check(!visible($('gcc243-done')),'dismissal hidden after typing');
+ wizard.go(7);const agenda=$('gctp-flow');agenda.value='09:00 Welcome';agenda.focus();
+ viewport.height=260;viewport.offsetTop=0;viewport.dispatchEvent(new Event('resize'));await frame();
+ const ar=agenda.getBoundingClientRect(),ab=body.getBoundingClientRect();
+ check(ab.height>=100&&ar.top>=ab.top-1&&ar.top<ab.bottom-30,'agenda remains reachable');
+ check(agenda.value==='09:00 Welcome','textarea value retained');
+ viewport.height=170;viewport.dispatchEvent(new Event('resize'));await frame();
+ check(dialog.hasAttribute('data-gcc243-short')&&dialog.scrollHeight>dialog.clientHeight,'tiny viewport can scroll whole dialog');
+ viewport.height=innerHeight;viewport.dispatchEvent(new Event('resize'));await frame();
+ wizard.close();check(!dialog.hasAttribute('data-gcc243-compact'),'close cleans viewport state');
  document.body.dataset.result='pass';
 }catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.message;document.body.append(p);}
 </script></body></html>
