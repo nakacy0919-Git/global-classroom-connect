@@ -79,3 +79,66 @@
 @media(max-width:320px){
  .gct-portal.gcs209-finding #gctp-results.gct-results{grid-template-columns:minmax(0,190px)}
 }
+
+/* V24.7 layout guard: independent flow rows, no floating or overlapping
+   controls. A long translated label can wrap, but a square card never does. */
+.gct-portal.gcs209-finding [data-gct-view="find"]{
+ min-width:0;max-width:100%;box-sizing:border-box
+}
+.gct-portal.gcs209-finding .gcs209-search-tools{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:9px;min-width:0
+}
+.gct-portal.gcs209-finding .gcs230-quicksearch{
+ min-width:0;max-width:none;width:100%;box-sizing:border-box
+}
+.gct-portal.gcs209-finding .gcs209-open-search{max-width:100%;min-width:0;white-space:normal;box-sizing:border-box}
+.gct-portal.gcs209-finding #gctp-search-summary{grid-column:1/-1;min-width:0;overflow-wrap:anywhere}
+.gct-portal.gcs209-finding .gcs213-results-heading{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0
+}
+.gct-portal.gcs209-finding .gcs213-results-heading>.gcs213-results-tools{
+ display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) auto auto;
+ align-items:end;justify-content:start;gap:8px;width:100%;min-width:0
+}
+.gct-portal.gcs209-finding .gcs213-results-tools>label:not(.gcs213-fav-filter){
+ display:grid;grid-template-columns:minmax(0,1fr);gap:4px;min-width:0;align-items:center
+}
+.gct-portal.gcs209-finding .gcs213-results-tools select{
+ width:100%;max-width:100%;min-width:0;min-height:44px;box-sizing:border-box;
+ font-size:16px;padding:7px 22px 7px 8px
+}
+.gct-portal.gcs209-finding .gcs213-results-tools :is(.gcs213-fav-filter,.gct-secondary){
+ min-width:0;max-width:100%;min-height:44px;margin:0;box-sizing:border-box;white-space:normal
+}
+.gct-portal.gcs209-finding .gcs150-advanced .gct-filterbar{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-width:0
+}
+.gct-portal.gcs209-finding .gct-filterbar label{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.gct-portal.gcs209-finding .gct-filterbar :is(input:not([type=checkbox]),select){width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}
+.gct-portal.gcs209-finding #gctp-results>.gcv216-empty{grid-column:1/-1;min-width:0;max-width:100%}
+.gct-portal #gctp-results .gcc246-details-dialog{
+ overflow-x:hidden;max-width:calc(100vw - 24px)
+}
+.gct-portal #gctp-results .gcc246-details-dialog .gcs230-card :is(h3,p,strong,small,a,summary,label){
+ min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal
+}
+.gct-portal #gctp-results .gcc246-details-dialog .gcs230-quick-tools .gcs214-calendar-menu[open]{
+ display:flex;flex-direction:column;align-items:stretch;flex:1 1 100%;max-width:100%
+}
+.gct-portal #gctp-results .gcc246-details-dialog .gcs230-quick-tools .gcs214-calendar-options{
+ position:static;min-width:0;max-width:100%;width:100%;margin-top:6px;box-sizing:border-box;box-shadow:none
+}
+.gct-portal #gctp-results .gcc246-details-dialog .gcs230-quick-tools .gcs214-calendar-options :is(a,button,small){
+ max-width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal
+}
+.gct-portal #gctp-results .gcc246-details-dialog .gcs230-footer .gcs230-request[open]{
+ width:100%;max-width:100%;box-sizing:border-box
+}
+@media(max-width:1000px){
+ .gct-portal.gcs209-finding .gcs213-results-heading>.gcs213-results-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .gct-portal.gcs209-finding .gcs150-advanced .gct-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gct-portal.gcs209-finding .gcs209-search-tools{grid-template-columns:minmax(0,1fr)}
+ .gct-portal.gcs209-finding .gcs209-open-search{justify-self:stretch}
+}
