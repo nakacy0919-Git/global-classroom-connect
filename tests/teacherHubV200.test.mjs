@@ -4,11 +4,13 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const portal=read('src/pages/teacher/TeacherPortalPage.js'),sidebar=read('src/pages/teacher/TeacherSidebar.js');
 test('teacher home has primary discovery and creation actions, live summary and a session list',()=>{
- for(const id of ['data-gct-view="home"','gctp-home-sessions-count','gctp-home-requests-count','gctp-home-mine'])assert.ok(portal.includes(id),id);
+ for(const id of ['data-gct-view="home"','gctp-home-sessions-count','gctp-home-requests-count','gctp-mine'])assert.ok(portal.includes(id),id);
  assert.match(portal,/function renderHome\(\)/);
  assert.match(portal,/renderMine\(\);renderHome\(\)/);
  assert.ok(sidebar.includes("'requests'"));
- assert.doesNotMatch(sidebar,/\['find','Find a Session'\]|\['create','Host a Session'\]|\['home','Teacher Home'\]/);
+ for(const [route,label] of [['find','Find a Session'],['create','Host a Session'],['home','Teacher Home']])assert.ok(sidebar.includes("['"+route+"','"+label+"']"));
+ assert.doesNotMatch(portal,/gctp-home-mine/);
+ assert.equal((portal.match(/id="gctp-mine"/g)||[]).length,1);
  assert.match(sidebar,/GCC Home/);
 });
 test('advanced teacher links are collapsed under optional navigation',()=>{
