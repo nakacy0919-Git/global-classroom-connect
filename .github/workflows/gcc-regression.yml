@@ -73,7 +73,12 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v231_teacher_browse_paged.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v226_registration_console.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v227_english_name_search_path.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v233_scope_legacy_signup_overview.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v231_assertions.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v233_legacy_scope_assertions.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v232_restrict_trigger_execute.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_assertions.sql
 
 
   postgrest-http-security:
@@ -114,6 +119,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v231_teacher_browse_paged.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v226_registration_console.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v227_english_name_search_path.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v233_scope_legacy_signup_overview.sql
       - name: Start an ephemeral PostgREST and verify actual HTTP JWT boundaries
         env:
           GCC_TEST_JWT_SECRET: gcc-ephemeral-postgrest-ci-only-secret-2026
