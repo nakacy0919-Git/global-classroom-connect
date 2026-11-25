@@ -37,6 +37,7 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
    <form id="gcc120-signup-form" class="gcc120-grid">
     <label>Email address <input type="email" id="gcc120-email" autocomplete="email" required></label>
     <label>Password (8 characters minimum) <input type="password" id="gcc120-password" autocomplete="new-password" minlength="8" required></label>
+    <p class="gcc120-help">Use a unique password of 12 or more characters or a password manager. Never reuse your school or other app password.</p>
     <button class="gcc120-primary gcc140-action" type="submit">Create account →</button>
    </form>
   </div>
