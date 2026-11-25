@@ -2,8 +2,7 @@
 INSERT INTO gcc_roster_guard.event_limits VALUES
  ('a1000000-0000-4000-8000-000000000001',2),
  ('a1000000-0000-4000-8000-000000000002',1),
- ('a1000000-0000-4000-8000-000000000003',1),
- ('a1000000-0000-4000-8000-000000000004',1);
+ ('a1000000-0000-4000-8000-000000000003',1);
 DO $$ BEGIN
  IF has_schema_privilege('anon','gcc_roster_guard','USAGE')
  OR has_schema_privilege('authenticated','gcc_roster_guard','USAGE')
@@ -49,3 +48,20 @@ DO $$ BEGIN
  IF (SELECT accepted_count FROM gcc_roster_guard.event_windows WHERE event_id='a1000000-0000-4000-8000-000000000001')<>1 THEN RAISE EXCEPTION 'Window did not reopen'; END IF;
 END $$;
 SELECT 'PASS: common insert guard, private grants, rollback, independent event and expiry' AS result;
+
+-- Confirm proposed default without an event override.
+SET ROLE anon;
+DO $$ BEGIN
+ FOR i IN 1..24 LOOP
+  PERFORM public.gcc_test_roster_write('a1000000-0000-4000-8000-000000000004');
+ END LOOP;
+ BEGIN
+  PERFORM public.gcc_test_roster_write('a1000000-0000-4000-8000-000000000004');
+  RAISE EXCEPTION 'Default allowance exceeded';
+ EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'GCC_ROSTER_BUSY' THEN RAISE; END IF; END;
+END $$;
+RESET ROLE;
+DO $$ BEGIN
+ IF (SELECT accepted_count FROM gcc_roster_guard.event_windows WHERE event_id='a1000000-0000-4000-8000-000000000004')<>24 THEN RAISE EXCEPTION 'Default allowance incorrect'; END IF;
+END $$;
+SELECT 'PASS: proposed default is enforced without event override' AS result;
