@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="app"><main id="test-root" class="gct-portal"></main></div><script type="module">
+import '/src/styles/global.css';
+import '/src/styles/teacherSelfService.css';
+import {mountTeacherOperationsV248} from '/src/pages/teacher/TeacherOperationsV248.js';
+import {operationsHashV248} from '/src/lib/teacherOperationsV248.js';
+const assert=(x,m)=>{if(!x)throw Error(m)};
+const root=document.querySelector('#test-root'),id='30000000-0000-0000-0000-000000000001',tid='20000000-0000-0000-0000-000000000001',other='20000000-0000-0000-0000-000000000002';
+const params={id,tab:'register'},actions=[];
+const session={offer_id:id,title:'Global exchange — international schools',starts_at:'2027-01-01T00:00:00Z',ends_at:'2027-01-01T01:00:00Z',timezone:'Asia/Tokyo'};
+const host={...session,role:'host',revision:0,room_count:2,members:[{teacher_id:tid,school:'Host School',teacher:'Host Teacher',expected:1,students:[{name:'A',grade:'10'}]},{teacher_id:other,school:'Partner School',teacher:'Partner Teacher',expected:1,students:[{name:'B',grade:'11'}]}],requests:[],chart:null,published:false};
+let state=structuredClone(host);
+const chart=()=>state.members.flatMap((m,i)=>m.students.map((p,j)=>({...p,teacher_id:m.teacher_id,student_no:j+1,school:m.school,room:i+1})));
+const rpc=async(offer,action='read',data={})=>{
+ assert(offer===id,'wrong offer');if(action!=='read'){assert(data.revision===state.revision,'stale UI revision');actions.push(action);state.revision++}
+ if(action==='save_roster'){state.members.find(m=>m.teacher_id===data.teacher_id).students=data.students;state.chart=null;state.published=false}
+ if(action==='arrange'){state.room_count=data.room_count;state.chart=chart();state.published=false}
+ if(action==='save_plan'){assert(data.plan.length===2,'plan rows');for(const p of state.chart)p.room=data.plan.find(x=>x.teacher_id===p.teacher_id&&x.student_no===p.student_no).room;state.published=false}
+ if(action==='publish')state.published=true;
+ return structuredClone(state);
+};
+window.confirm=()=>true;
+const settle=()=>new Promise(r=>setTimeout(r,30));
+const click=async txt=>{const b=[...root.querySelectorAll('button')].find(b=>b.textContent===txt);assert(b,'missing '+txt);b.click();await settle()};
+const visible=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0};
+const checkLayout=()=>{const frame=root.getBoundingClientRect();for(const el of root.querySelectorAll('.gcc248-panel, .gcc248-share, .gcc248-fields, .gcc248-room, textarea, input, select, button')){if(!visible(el))continue;const r=el.getBoundingClientRect();assert(r.left>=frame.left-2&&r.right<=frame.right+2,'overflow '+el.tagName+' '+el.className)}};
+try{
+ await mountTeacherOperationsV248(root,params,{rpc});assert(root.textContent.includes('Share registration'),'host tools');
+ assert(root.querySelectorAll('.gcc248-share input').length===2,'two stable links');
+ assert(root.querySelector('.gcc248-share input').value.endsWith(operationsHashV248(id)),'registration URL');
+ checkLayout();
+ const area=root.querySelector('textarea');area.value='A revised\t10';area.dispatchEvent(new Event('input'));await click('Save student list');
+ assert(state.members[0].students[0].name==='A revised','roster saved');
+ await click('Arrange / rearrange rooms');assert(root.querySelectorAll('.gcc248-room').length===2,'room chart');
+ const select=root.querySelector('.gcc248-room select');select.value='2';select.dispatchEvent(new Event('change'));await click('Save room adjustments');assert(state.chart[0].room===2,'manual move saved');
+ await click('Publish room chart');assert(state.published,'publish');checkLayout();
+ state={...state,role:'participant',members:[state.members[1]],requests:null};await mountTeacherOperationsV248(root,{...params,tab:'chart'},{rpc});
+ assert(root.querySelectorAll('textarea').length===1,'only own class editable');assert(!root.textContent.includes('Arrange / rearrange rooms'),'no host tools');assert(root.querySelectorAll('.gcc248-room').length===2,'participant chart');checkLayout();
+ state={...session,role:'applicant',request_status:'none',can_apply:true};let submitted=false;
+ await mountTeacherOperationsV248(root,params,{rpc,apply:async(...args)=>{assert(args[0]===id,'apply id');submitted=true;state={...state,request_status:'pending',can_apply:false}}});
+ assert(root.querySelectorAll('input[type=number]').length===3,'request form');await click('Send join request');assert(submitted&&root.textContent.includes('pending'),'request submitted');assert(!root.querySelector('.gcc248-room'),'applicant no chart');checkLayout();
+ document.body.dataset.result='pass';
+}catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.stack||e.message;document.body.append(p)}
+</script></body></html>

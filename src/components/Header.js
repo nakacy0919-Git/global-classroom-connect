@@ -24,7 +24,7 @@ const titles = {
 
 export function Header(route) {
   const view=route==='teacher-portal'?new URLSearchParams(window.location.hash.split('?')[1]||'').get('view'):null;
-  const teacherTitles={home:'Teacher Home',profile:'My Profile',create:'Host a Session',find:'Find a Session',requests:'My Requests',network:'Teacher Network',volunteer:'Be a Facilitator / GC Host'};
+  const teacherTitles={home:'Teacher Home',operate:'Manage Exchange',profile:'My Profile',create:'Host a Session',find:'Find a Session',requests:'My Requests',network:'Teacher Network',volunteer:'Be a Facilitator / GC Host'};
   const finding=route==='teacher-portal'&&view==='find';
   const pageTitle=route==='teacher-portal'?(teacherTitles[view||'home']||'Teacher Home'):titles[route];
   return `
