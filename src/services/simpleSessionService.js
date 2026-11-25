@@ -24,3 +24,7 @@ export const saveSessionSettings=p=>rpc('gcc_v8_save_session_settings',{
 export const rosterInviteStatusV237=eventId=>rpc('gcc_v237_invite_status',{p_event_id:eventId});
 export const issueRosterInviteV237=eventId=>rpc('gcc_v237_issue_invite',{p_event_id:eventId});
 export const revokeRosterInvitesV237=eventId=>rpc('gcc_v237_revoke_invites',{p_event_id:eventId});
+
+export const rosterIdentityV238=()=>rpc('gcc_v238_my_roster_identity');
+export const verifiedRosterPolicyV238=eventId=>rpc('gcc_v238_roster_policy',{p_event_id:eventId});
+export const requireVerifiedRosterV238=eventId=>rpc('gcc_v238_require_verified',{p_event_id:eventId});
