@@ -49,7 +49,7 @@ $$;
 CREATE FUNCTION gcc_ops_v248.arrange_v249(p_offer uuid,p_rooms integer,p_old jsonb,p_pairs jsonb)
 RETURNS jsonb LANGUAGE plpgsql SET search_path='' AS $$
 DECLARE g record; p record; r integer; best integer; score bigint; best_score bigint;
- n integer; cap integer; sizes integer[]; country_counts jsonb:='{}'; school_counts jsonb:='{}';
+ n integer; cap integer; group_people jsonb; sizes integer[]; country_counts jsonb:='{}'; school_counts jsonb:='{}';
  k text; sk text; plan jsonb:='[]'; c integer; sc integer; moves integer; group_size integer;
 BEGIN
  SELECT count(*) INTO n FROM gcc_ops_v248.people_v249(p_offer);
@@ -62,9 +62,10 @@ BEGIN
   SELECT ids FROM groups ORDER BY cardinality(ids) DESC,ids[1]
  LOOP
   group_size:=cardinality(g.ids);best:=1;best_score:=9223372036854775807;
+  SELECT jsonb_agg(to_jsonb(p)) INTO group_people FROM gcc_ops_v248.people_v249(p_offer) p WHERE student_id=ANY(g.ids);
   FOR r IN 1..p_rooms LOOP
    c:=0;sc:=0;moves:=0;
-   FOR p IN SELECT * FROM gcc_ops_v248.people_v249(p_offer) WHERE student_id=ANY(g.ids) LOOP
+   FOR p IN SELECT * FROM jsonb_to_recordset(group_people) AS x(student_id uuid,teacher_id uuid,student_no integer,country_code text,school_id uuid) LOOP
     k:=r::text||':'||p.country_code;sk:=r::text||':'||p.school_id::text;
     c:=c+coalesce((country_counts->>k)::integer,0);
     sc:=sc+coalesce((school_counts->>sk)::integer,0);
@@ -73,7 +74,7 @@ BEGIN
    score:=greatest(0,sizes[r]+group_size-cap)*100000+c*100+sc*30+sizes[r]*10+moves*40;
    IF score<best_score THEN best_score:=score;best:=r;END IF;
   END LOOP;
-  FOR p IN SELECT * FROM gcc_ops_v248.people_v249(p_offer) WHERE student_id=ANY(g.ids) LOOP
+  FOR p IN SELECT * FROM jsonb_to_recordset(group_people) AS x(student_id uuid,teacher_id uuid,student_no integer,country_code text,school_id uuid) LOOP
    k:=best::text||':'||p.country_code;sk:=best::text||':'||p.school_id::text;
    country_counts:=jsonb_set(country_counts,ARRAY[k],to_jsonb(coalesce((country_counts->>k)::integer,0)+1),true);
    school_counts:=jsonb_set(school_counts,ARRAY[sk],to_jsonb(coalesce((school_counts->>sk)::integer,0)+1),true);
@@ -119,7 +120,7 @@ BEGIN
  SELECT * INTO e FROM gcc_ops_v248.extras_v249 WHERE offer_id=a.id;
  rev:=coalesce(w.revision,0);rooms:=coalesce(w.room_count,a.room_count);
  pairs:=coalesce(e.pairs,'[]');facs:=coalesce(e.facilitators,'[]');zoom:=coalesce(e.zoom_url,'');withdrawal:=coalesce(e.withdrawn,'[]');
- had_current_plan:=w.plan IS NOT NULL AND w.plan_signature=gcc_ops_v248.signature(a.id);
+ had_current_plan:=coalesce(w.plan IS NOT NULL AND w.plan_signature=gcc_ops_v248.signature(a.id),false);
  was_published:=coalesce(w.published AND had_current_plan,false);
  IF p_action<>'read' THEN
   IF coalesce((p_data->>'revision')::bigint,-1)<>rev THEN RAISE EXCEPTION 'Session changed. Refresh before saving.';END IF;
@@ -139,6 +140,7 @@ BEGIN
     IF req.status<>'approved' OR req.reconfirmation_required OR NOT gcc_ops_v248.active_teacher(req.requesting_teacher_id) OR NOT gcc_ops_v248.active_teacher(a.teacher_id) THEN RAISE EXCEPTION 'Messaging requires an active approved partnership';END IF;
     msg:=btrim(coalesce(p_data->>'body',''));
     IF char_length(msg) NOT BETWEEN 1 AND 2000 THEN RAISE EXCEPTION 'Enter a message (1–2000 characters)';END IF;
+    PERFORM pg_advisory_xact_lock(hashtextextended('gcc249-message:'||tid::text,0));
     IF (SELECT count(*) FROM gcc_ops_v248.messages_v249 WHERE sender_id=tid AND created_at>now()-interval '1 minute')>=10 THEN RAISE EXCEPTION 'Message limit reached. Try again later.';END IF;
     INSERT INTO gcc_ops_v248.messages_v249(offer_id,request_id,sender_id,body,registration_link) VALUES(a.id,req.id,tid,msg,is_owner AND coalesce((p_data->>'registration_link')::boolean,false));
    END IF;
@@ -168,10 +170,10 @@ BEGIN
   ELSIF p_action='withdraw' THEN
    -- Scope is explicit. Never remove the host's class or affect another offer.
    IF coalesce(p_data->>'scope','') NOT IN ('teacher','school','country') THEN RAISE EXCEPTION 'Invalid withdrawal scope';END IF;
-   SELECT array_agg(m.teacher_id) INTO ids FROM gcc_ops_v248.members(a.id) m WHERE NOT m.is_host AND (
-    (p_data->>'scope'='teacher' AND m.teacher_id::text=p_data->>'value') OR
-    (p_data->>'scope'='school' AND m.school_id::text=p_data->>'value') OR
-    (p_data->>'scope'='country' AND m.country_code=p_data->>'value'));
+   SELECT array_agg(t.id) INTO ids FROM public.session_join_requests r JOIN public.teachers t ON t.id=r.requesting_teacher_id JOIN public.schools s ON s.id=t.school_id WHERE r.offer_id=a.id AND r.status='approved' AND t.id<>a.teacher_id AND (
+    (p_data->>'scope'='teacher' AND t.id::text=p_data->>'value') OR
+    (p_data->>'scope'='school' AND s.id::text=p_data->>'value') OR
+    (p_data->>'scope'='country' AND s.country_code=p_data->>'value'));
    IF coalesce(cardinality(ids),0)=0 THEN RAISE EXCEPTION 'No approved participating class in that scope';END IF;
    UPDATE public.session_join_requests SET status='declined',reviewed_by=auth.uid(),reviewed_at=now(),reconfirmation_required=false
     WHERE offer_id=a.id AND requesting_teacher_id=ANY(ids) AND status='approved';
@@ -194,6 +196,7 @@ BEGIN
    THEN RAISE EXCEPTION 'Each participating teacher can facilitate one valid room';END IF;
   ELSIF p_action='save_zoom' THEN
    zoom:=btrim(coalesce(p_data->>'zoom_url',''));
+   IF was_published AND zoom='' THEN RAISE EXCEPTION 'A published chart must retain its Zoom link';END IF;
    IF char_length(zoom)>2000 OR (zoom<>'' AND zoom !~* '^https://([a-z0-9-]+\.)*zoom\.us/[^[:space:]<>"]+$') THEN RAISE EXCEPTION 'Enter a valid HTTPS zoom.us meeting link';END IF;
   ELSIF p_action='arrange' THEN
    IF NOT gcc_ops_v248.ready_v249(a.id) THEN RAISE EXCEPTION 'Complete all final registrations first';END IF;
