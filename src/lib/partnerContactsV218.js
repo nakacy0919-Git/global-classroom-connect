@@ -107,7 +107,10 @@ export function mountApprovedPartnerContactV218(mount,requestId){
   try{
    await teacherSavePartnerContactV218(requestId,ch,val);
   }catch{
-   if(details.open&&generation===viewGeneration)status.textContent='Contact change could not be confirmed. Close and reopen to check before trying again.';
+   if(details.open&&generation===viewGeneration){
+    clearPrivateView();
+    status.textContent='Contact change could not be confirmed. Close and reopen to check before trying again.';
+   }
    setBusy(false);
    if(details.open&&generation!==viewGeneration)void load();
    return;
