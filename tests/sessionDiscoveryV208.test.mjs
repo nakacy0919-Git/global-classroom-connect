@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {hostCountryV208,hostEventsAsOffersV208,publishedByCountryV208,totalCapacityV208} from '../src/lib/sessionDiscoveryV208.js';
+import {activeCountriesV151} from '../src/lib/sessionCountryMapV151.js';
 import {parseFlowV203} from '../src/lib/sessionPlannerV203.js';
 import {toUtc,makeSlot} from '../src/lib/matching.js';
 import {timeRangeV112} from '../src/lib/sessionTimeV112.js';
@@ -84,4 +85,24 @@ test('cards are compact and accessible, with prominent flag and short CTA',()=>{
  assert.match(teacher,/appendVisualBasicsV209/);assert.match(host,/gcs208-host-country/);
  assert.match(teacher,/gcs208-compact-details/);
  assert.match(host,/publishedByCountryV208/);
+});
+
+test('published host events remain visible as country map pins with accurate start and deadline',()=>{
+ const now=Date.parse('2026-11-17T00:00:00Z');
+ const hostEvent={
+  id:'host-event',status:'published',
+  starts_at:'2027-01-11T10:00:00Z',ends_at:'2027-01-11T11:00:00Z',
+  session_details:{host_country_code:'JP',host_country_name:'Japan',
+   registration_closes_at:'2027-01-10T10:00:00Z'}
+ };
+ const offer=hostEventsAsOffersV208([hostEvent])[0];
+ assert.equal(offer.starts_at,hostEvent.starts_at);
+ assert.equal(offer.session_details.registration_closes_at,hostEvent.session_details.registration_closes_at);
+ assert.deepEqual(activeCountriesV151([offer],now).map(x=>x.code),['JP']);
+ const pastDeadline=hostEventsAsOffersV208([{
+  ...hostEvent,session_details:{...hostEvent.session_details,registration_closes_at:'2026-11-01T00:00:00Z'}
+ }]);
+ assert.deepEqual(activeCountriesV151(pastDeadline,now),[]);
+ const draft=hostEventsAsOffersV208([{...hostEvent,status:'draft'}]);
+ assert.deepEqual(activeCountriesV151(draft,now),[]);
 });
