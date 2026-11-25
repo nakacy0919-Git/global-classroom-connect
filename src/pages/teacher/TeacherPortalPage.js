@@ -1,4 +1,6 @@
 import '../../styles/teacherSelfService.css';
+import {operationsHashV248,operationsParamsV248} from '../../lib/teacherOperationsV248.js';
+import {mountTeacherOperationsV248} from './TeacherOperationsV248.js';
 import {mountSessionWizardV242} from '../../lib/sessionPopupWizardV242.js';
 import {syncThemeV244,sessionTopicV244} from '../../lib/sessionThemeV244.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
@@ -174,6 +176,7 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
   <div id="gctp-results" class="gct-results"></div>
   <button id="gcs213-show-more" class="gcs213-show-more" type="button" hidden>Show more sessions ↓</button>
  </div>
+ <section class="gct-section" data-gct-view="operate" hidden><div id="gcc248-operations"></div></section>
  <div class="gct-section" data-gct-view="requests" hidden><div class="gct-section-head"><span>✉</span><div><h3>Join requests</h3><p>Review applications to your sessions, and track the requests you sent.</p></div></div>
  <section class="gct-panel gcs212-inbox" aria-label="Teacher notifications"><h3>🔔 Notifications <span id="gcs212-notice-count-requests"></span></h3><div id="gcs212-notices-requests"></div></section>
   <div class="gct-request-columns"><div class="gct-panel"><h3>Received from other teachers</h3><div id="gctp-incoming" class="gct-card-list"></div></div><div class="gct-panel"><h3>Requests you sent</h3><div id="gctp-outgoing" class="gct-card-list"></div></div></div>
@@ -515,6 +518,7 @@ export function bindTeacherPortalPage(){
    finally{edit.disabled=false;}
   });
   row.append(edit);
+  const operate=element('a','gct-primary','Manage exchange →');operate.href=operationsHashV248(o.id);row.append(operate);
   const duplicate=element('button','gct-secondary','⧉ Duplicate');
   duplicate.type='button';
   duplicate.addEventListener('click',async()=>{
@@ -646,10 +650,11 @@ export function bindTeacherPortalPage(){
       catch(e){const msg=e.message||'Could not edit this session';inform(msg,true);sessionDetails.status.textContent=msg;}
       finally{edit.disabled=false;}
      });
-     footer.append(edit);
+     const operate=element('a','gct-primary gcs209-register','Manage exchange →');operate.href=operationsHashV248(o.id);footer.append(edit,operate);
      card.append(footer,partnerPreviewV226(o));
     }else if(previous){
      footer.append(element('span','gcs212-status',requestStatusLabelV212(previous)));
+     if(previous.status==='approved'&&!previous.reconfirmation_required){const register=element('a','gct-primary gcs209-register','Register students / Teacher Mode');register.href=operationsHashV248(o.id);footer.append(register);}
      card.append(footer);
     }else if(!canRequestV212(o)){
      footer.append(element('span','gcs212-status gcs212-incomplete',
@@ -767,6 +772,7 @@ export function bindTeacherPortalPage(){
     }
     if(r.message)card.append(element('p','',r.message));
     if(r.status==='approved'){
+     if(direction==='outgoing'&&!r.reconfirmation_required){const register=element('a','gct-primary','Register students / Teacher Mode');register.href=operationsHashV248(r.offer_id);card.append(register);}
      const handoff=element('div','gcs218-handoff');
      mountApprovedPartnerContactV218(handoff,r.id);
      card.append(handoff);
@@ -1020,6 +1026,7 @@ export function bindTeacherPortalPage(){
  },60000);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
+ if(view==='operate'){display(view);mountTeacherOperationsV248($('gcc248-operations'),operationsParamsV248(window.location.hash));return;}
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
  showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
 }
