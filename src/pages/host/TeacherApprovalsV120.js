@@ -30,7 +30,7 @@ export function TeacherApprovalsV120(){return `<main class="gcc120-page gcc120-a
   <div id="gcc153-host-school-list" class="gcc120-review-list">Loading requests…</div>
  </details>
  </section></main>`;}
-export function bindTeacherApprovalsV120(){
+export function bindTeacherApprovalsV120({pending=pendingApprovalsV120,overview=signupOverviewV134,review=reviewApplicationV120,previewPhoto=previewApplicationPhotoV120,client=supabase}={}){
  const root=document.querySelector('.gcc120-admin');if(!root)return;
  const message=root.querySelector('#gcc120-review-msg'),list=root.querySelector('#gcc120-review-list');
  const accountsBox=root.querySelector('#gcc134-accounts'),countBox=root.querySelector('#gcc134-counts');
@@ -78,7 +78,7 @@ export function bindTeacherApprovalsV120(){
   if(loading||reviewBusy||!root.isConnected)return;
   loading=true;refreshButton.disabled=true;
   try{
-   const [rawApplications,accounts]=await Promise.all([pendingApprovalsV120(),signupOverviewV134().catch(()=>null)]);
+   const [rawApplications,accounts]=await Promise.all([pending(),overview().catch(()=>null)]);
    const applications=newestApplicationsV250(rawApplications);pendingCount.textContent='('+applications.length+')';
    if(!root.isConnected)return;
    lastCheck.textContent='Last checked: '+new Date().toLocaleTimeString()+' · Refreshes every 15 seconds';
@@ -88,13 +88,13 @@ export function bindTeacherApprovalsV120(){
    if(qKey===lastQueueKey)return;
    list.replaceChildren();
    if(!applications.length){list.append(el('p','gcc120-panel','No pending applications.'));lastQueueKey=qKey;return;}
-  const {data:schools,error:schoolErr}=await supabase.from('schools').select('id,name,country_name').eq('is_active',true).order('name');
+  const {data:schools,error:schoolErr}=await client.from('schools').select('id,name,country_name').eq('is_active',true).order('name');
   if(schoolErr)throw schoolErr;
   lastQueueKey=qKey;
   for(const a of applications){const card=el('article','gcc120-panel gcc120-review-card');
     const header=el('div','gcc120-review-head');const image=el('div','gcc120-review-photo','Photo not available');
     let photoReady=false;let faceBox;let photoStatus=el('p','gcc250-photo-status','Photo not available');
-    if(a.photo_path){try{const src=await previewApplicationPhotoV120(a.photo_path);if(src){const pic=el('img');pic.alt='Applicant face photograph (verify manually)';pic.addEventListener('load',()=>{photoReady=true;photoStatus.textContent='Photo loaded · verify manually';if(faceBox)faceBox.disabled=false;});pic.addEventListener('error',()=>{photoReady=false;photoStatus.textContent='Photo could not be loaded. Refresh before reviewing.';if(faceBox){faceBox.checked=false;faceBox.disabled=true;}});pic.src=src;image.replaceChildren(pic);}}catch{photoStatus.textContent='Photo could not be loaded. Refresh before reviewing.';}}
+    if(a.photo_path){try{const src=await previewPhoto(a.photo_path);if(src){const pic=el('img');pic.alt='Applicant face photograph (verify manually)';pic.addEventListener('load',()=>{photoReady=true;photoStatus.textContent='Photo loaded · verify manually';if(faceBox)faceBox.disabled=false;});pic.addEventListener('error',()=>{photoReady=false;photoStatus.textContent='Photo could not be loaded. Refresh before reviewing.';if(faceBox){faceBox.checked=false;faceBox.disabled=true;}});pic.src=src;image.replaceChildren(pic);}}catch{photoStatus.textContent='Photo could not be loaded. Refresh before reviewing.';}}
     const detail=el('div');detail.append(el('h2','',a.name||''),el('p','',a.email||''));const facts=[
      ['Teacher website',a.website],['Introduction',a.bio],['School',a.school],['School type / level',`${a.school_type} · ${a.school_level}`],
      ['Location',[a.city,a.region,a.country].filter(Boolean).join(', ')],['School website',a.school_website],['Time zone',a.timezone]
@@ -115,12 +115,12 @@ export function bindTeacherApprovalsV120(){
     const actions=el('div','gcc120-review-actions');for(const [decision,label] of [['approved','Approve application'],['rejected','Reject application']]){
      const btn=el('button',decision==='approved'?'gcc120-primary':'gcc120-secondary',label);btn.type='button';btn.addEventListener('click',async()=>{
       if(reviewBusy)return;const grantHost=decision==='approved'&&elevated.checked,school=select.value||null;
-      let rejectMail=null;if(decision==='rejected'){rejection.open=true;try{rejectMail=draft();}catch(e){notify(e.message,true);return;}}
+      let rejectMail=null;if(decision==='rejected'){rejection.open=true;if(!prepared.hidden&&!confirm('An earlier rejection email draft is still on this page. Replace it with a new draft?'))return;try{rejectMail=draft();}catch(e){notify(e.message,true);return;}}
       if(decision==='approved'&&(!photoReady||!validSchoolWebsiteV250(a.school_website)||!faceBox.checked||!schoolBox.checked)){notify('Verify the face photo and school information before approval.',true);return;}
       const warning=decision==='approved'?`Approve ${a.name} as ${grantHost?'HOST ADMIN + Teacher':'Teacher'}? ${grantHost?'This grants full GCC administrative powers.':''}`:`Reject ${a.name}?`;
       if(!confirm(warning))return;
       if(grantHost&&!confirm(`HIGH PRIVILEGE: Confirm granting Host Admin to ${a.email}. This user can approve future teachers.`))return;
-      btn.disabled=true;reviewBusy=true;try{await reviewApplicationV120(a.id,decision,grantHost,school);if(rejectMail)showMail(rejectMail);notify(decision==='approved'?a.name+': approved. Approval confirmation email queued.':a.name+': rejected. Review and send the prepared email manually.');}
+      btn.disabled=true;reviewBusy=true;try{await review(a.id,decision,grantHost,school);if(rejectMail)showMail(rejectMail);notify(decision==='approved'?a.name+': approved. Approval confirmation email queued.':a.name+': rejected. Review and send the prepared email manually.');}
       catch(e){notify(e.message||'Review failed.',true);btn.disabled=false;return;}
       finally{reviewBusy=false;}await refresh();
      });actions.append(btn);}card.append(actions);list.append(card);
@@ -136,7 +136,7 @@ export function bindTeacherApprovalsV120(){
   if(schoolBusy||!root.isConnected)return;
   schoolBusy=true;schoolRefresh.disabled=true;
   try{
-   const {data,error}=await supabase.rpc('gcc_v153_host_school_edits');if(error)throw error;
+   const {data,error}=await client.rpc('gcc_v153_host_school_edits');if(error)throw error;
    schoolList.replaceChildren();
    if(!data?.length){schoolList.append(el('p','gcn116-help','No school correction requests are waiting.'));return;}
    for(const request of data){
@@ -162,7 +162,7 @@ export function bindTeacherApprovalsV120(){
        'Decline this school correction request?'))return;
       button.disabled=true;
       try{
-       const {error}=await supabase.rpc('gcc_v153_review_school_edit',{p_id:request.id,p_accept:approve});
+       const {error}=await client.rpc('gcc_v153_review_school_edit',{p_id:request.id,p_accept:approve});
        if(error)throw error;
        schoolStatus.textContent=approve?'School correction approved.':'School correction declined.';
        await refreshSchoolEdits();
