@@ -68,5 +68,15 @@ jobs:
             fi
             echo "PASS: landing header, hero, four cards, footer and login links at $viewport"
           done
+
+          for viewport in 390,844 768,1024 1024,768 1180,680 1440,900; do
+            result="$(timeout 40 "$browser" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-gpu --window-size="$viewport" --virtual-time-budget=12000 --dump-dom http://127.0.0.1:4175/tests/fixtures/gcc-finder-v246.html 2>/dev/null)"
+            if [[ "$result" != *'data-result="pass"'* ]]; then
+              echo "FAIL: finder viewport $viewport"
+              echo "$result" | grep -o '<pre id="fixture-error">[^<]*' || true
+              exit 1
+            fi
+            echo "PASS: compact session cards, one heading, details popup and focus at $viewport"
+          done
       - name: Check whitespace errors
         run: git diff --check
