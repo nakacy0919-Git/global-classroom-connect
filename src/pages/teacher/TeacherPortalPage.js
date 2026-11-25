@@ -441,6 +441,9 @@ export function bindTeacherPortalPage(){
      element('p','',entry.body),
      element('small','',fmt(entry.created_at,identity.timezone)));
     article.append(text);
+    if(entry.offer_id&&['New private message','New registration invitation'].includes(entry.title)){
+     const link=element('a','gct-secondary','Open exchange');link.href=operationsHashV248(entry.offer_id);article.append(link);
+    }
     if(!entry.read_at){
      const mark=element('button','gct-secondary','Mark read');mark.type='button';
      mark.addEventListener('click',async()=>{
