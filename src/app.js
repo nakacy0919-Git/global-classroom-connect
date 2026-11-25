@@ -1,3 +1,4 @@
+import {bindTeacherDirectoryPaginationV228} from './lib/teacherDirectoryPaginationV228.js';
 import { supabase } from './services/supabase.js';
 import {SessionsPage,bindSessionsPage} from './pages/host/SessionsPage.js';
 import {SimpleSessionsPage,bindSimpleSessionsPage} from './pages/host/SimpleSessionsPage.js';
@@ -1502,67 +1503,7 @@ function bindUiEvents() {
 
 
 
-  const teacherSearch =
-    document.querySelector(
-      '#teacher-search'
-    );
-
-
-
-
-  teacherSearch
-    ?.addEventListener(
-
-      'input',
-
-      () => {
-
-
-        const query =
-          teacherSearch
-            .value
-            .trim()
-            .toLowerCase();
-
-
-
-
-        document
-          .querySelectorAll(
-            '.teacher-card'
-          )
-          .forEach(
-
-            (card) => {
-
-
-              const text =
-                card.dataset
-                  .teacherSearch ||
-                '';
-
-
-
-
-              card.style.display =
-                text.includes(
-                  query
-                )
-
-                  ? ''
-
-                  : 'none';
-
-            }
-
-          );
-
-      }
-
-    );
-
-
-
+  bindTeacherDirectoryPaginationV228(document);
 
   const addTeacherForm =
     document.querySelector(
