@@ -2,6 +2,7 @@
 import {TeacherPortalPage} from '/src/pages/teacher/TeacherPortalPage.js';
 import {mountPlanFieldsV203} from '/src/lib/sessionPlannerV203.js';
 import {mountSessionWizardV242,WIZARD_SCREENS_V242,screenGroupV242} from '/src/lib/sessionPopupWizardV242.js';
+import {syncThemeV244,sessionTopicV244} from '/src/lib/sessionThemeV244.js';
 import {captureSessionDraftV213,applySessionDraftV213} from '/src/lib/sessionDraftV213.js';
 const check=(v,label)=>{if(!v)throw Error(label)};
 try{
@@ -22,17 +23,42 @@ try{
  $('gctp-name').value='Synthetic classroom exchange';
  $('gctp-next').addEventListener('click',()=>wizard.go(wizard.index()+1));
  $('gctp-back').addEventListener('click',()=>wizard.go(wizard.index()-1));
- const fields=['gctp-name','gctp-date',null,'gctp-students','gctp-band','gctp-topic','gctp-minage','gctp-flow','gctp-platform','gctp-deadline','gctp-review'];
+ const fields=['gctp-name','gctp-date',null,'gctp-students','gctp-band',null,'gctp-minage','gctp-flow','gctp-platform','gctp-deadline','gctp-review'];
  for(let i=0;i<WIZARD_SCREENS_V242.length;i++){
   check(wizard.index()===i,'step index '+i);
   check(group===screenGroupV242(i),'legacy group '+i);
   check($('gctp-form-step').textContent===(i+1)+' / 11','progress '+i);
   check(visible($('gctp-publish'))===(i===10),'publish only review '+i);
   if(fields[i])check(visible($(fields[i])),'visible '+fields[i]);
+  if(i===1){
+   const rects=['gctp-date','gctp-zone','gctp-from','gctp-to'].map(id=>$(id).getBoundingClientRect());
+   const [date,zone,from,to]=rects;
+   for(const r of rects){check(Math.abs(r.width-date.width)<1,'equal datetime width');check(Math.abs(r.height-date.height)<1,'equal datetime height');}
+   if(innerWidth>550){
+    check(date.right+8<=zone.left&&from.right+8<=to.left,'date/time columns do not overlap');
+    check(Math.abs(date.left-from.left)<1&&Math.abs(zone.left-to.left)<1,'columns align');
+    check(Math.abs(date.top-zone.top)<1&&Math.abs(from.top-to.top)<1,'input rows align');
+   }else check(date.bottom<zone.top&&from.bottom<to.top,'stacked mobile fields');
+   const body=$('gcc242-body').getBoundingClientRect();
+   for(const r of rects)check(r.left>=body.left-1&&r.right<=body.right+1,'no horizontal overflow');
+  }
   if(i===5){
+   check(!visible($('gctp-type').closest('label')),'duplicate educational type hidden');
+   check(root.querySelectorAll('.gcc242-choice-grid').length===1,'one theme choice grid');
+   check(!visible($('gctp-topic'))&&!$('gctp-topic').required,'normal theme has no custom field');
+   const other=[...root.querySelectorAll('.gcc242-choice')].find(b=>b.dataset.value==='Free Topic');
+   check(other.textContent==='Other','Other label');
+   other.click();check(visible($('gctp-topic'))&&$('gctp-topic').required,'Other reveals required input');
+   check(syncThemeV244(root)==='Enter a specific topic for Other.','blank Other blocked');
+   $('gctp-topic').value='Ocean conservation';
+   check(!syncThemeV244(root)&&$('gctp-type').value==='other','custom maps to compatible enum');
+   check(sessionTopicV244($('gctp-theme').value,$('gctp-topic').value)==='Ocean conservation','custom publication topic');
    const card=root.querySelector('.gcc242-choice[data-value=SDGs]');check(visible(card),'theme card visible');card.click();
    check($('gctp-theme').value==='SDGs'&&visible($('gctp-sdg')),'theme conditional field');
    check(card.getAttribute('aria-pressed')==='true','selected card');
+   check(!visible($('gctp-topic'))&&!$('gctp-topic').required&&$('gctp-type').value==='global_issues','SDGs automatically classified');
+   check(sessionTopicV244($('gctp-theme').value,$('gctp-topic').value)==='SDGs','stale Other not published');
+   other.click();check($('gctp-topic').value==='Ocean conservation','custom text retained when switching back');card.click();
   }
   if(i===8){
    $('gctp-platform').value='google_meet';$('gctp-platform').dispatchEvent(new Event('change',{bubbles:true}));
