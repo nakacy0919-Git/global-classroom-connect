@@ -92,3 +92,36 @@
 #gcc242-dialog[data-gcc243-short][open]{overflow-y:auto;overscroll-behavior:contain}
 #gcc242-dialog[data-gcc243-short] #gctp-create{height:auto;max-height:none;min-height:100%}
 #gcc242-dialog[data-gcc243-short] .gcc242-body{flex:0 0 auto;min-height:100px;overflow:visible}
+
+/* V24.4 — equal tracks and native WebKit date/time sizing, without changing
+   the native pickers or the stored local date/time values. */
+#gcc242-dialog .gcc244-date-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+ width:100%;min-width:0;max-width:100%;align-items:stretch;box-sizing:border-box;
+}
+#gcc242-dialog .gcc244-date-grid>label{
+ display:flex;flex-direction:column;min-width:0;max-width:100%;width:100%;
+ margin:0;padding:0;box-sizing:border-box;
+}
+#gcc242-dialog .gcc244-date-grid input{
+ display:block;box-sizing:border-box!important;inline-size:100%!important;
+ width:100%!important;min-inline-size:0!important;min-width:0!important;
+ max-inline-size:100%!important;max-width:100%!important;
+ block-size:50px!important;height:50px!important;min-height:50px!important;
+ max-height:50px!important;margin:0;padding:10px 12px;line-height:1.35;
+ font-size:16px;flex:0 0 50px;border-radius:11px;
+}
+#gcc242-dialog .gcc244-date-grid input[type=date],
+#gcc242-dialog .gcc244-date-grid input[type=time]{
+ -webkit-appearance:none;appearance:none;text-align:left;
+}
+#gcc242-dialog .gcc244-date-grid input::-webkit-date-and-time-value{
+ text-align:left;min-width:0;max-width:100%;margin:0;
+}
+#gcc242-dialog .gcc244-date-grid input::-webkit-datetime-edit{
+ min-width:0;max-width:100%;padding:0;
+}
+#gcc242-dialog .gcc244-date-grid #gctp-zone{background:#f3f8fa}
+@media(max-width:550px){
+ #gcc242-dialog .gcc244-date-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+}
