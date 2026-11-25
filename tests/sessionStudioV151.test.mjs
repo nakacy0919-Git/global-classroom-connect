@@ -38,12 +38,12 @@ test('active country pins include own and partner offers only while future and o
  const t=Date.parse('2026-10-28T00:00:00Z');
  const iso='2026-11-12T12:00:00Z';
  const countries=activeCountriesV151([
-  {country_code:'PH',country_name:'Philippines',status:'open',ends_at:iso,is_mine:false},
-  {country_code:'PH',country_name:'Philippines',status:'open',ends_at:iso,is_mine:false},
-  {country_code:'JP',country_name:'Japan',status:'open',ends_at:iso,is_mine:true},
-  {country_code:'LK',country_name:'Sri Lanka',status:'closed',ends_at:iso,is_mine:false},
-  {country_code:'MY',country_name:'Malaysia',status:'open',ends_at:'2026-01-01T00:00:00Z',is_mine:false},
-  {country_code:'INVALID',country_name:'Invalid',status:'open',ends_at:iso,is_mine:false}
+  {starts_at:'2026-11-12T11:00:00Z',country_code:'PH',country_name:'Philippines',status:'open',ends_at:iso,is_mine:false},
+  {starts_at:'2026-11-12T11:00:00Z',country_code:'PH',country_name:'Philippines',status:'open',ends_at:iso,is_mine:false},
+  {starts_at:'2026-11-12T11:00:00Z',country_code:'JP',country_name:'Japan',status:'open',ends_at:iso,is_mine:true},
+  {starts_at:'2026-11-12T11:00:00Z',country_code:'LK',country_name:'Sri Lanka',status:'closed',ends_at:iso,is_mine:false},
+  {starts_at:'2026-11-12T11:00:00Z',country_code:'MY',country_name:'Malaysia',status:'open',ends_at:'2026-01-01T00:00:00Z',is_mine:false},
+  {starts_at:'2026-11-12T11:00:00Z',country_code:'INVALID',country_name:'Invalid',status:'open',ends_at:iso,is_mine:false}
  ],t);
  assert.deepEqual(countries,[{code:'JP',name:'Japan',count:1},{code:'PH',name:'Philippines',count:2}]);
  assert.ok(countryMaster.countries.some(c=>c.code==='PH'&&Number.isFinite(c.lat)&&Number.isFinite(c.lon)));

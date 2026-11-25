@@ -27,3 +27,11 @@ export function idempotencyKeyV219(requestId){
   throw Error('invalid_request_id');
  return 'gcc-join-request-'+requestId.toLowerCase();
 }
+
+// A 2xx without a valid provider receipt is not evidence of acceptance.
+// Retry with the same request idempotency key, bounded by the outbox lease policy.
+export function providerAcceptanceV234(payload){
+ const id=typeof payload?.id==='string'?payload.id.trim():'';
+ if(!/^[A-Za-z0-9_-]{1,160}$/.test(id))return {outcome:'retry',providerId:null,failure:'provider_receipt_missing'};
+ return {outcome:'sent',providerId:id,failure:null};
+}

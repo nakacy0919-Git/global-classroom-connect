@@ -3,7 +3,7 @@
 // Supabase Edge function: deploy with verify_jwt=false; enforce private webhook token here.
 import {createClient} from 'npm:@supabase/supabase-js@2.116.0';
 import {
- buildHostJoinRequestEmailV219,classifyResendFailureV219,errorCodeV219,idempotencyKeyV219
+ buildHostJoinRequestEmailV219,classifyResendFailureV219,errorCodeV219,idempotencyKeyV219,providerAcceptanceV234
 } from './requestEmailV219.mjs';
 
 const respond=(status,payload)=>new Response(JSON.stringify(payload),{
@@ -90,9 +90,9 @@ Deno.serve(async(req)=>{
      body:JSON.stringify(email),signal:AbortSignal.timeout(12000)
     });
     if(response.ok){
-     const json=await response.json();
-     providerId=typeof json?.id==='string'?json.id:null;
-     result='sent';failure=null;accepted++;
+     const receipt=providerAcceptanceV234(await response.json().catch(()=>null));
+     providerId=receipt.providerId;result=receipt.outcome;failure=receipt.failure;
+     if(result==='sent')accepted++;
     }else{
      // Never log provider response bodies: some responses could expose addresses.
      const json=await response.json().catch(()=>({}));
