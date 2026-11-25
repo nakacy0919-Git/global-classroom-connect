@@ -192,3 +192,38 @@ jobs:
           if [ "$ready" -ne 1 ]; then echo 'PostgREST failed startup'; exit 1; fi
           node scripts/gcc-postgrest-security-smoke.mjs
           node scripts/gcc-v240-http-admission-smoke.mjs
+
+
+  local-auth-acceptance:
+    name: Local Supabase Auth and SMTP acceptance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: gcc_ci_disposable_only
+          POSTGRES_DB: gcc_auth_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gcc_auth_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Set up Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Verify real local Auth, confirmation/recovery mail and GCC identity guard
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: gcc_ci_disposable_only
+          PGDATABASE: gcc_auth_ci
+        run: bash scripts/gcc-local-auth-acceptance.sh
