@@ -5,6 +5,7 @@ import {teacherProfileMarkupV153,mountTeacherProfileV153} from './TeacherProfile
 import {myTeacherProfileV116,teacherDirectoryV116,signedTeacherPhotoV116} from '../../services/teacherNetworkV116.js';
 import {teacherIdentityCardV230,showTeacherProfileV230} from '../../lib/sessionFinderTeacherV230.js';
 import {loadTeacherWorkspaceSnapshotV230} from '../../lib/teacherWorkspaceRefreshV230.js';
+import {isDiscoverableOfferV230} from '../../lib/sessionAvailabilityV230.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
 import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
@@ -532,7 +533,8 @@ export function bindTeacherPortalPage(){
  }
  function updateFindCountries(){
   const select=$('gctp-find-country'),current=select.value;
-  const codes=new Map([...upcoming().filter(o=>o.status==='open'),...hostEventsAsOffersV208(hostEvents)].filter(o=>o.country_code).map(o=>[o.country_code,o.country_name]));
+  const now=Date.now();
+  const codes=new Map([...upcoming(),...hostEventsAsOffersV208(hostEvents)].filter(o=>isDiscoverableOfferV230(o,now)&&o.country_code).map(o=>[o.country_code,o.country_name]));
   select.replaceChildren(new Option('Any country',''));
   for(const [code,name] of [...codes].sort((a,b)=>a[1].localeCompare(b[1])))select.add(new Option(name,code));
   if(codes.has(current))select.value=current;
