@@ -28,8 +28,13 @@ try{
  check(cards.length===8&&built===0,'lazy detail construction');
  for(const card of cards){
   const box=r(card);
-  check(box.width<=191&&box.height>=box.width,'compact portrait card '+box.width+'x'+box.height);
-  check(box.height>=170,'readable card height');
+  check(box.width<=191&&Math.abs(box.height-box.width)<1.5,'square card '+box.width+'x'+box.height);
+  check(box.height>=90,'usable square size');
+  for(const label of card.querySelectorAll('.gcc246-card-country,.gcc246-card-title,.gcc246-card-school,.gcc246-card-date,.gcc246-card-hours,.gcc246-open-label')){
+   check(getComputedStyle(label).whiteSpace==='nowrap','one-line text');
+   check(getComputedStyle(label).textOverflow==='ellipsis','long text safely truncated');
+   check(r(label).right<=box.right+1&&r(label).bottom<=box.bottom+1,'label inside card');
+  }
   const foot=r(card.querySelector('.gcc246-card-foot'));
   check(foot.bottom<=box.bottom+1,'card footer not clipped');
  }
