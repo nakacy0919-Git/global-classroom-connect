@@ -18,13 +18,15 @@ export function bindWizardViewportV243(dialog,body,{viewport=window.visualViewpo
  function keepFieldVisible(){
   const field=document.activeElement;
   if(!editable(field)||!body.contains(field))return;
-  // Scroll only the internal body, never the background document or native dialog.
-  const area=body.getBoundingClientRect(),rect=field.getBoundingClientRect();
+  // In extremely short split-screen mode the dialog itself is the scroller;
+  // otherwise scroll only its body. Never scroll the background document.
+  const scroller=dialog.hasAttribute('data-gcc243-short')?dialog:body;
+  const area=scroller.getBoundingClientRect(),rect=field.getBoundingClientRect();
   const padding=10,room=area.height-padding*2;
   if(room<=0)return;
   const top=area.top+padding,bottom=area.bottom-padding;
-  if(rect.top<top||rect.height>room){body.scrollTop+=rect.top-top;}
-  else if(rect.bottom>bottom){body.scrollTop+=rect.bottom-bottom;}
+  if(rect.top<top||rect.height>room){scroller.scrollTop+=rect.top-top;}
+  else if(rect.bottom>bottom){scroller.scrollTop+=rect.bottom-bottom;}
  }
  function update(){
   if(!active)return;
