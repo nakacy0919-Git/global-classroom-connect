@@ -31,7 +31,9 @@ test('approved core member sees Facilitator next step; pending applicants remain
  const signup=read('src/pages/teacher/TeacherJoinV120.js');
  assert.ok(signup.includes('id="gcc132-facilitator-next"'));
  assert.ok(signup.includes("hidden=kind!=='approved'"));
- assert.ok(signup.includes("kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host"));
+ assert.ok(signup.includes('id="gcc229-open-teacher-space"'));
+ assert.ok(signup.includes('Open My Teacher Space'));
+ assert.ok(signup.includes("kind==='approved'?'Your teacher account is ready."));
  const vol=read('src/pages/teacher/VolunteerV117.js');
  for(const marker of ['saveVolunteerV117','myTeacherProfileV116','Registration does not grant Host Admin access'])
   assert.ok(vol.includes(marker));

@@ -1,0 +1,20 @@
+# GCC V23.8 verified teacher admission — staged candidate
+
+## Evidence
+PR #116 disposable SQL and PostgREST JWT jobs passed; Node failed two old assertions disallowing any invitation field. These now check the optional masked invitation and preserve public single-link registration. The exact new candidate still needs a green CI run.
+
+Read-only production aggregate, 2026-11-25: 73 active teacher records, 26 with confirmed email, active linked school and teacher/host profile, 47 not meeting at least one condition. A stricter query including no anonymous/deleted/banned account, nonempty identity fields and country code returned 26 uniquely linked eligible accounts, no ambiguous eligible account. These are counts, not proof of identity or evidence of abuse. Do not deactivate or reclassify the 47 records automatically; they can include legacy invited records without linked accounts. Confirm participating schools before any opt-in.
+
+## Staged implementation
+Global GCC Host Admin may explicitly require verified teacher accounts for one upcoming published managed event. Separate from invitation-only: either, both, or neither can apply. Existing events default to the current open policy and existing registrations are unchanged. No reversal button in this candidate; reopening requires separate authorized review.
+
+All new signup inserts for an opted-in event must have a current signed-in account with a confirmed email, active teacher/host profile and exactly one eligible active school-linked teacher record; anonymous, banned or deleted users denied. The submitted teacher name, school name and country code must match the linked record; country label normalized from the approved school. The rule is enforced in a private BEFORE INSERT trigger, not just client UI, and also applies to legacy V6/V8/V165 and invitation-based V237 routes. No extra raw personal data stored in guard. This does not prove legal identity or current employment, and depends on the integrity of existing admin school approval and profile update permissions. Review those permissions and approval evidence in isolated Supabase. No public directory exposure: own identity RPC only returns name, school and country; public policy RPC returns a boolean for published upcoming events. No email returned.
+
+Public registration has a "Use my GCC profile" button, sign-in in a separate tab, policy message, and recovery without clearing the roster; server is authoritative if policy lookup fails. Ensure existing English-name validation supports approved names; teachers with incompatible names must contact host. No automatic profile edits. Host must confirm eligible teachers before enabling, particularly legacy participants.
+
+## Password security (operator decision, not deployed)
+New signup screen recommends a unique password of at least 12 characters or a password manager. Existing 8-character minimum unchanged; client advice is not server enforcement.
+Official docs https://supabase.com/docs/guides/auth/password-security describe project-wide Auth password requirements, leaked-password protection on Pro and above, and MFA. Earlier advisor indicated leaked-password protection disabled; do not claim it is active. Before changing the shared project's Auth policy: confirm plan and affected applications, review password recovery and email confirmation flows, test new signup, existing login, reset and password change in isolated environment, check rate limits and leaked-password protection availability, obtain explicit authorization, enable approved server setting, verify and document rollback. Never inspect password hashes, request user passwords, or forcibly reset accounts as part of this work.
+
+## Release gate
+V236 then V237 then V238 staged SQL; verify the exact candidate CI, real isolated Supabase authorization and concurrent redemption, current approval/ownership integrity, real teacher/mail/device pilot and backup/restore. Existing public events remain vulnerable to unverified registration absent opt-in; request-level anti-bot controls and policy decision remain. No production DB or Auth settings, real mail, merge or deployment performed.
