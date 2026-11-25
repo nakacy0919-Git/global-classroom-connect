@@ -111,6 +111,6 @@ jobs:
         run: |
           set -euo pipefail
           db="${{ job.services.postgres.id }}"
-          for file in tests/sql/gcc_v248_operations_fixture.sql sql/gcc_v248_teacher_session_operations.sql tests/sql/gcc_v248_operations_assertions.sql; do
+          for file in tests/sql/gcc_v248_operations_fixture.sql sql/gcc_v248_teacher_session_operations.sql tests/sql/gcc_v248_operations_assertions.sql tests/sql/gcc_v249_operations_fixture.sql sql/gcc_v249_teacher_operations_parity.sql tests/sql/gcc_v249_operations_assertions.sql; do
             docker exec -i "$db" psql -X -v ON_ERROR_STOP=1 -U postgres -d gcc_ops_ci < "$file"
           done

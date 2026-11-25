@@ -1,6 +1,7 @@
 import '../../styles/teacherSelfService.css';
 import {operationsHashV248,operationsParamsV248} from '../../lib/teacherOperationsV248.js';
 import {mountTeacherOperationsV248} from './TeacherOperationsV248.js';
+import {teacherOperationsV248} from '../../services/teacherOperationsV248.js';
 import {mountSessionWizardV242} from '../../lib/sessionPopupWizardV242.js';
 import {syncThemeV244,sessionTopicV244} from '../../lib/sessionThemeV244.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
@@ -440,6 +441,9 @@ export function bindTeacherPortalPage(){
      element('p','',entry.body),
      element('small','',fmt(entry.created_at,identity.timezone)));
     article.append(text);
+    if(entry.offer_id&&['New private message','New registration invitation'].includes(entry.title)){
+     const link=element('a','gct-secondary','Open exchange');link.href=operationsHashV248(entry.offer_id);article.append(link);
+    }
     if(!entry.read_at){
      const mark=element('button','gct-secondary','Mark read');mark.type='button';
      mark.addEventListener('click',async()=>{
@@ -794,7 +798,7 @@ export function bindTeacherPortalPage(){
         'Decline the request? The teacher will be notified inside GCC.'))return;
        btn.disabled=true;
        try{
-        await teacherReview(r.id,decision);await refresh();
+        const operations=await teacherOperationsV248(r.offer_id);await teacherOperationsV248(r.offer_id,'review',{revision:operations.revision,request_id:r.id,decision});await refresh();
         inform(decision==='approved'?'Seats reserved and teacher notified inside GCC.':'Request declined; teacher notified inside GCC.');
        }catch(e){inform(e.message,true);btn.disabled=false;}
       });actions.append(btn);
