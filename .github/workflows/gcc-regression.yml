@@ -86,6 +86,9 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v236_roster_admission_guard.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v236_roster_guard_assertions.sql
           bash scripts/gcc-roster-guard-concurrency.sh
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v237_invite_fixture.sql
+          psql -v ON_ERROR_STOP=1 -f sql/gcc_v237_event_invitation_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v237_invite_assertions.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_fixture.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v232_restrict_trigger_execute.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_assertions.sql
