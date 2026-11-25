@@ -63,6 +63,6 @@ BEGIN
  IF s->>'role'<>'applicant' OR s ? 'messages' OR s ? 'chart' OR s ? 'zoom_url' THEN RAISE EXCEPTION 'withdrawn school still has chart or message access';END IF;
 END $$;
 RESET ROLE;
-DO $ BEGIN IF NOT EXISTS(SELECT 1 FROM public.gcc_teacher_notifications_v212 WHERE teacher_id='20000000-0000-0000-0000-000000000002' AND title='New private message') OR NOT EXISTS(SELECT 1 FROM public.gcc_teacher_notifications_v212 WHERE teacher_id='20000000-0000-0000-0000-000000000003' AND title='New registration invitation') THEN RAISE EXCEPTION 'missing private notification';END IF;END $;
+DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM public.gcc_teacher_notifications_v212 WHERE teacher_id='20000000-0000-0000-0000-000000000002' AND title='New private message') OR NOT EXISTS(SELECT 1 FROM public.gcc_teacher_notifications_v212 WHERE teacher_id='20000000-0000-0000-0000-000000000003' AND title='New registration invitation') THEN RAISE EXCEPTION 'missing private notification';END IF;END $$;
 ROLLBACK;
 SELECT 'PASS V249: private messages, acceptance invitation, fixed pairs, Zoom validation, facilitator assignment, withdrawal and stable published roster edits' AS result;
