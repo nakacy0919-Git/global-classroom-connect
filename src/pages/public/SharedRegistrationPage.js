@@ -4,7 +4,7 @@ import '../../styles/sessionPlannerV203.css';
 import {bindRegistrationPairsV165} from '../../lib/registrationPairsV165.js';
 import '../../styles/simpleSessionsV8.css';
 import {parseSimpleRoster,parseSimpleFacilitators,englishName} from '../../lib/simpleRoster.js';
-import {listPublicSessions,submitSharedRoster} from '../../services/simpleSessionService.js';
+import {listPublicSessions,submitSharedRoster,rosterIdentityV238,verifiedRosterPolicyV238} from '../../services/simpleSessionService.js';
 import {deviceRequirementMarkupV158,bindDeviceRequirementV158} from '../../lib/registrationDeviceGateV158.js';
 import {timeConfirmationMarkupV160,bindTimeConfirmationV160} from '../../lib/registrationTimeGateV160.js';
 const $=id=>document.getElementById(id);
@@ -25,6 +25,7 @@ export function SharedRegistrationPage(){return `
     <div id="gcc203-registration-details" class="gcc203-public-panel" aria-live="polite"></div>
   </div>
   <div class="gcc-v8-stage" data-v8-stage="1" hidden>
+    <div class="gcc-v238-profile"><p id="gcc-v238-policy" role="status" aria-live="polite">You can use your approved GCC profile to fill your school details.</p><button id="gcc-v238-profile" type="button" class="gcc-v8-secondary">Use my GCC profile</button> <a href="#/teacher-access" target="_blank" rel="noopener noreferrer">Sign in (new tab)</a><p id="gcc-v238-status" role="status" aria-live="polite"></p></div>
     <label>Session invitation code (if your host provided one)<input id="gcc-v237-invite" type="password" maxlength="64" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the code from your host"></label>
     <p class="gcc-v8-help">If your host requires an invitation, enter the code privately. Do not share it with other schools.</p>
     <label>Country * <select id="gcc-v8-country"><option value="">Choose your country</option></select></label>
@@ -64,6 +65,38 @@ export function bindSharedRegistrationPage(){
  const facs=()=>parseSimpleFacilitators($('gcc-v8-facilitators').value);
  const current=()=>events.find(s=>s.id===$('gcc-v8-event').value);
  const details=()=>{const target=$('gcc203-registration-details');target.replaceChildren();const event=current();if(event){target.append(el('h3','','About this session'));renderSessionDetailsV203(target,event.session_details);}};
+ let policyGeneration=0;
+ async function checkPolicy(){
+  const generation=++policyGeneration,eventId=current()?.id;
+  $('gcc-v238-policy').textContent='Checking registration requirements…';
+  if(!eventId){$('gcc-v238-policy').textContent='Select a session first.';return;}
+  try{
+   const required=await verifiedRosterPolicyV238(eventId);
+   if(!root.isConnected||generation!==policyGeneration||current()?.id!==eventId)return;
+   $('gcc-v238-policy').textContent=required?'This session requires a verified GCC teacher account and matching school profile. Sign in, then use your GCC profile.':'You can use your approved GCC profile to fill your school details.';
+  }catch{
+   if(root.isConnected&&generation===policyGeneration)$('gcc-v238-policy').textContent='Registration policy could not be checked. The server will verify requirements when you submit.';
+  }
+ }
+ $('gcc-v238-profile').addEventListener('click',async()=>{
+  const button=$('gcc-v238-profile'),eventId=current()?.id;
+  button.disabled=true;
+  $('gcc-v238-status').textContent='Checking your GCC profile…';
+  try{
+   const identity=await rosterIdentityV238();
+   if(!root.isConnected||current()?.id!==eventId||step!==1)return;
+   if(!identity||!countries.has(identity.country_code)){
+    $('gcc-v238-status').textContent='No eligible GCC profile found. Sign in with a confirmed and approved teacher account, or ask your host to check your school profile.';
+    return;
+   }
+   $('gcc-v8-teacher').value=identity.teacher;
+   $('gcc-v8-school').value=identity.school;
+   $('gcc-v8-country').value=identity.country_code;
+   $('gcc-v238-status').textContent='Your GCC profile was loaded. Check the details before continuing.';
+  }catch{
+   if(root.isConnected)$('gcc-v238-status').textContent='Your profile could not be checked. Sign in using the link above, then try again. Your entered roster is unchanged.';
+  }finally{button.disabled=false;}
+ });
  const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>roster().records,getSession:()=>current()});
  function preview(){const r=roster();$('gcc-v8-roster-count').textContent=`${r.records.length} students${r.errors.length?` · ${r.errors.length} lines to fix`:''}`;
    const p=$('gcc-v8-preview');p.replaceChildren();
@@ -80,6 +113,7 @@ export function bindSharedRegistrationPage(){
    for(const e of root.querySelectorAll('[data-v8-stage]'))e.hidden=Number(e.dataset.v8Stage)!==n;
    $('gcc-v8-progress').replaceChildren(...[0,1,2,3].map(i=>{const x=el('span',i<=n?'active':'');return x;}));
    $('gcc-v8-back').hidden=n===0;$('gcc-v8-next').hidden=n===3;$('gcc-v8-submit').hidden=n!==3;
+   if(n===1)void checkPolicy();
    if(n===2)preview();if(n===3){review();pairPicker.refresh();}
  }
  function validate(n){if(n===0&&!current())return 'Please choose a session.';
@@ -105,7 +139,7 @@ export function bindSharedRegistrationPage(){
      $('gcc-v8-footer').hidden=true;
      $('gcc-v8-title').textContent='Your class is registered!';
      message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, open the session room chart and use your 4-digit Teacher Code in Teacher Mode to add, correct, or remove students and adjust rooms.`);$('gcc-v8-error').after(ok);
-   }catch(err){if(['GCC_INVITE_REQUIRED','GCC_INVITE_INVALID'].includes(err?.message))show(1);message(rosterSubmissionErrorV236(err));sending=false;b.disabled=false;}
+   }catch(err){if(['GCC_INVITE_REQUIRED','GCC_INVITE_INVALID','GCC_VERIFIED_TEACHER_REQUIRED','GCC_ROSTER_IDENTITY_MISMATCH'].includes(err?.message))show(1);message(rosterSubmissionErrorV236(err));sending=false;b.disabled=false;}
  });
  show(0);
  (async()=>{try{const [sessions,res]=await Promise.all([listPublicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
