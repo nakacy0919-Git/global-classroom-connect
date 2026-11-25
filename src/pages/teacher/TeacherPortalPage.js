@@ -1026,7 +1026,7 @@ export function bindTeacherPortalPage(){
  },60000);
  $('gctp-logout').addEventListener('click',async()=>{try{await teacherSignOut();window.location.hash='#/teacher-access';}catch(e){inform(e.message,true);}});
  const view=new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')||'home';
- if(view==='operate'){display(view);mountTeacherOperationsV248($('gcc248-operations'),operationsParamsV248(window.location.hash));return;}
+ if(view==='operate'){display(view);root.classList.add('gcc248-operating');$('gctp-greeting').textContent='Manage your exchange · verified teacher access';mountTeacherOperationsV248($('gcc248-operations'),operationsParamsV248(window.location.hash));return;}
  if(!['home','create','find','volunteer','network','requests','profile'].includes(view)){window.location.hash='#/teacher-portal?view=home';return;}
  showFormStep(0);display(view);init().catch(e=>inform(e.message,true));
 }
