@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><main id="app"></main><script type="module">
+import '/src/styles/global.css';
+import {Header} from '/src/components/Header.js';
+import {TeacherPortalPage} from '/src/pages/teacher/TeacherPortalPage.js';
+import {compactSessionCardV246,sessionDetailsDialogV246} from '/src/lib/sessionFinderCardsV246.js';
+import '/src/styles/academicPop.css';
+import '/src/styles/mobileExperienceV152.css';
+const check=(v,m)=>{if(!v)throw Error(m)};
+try{
+ history.replaceState(null,'','#/teacher-portal?view=find');
+ const app=document.getElementById('app');
+ app.innerHTML='<div class="app-shell"><aside></aside><main class="main-shell">'+Header('teacher-portal')+TeacherPortalPage()+'</main></div>';
+ const root=app.querySelector('.gct-portal');root.classList.add('gcs209-finding');root.querySelector('[data-gct-view=find]').hidden=false;
+ check(app.querySelectorAll('.page-title').length===1&&!root.querySelector('.gcs151-find-hero'),'one heading');
+ check(app.querySelector('.gcc246-find-subtitle').textContent.includes('Discover and join'),'subtitle present');
+ const list=root.querySelector('#gctp-results'),modal=sessionDetailsDialogV246();let built=0,clicked=0;
+ for(let i=0;i<8;i++){
+  const info={key:'offer:'+i,title:'International school exchange '+i,school:'A long international partner school name '+i,country:'Japan',flag:'🇯🇵',start:'2026-12-01T00:00:00Z',end:'2026-12-01T01:00:00Z',zone:'Asia/Tokyo',own:i===0};
+  list.append(compactSessionCardV246(info,b=>modal.open(b,()=>{
+   built++;const detail=document.createElement('article');detail.className='gcs230-card';
+   const p=document.createElement('p');p.textContent='Full agenda and session details';
+   const action=document.createElement('button');action.textContent='Request Join';action.onclick=()=>clicked++;
+   detail.append(p,action);return detail;
+  })));
+ }
+ list.append(modal.dialog);
+ const cards=[...list.querySelectorAll('.gcc246-session-card')],r=e=>e.getBoundingClientRect();
+ check(cards.length===8&&built===0,'lazy detail construction');
+ const cols=innerWidth>=851?4:innerWidth>320?2:1;
+ check(getComputedStyle(list).gridTemplateColumns.split(' ').length===cols,'correct columns');
+ for(let i=0;i<cols;i++){check(Math.abs(r(cards[i]).top-r(cards[0]).top)<1,'equal row');if(i>0)check(r(cards[i-1]).right<r(cards[i]).left,'no horizontal overlap');}
+ check(r(cards[cols]).top>r(cards[0]).bottom,'separate rows');
+ check(!modal.dialog.open&&!modal.dialog.getClientRects().length,'closed modal occupies no space');
+ check(!list.textContent.includes('Full agenda'),'no detailed content until open');
+ cards[0].click();
+ check(modal.dialog.open&&built===1,'card opens modal');
+ check(modal.dialog.textContent.includes('Full agenda'),'details displayed');
+ const bounds=r(modal.dialog);
+ check(bounds.width<=innerWidth+1&&bounds.height<=innerHeight+1,'modal fits viewport');
+ modal.dialog.querySelector('article button').click();check(clicked===1,'detail action still works');
+ modal.dialog.querySelector('.gcc246-close').click();await new Promise(resolve=>setTimeout(resolve,30));
+ check(!modal.dialog.open&&!modal.dialog.querySelector('article'),'close clears old details');
+ check(document.activeElement===cards[0],'focus returns to card');
+ cards[1].click();check(built===2&&modal.dialog.open,'another card opens fresh details');
+ modal.dismiss();check(!modal.dialog.open,'refresh dismisses stale details');
+ document.body.dataset.result='pass';
+}catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.message;document.body.append(p);}
+</script></body></html>
