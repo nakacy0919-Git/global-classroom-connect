@@ -50,22 +50,29 @@
 @media(max-width:440px){.gct-portal #gctp-results .gcc246-session-card{padding:9px;gap:5px}.gcc246-card-title{font-size:.83rem}.gcc246-dialog-body{padding:9px}}
 @media(max-width:320px){.gct-portal.gcs209-finding #gctp-results.gct-results{grid-template-columns:1fr}}
 
-/* V24.6 refinement: portrait cards only, even on a wide desktop or when
-   only one result exists. Keep the grid tracks capped rather than stretching. */
+/* V24.7: exact square tiles with single-line typography and stable tracks. */
 .gct-portal.gcs209-finding #gctp-results.gct-results{
- grid-template-columns:repeat(4,minmax(0,190px));justify-content:start;gap:10px;
+ grid-template-columns:repeat(4,minmax(0,190px));justify-content:start;align-items:start;gap:10px
 }
 .gct-portal #gctp-results .gcc246-session-card{
- width:100%;max-width:190px;height:auto;min-height:192px;aspect-ratio:9/10;
- align-self:stretch;justify-self:start;padding:10px;gap:5px;
+ width:100%;max-width:190px;height:auto;min-height:0;aspect-ratio:1 / 1;
+ align-self:start;justify-self:start;padding:8px;gap:4px;
+ display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.8fr) minmax(0,.85fr);
+ container-type:inline-size;box-sizing:border-box;
 }
-.gcc246-card-country{font-size:.72rem}
-.gcc246-card-title{font-size:.84rem;line-height:1.32}
-.gcc246-card-school{font-size:.72rem;line-height:1.32}
-.gcc246-card-when{padding:6px;gap:2px}
-.gcc246-card-date{font-size:.71rem}
-.gcc246-card-hours{font-size:.8rem}
-.gcc246-card-foot{min-height:18px;font-size:.68rem}
+.gcc246-session-card :is(.gcc246-card-title,.gcc246-card-school,.gcc246-card-country,.gcc246-card-date,.gcc246-card-hours,.gcc246-card-foot,.gcc246-open-label,.gcc246-own){
+ display:block;min-width:0;min-height:0;max-width:100%;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;line-height:1.2;overflow-wrap:normal;
+}
+.gcc246-card-country{font-size:clamp(9px,8cqi,14px);align-self:center}
+.gcc246-card-title{font-size:clamp(10px,9cqi,15px);align-self:center}
+.gcc246-card-school{font-size:clamp(9px,7.5cqi,13px);align-self:center}
+.gcc246-card-when{padding:4px 6px;gap:2px;min-height:0;margin:0;display:grid;align-content:center;overflow:hidden}
+.gcc246-card-date{font-size:clamp(9px,7.3cqi,13px)}
+.gcc246-card-hours{font-size:clamp(9px,8.5cqi,14px)}
+.gcc246-session-card .gcc246-card-foot{display:flex;flex-wrap:nowrap;align-items:center;gap:4px;font-size:clamp(9px,7cqi,12px)}
+.gcc246-own{flex:0 1 auto;font-size:inherit}
+.gcc246-open-label{flex:0 1 auto;margin-left:auto}
 @media(max-width:850px){
  .gct-portal.gcs209-finding #gctp-results.gct-results{grid-template-columns:repeat(2,minmax(0,190px))}
 }
