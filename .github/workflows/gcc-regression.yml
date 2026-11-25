@@ -76,6 +76,12 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v233_scope_legacy_signup_overview.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v231_assertions.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v233_legacy_scope_assertions.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v234_mail_partner_fixture.sql
+          # Test the exact contact-table/RPC section, without unrelated historical migrations.
+          awk '/^-- The age range is supplied/{exit} {print}' supabase/migrations/20261104_gcc_v218_partner_contact.sql | psql -v ON_ERROR_STOP=1
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261104_gcc_v219_host_join_email_outbox.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261105_gcc_v2191_claim_email_recipient_text.sql
+          psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v234_mail_partner_assertions.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_fixture.sql
           psql -v ON_ERROR_STOP=1 -f sql/gcc_v232_restrict_trigger_execute.sql
           psql -v ON_ERROR_STOP=1 -f tests/sql/gcc_v232_trigger_assertions.sql
