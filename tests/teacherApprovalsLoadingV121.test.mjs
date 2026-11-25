@@ -9,7 +9,7 @@ test('new teacher form initializer only runs on the signup form, not admin appro
  assert.match(join,/document\.querySelector\('\.gcc120-join\[aria-label=/);
  assert.match(join,/Join Global Classroom/);
  assert.doesNotMatch(join,/document\.querySelector\('\.gcc120-join'\)/);
- assert.match(admin,/class="gcc120-join gcc120-admin"/);
+ assert.match(admin,/class="gcc120-join gcc120-admin gcc226-admin"/);
 });
 test('approval admin page initializes after signup handler and displays failures, not infinite Loading',()=>{
  assert.ok(app.indexOf('bindTeacherJoinV120();')>=0);

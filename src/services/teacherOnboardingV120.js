@@ -3,7 +3,7 @@ import {compressTeacherPhotoV116,webpPhotoPathV116} from '../lib/teacherWebpV116
 const api=()=>{if(!supabase)throw Error('Global Classroom database connection is unavailable.');return supabase;};
 const rpc=async(name,args={})=>{const {data,error}=await api().rpc(name,args);if(error)throw error;return data;};
 export async function signupAccountV120(email,password){
- const {data,error}=await api().auth.signUp({email:email.trim().toLowerCase(),password});if(error)throw error;return data;
+ const {data,error}=await api().auth.signUp({email:email.trim().toLowerCase(),password,options:{data:{gcc_registration_source:'global-classroom-connect'}}});if(error)throw error;return data;
 }
 export async function resendConfirmationV135(email){
  const {data,error}=await api().auth.resend({type:'signup',email:email.trim().toLowerCase()});

@@ -1,3 +1,4 @@
+import {rosterSubmissionErrorV236} from '../../lib/rosterAdmissionV236.js';
 import {renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
 import '../../styles/sessionPlannerV203.css';
 import {bindRegistrationPairsV165} from '../../lib/registrationPairsV165.js';
@@ -101,7 +102,7 @@ export function bindSharedRegistrationPage(){
      $('gcc-v8-footer').hidden=true;
      $('gcc-v8-title').textContent='Your class is registered!';
      message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, open the session room chart and use your 4-digit Teacher Code in Teacher Mode to add, correct, or remove students and adjust rooms.`);$('gcc-v8-error').after(ok);
-   }catch(err){const original=err.message||'Please try again.';message(/already registered for this session/i.test(original)?'Your school is already registered. To edit or add students, open the breakout room chart and use Teacher Mode with your personal 4-digit code. Ask the host for the code if needed.':original);sending=false;b.disabled=false;}
+   }catch(err){message(rosterSubmissionErrorV236(err));sending=false;b.disabled=false;}
  });
  show(0);
  (async()=>{try{const [sessions,res]=await Promise.all([listPublicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
