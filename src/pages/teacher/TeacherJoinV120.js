@@ -4,6 +4,7 @@ import '../../styles/teacherSignupRecoveryV135.css';
 import '../../styles/teacherSignupIdentityV139.css';
 import '../../styles/teacherSignupSimplifiedV140.css';
 import '../../styles/teacherBioLimitV141.css';
+import '../../styles/teacherSignupLaunchV229.css';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {supabase} from '../../services/supabase.js';
 import {countries} from '../../data/countries.js';
@@ -14,7 +15,7 @@ import {assertApplicantIdentityV139,assertEditableDraftV139} from '../../lib/tea
 const safe=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page"><section class="gcc120-join gcc140-join" aria-label="Join Global Classroom">
  <a class="gcc120-back" href="#/welcome">← Global Classroom Connect</a>
- <div class="gcc120-title gcc140-title"><span>GLOBAL CLASSROOM CONNECT · TEACHER REGISTRATION</span><h1>Join Global Classroom</h1><p>Bring your classroom closer to the world.</p></div>
+ <div class="gcc120-title gcc140-title"><span>GLOBAL CLASSROOM CONNECT · TEACHER REGISTRATION</span><h1>Join Global Classroom</h1><p>Bring your classroom closer to the world.</p><p class="gcc229-steps">1. Create an account → 2. Confirm your email → 3. Introduce your school → 4. Get approved and connect.</p></div>
  <p class="gcc120-message" id="gcc120-msg" role="status" aria-live="polite"></p>
  <div id="gcc139-account-banner" class="gcc139-account-banner" role="status" aria-live="polite" hidden><span id="gcc139-account-email"></span><button type="button" id="gcc139-switch-account" class="gcc120-secondary">Switch account</button></div>
  <section id="gcc120-account-step" class="gcc120-panel gcc140-account-panel">
@@ -58,11 +59,11 @@ export function TeacherJoinV120(){return `<main class="gcc120-page gcc140-page">
   <label>Country *<select id="gcc120-country" required><option value="">Choose country</option></select></label>
   <label>City *<input id="gcc120-city" required minlength="2" maxlength="120"></label>
   <label>Region / prefecture / state (optional)<input id="gcc120-region" minlength="2" maxlength="120"></label>
-  <label>School time zone (IANA) *<input id="gcc120-timezone" required placeholder="Asia/Tokyo" list="gcc120-zones"></label>
+  <label>School time zone *<input id="gcc120-timezone" required placeholder="e.g. Asia/Tokyo, Asia/Manila" list="gcc120-zones"><small>Use the time zone where your school is located, even when you are travelling. This keeps session times correct around the world.</small></label>
   <datalist id="gcc120-zones"></datalist>
   <button type="submit" id="gcc120-submit" class="gcc120-primary gcc140-action">Submit for approval →</button>
   </form></section>
- <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-primary gcc120-inline" hidden>Continue to Facilitator registration →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
+ <section id="gcc120-status-step" class="gcc120-panel" hidden><h2 id="gcc120-status-title">Your application</h2><p id="gcc120-status-text"></p><a href="#/teacher-portal?view=home" id="gcc229-open-teacher-space" class="gcc120-primary gcc120-inline" hidden>Open My Teacher Space →</a><a href="#/teacher-portal?view=volunteer" id="gcc132-facilitator-next" class="gcc120-secondary gcc120-inline" hidden>Optional: Become a Facilitator →</a><a href="#/welcome" class="gcc120-secondary gcc120-inline">Return to GCC home</a></section>
  </section></main>`;}
 export function bindTeacherJoinV120(){
  const root=document.querySelector('.gcc120-join[aria-label="Join Global Classroom"]');if(!root)return;
@@ -97,8 +98,8 @@ export function bindTeacherJoinV120(){
   const zones=$('gcc120-zones');try{for(const name of Intl.supportedValuesOf('timeZone'))zones.append(new Option(name,name));}catch{zones.append(new Option('Asia/Tokyo','Asia/Tokyo'));}
   $('gcc120-timezone').value=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Tokyo';
  }
- function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
-  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Next: register as a Breakout Room Facilitator or GC Host using your approved teacher profile. This does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
+ function status(kind){setStep('status');$('gcc132-facilitator-next').hidden=kind!=='approved';$('gcc229-open-teacher-space').hidden=kind!=='approved';$('gcc120-status-title').textContent=kind==='pending'?'Application received ✓':kind==='approved'?'Your account is approved!':'Application status: '+kind;
+  $('gcc120-status-text').textContent=kind==='pending'?'A Global Classroom admin will review your application. We will email you when your teacher account is approved. You can then sign in to GCC and explore international exchange opportunities. If the email does not arrive, check your spam folder or sign in to check your status.':kind==='approved'?'Your teacher account is ready. Open Teacher Space to find a partner, request to join a session, or create your own. Becoming a Facilitator is optional and does not grant Host Admin access.':'Contact Global Classroom if you need assistance.';}
  async function ready(){
   const serial=++readySequence,user=await currentUserV120();if(serial!==readySequence)return;
   draft=null;activeDraftUserId=null;displayActiveAccount(user);
