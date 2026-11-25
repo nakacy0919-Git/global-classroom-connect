@@ -1,10 +1,11 @@
+import {createRosterBotWidgetV239} from '../../lib/rosterBotWidgetV239.js';
 import {rosterSubmissionErrorV236} from '../../lib/rosterAdmissionV236.js';
 import {renderSessionDetailsV203} from '../../lib/sessionPlannerV203.js';
 import '../../styles/sessionPlannerV203.css';
 import {bindRegistrationPairsV165} from '../../lib/registrationPairsV165.js';
 import '../../styles/simpleSessionsV8.css';
 import {parseSimpleRoster,parseSimpleFacilitators,englishName} from '../../lib/simpleRoster.js';
-import {listPublicSessions,submitSharedRoster,rosterIdentityV238,verifiedRosterPolicyV238} from '../../services/simpleSessionService.js';
+import {listPublicSessions,submitSharedRoster,rosterIdentityV238,verifiedRosterPolicyV238,rosterBotPolicyV239,verifyRosterBotV239} from '../../services/simpleSessionService.js';
 import {deviceRequirementMarkupV158,bindDeviceRequirementV158} from '../../lib/registrationDeviceGateV158.js';
 import {timeConfirmationMarkupV160,bindTimeConfirmationV160} from '../../lib/registrationTimeGateV160.js';
 const $=id=>document.getElementById(id);
@@ -42,6 +43,7 @@ export function SharedRegistrationPage(){return `
   </div>
   <div class="gcc-v8-stage" data-v8-stage="3" hidden>
     <div id="gcc-v8-review" class="gcc-v8-review"></div><section class="gcc-v165-pairs" data-v165-pairs><h3>Would you like to pair students in breakout rooms?</h3><p class="gcc-v165-note">Optional: request pairs and a preferred room. The host confirms assignments after approval.</p><div class="gcc-v165-choice"><label><input type="radio" name="gcc-v165-pair-choice" data-v165-no checked> No, finish registration</label><label><input type="radio" name="gcc-v165-pair-choice" data-v165-yes> Yes, set up pairs</label></div><div data-v165-editor hidden><div data-v165-list></div><button type="button" data-v165-add>+ Add a student pair</button><p class="gcc-v165-note" data-v165-note></p></div></section>
+    <div id="gcc-v239-bot-panel" hidden><p id="gcc-v239-bot-status" role="status" aria-live="polite"></p><div id="gcc-v239-bot-widget"></div><button id="gcc-v239-bot-retry" type="button" class="gcc-v8-secondary" hidden>Retry security check</button></div>
   </div>
   <p role="alert" aria-live="polite" class="gcc-v8-error" id="gcc-v8-error"></p>
   <footer class="gcc-v8-footer" id="gcc-v8-footer">
@@ -97,6 +99,27 @@ export function bindSharedRegistrationPage(){
    if(root.isConnected)$('gcc-v238-status').textContent='Your profile could not be checked. Sign in using the link above, then try again. Your entered roster is unchanged.';
   }finally{button.disabled=false;}
  });
+ const botWidget=createRosterBotWidgetV239({mount:$('gcc-v239-bot-widget'),status:$('gcc-v239-bot-status'),retry:$('gcc-v239-bot-retry'),sitekey:import.meta.env.VITE_GCC_ROSTER_TURNSTILE_SITEKEY});
+ let botPolicy=null,botGeneration=0;
+ function clearBotPolicy(){botGeneration++;botPolicy=null;botWidget.clear();$('gcc-v239-bot-panel').hidden=true;}
+ async function checkBotPolicy(){
+  clearBotPolicy();const generation=botGeneration,eventId=current()?.id;
+  const b=$('gcc-v8-submit');b.disabled=true;
+  $('gcc-v239-bot-panel').hidden=false;$('gcc-v239-bot-status').textContent='Checking security requirements…';
+  try{
+   const required=await rosterBotPolicyV239(eventId);
+   if(!root.isConnected||generation!==botGeneration||step!==3)return;
+   if(typeof required!=='boolean')throw Error('Invalid policy');
+   botPolicy=required;
+   if(required)void botWidget.show(eventId);else $('gcc-v239-bot-panel').hidden=true;
+  }catch(err){
+   if(!root.isConnected||generation!==botGeneration||step!==3)return;
+   // Only a confirmed missing staged RPC is compatible with the pre-migration server.
+   // The server-side INSERT trigger remains the authority, never a client fallback.
+   if(err?.code==='PGRST202'){botPolicy=false;$('gcc-v239-bot-panel').hidden=true;}
+   else $('gcc-v239-bot-status').textContent='Security requirements could not be checked. Go back and retry; your roster is unchanged.';
+  }finally{if(root.isConnected&&generation===botGeneration&&step===3)b.disabled=botPolicy===null;}
+ }
  const pairPicker=bindRegistrationPairsV165(root,{getStudents:()=>roster().records,getSession:()=>current()});
  function preview(){const r=roster();$('gcc-v8-roster-count').textContent=`${r.records.length} students${r.errors.length?` · ${r.errors.length} lines to fix`:''}`;
    const p=$('gcc-v8-preview');p.replaceChildren();
@@ -114,7 +137,7 @@ export function bindSharedRegistrationPage(){
    $('gcc-v8-progress').replaceChildren(...[0,1,2,3].map(i=>{const x=el('span',i<=n?'active':'');return x;}));
    $('gcc-v8-back').hidden=n===0;$('gcc-v8-next').hidden=n===3;$('gcc-v8-submit').hidden=n!==3;
    if(n===1)void checkPolicy();
-   if(n===2)preview();if(n===3){review();pairPicker.refresh();}
+   if(n===2)preview();if(n===3){review();pairPicker.refresh();void checkBotPolicy();}else clearBotPolicy();
  }
  function validate(n){if(n===0&&!current())return 'Please choose a session.';
    if(n===1){const invite=$('gcc-v237-invite').value.trim();if(invite&&!/^[a-f0-9]{64}$/.test(invite))return 'Please paste the full invitation code from your host.';if(!$('gcc-v8-country').value)return 'Choose your country.';if($('gcc-v8-school').value.trim().length<2)return 'Enter your school name.';
@@ -131,15 +154,17 @@ export function bindSharedRegistrationPage(){
  $('gcc-v8-event').addEventListener('change',()=>{$('gcc-v8-session-date').textContent=current()?`📅 ${format(current().starts_at)} · Your local time`:'';details();});
  $('gcc-v8-submit').addEventListener('click',async()=>{
    if(sending)return;for(let i=0;i<4;i++){const err=validate(i);if(err){show(i);message(err);return;}}
-   sending=true;const b=$('gcc-v8-submit');b.disabled=true;message('Submitting…');
-   try{const receipt=await submitSharedRoster({eventId:current().id,invite:$('gcc-v237-invite').value.trim(),teacher:$('gcc-v8-teacher').value.trim(),school:$('gcc-v8-school').value.trim(),countryCode:$('gcc-v8-country').value,countryName:countries.get($('gcc-v8-country').value).name,students:roster().records,facilitators:facs().records,pairs:pairPicker.getPairs()});
-     $('gcc-v237-invite').value='';
+   if(botPolicy===null){message('Security requirements could not be checked. Go back and retry.');return;}
+   sending=true;const b=$('gcc-v8-submit');b.disabled=true;$('gcc-v8-back').disabled=true;message('Submitting…');
+   try{const eventId=current().id;const botReceipt=botPolicy?await verifyRosterBotV239(eventId,botWidget.takeToken(eventId)):undefined;
+    const receipt=await submitSharedRoster({eventId,botReceipt,invite:$('gcc-v237-invite').value.trim(),teacher:$('gcc-v8-teacher').value.trim(),school:$('gcc-v8-school').value.trim(),countryCode:$('gcc-v8-country').value,countryName:countries.get($('gcc-v8-country').value).name,students:roster().records,facilitators:facs().records,pairs:pairPicker.getPairs()});
+     clearBotPolicy();$('gcc-v237-invite').value='';
      root.querySelector('.gcc-v8-steps').hidden=true;root.querySelector('#gcc-v8-subtitle').hidden=true;
      for(const e of root.querySelectorAll('.gcc-v8-stage'))e.hidden=true;
      $('gcc-v8-footer').hidden=true;
      $('gcc-v8-title').textContent='Your class is registered!';
      message('');const ok=el('div','gcc-v8-success',`✓ Thank you. Your host will review ${roster().records.length} students. Confirmation: ${String(receipt).slice(0,8)}. Your pair requests will be reviewed by the host. After approval, open the session room chart and use your 4-digit Teacher Code in Teacher Mode to add, correct, or remove students and adjust rooms.`);$('gcc-v8-error').after(ok);
-   }catch(err){if(['GCC_INVITE_REQUIRED','GCC_INVITE_INVALID','GCC_VERIFIED_TEACHER_REQUIRED','GCC_ROSTER_IDENTITY_MISMATCH'].includes(err?.message))show(1);message(rosterSubmissionErrorV236(err));sending=false;b.disabled=false;}
+   }catch(err){if(['GCC_INVITE_REQUIRED','GCC_INVITE_INVALID','GCC_VERIFIED_TEACHER_REQUIRED','GCC_ROSTER_IDENTITY_MISMATCH'].includes(err?.message))show(1);message(rosterSubmissionErrorV236(err));sending=false;b.disabled=false;$('gcc-v8-back').disabled=false;if(step===3){if(botPolicy)botWidget.refresh();else if(err?.message==='GCC_BOT_REQUIRED')void checkBotPolicy();}}
  });
  show(0);
  (async()=>{try{const [sessions,res]=await Promise.all([listPublicSessions(),fetch(`${import.meta.env.BASE_URL}country-master.json`)]);
