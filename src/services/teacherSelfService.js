@@ -1,4 +1,5 @@
 import {supabase} from './supabase.js';
+import {collectTeacherSessionsV231} from '../lib/teacherSessionPaginationV231.js';
 const client=()=>{if(!supabase)throw Error('Supabase is not configured.');return supabase;};
 async function rpc(name,args={}){
   const {data,error}=await client().rpc(name,args);
@@ -8,7 +9,14 @@ async function rpc(name,args={}){
 export async function issueTeacherInvite(teacherId){return rpc('gcc_issue_teacher_invite',{p_teacher_id:teacherId});}
 export async function claimTeacherInvite(token){return rpc('gcc_claim_teacher_invite',{p_token:token.trim().toLowerCase()});}
 export async function teacherIdentity(){return rpc('gcc_teacher_identity');}
-export async function teacherSessions(){return rpc('gcc_teacher_browse_sessions');}
+export async function teacherSessions(){
+ return collectTeacherSessionsV231({
+  getPage:({afterStart,afterId,limit})=>rpc('gcc_v231_teacher_browse_sessions_page',{
+   p_after_start:afterStart,p_after_id:afterId,p_limit:limit
+  }),
+  getLegacy:()=>rpc('gcc_teacher_browse_sessions')
+ });
+}
 export async function teacherRequests(){return rpc('gcc_teacher_list_requests');}
 export async function teacherPartnerContactsV218(requestId){
  return rpc('gcc_v218_partner_contacts',{p_request_id:requestId});
