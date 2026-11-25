@@ -41,6 +41,7 @@ export function bindWizardViewportV243(dialog,body,{viewport=window.visualViewpo
   dialog.toggleAttribute('data-gcc243-short',v.available<200);
   dialog.toggleAttribute('data-gcc243-editing',editing);
   if(done)done.hidden=!editing||!v.compact;
+  if(v.compact)keepFieldVisible();
   if(frame)cancelAnimationFrame(frame);
   frame=requestAnimationFrame(()=>{frame=0;if(active&&dialog.open&&v.compact)keepFieldVisible();});
  }
