@@ -12,7 +12,7 @@ try{
  $('gctp-theme').addEventListener('change',()=>$('gctp-sdg-wrap').hidden=$('gctp-theme').value!=='SDGs');
  let wizard,group=0,closeCount=0;
  const viewport=new EventTarget();Object.assign(viewport,{width:innerWidth,height:innerHeight,offsetLeft:0,offsetTop:0});
- const frame=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+ const frame=()=>new Promise(resolve=>setTimeout(resolve,60));
  const groupChanged=g=>{group=g;for(const s of root.querySelectorAll('[data-gctp-form-section]'))s.hidden=Number(s.dataset.gctpFormSection)!==g;wizard.sync(g)};
  wizard=mountSessionWizardV242(root,{onGroup:groupChanged,canOpen:()=>true,isBusy:()=>false,onClose:async()=>{closeCount++;return true},viewportOptions:{viewport,layout:window}});
  $('gcc242-launch').disabled=false;groupChanged(0);$('gcc242-launch').click();
