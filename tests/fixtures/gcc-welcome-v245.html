@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="app"><main class="page-content public-page-content"></main></div><script type="module">
+import '/src/styles/global.css';
+import {WelcomeV117,bindWelcomeArtV173} from '/src/pages/public/WelcomeV117.js';
+import '/src/styles/academicPop.css';
+import '/src/styles/mobileExperienceV152.css';
+import '/src/styles/welcomeFitV156.css';
+import '/src/styles/welcomePracticeV169.css';
+import '/src/styles/i18nV157.css';
+import '/src/styles/welcomeButtonsV173.css';
+import '/src/styles/welcomeAccountV184.css';
+import '/src/styles/sessionFormWideV205.css';
+import '/src/styles/singleLanguageSwitcherV206.css';
+import '/src/styles/welcomeViewportV245.css';
+const check=(v,m)=>{if(!v)throw Error(m)};
+try{
+ document.querySelector('main').innerHTML=WelcomeV117();bindWelcomeArtV173();
+ const root=document.querySelector('.gcc117-welcome'),q=s=>root.querySelector(s),rect=e=>e.getBoundingClientRect();
+ const header=q('.gcc117-topbar'),intro=q('.gcc117-intro'),choices=q('.gcc117-choices'),footer=q('.gcc119-footer');
+ const cards=[...choices.querySelectorAll('a.gcc117-choice')];
+ const teacher=q('[data-gcc245-teacher]'),admin=q('[data-gcc245-admin]'),lang=q('[data-lang-select]');
+ check(teacher.getAttribute('href')==='#/teacher-access'&&admin.getAttribute('href')==='#/login','direct login destinations');
+ check(cards.length===4,'four original choices');
+ const within=(a,b)=>a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1;
+ const noOverlap=(a,b)=>a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1;
+ const verify=()=>{
+  const bounds=rect(root),cr=rect(choices);
+  check(rect(header).bottom+3<=rect(intro).top,'header/intro spacing');
+  check(rect(intro).bottom+3<=cr.top,'intro/choices spacing');
+  check(cr.bottom+3<=rect(footer).top,'choices/footer spacing');
+  for(const el of [teacher,admin,lang]){check(rect(el).height>=40&&rect(el).width>0,'visible touch-sized login/language');check(within(rect(el),bounds),'login within page');}
+  for(let i=0;i<cards.length;i++){
+   const r=rect(cards[i]);check(r.height>=55&&r.width>=55,'usable artwork size');
+   check(within(r,cr),'card contained in grid '+i);
+   check(within(rect(cards[i].querySelector('img')),r),'image contained '+i);
+   for(let j=0;j<i;j++)check(noOverlap(r,rect(cards[j])),'card overlap');
+  }
+  if(innerWidth>=621&&innerHeight>430){check(bounds.top>=0&&bounds.bottom<=innerHeight+1,'fits viewport');check(bounds.top<=7&&innerHeight-bounds.bottom<=7,'no outer vertical waste');}
+  if(innerWidth>=621&&innerHeight>innerWidth){check(Math.abs(rect(cards[0]).top-rect(cards[1]).top)<1&&rect(cards[2]).top>rect(cards[0]).bottom,'portrait 2x2');}
+ };
+ verify();
+ // Simulate signed-in controls without a live user or DB request.
+ q('.gcc184-guest-actions').hidden=true;q('.gcc184-user-menu').hidden=false;verify();
+ document.body.dataset.result='pass';
+}catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.message;document.body.append(p);}
+</script></body></html>
