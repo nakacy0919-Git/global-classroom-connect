@@ -33,5 +33,30 @@ jobs:
         run: node --test
       - name: Build production bundle
         run: npm run build
+
+      - name: Browser smoke test — sequential teacher session wizard
+        run: |
+          set -euo pipefail
+          browser=""
+          for bin in google-chrome-stable google-chrome chromium chromium-browser; do
+            if command -v "$bin" >/dev/null 2>&1; then browser="$bin"; break; fi
+          done
+          test -n "$browser"
+          npm run dev -- --host 127.0.0.1 --port 4175 --strictPort >/tmp/gcc242-vite.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:4175/tests/fixtures/gcc-session-wizard-v242.html >/dev/null; then break; fi
+            sleep .3
+          done
+          for viewport in 390,844 768,1024 1024,768 1440,900; do
+            result="$(timeout 40 "$browser" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-gpu --window-size="$viewport" --virtual-time-budget=12000 --dump-dom http://127.0.0.1:4175/tests/fixtures/gcc-session-wizard-v242.html 2>/dev/null)"
+            if [[ "$result" != *'data-result="pass"'* ]]; then
+              echo "FAIL: wizard viewport $viewport"
+              echo "$result" | grep -o '<pre id="fixture-error">[^<]*' || true
+              exit 1
+            fi
+            echo "PASS: all 11 wizard screens, retained inputs, draft, theme and platform choices, footer at $viewport"
+          done
       - name: Check whitespace errors
         run: git diff --check

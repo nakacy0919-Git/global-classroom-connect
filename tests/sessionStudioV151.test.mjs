@@ -14,7 +14,7 @@ test('Create Session is a guided four-step process without redundant progress ba
  assert.match(portal,/data-gctp-form-section="3"/);
  assert.match(portal,/id="gctp-form-step" aria-live="polite"/);
  assert.doesNotMatch(portal,/id="gctp-form-progress"/);
- assert.match(portal,/showFormStep\(Math\.min\(3,formStep\+1\)\)/);
+ assert.match(portal,/wizard\.go\(wizard\.index\(\)\+1\)/);
  assert.match(portal,/validateFormStep\(formStep\)/);
  assert.match(portal,/identity\.school/);
  assert.match(portal,/identity\.country/);

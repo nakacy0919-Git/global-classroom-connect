@@ -1,4 +1,6 @@
 import '../../styles/teacherSelfService.css';
+import '../../styles/sessionPopupWizardV242.css';
+import {mountSessionWizardV242} from '../../lib/sessionPopupWizardV242.js';
 import {prepareSuccessChime,showSuccessCelebration} from '../../lib/successCelebrationV142.js';
 import {teacherNetworkMarkupV116,mountTeacherNetworkV116} from './TeacherNetworkV116.js';
 import {teacherProfileMarkupV153,mountTeacherProfileV153} from './TeacherProfileV153.js';
@@ -6,10 +8,10 @@ import {myTeacherProfileV116,teacherDirectoryV116,signedTeacherPhotoV116} from '
 import {teacherIdentityCardV230,showTeacherProfileV230} from '../../lib/sessionFinderTeacherV230.js';
 import {volunteerMarkupV117,mountVolunteerV117} from './VolunteerV117.js';
 import {makeSlot,toUtc} from '../../lib/matching.js';
-import {mountPlanFieldsV203,readPlanV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
+import {mountPlanFieldsV203,readPlanV203,parseFlowV203,renderSessionDetailsV203,TYPE_LABEL_V203,SESSION_TYPES_V203} from '../../lib/sessionPlannerV203.js';
 import {hostCountryV208,hostEventsAsOffersV208,publishedByCountryV208,totalCapacityV208,scrollToCountryResultsV208} from '../../lib/sessionDiscoveryV208.js';
 import '../../styles/findSessionCompactV208.css';
-import {createFieldGuideV204} from '../../lib/sessionFieldGuideV204.js';
+import {createFieldGuideV204,errorFieldV204} from '../../lib/sessionFieldGuideV204.js';
 import '../../styles/sessionUxV204.css';
 import {listPublicSessionOverviews} from '../../services/simpleSessionService.js';
 import {uploadSessionFlyerV203} from '../../services/sessionPlanServiceV203.js';
@@ -62,15 +64,15 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <section class="gct-panel gct-home-list-v200" aria-label="My next sessions"><div class="gct-home-list-heading-v200"><h4>Your upcoming sessions</h4><a href="#/teacher-portal?view=create">Create Session →</a></div><div id="gctp-home-mine" class="gct-card-list"></div></section><details class="gct-panel gcc204-manage-sessions"><summary>Manage my hosted sessions</summary><div id="gctp-mine" class="gct-card-list"></div></details>
  </section>
  <div class="gct-section" data-gct-view="create" hidden><div class="gcs150-create">
+ <section class="gct-panel gcc242-launcher"><h3>Create a global classroom session</h3><p>One question at a time. Your saved draft is ready when you return.</p><button id="gcc242-launch" class="gct-primary" type="button" disabled>Start / resume session setup →</button></section>
+ <dialog id="gcc242-dialog" class="gcc242-dialog" aria-labelledby="gcc242-title">
  <form id="gctp-create" class="gct-panel gct-form gcs150-wizard" novalidate>
-  <div class="gct-section-head"><span>✦</span><div><h3>Create a global classroom session</h3><p>Four quick steps to bring the world into your classroom.</p></div></div>
-  <div class="gcs213-draft-tools" aria-label="Save your session draft">
-    <span id="gcs213-draft-status" role="status" aria-live="polite">Checking your draft…</span>
-    <button id="gcs213-save-draft" type="button" class="gct-secondary">Save draft</button>
-    <button id="gcs213-discard-draft" type="button" class="gct-secondary" hidden>Discard draft</button>
-   </div>
+  <header class="gcc242-head"><div class="gcc242-headrow"><h3 id="gcc242-title">Create a global classroom session</h3><button id="gcc242-close" type="button" aria-label="Save and close" title="Save and close">×</button></div>
+  <div class="gcc242-track" aria-hidden="true"><span id="gcc242-progress"></span></div>
    <nav class="gcs150-steps" aria-label="Session setup"><span data-gcs150-step-dot="0">1 · Basics</span><span data-gcs150-step-dot="1">2 · Format</span><span data-gcs150-step-dot="2">3 · Topics</span><span data-gcs150-step-dot="3">4 · Review</span></nav>
-  <p class="gcs151-step-status" id="gctp-form-step" aria-live="polite">Step 1 of 4 · Tell us when you can connect</p>
+  </header><div id="gcc242-body" class="gcc242-body">
+  <p class="gcs151-step-status" id="gctp-form-step" aria-live="polite">1 / 11</p>
+  <h4 id="gcc242-question" class="gcc242-question" tabindex="-1"></h4><p id="gcc242-hint" class="gcc242-hint"></p>
   <section class="gct-form-section" data-gctp-form-section="0">
    <div class="gcs150-intro"><h4>Plan your session</h4><p>No need to enter your school or teacher details again.</p></div>
    <div class="gcv216-start" aria-label="Optional ready-made session ideas">
@@ -105,8 +107,14 @@ export function TeacherPortalPage(){return `<section class="gct-workspace gct-po
    <div class="gcs150-intro"><h4>Ready to connect the world?</h4><p>Check the details. You can go back and change anything before publishing.</p></div><div class="gct-review" id="gctp-review"></div>
    <p class="gct-hint">Publishing makes this session visible to approved teachers. It does not automatically create a Zoom meeting or send invitations.</p>
   </section>
+  </div><footer class="gcc242-foot"><p id="gcc242-feedback" class="gcc242-feedback" role="status" aria-live="polite"></p>
+  <div class="gcs213-draft-tools" aria-label="Save your session draft">
+    <span id="gcs213-draft-status" role="status" aria-live="polite">Checking your draft…</span>
+    <button id="gcs213-save-draft" type="button" class="gct-secondary">Save draft</button>
+    <button id="gcs213-discard-draft" type="button" class="gct-secondary" hidden>Discard draft</button>
+   </div>
   <div class="gct-form-actions"><button type="button" id="gctp-back" class="gct-secondary" hidden>← Back</button><button type="button" id="gctp-next" class="gct-primary">Continue →</button><button class="gct-primary" id="gctp-publish" type="submit" hidden>Publish session ✓</button></div>
- </form>
+ </footer></form></dialog>
  </div></div>
  <div class="gct-section gcs151-find" data-gct-view="find" hidden>
   <header class="gcs151-find-hero">
@@ -262,7 +270,7 @@ export function bindTeacherPortalPage(){
   renderResults();
   scrollToCountryResultsV208($('gctp-results'));
  });
- const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);};
+ const inform=(value,error=false)=>{notice.textContent=value;notice.classList.toggle('error',error);$('gcc242-feedback').textContent=value;$('gcc242-feedback').classList.toggle('error',error);};
  const manager=mountSessionManagerV212(root,{
   identity:()=>identity,
   onSaved:async()=>{await refresh();inform('Session changes saved. Partner teachers can review the latest details.');},
@@ -270,10 +278,25 @@ export function bindTeacherPortalPage(){
  });
  const display=(id)=>{for(const view of root.querySelectorAll('[data-gct-view]'))view.hidden=view.dataset.gctView!==id;
    root.classList.toggle('gcs209-finding',id==='find');
-   root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');};
+   root.closest('.app-shell')?.classList.toggle('gcc123-volunteer-focus',id==='volunteer');if(id==='create')wizard.open();else wizard.close();};
  mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
  for(const [value,label] of SESSION_TYPES_V203){const o=element('option','',label);o.value=value;$('gctp-find-type').append(o);}
  const guide=createFieldGuideV204(root,$('gctp-create'));
+ const canCreate=()=>Boolean(identity?.timezone&&$('gctp-zone').value&&draftReady&&!publishing);
+ const wizard=mountSessionWizardV242(root,{onGroup:showFormStep,canOpen:canCreate,isBusy:()=>publishing||!draftReady,onClose:async()=>{
+  await draftChain;
+  if(draftDirty&&!await saveDraft(true)){
+   inform('Draft could not be saved. Please check your connection.',true);
+   return confirm('Your latest changes could not be saved. Close setup anyway?');
+  }
+  return true;
+ }});
+ const revealError=(message,step)=>{
+  const target=/agenda|timed activit|activity after|session hours|activities in time order/i.test(message)?$('gctp-flow'):
+   /meeting link|HTTPS/i.test(message)?$('gctp-meeting'):errorFieldV204(message,root,'gctp');
+  if(target)wizard.reveal(target);
+  guide.show(message,formStep,'gctp',target);
+ };
  const selectedLevels=()=>[...root.querySelectorAll('input[name="gctp-target-level"]:checked')].map(x=>x.value);
  const selectedMode=()=>root.querySelector('input[name="gctp-mode"]:checked')?.value||'classroom';
  const sessionTopic=()=>[$('gctp-theme').value,$('gctp-topic').value.trim()].filter(Boolean).join(' · ').slice(0,120);
@@ -287,7 +310,7 @@ export function bindTeacherPortalPage(){
    $('gctp-sdg').value='';
    $('gctp-sdg-wrap').hidden=starter.theme!=='SDGs';
    scheduleDraft();
-   $('gctp-date').focus();
+   $('gctp-name').focus();
   });
  }
  const detailsPayload=()=>{
@@ -323,9 +346,10 @@ export function bindTeacherPortalPage(){
     ['Partner levels',selectedLevels().join(', ')],['Theme',sessionTopic()],
     ['SDG',$('gctp-theme').value==='SDGs'&&$('gctp-sdg').value?`SDG ${$('gctp-sdg').value} · ${GCC_SDG_V150[Number($('gctp-sdg').value)-1]}`:''],
     ['Languages',$('gctp-language').value.trim()],['English level',$('gctp-english').value],
-    ['Type',TYPE_LABEL_V203($('gctp-type').value)],['Platform',$('gctp-platform').selectedOptions[0]?.textContent],['Full agenda',$('gctp-flow').value]
+    ['Type',TYPE_LABEL_V203($('gctp-type').value)],['Preferred countries',$('gctp-countries').value],['Accepted ages',$('gctp-minage').value+'–'+$('gctp-maxage').value],['Grades',$('gctp-grades').value],['Objectives and preparation details',$('gctp-description').value],['Platform',$('gctp-platform').selectedOptions[0]?.textContent],['Breakout setup',$('gctp-breakout').selectedOptions[0]?.textContent],['Platform controls',$('gctp-platform-option').selectedOptions[0]?.textContent],['Registration closes',$('gctp-deadline').value.replace('T',' ')+' ('+(identity?.timezone||'')+')'],['Full agenda',$('gctp-flow').value],['Notes to partner teachers',$('gctp-notes').value],['Optional flyer',$('gctp-flyerfile').files?.[0]?.name||(cloneFlyerUrl?'Existing flyer':'')]
    ].filter(([,v])=>v)){const row=element('div','gct-review-line');row.append(element('span','',label),element('strong','',value));review.append(row);}
   }
+  wizard.sync(index);
  }
  function validateFormStep(i){
   if(!identity)return 'Teacher profile not loaded yet.';
@@ -346,8 +370,35 @@ export function bindTeacherPortalPage(){
   if(option.value==='classroom'&&$('gctp-rooms').value==='4')$('gctp-rooms').value='1';
   if(option.value==='device'&&$('gctp-rooms').value==='1')$('gctp-rooms').value='4';
  });
- $('gctp-next').addEventListener('click',()=>{const error=validateFormStep(formStep);if(error){inform(error,true);guide.show(error,formStep);return;}guide.clear();inform('');showFormStep(Math.min(3,formStep+1));});
- $('gctp-back').addEventListener('click',()=>{guide.clear();inform('');showFormStep(Math.max(0,formStep-1));});
+ function validateScreen(){
+  const i=wizard.index();
+  if(i===0&&$('gctp-name').value.trim().length<3)return 'Please enter a session name (at least 3 characters).';
+  if(i===1||i===4||i===9)return validateFormStep(formStep);
+  if(i===3){
+   const n=Number($('gctp-students').value),cap=Number($('gctp-capacity').value),rooms=Number($('gctp-rooms').value);
+   if(!Number.isInteger(n)||n<1||n>500)return 'Enter 1 to 500 students from your own school.';
+   if(!Number.isInteger(cap)||cap<n||cap>2000)return 'Maximum total participants must include your own students (up to 2000).';
+   if(!Number.isInteger(rooms)||rooms<1||rooms>100)return 'Enter 1 to 100 breakout rooms.';
+  }
+  if(i===6){
+   const min=Number($('gctp-minage').value),max=Number($('gctp-maxage').value);
+   if(!Number.isInteger(min)||!Number.isInteger(max)||min<5||max>30||min>max)return 'Accepted ages must be between 5 and 30, with minimum no greater than maximum.';
+  }
+  if(i===7){
+   try{parseFlowV203($('gctp-flow').value,$('gctp-from').value,$('gctp-to').value);}catch(e){return e.message;}
+   if($('gctp-description').value.trim().length<25)return 'Write at least 25 characters describing objectives and preparations.';
+  }
+  if(i===8&&$('gctp-meeting').value.trim()){
+   try{const u=new URL($('gctp-meeting').value.trim());if(u.protocol!=='https:'||u.username||u.password)throw Error();}catch{return 'Please use a valid HTTPS meeting link.';}
+  }
+  return '';
+ }
+ $('gctp-next').addEventListener('click',()=>{
+  if(!canCreate())return;
+  const error=validateScreen();if(error){inform(error,true);revealError(error,formStep);return;}
+  guide.clear();inform('');wizard.go(wizard.index()+1);scheduleDraft();
+ });
+ $('gctp-back').addEventListener('click',()=>{if(publishing)return;guide.clear();inform('');wizard.go(wizard.index()-1);scheduleDraft();});
  const upcoming=()=>offers.filter(o=>new Date(o.ends_at).getTime()>Date.now());
  async function refresh(){
   const [mine,applications,publicEvents,inbox,directory]=await Promise.all([
@@ -414,7 +465,7 @@ export function bindTeacherPortalPage(){
    if(!persisted)inform('Copy loaded, but it has not synced to your account yet.',true);
    else inform('Session copied. Choose a new date and registration deadline before publishing.');
    window.history.replaceState(null,'','#/teacher-portal?view=create');
-  }finally{draftReady=true;}
+  }finally{draftReady=true;wizard.open();}
  }
  function partnerPreviewV226(o){
   const preview=element('details','gcs226-partner-preview');
@@ -771,17 +822,18 @@ export function bindTeacherPortalPage(){
    $('gctp-host-identity').textContent=`${identity.name} · ${identity.country}`;
   });
   if(view==='network')await mountTeacherNetworkV116(root);
-  if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}}
+  if(!networkProfile?.timezone){$('gctp-zone').value='';$('gctp-next').disabled=true;inform('Your school time zone is missing. Ask the host to set it before publishing a session.',true);}}catch(e){inform(e.message||'Could not load teacher profile.',true);}finally{$('gcc242-launch').disabled=!canCreate();if(view==='create')wizard.open();}}
  $('gctp-create').addEventListener('input',scheduleDraft);
  $('gctp-create').addEventListener('change',scheduleDraft);
  $('gcs213-save-draft').addEventListener('click',async()=>{
-  if(!identity)return;
+  if(!canCreate())return;
   draftDirty=true;draftRevision++;
   const saved=await saveDraft(true);
   if(saved)inform('Draft saved privately to your teacher account.');
   else inform('Draft could not be saved. Please check your connection.',true);
  });
  $('gcs213-discard-draft').addEventListener('click',async()=>{
+  if(!canCreate())return;
   if(!confirm('Discard your saved session draft? This cannot be undone.'))return;
   draftReady=false;
   if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}
@@ -801,14 +853,15 @@ export function bindTeacherPortalPage(){
   }catch(e){draftStatus('Could not discard draft: '+(e.message||'Try again.'));}
   finally{draftReady=true;}
  });
- $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!identity)return;
+ $('gctp-create').addEventListener('submit',async e=>{e.preventDefault();if(!canCreate()||wizard.index()!==10||!wizard.isOpen())return;
    const slot=makeSlot({date:$('gctp-date').value,startTime:$('gctp-from').value,endTime:$('gctp-to').value,timezone:identity.timezone});
-   if(slot.error){inform(slot.error,true);guide.show(slot.error,0);return;}if(Date.parse(slot.startsAt)<=Date.now()){inform('Choose a future date and time.',true);guide.show('Choose a future date and time.',0);return;}
-   for(let step=0;step<3;step++){const error=validateFormStep(step);if(error){showFormStep(step);inform(error,true);guide.show(error,step);return;}}
-   let plan;try{plan=detailsPayload();}catch(err){showFormStep(2);inform(err.message,true);guide.show(err.message,2);return;}
+   if(slot.error){showFormStep(0);inform(slot.error,true);revealError(slot.error,0);return;}if(Date.parse(slot.startsAt)<=Date.now()){showFormStep(0);inform('Choose a future date and time.',true);revealError('Choose a future date and time.',0);return;}
+   for(let step=0;step<3;step++){const error=validateFormStep(step);if(error){showFormStep(step);inform(error,true);revealError(error,step);return;}}
+   let plan;try{plan=detailsPayload();}catch(err){showFormStep(2);inform(err.message,true);revealError(err.message,2);return;}
    const data={zone:identity.timezone,students:Number($('gctp-students').value),rooms:Number($('gctp-rooms').value),band:$('gctp-band').value,topic:sessionTopic(),notes:$('gctp-notes').value.trim(),details:plan};
-   if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){showFormStep(1);inform('Check student and room counts.',true);guide.show('Check student count',1);return;}
+   if(!Number.isInteger(data.students)||data.students<1||data.students>500||!Number.isInteger(data.rooms)||data.rooms<1||data.rooms>100){showFormStep(1);inform('Check student and room counts.',true);revealError('Check student count',1);return;}
    const btn=$('gctp-publish');btn.disabled=true;publishing=true;
+   for(const id of ['gcc242-close','gctp-back','gcs213-save-draft','gcs213-discard-draft'])$(id).disabled=true;
    let created=false;
    try{
     const flyer=$('gctp-flyerfile').files?.[0];
@@ -842,7 +895,7 @@ export function bindTeacherPortalPage(){
     const defaultCheck=root.querySelector(`input[name="gctp-target-level"][value="${defaultLevel}"]`);
     if(defaultCheck)defaultCheck.checked=true;
     $('gctp-sdg-wrap').hidden=true;
-    showFormStep(0);display('create');
+    showFormStep(0);wizard.close();display('create');
     let refreshError=null;
     try{await refresh();}
     catch(error){refreshError=error;}
@@ -865,8 +918,8 @@ export function bindTeacherPortalPage(){
    catch(err){
     const msg=err.message||'Could not publish the session.';
     inform(created?'Session was saved, but a later step failed. Do not publish it again; check Manage my hosted sessions.':msg,true);
-    if(!created){showFormStep(2);guide.show(msg,2);}
-   }finally{publishing=false;btn.disabled=false;}
+    if(!created){showFormStep(2);revealError(msg,2);}
+   }finally{publishing=false;btn.disabled=false;for(const id of ['gcc242-close','gctp-back','gcs213-save-draft','gcs213-discard-draft'])$(id).disabled=false;}
  });
  $('gcs213-show-more').addEventListener('click',()=>{visibleCount=Math.min(500,visibleCount+12);renderResults();});
  $('gcs213-sort').addEventListener('change',()=>{visibleCount=12;renderResults();});

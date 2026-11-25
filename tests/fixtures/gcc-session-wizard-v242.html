@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><main id="app"></main><script type="module">
+import {TeacherPortalPage} from '/src/pages/teacher/TeacherPortalPage.js';
+import {mountPlanFieldsV203} from '/src/lib/sessionPlannerV203.js';
+import {mountSessionWizardV242,WIZARD_SCREENS_V242,screenGroupV242} from '/src/lib/sessionPopupWizardV242.js';
+import {captureSessionDraftV213,applySessionDraftV213} from '/src/lib/sessionDraftV213.js';
+const check=(v,label)=>{if(!v)throw Error(label)};
+try{
+ const app=document.getElementById('app');app.innerHTML=TeacherPortalPage();
+ const root=app.querySelector('.gct-portal'),$=id=>root.querySelector('#'+id);
+ root.querySelector('[data-gct-view=create]').hidden=false;
+ mountPlanFieldsV203($('gctp-plan-slot'),'gctp');
+ $('gctp-theme').addEventListener('change',()=>$('gctp-sdg-wrap').hidden=$('gctp-theme').value!=='SDGs');
+ let wizard,group=0,closeCount=0;
+ const groupChanged=g=>{group=g;for(const s of root.querySelectorAll('[data-gctp-form-section]'))s.hidden=Number(s.dataset.gctpFormSection)!==g;wizard.sync(g)};
+ wizard=mountSessionWizardV242(root,{onGroup:groupChanged,canOpen:()=>true,isBusy:()=>false,onClose:async()=>{closeCount++;return true}});
+ $('gcc242-launch').disabled=false;groupChanged(0);$('gcc242-launch').click();
+ check($('gcc242-dialog').open,'native modal opens');
+ const visible=e=>!!e&&e.getClientRects().length>0;
+ check(visible($('gctp-name'))&&!visible($('gctp-date')),'name only');
+ $('gctp-name').value='Synthetic classroom exchange';
+ $('gctp-next').addEventListener('click',()=>wizard.go(wizard.index()+1));
+ $('gctp-back').addEventListener('click',()=>wizard.go(wizard.index()-1));
+ const fields=['gctp-name','gctp-date',null,'gctp-students','gctp-band','gctp-topic','gctp-minage','gctp-flow','gctp-platform','gctp-deadline','gctp-review'];
+ for(let i=0;i<WIZARD_SCREENS_V242.length;i++){
+  check(wizard.index()===i,'step index '+i);
+  check(group===screenGroupV242(i),'legacy group '+i);
+  check($('gctp-form-step').textContent===(i+1)+' / 11','progress '+i);
+  check(visible($('gctp-publish'))===(i===10),'publish only review '+i);
+  if(fields[i])check(visible($(fields[i])),'visible '+fields[i]);
+  if(i===5){
+   const card=root.querySelector('.gcc242-choice[data-value=SDGs]');check(visible(card),'theme card visible');card.click();
+   check($('gctp-theme').value==='SDGs'&&visible($('gctp-sdg')),'theme conditional field');
+   check(card.getAttribute('aria-pressed')==='true','selected card');
+  }
+  if(i===8){
+   $('gctp-platform').value='google_meet';$('gctp-platform').dispatchEvent(new Event('change',{bubbles:true}));
+   check([...$('gctp-platform-option').options].some(o=>o.value==='workspace'),'dynamic platform options');
+  }
+  const rect=$('gcc242-dialog').getBoundingClientRect(),foot=root.querySelector('.gcc242-foot').getBoundingClientRect();
+  check(rect.width<=innerWidth+1&&rect.height<=innerHeight+1,'modal viewport '+i);
+  check(foot.bottom<=innerHeight+2&&foot.top>=0,'footer visible '+i);
+  if(i<10)$('gctp-next').click();
+ }
+ $('gctp-back').click();check(wizard.index()===9,'back to deadline');
+ wizard.go(0);check($('gctp-name').value==='Synthetic classroom exchange','name retained');
+ const draft=captureSessionDraftV213($('gctp-create'),group);
+ check(draft.fields['gctp-theme']==='SDGs'&&draft.fields['gctp-platform']==='google_meet','canonical draft fields retained');
+ $('gctp-name').value='changed';check(applySessionDraftV213($('gctp-create'),draft),'draft restored');
+ check($('gctp-name').value==='Synthetic classroom exchange','draft name restored');
+ $('gcc242-close').click();await Promise.resolve();await Promise.resolve();
+ check(!$('gcc242-dialog').open&&closeCount===1,'save and close');
+ $('gcc242-launch').click();check($('gcc242-dialog').open,'reopen');
+ document.body.dataset.result='pass';
+}catch(e){document.body.dataset.result='fail';const p=document.createElement('pre');p.id='fixture-error';p.textContent=e.message;document.body.append(p);}
+</script></body></html>

@@ -28,7 +28,7 @@ test('teacher and host create session both use scroll, red outline, focus and cl
  for(const s of ['scrollIntoView','aria-invalid','gcc204-inline-error','focus({preventScroll:true})','form.addEventListener']){
   assert.ok(guide.includes(s),s);
  }
- for(const s of ["guide.show(error,formStep)","guide.show(err.message,2)","createFieldGuideV204"]){
+ for(const s of ["revealError(error,formStep)","revealError(err.message,2)","createFieldGuideV204"]){
   assert.ok(teacher.includes(s),s);
  }
  assert.match(host,/createGuide\.show/);assert.match(host,/createGuide\.clear/);

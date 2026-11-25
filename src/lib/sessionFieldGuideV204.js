@@ -54,9 +54,9 @@ export function createFieldGuideV204(root,form){
   // The server-side or semantic error is more specific than generic required fields.
   return mapped&&visible(mapped)?mapped:empty||mapped||container.querySelector('input,select,textarea');
  };
- const show=(message,step=0,prefix='gctp')=>{
+ const show=(message,step=0,prefix='gctp',preferred=null)=>{
   clear();
-  const target=targetFor(message,step,prefix);
+  const target=preferred&&visible(preferred)?preferred:targetFor(message,step,prefix);
   if(!target)return null;
   current=target;
   target.classList.add('gcc204-invalid');
