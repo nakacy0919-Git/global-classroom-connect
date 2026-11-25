@@ -56,6 +56,31 @@ Loading your school… | 学校情報を読み込み中…
 Sign out | ログアウト
 Create a global classroom session | 国際交流セッションを作成
 Four quick steps to bring the world into your classroom. | 4つのステップで、世界とつながる授業を始めましょう。
+One question at a time. Your saved draft is ready when you return. | 一つずつ質問に答えて進みます。保存した下書きから再開できます。
+Start / resume session setup → | セッション作成を開始・再開 →
+Save and close | 保存して閉じる
+What would you like to call your session? | セッションの名前は何にしますか？
+Pick a starting idea or enter your own session name. | 交流のアイデアを選ぶか、自由にセッション名を入力しましょう。
+When will your class connect? | いつ交流しますか？
+Set the date and times in your school’s local time. | 自分の学校の現地時間で開催日時を設定しましょう。
+How will students connect? | 生徒はどのように参加しますか？
+Choose the illustrated format that fits your classroom. | 教室に合った交流形式をイラストから選びましょう。
+How many students will participate? | 何人で交流しますか？
+Enter your own students, total capacity and number of rooms. | 自校の生徒数、全体の定員、部屋数を入力しましょう。
+Which students would you like to meet? | どの学齢の生徒と交流しますか？
+Select your school level and the partner levels you welcome. | 自校の学齢と希望する交流相手の学齢を選びましょう。
+What kind of exchange are you planning? | どのような国際交流にしますか？
+Choose the educational session type and theme. | 交流の形式とテーマを選びましょう。
+Who is your ideal exchange partner? | どのような交流相手を希望しますか？
+Specify ages, countries, languages and other preferences. | 年齢、国、言語などの希望を設定しましょう。
+What will students do during the session? | 生徒は交流で何をしますか？
+Describe the timed activities and the learning goals. | 活動の時間配分と学習目標を入力しましょう。
+How will you connect online? | どのオンライン会議サービスを使いますか？
+Choose the meeting platform and breakout settings. | 会議サービスとブレイクアウトルームの設定を選びましょう。
+When should registration close? | 参加申込の締切はいつにしますか？
+Set the deadline and add a flyer if you wish. | 申込締切を設定し、必要ならフライヤーを追加しましょう。
+Review and publish | 確認して公開
+Check the details before making your session discoverable. | 公開前にセッションの内容を確認しましょう。
 1 · Basics | 1 · 基本情報
 2 · Format | 2 · 交流形式
 3 · Topics | 3 · テーマ
