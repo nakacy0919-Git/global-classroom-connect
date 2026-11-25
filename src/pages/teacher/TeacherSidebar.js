@@ -1,6 +1,6 @@
 // GCC V20.0: everyday teacher actions first; optional community tools stay collapsed.
 import globalClassroomLogo from '../../assets/global-classroom-logo.png';
-const primary=[['requests','My Requests']];
+const primary=[['home','Teacher Home'],['create','Host a Session'],['find','Find a Session'],['requests','My Requests']];
 const secondary=[['profile','My Profile'],['network','Teacher Network'],['volunteer','Facilitator / GC Host']];
 const link=(id,label,view)=>`<a href="#/teacher-portal?view=${id}" class="route-link ${view===id?'active':''}" ${view===id?'aria-current="page"':''}>${label}</a>`;
 export function TeacherSidebar(){
