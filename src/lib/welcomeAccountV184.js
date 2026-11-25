@@ -9,7 +9,13 @@ export function bindWelcomeAccountNavV184(){
  const admin=root.querySelector('[data-gcc-admin-mode]'),teacher=root.querySelector('[data-gcc-teacher-mode]');
  teacher.setAttribute('href','#/teacher-portal?view=home');
  const profile=root.querySelector('[data-gcc-profile]'),note=root.querySelector('.gcc184-teacher-note');
-async function refresh(){
+ const teacherLink=root.querySelector('[data-gcc245-teacher]'),adminLink=root.querySelector('[data-gcc245-admin]');
+ function updateEntryLinks(access={}){
+  if(teacherLink){teacherLink.href=access.teacher?'#/teacher-portal?view=home':'#/teacher-access';teacherLink.querySelector('span').textContent=access.teacher?'Teacher Mode':'Teacher Login';}
+  if(adminLink){adminLink.href=access.admin?'#/sessions':'#/login';adminLink.querySelector('span').textContent=access.admin?'Admin Mode':'Admin Login';}
+ }
+ async function refresh(){
+   updateEntryLinks();
    guest.hidden=true;menu.hidden=true;
    let user=null;try{user=await getCurrentUser();}catch{}
    if(!root.isConnected)return;
@@ -17,7 +23,7 @@ async function refresh(){
    const [hostProfile,teacherProfile]=await Promise.all([getCurrentProfile().catch(()=>null),teacherIdentity().catch(()=>null)]);
    if(!root.isConnected)return;
    const access=menuAccess({signedIn:true,host:hostProfile?.role==='host',teacher:Boolean(teacherProfile)});
-   guest.hidden=!access.guest;menu.hidden=!access.account;
+   guest.hidden=!access.guest;menu.hidden=!access.account;updateEntryLinks(access);
    admin.hidden=!access.admin;teacher.hidden=!access.teacher;profile.hidden=!access.teacher;
    note.hidden=!access.admin||access.teacher;status.textContent='';
  }
