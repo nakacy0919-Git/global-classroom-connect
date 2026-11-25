@@ -88,6 +88,15 @@ jobs:
             fi
             echo "PASS: teacher operations registration, room edits, publication and participant permissions at $viewport"
           done
+          for viewport in 390,844 768,1024 1024,768 1440,900; do
+            result="$(timeout 40 "$browser" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-gpu --window-size="$viewport" --virtual-time-budget=12000 --dump-dom http://127.0.0.1:4175/tests/fixtures/gcc-admin-review-v250.html 2>/dev/null)"
+            if [[ "$result" != *'data-result="pass"'* ]]; then
+              echo "FAIL: admin review viewport $viewport"
+              echo "$result" | grep -o '<pre id="fixture-error">[^<]*' || true
+              exit 1
+            fi
+            echo "PASS: newest applicants first and rejection email draft at $viewport"
+          done
       - name: Check whitespace errors
         run: git diff --check
 
@@ -111,6 +120,6 @@ jobs:
         run: |
           set -euo pipefail
           db="${{ job.services.postgres.id }}"
-          for file in tests/sql/gcc_v248_operations_fixture.sql sql/gcc_v248_teacher_session_operations.sql tests/sql/gcc_v248_operations_assertions.sql tests/sql/gcc_v249_operations_fixture.sql sql/gcc_v249_teacher_operations_parity.sql tests/sql/gcc_v249_operations_assertions.sql; do
+          for file in tests/sql/gcc_v248_operations_fixture.sql sql/gcc_v248_teacher_session_operations.sql tests/sql/gcc_v248_operations_assertions.sql tests/sql/gcc_v249_operations_fixture.sql sql/gcc_v249_teacher_operations_parity.sql tests/sql/gcc_v249_operations_assertions.sql tests/sql/gcc_v250_review_fixture.sql sql/gcc_v250_application_verification.sql tests/sql/gcc_v250_review_assertions.sql; do
             docker exec -i "$db" psql -X -v ON_ERROR_STOP=1 -U postgres -d gcc_ops_ci < "$file"
           done
