@@ -58,11 +58,11 @@ BEGIN
  FOR g IN
   WITH pairs AS (SELECT (x->>0)::uuid a,(x->>1)::uuid b FROM jsonb_array_elements(p_pairs) x),
   people AS (SELECT * FROM gcc_ops_v248.people_v249(p_offer)),
-  groups AS (SELECT ARRAY[a,b] ids FROM pairs UNION ALL SELECT ARRAY[student_id] FROM people p WHERE NOT EXISTS(SELECT 1 FROM pairs q WHERE p.student_id IN(q.a,q.b)))
+  groups AS (SELECT ARRAY[a,b] ids FROM pairs UNION ALL SELECT ARRAY[person.student_id] FROM people person WHERE NOT EXISTS(SELECT 1 FROM pairs q WHERE person.student_id IN(q.a,q.b)))
   SELECT ids FROM groups ORDER BY cardinality(ids) DESC,ids[1]
  LOOP
   group_size:=cardinality(g.ids);best:=1;best_score:=9223372036854775807;
-  SELECT jsonb_agg(to_jsonb(p)) INTO group_people FROM gcc_ops_v248.people_v249(p_offer) p WHERE student_id=ANY(g.ids);
+  SELECT jsonb_agg(to_jsonb(person)) INTO group_people FROM gcc_ops_v248.people_v249(p_offer) person WHERE person.student_id=ANY(g.ids);
   FOR r IN 1..p_rooms LOOP
    c:=0;sc:=0;moves:=0;
    FOR p IN SELECT * FROM jsonb_to_recordset(group_people) AS x(student_id uuid,teacher_id uuid,student_no integer,country_code text,school_id uuid) LOOP
